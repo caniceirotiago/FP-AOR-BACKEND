@@ -52,6 +52,25 @@ public class UserEntity implements Serializable {
 
     @ManyToMany(mappedBy = "additionalExecuters")
     private Set<TaskEntity> tasksAsExecutor = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "user_skills",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<SkillEntity> skills = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "user_interests",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "interest_id")
+    )
+    private Set<InterestEntity> interests = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "laboratory_id")
+    private LaboratoryEntity laboratory;
+
 
     public UserEntity() {}
 
@@ -175,6 +194,30 @@ public class UserEntity implements Serializable {
 
     public void setTasksAsExecutor(Set<TaskEntity> tasksAsExecutor) {
         this.tasksAsExecutor = tasksAsExecutor;
+    }
+
+    public Set<SkillEntity> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(Set<SkillEntity> skills) {
+        this.skills = skills;
+    }
+
+    public Set<InterestEntity> getInterests() {
+        return interests;
+    }
+
+    public void setInterests(Set<InterestEntity> interests) {
+        this.interests = interests;
+    }
+
+    public LaboratoryEntity getLaboratory() {
+        return laboratory;
+    }
+
+    public void setLaboratory(LaboratoryEntity laboratory) {
+        this.laboratory = laboratory;
     }
 
     @Override
