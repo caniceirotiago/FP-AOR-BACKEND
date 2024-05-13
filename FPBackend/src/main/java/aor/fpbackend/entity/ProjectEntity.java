@@ -3,6 +3,8 @@ package aor.fpbackend.entity;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "project")
@@ -39,6 +41,10 @@ public class ProjectEntity implements Serializable {
 
     @Column(name = "max_members")
     private Integer maxMembers;
+    @OneToMany(mappedBy = "project")
+    private Set<ProjectMembershipEntity> members = new HashSet<>();
+    @OneToMany(mappedBy = "project")
+    private Set<TaskEntity> tasks = new HashSet<>();
 
     public ProjectEntity() {}
 
@@ -122,6 +128,22 @@ public class ProjectEntity implements Serializable {
 
     public void setMaxMembers(Integer maxMembers) {
         this.maxMembers = maxMembers;
+    }
+
+    public Set<ProjectMembershipEntity> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Set<ProjectMembershipEntity> members) {
+        this.members = members;
+    }
+
+    public Set<TaskEntity> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(Set<TaskEntity> tasks) {
+        this.tasks = tasks;
     }
 
     @Override

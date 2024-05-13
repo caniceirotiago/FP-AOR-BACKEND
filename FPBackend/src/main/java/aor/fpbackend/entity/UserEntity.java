@@ -2,6 +2,9 @@ package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "user")
 public class UserEntity implements Serializable {
@@ -40,6 +43,15 @@ public class UserEntity implements Serializable {
 
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
+    @OneToMany(mappedBy = "user")
+    private Set<ProjectMembershipEntity> projects = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SessionEntity> sessions = new HashSet<>();
+    @OneToMany(mappedBy = "responsibleUser")
+    private Set<TaskEntity> responsibleTasks = new HashSet<>();
+
+    @ManyToMany(mappedBy = "additionalExecuters")
+    private Set<TaskEntity> tasksAsExecutor = new HashSet<>();
 
     public UserEntity() {}
 
@@ -131,6 +143,38 @@ public class UserEntity implements Serializable {
 
     public void setDeleted(boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public Set<ProjectMembershipEntity> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(Set<ProjectMembershipEntity> projects) {
+        this.projects = projects;
+    }
+
+    public Set<SessionEntity> getSessions() {
+        return sessions;
+    }
+
+    public void setSessions(Set<SessionEntity> sessions) {
+        this.sessions = sessions;
+    }
+
+    public Set<TaskEntity> getResponsibleTasks() {
+        return responsibleTasks;
+    }
+
+    public void setResponsibleTasks(Set<TaskEntity> responsibleTasks) {
+        this.responsibleTasks = responsibleTasks;
+    }
+
+    public Set<TaskEntity> getTasksAsExecutor() {
+        return tasksAsExecutor;
+    }
+
+    public void setTasksAsExecutor(Set<TaskEntity> tasksAsExecutor) {
+        this.tasksAsExecutor = tasksAsExecutor;
     }
 
     @Override
