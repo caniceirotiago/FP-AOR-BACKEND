@@ -5,7 +5,6 @@ import aor.fpbackend.dto.LoginDto;
 import aor.fpbackend.dto.TokenDto;
 import aor.fpbackend.dto.UserDto;
 import jakarta.ejb.EJB;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
@@ -13,17 +12,16 @@ import java.util.List;
 
 
 @Path("/users")
-    public class UserService {
-        @EJB
-        UserBean userBean;
-
+public class UserService {
+    @EJB
+    UserBean userBean;
 
 
     @POST
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void addUser(@Valid UserDto user){
-
+    public void registerUser(UserDto user) {
+        userBean.register(user);
     }
 
 
@@ -43,7 +41,6 @@ import java.util.List;
     }
 
 
-
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
@@ -56,11 +53,11 @@ import java.util.List;
      * This endpoint makes logging out a user. Since this example does not
      * manage user sessions or authentication tokens explicitly, the endpoint simply returns
      * a response indicating that the user has been logged out successfully.
-     *  */
+     */
     @POST
     @Path("/logout")
-    public void logout(@HeaderParam("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void logout(@HeaderParam("token") String token) {
         userBean.logout(token);
     }
 }

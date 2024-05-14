@@ -50,13 +50,6 @@ public class UserBean implements Serializable {
         }
     }
 
-    public boolean checkIfEmailExists(String email) {
-        if (email != null) {
-            return userDao.checkIfEmailExists(email);
-        }
-        return false;
-    }
-
 
     public TokenDto login(LoginDto userLogin) {
         UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
@@ -84,6 +77,13 @@ public class UserBean implements Serializable {
         return new TokenDto();
     }
 
+    private String generateNewToken() {
+        SecureRandom secureRandom = new SecureRandom();
+        Base64.Encoder base64Encoder = Base64.getUrlEncoder();
+        byte[] randomBytes = new byte[24];
+        secureRandom.nextBytes(randomBytes);
+        return base64Encoder.encodeToString(randomBytes);
+    }
 
 //    public boolean tokenValidator(String token) {
 //
@@ -104,13 +104,6 @@ public class UserBean implements Serializable {
 //    }
 
 
-    private String generateNewToken() {
-        SecureRandom secureRandom = new SecureRandom();
-        Base64.Encoder base64Encoder = Base64.getUrlEncoder();
-        byte[] randomBytes = new byte[24];
-        secureRandom.nextBytes(randomBytes);
-        return base64Encoder.encodeToString(randomBytes);
-    }
 
     public void logout(String token) {
         SessionEntity session = sessionDao.findSessionByToken(token);
@@ -168,6 +161,5 @@ public class UserBean implements Serializable {
         }
         return userDtos;
     }
-
 
 }
