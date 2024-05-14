@@ -7,6 +7,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Stateless
@@ -39,9 +40,9 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-    public List<UserEntity> findAllUsers() {
+    public ArrayList<UserEntity> findAllUsers() {
         try {
-            return (List<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
+            return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
 
         } catch (NoResultException e) {
             return null;

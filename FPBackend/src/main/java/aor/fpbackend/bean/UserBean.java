@@ -1,20 +1,23 @@
 package aor.fpbackend.bean;
 
+import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.dao.UserDao;
+import aor.fpbackend.dto.LoginDto;
+import aor.fpbackend.dto.TokenDto;
 import aor.fpbackend.dto.UserDto;
+import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.time.LocalDateTime;
+
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.UUID;
+import java.util.List;
 
 @Stateless
 public class UserBean implements Serializable {
@@ -26,77 +29,80 @@ public class UserBean implements Serializable {
     @EJB
     PassEncoder passEncoder;
 
+    @EJB
+    SessionDao sessionDao;
+
     public boolean register(UserDto user) {
-        if(user == null) return false;
-        if (userDao.checkIfEmailExists(user.getEmail()))return false; {
+        if (user == null) return false;
+        if (userDao.checkIfEmailExists(user.getEmail())) return false;
+        {
             System.out.println("Invalid credentials");
         }
         try {
-        UserEntity newUserEntity = convertUserDtotoUserEntity(user);
-        String encryptedPassword = passEncoder.encode(user.getPassword());
-        newUserEntity.setPassword(encryptedPassword);
-        userDao.persist(newUserEntity);
+            UserEntity newUserEntity = convertUserDtotoUserEntity(user);
+            String encryptedPassword = passEncoder.encode(user.getPassword());
+            newUserEntity.setPassword(encryptedPassword);
+            userDao.persist(newUserEntity);
             return true;
-        } catch (NoResultException e ) {
+        } catch (NoResultException e) {
             System.out.println("Error while persisting user");
             return false;
         }
     }
 
-    public boolean checkIfEmailExists(String email){
-        if(email !=null){
+    public boolean checkIfEmailExists(String email) {
+        if (email != null) {
             return userDao.checkIfEmailExists(email);
         }
         return false;
     }
 
 
-    public TokenDto login(LoginDto user) throws InvalidLoginException, UnknownHostException {
-        UserEntity userEntity = userDao.findUserByUsername(user.getUsername());
-        if(userEntity !=null){
-            if (userEntity.getDeleted()) {
-                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to login with deleted user at: " + user.getUsername());
-                throw new InvalidLoginException("User is deleted - contact the administrator");
-            }
-            if(!userEntity.isConfirmed()){
-                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + "Attempt to login with unconfirmed user at: " + user.getUsername());
-                throw new InvalidLoginException("User is not confirmed - check your email for confirmation link or resend confirmation email");
-            }
-            String hashedPassword = HashUtil.toSHA256(user.getPassword());
-            if (!userEntity.getPassword().equals(hashedPassword)){
-                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + "Attempt to login with invalid password at: " + user.getUsername());
-                throw new InvalidLoginException("Invalid Credentials");
-            }
-            String token = generateNewToken();
-            userEntity.setToken(token);
-            updateLastActivityTimestamp(userEntity);
-            return new TokenDto(token);
-        }
-        LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + "Attempt to login with invalid username at: " + user.getUsername());
-        throw new InvalidLoginException("Invalid Credentials");
-    }
-    public boolean tokenValidator(String token) throws UserNotFoundException, UnknownHostException {
-
-        UserEntity user = userDao.findUserByToken(token);
-        if (user != null) {
-            Instant now = Instant.now();
-            long tokenValidityPeriodInSeconds = Long.parseLong(configBean.findConfigValueByKey("sessionTimeout"));
-            Instant tokenExpiration = user.getLastActivityTimestamp().plusSeconds(tokenValidityPeriodInSeconds);
-            if (now.isBefore(tokenExpiration)) {
-                updateLastActivityTimestamp(user);
-                return true;
-            } else {
-                logout(user.getToken());
-                return false;
+    public TokenDto login(LoginDto userLogin) {
+        UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
+        if (userEntity != null) {
+            // Retrieve the hashed password associated with the user
+            String hashedPassword = userEntity.getPassword();
+            // Check if the provided password matches the hashed password
+            if (passEncoder.matches(userLogin.getPassword(), hashedPassword)) {
+                String tokenValue = generateNewToken();
+                SessionEntity sessionEntity = new SessionEntity();
+                sessionEntity.setSessionToken(tokenValue);
+                sessionEntity.setUser(userEntity);
+                sessionEntity.setLastActivityTimestamp(Instant.now());
+                sessionDao.persist(sessionEntity);
+                TokenDto tokenDto = new TokenDto();
+                tokenDto.setId(userEntity.getId());
+                tokenDto.setEmail(userEntity.getEmail());
+                tokenDto.setNickname(userEntity.getNickname());
+                tokenDto.setToken(sessionEntity.getSessionToken());
+                tokenDto.setPhoto(userEntity.getPhoto());
+                System.out.println("Successfull login");
+                return tokenDto;
             }
         }
-        return false;
+        return new TokenDto();
     }
 
-    private void updateLastActivityTimestamp(UserEntity user) {
-        user.setLastActivityTimestamp(Instant.now());
-        userDao.updateUser(user);
-    }
+
+//    public boolean tokenValidator(String token) {
+//
+//        UserEntity user = userDao.findUserByToken(token);
+//        if (user != null) {
+//            Instant now = Instant.now();
+//            long tokenValidityPeriodInSeconds = Long.parseLong(configBean.findConfigValueByKey("sessionTimeout"));
+//            Instant tokenExpiration = user.getLastActivityTimestamp().plusSeconds(tokenValidityPeriodInSeconds);
+//            if (now.isBefore(tokenExpiration)) {
+//                updateLastActivityTimestamp(user);
+//                return true;
+//            } else {
+//                logout(user.getToken());
+//                return false;
+//            }
+//        }
+//        return false;
+//    }
+
 
     private String generateNewToken() {
         SecureRandom secureRandom = new SecureRandom();
@@ -106,47 +112,61 @@ public class UserBean implements Serializable {
         return base64Encoder.encodeToString(randomBytes);
     }
 
-    public void logout(String token) throws UserNotFoundException, UnknownHostException {
-        UserEntity user = getUserByToken(token);
-        if(user == null){
-            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + "Attempt to logout with invalid token at " + LocalDateTime.now() + ": " + token);
-            throw new UserNotFoundException("User not found");
+    public void logout(String token) {
+        SessionEntity session = sessionDao.findSessionByToken(token);
+        if (session != null) {
+            sessionDao.remove(session);
         }
-        user.setToken(null);
-        statistiscsBean.broadcastUserStatisticsUpdate();
-        userDao.updateUser(user);
-    }
-
-    public InitialInformationDto getUserBasicInfo(String token) throws UserNotFoundException, UnknownHostException {
-        UserEntity user = userDao.findUserByToken(token);
-        if(user == null) {
-            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to get user basic info with invalid token at: " + token);
-            throw new UserNotFoundException("Invalid Credentials");
-
-        }
-        return new InitialInformationDto(user.getPhotoURL(), user.getFirstName(), user.getRole(), user.getUsername());
     }
 
 
-    private UserEntity convertUserDtotoUserEntity(UserDto user){
+    public ArrayList<UserDto> getAllRegUsers() {
+        ArrayList<UserEntity> users = userDao.findAllUsers();
+        if (users != null && !users.isEmpty()) {
+            return convertUserEntityListToUserDtoList(users);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+
+    private UserEntity convertUserDtotoUserEntity(UserDto user) {
         UserEntity userEntity = new UserEntity();
-        if(userEntity != null){
-            userEntity.setUsername(user.getUsername());
-            userEntity.setPassword(user.getPassword());
+        if (userEntity != null) {
             userEntity.setEmail(user.getEmail());
+            userEntity.setNickname(user.getNickname());
             userEntity.setFirstName(user.getFirstName());
             userEntity.setLastName(user.getLastName());
-            userEntity.setPhoneNumber(user.getPhoneNumber());
-            userEntity.setToken(null);
-            userEntity.setPhotoURL(user.getPhotoURL());
-            userEntity.setRole(user.getRole());
-            userEntity.setDeleted(false);
-            userEntity.setConfirmed(false);
-            userEntity.setConfirmationToken(user.getConfirmationToken());
-
+            userEntity.setPhoto(user.getPhotoURL());
+            userEntity.setRole(user.getAppRole());
+            userEntity.setDeleted(user.isDeleted());
+            userEntity.setPrivate(user.isPrivate());
             return userEntity;
         }
         return null;
+    }
+
+    private UserDto convertUserEntitytoUserDto(UserEntity userEntity) {
+        UserDto userDto = new UserDto();
+        userDto.setId(userEntity.getId());
+        userDto.setEmail(userEntity.getEmail());
+        userDto.setNickname(userEntity.getNickname());
+        userDto.setFirstName(userEntity.getFirstName());
+        userDto.setLastName(userEntity.getLastName());
+        userDto.setPhotoURL(userEntity.getPhoto());
+        userDto.setAppRole(userEntity.getRole());
+        userDto.setDeleted(userEntity.isDeleted());
+        userDto.setPrivate(userEntity.isPrivate());
+        return userDto;
+    }
+
+    private ArrayList<UserDto> convertUserEntityListToUserDtoList(ArrayList<UserEntity> userEntities) {
+        ArrayList<UserDto> userDtos = new ArrayList<>();
+        for (UserEntity u : userEntities) {
+            UserDto userDto = convertUserEntitytoUserDto(u);
+            userDtos.add(userDto);
+        }
+        return userDtos;
     }
 
 

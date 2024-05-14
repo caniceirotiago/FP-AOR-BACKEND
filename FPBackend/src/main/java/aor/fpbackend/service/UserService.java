@@ -1,11 +1,14 @@
 package aor.fpbackend.service;
 
+import aor.fpbackend.bean.UserBean;
+import aor.fpbackend.dto.LoginDto;
+import aor.fpbackend.dto.TokenDto;
+import aor.fpbackend.dto.UserDto;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
-import java.net.UnknownHostException;
 import java.util.List;
 
 
@@ -19,7 +22,7 @@ import java.util.List;
     @POST
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void addUser(@Valid User user){
+    public void addUser(@Valid UserDto user){
 
     }
 
@@ -35,8 +38,8 @@ import java.util.List;
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public TokenDto login(LoginDto user) {
-        return userBean.login(user);
+    public TokenDto login(LoginDto userLogin) {
+        return userBean.login(userLogin);
     }
 
 
@@ -44,17 +47,19 @@ import java.util.List;
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<UserInfoCard> getUsersWithTasks() {return userBean.getUsersWithTasks();}
+    public List<UserDto> getAllUsers() {
+        return userBean.getAllRegUsers();
+    }
+
+
     /**
      * This endpoint makes logging out a user. Since this example does not
      * manage user sessions or authentication tokens explicitly, the endpoint simply returns
      * a response indicating that the user has been logged out successfully.
      *  */
-
-
     @POST
     @Path("/logout")
-    public void logout(@HeaderParam("Authorization") String authHeader) throws UserNotFoundException, UnknownHostException {
+    public void logout(@HeaderParam("Authorization") String authHeader) {
         String token = authHeader.substring(7);
         userBean.logout(token);
     }

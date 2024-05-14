@@ -50,7 +50,7 @@ public class UserEntity implements Serializable {
     private String biography;
 
     @Column(name = "app_role", nullable = true)
-    private String appRole = "Non_Reg_User";
+    private String role = "Non_Reg_User";
 
     @Column(name = "is_private", nullable = false)
     private boolean isPrivate = false;
@@ -135,12 +135,12 @@ public class UserEntity implements Serializable {
         this.firstName = firstName;
     }
 
-    public String getWorkplace() {
-        return workplace;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setWorkplace(String workplace) {
-        this.workplace = workplace;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getPhoto() {
