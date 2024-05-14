@@ -131,7 +131,7 @@ public class UserBean implements Serializable {
             userEntity.setFirstName(user.getFirstName());
             userEntity.setLastName(user.getLastName());
             userEntity.setPhoto(user.getPhoto());
-            userEntity.setRole(user.getAppRole());
+            //userEntity.setRole(user.getAppRole());
             userEntity.setDeleted(user.isDeleted());
             userEntity.setPrivate(user.isPrivate());
             return userEntity;
@@ -147,7 +147,7 @@ public class UserBean implements Serializable {
         userDto.setFirstName(userEntity.getFirstName());
         userDto.setLastName(userEntity.getLastName());
         userDto.setPhotoURL(userEntity.getPhoto());
-        userDto.setAppRole(userEntity.getRole());
+        //userDto.setAppRole(userEntity.getRole());
         userDto.setDeleted(userEntity.isDeleted());
         userDto.setPrivate(userEntity.isPrivate());
         return userDto;
