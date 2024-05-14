@@ -40,15 +40,14 @@ public class UserDto {
     @NotNull
     @Size(min = 2, max = 2048, message = "Photo URL must be between 2 and 2048 characters")
     @NotBlank
-    private String photoURL;
+    private String photo;
 
     @XmlElement
-    @NotBlank
+    @NotNull
     private String biography;
 
     @XmlElement
     @NotNull
-    @NotBlank
     private String appRole;
 
     @XmlElement
@@ -62,14 +61,14 @@ public class UserDto {
     public UserDto() {
     }
 
-    public UserDto(long id, String email, String password, String nickname, String firstName, String lastName, String photoURL, String biography, String appRole, boolean isPrivate, boolean isDeleted) {
+    public UserDto(long id, String email, String password, String nickname, String firstName, String lastName, String photo, String biography, String appRole, boolean isPrivate, boolean isDeleted) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.photoURL = photoURL;
+        this.photo = photo;
         this.biography = biography;
         this.appRole = appRole;
         this.isPrivate = isPrivate;
@@ -124,12 +123,12 @@ public class UserDto {
         this.lastName = lastName;
     }
 
-    public String getPhotoURL() {
-        return photoURL;
+    public String getPhoto() {
+        return photo;
     }
 
-    public void setPhotoURL(String photoURL) {
-        this.photoURL = photoURL;
+    public void setPhotoURL(String photo) {
+        this.photo = photo;
     }
 
     public String getBiography() {
