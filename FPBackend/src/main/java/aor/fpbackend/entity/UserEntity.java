@@ -7,6 +7,17 @@ import java.util.Set;
 
 @Entity
 @Table(name = "user")
+
+//@NamedQuery(name = "User.findUserByToken", query = "SELECT DISTINCT u FROM UserEntity u " +
+//        "WHERE u.token = :token")
+@NamedQuery(name = "User.checkIfEmailExists", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.email = :email")
+@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
+@NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u " +
+        "WHERE u.email = :email")
+@NamedQuery(name = "User.findUserByNickname", query = "SELECT u FROM UserEntity u " +
+        "WHERE u.nickname = :nickname")
+
+
 public class UserEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -26,6 +37,9 @@ public class UserEntity implements Serializable {
     @Column(name = "first_name", nullable = true)
     private String firstName;
 
+    @Column(name = "last_name", nullable = true)
+    private String lastName;
+
     @Column(name = "workplace", nullable = true)
     private String workplace;
 
@@ -35,23 +49,27 @@ public class UserEntity implements Serializable {
     @Column(name = "biography", nullable = true, length = 4096)
     private String biography;
 
-    @Column(name = "role", nullable = true)
-    private String role;
+    @Column(name = "app_role", nullable = true)
+    private String appRole = "Non_Reg_User";
 
-    @Column(name = "is_private")
+    @Column(name = "is_private", nullable = false)
     private boolean isPrivate = false;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
+
     @OneToMany(mappedBy = "user")
     private Set<ProjectMembershipEntity> projects = new HashSet<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SessionEntity> sessions = new HashSet<>();
+
     @OneToMany(mappedBy = "responsibleUser")
     private Set<TaskEntity> responsibleTasks = new HashSet<>();
 
     @ManyToMany(mappedBy = "additionalExecuters")
     private Set<TaskEntity> tasksAsExecutor = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
             name = "user_skills",
@@ -59,6 +77,7 @@ public class UserEntity implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private Set<SkillEntity> skills = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
             name = "user_interests",
