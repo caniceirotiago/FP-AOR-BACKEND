@@ -66,6 +66,8 @@ public class TaskEntity implements Serializable {
 
     @ManyToMany(mappedBy = "prerequisites")
     private Set<TaskEntity> dependentTasks = new HashSet<>();
+    @OneToMany(mappedBy = "task")
+    private Set<ProjectLogEntity> taskLogs = new HashSet<>();
 
     // Constructors, getters, and setters
 
@@ -173,6 +175,14 @@ public class TaskEntity implements Serializable {
 
     public void setDependentTasks(Set<TaskEntity> dependentTasks) {
         this.dependentTasks = dependentTasks;
+    }
+
+    public Set<ProjectLogEntity> getTaskLogs() {
+        return taskLogs;
+    }
+
+    public void setTaskLogs(Set<ProjectLogEntity> taskLogs) {
+        this.taskLogs = taskLogs;
     }
 
     @Override

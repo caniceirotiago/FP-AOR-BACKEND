@@ -1,12 +1,15 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "skills")
-public class SkillEntity {
+@Table(name = "skill")
+public class SkillEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

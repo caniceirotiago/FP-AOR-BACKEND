@@ -63,6 +63,13 @@ public class ProjectEntity implements Serializable {
     @JoinColumn(name = "laboratory_id")
     private LaboratoryEntity laboratory;
 
+    @OneToMany(mappedBy = "group")
+    private Set<GroupMessageEntity> groupMessages;
+    @OneToMany(mappedBy = "project")
+    private Set<ProjectLogEntity> projectLogs = new HashSet<>();
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectAssetEntity> projectAssets = new HashSet<>();
+
 
     public ProjectEntity() {}
 
@@ -186,6 +193,30 @@ public class ProjectEntity implements Serializable {
 
     public void setLaboratory(LaboratoryEntity laboratory) {
         this.laboratory = laboratory;
+    }
+
+    public Set<GroupMessageEntity> getGroupMessages() {
+        return groupMessages;
+    }
+
+    public void setGroupMessages(Set<GroupMessageEntity> groupMessages) {
+        this.groupMessages = groupMessages;
+    }
+
+    public Set<ProjectLogEntity> getProjectLogs() {
+        return projectLogs;
+    }
+
+    public void setProjectLogs(Set<ProjectLogEntity> projectLogs) {
+        this.projectLogs = projectLogs;
+    }
+
+    public Set<ProjectAssetEntity> getProjectAssets() {
+        return projectAssets;
+    }
+
+    public void setProjectAssets(Set<ProjectAssetEntity> projectAssets) {
+        this.projectAssets = projectAssets;
     }
 
     @Override
