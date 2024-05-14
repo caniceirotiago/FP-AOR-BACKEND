@@ -6,6 +6,10 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "session")
+
+@NamedQuery(name = "Session.findSessionByToken", query = "SELECT s FROM SessionEntity s WHERE s.sessionToken = :tokenValue")
+@NamedQuery(name = "Session.findAllSessionsByUserId", query = "SELECT s FROM SessionEntity s WHERE s.user.id = :userId")
+
 public class SessionEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

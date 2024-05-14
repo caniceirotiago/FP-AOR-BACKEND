@@ -7,6 +7,17 @@ import java.util.Set;
 
 @Entity
 @Table(name = "user")
+
+//@NamedQuery(name = "User.findUserByToken", query = "SELECT DISTINCT u FROM UserEntity u " +
+//        "WHERE u.token = :token")
+@NamedQuery(name = "User.checkIfEmailExists", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.email = :email")
+@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
+@NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u " +
+        "WHERE u.email = :email")
+@NamedQuery(name = "User.findUserByNickname", query = "SELECT u FROM UserEntity u " +
+        "WHERE u.nickname = :nickname")
+
+
 public class UserEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -26,6 +37,9 @@ public class UserEntity implements Serializable {
     @Column(name = "first_name", nullable = true)
     private String firstName;
 
+    @Column(name = "last_name", nullable = true)
+    private String lastName;
+
     @Column(name = "workplace", nullable = true)
     private String workplace;
 
@@ -38,17 +52,21 @@ public class UserEntity implements Serializable {
     @Column(name = "is_private")
     private boolean isPrivate = false;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
+
     @OneToMany(mappedBy = "user")
     private Set<ProjectMembershipEntity> projects = new HashSet<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SessionEntity> sessions = new HashSet<>();
+
     @OneToMany(mappedBy = "responsibleUser")
     private Set<TaskEntity> responsibleTasks = new HashSet<>();
 
     @ManyToMany(mappedBy = "additionalExecuters")
     private Set<TaskEntity> tasksAsExecutor = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
             name = "user_skills",
@@ -56,6 +74,7 @@ public class UserEntity implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private Set<SkillEntity> skills = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
             name = "user_interests",
@@ -127,12 +146,12 @@ public class UserEntity implements Serializable {
         this.firstName = firstName;
     }
 
-    public String getWorkplace() {
-        return workplace;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setWorkplace(String workplace) {
-        this.workplace = workplace;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getPhoto() {
