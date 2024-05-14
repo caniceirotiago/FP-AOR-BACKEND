@@ -45,6 +45,24 @@ public class ProjectEntity implements Serializable {
     private Set<ProjectMembershipEntity> members = new HashSet<>();
     @OneToMany(mappedBy = "project")
     private Set<TaskEntity> tasks = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "project_skills",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<SkillEntity> skills = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "project_interests",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "interest_id")
+    )
+    private Set<InterestEntity> interests = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "laboratory_id")
+    private LaboratoryEntity laboratory;
+
 
     public ProjectEntity() {}
 
@@ -144,6 +162,30 @@ public class ProjectEntity implements Serializable {
 
     public void setTasks(Set<TaskEntity> tasks) {
         this.tasks = tasks;
+    }
+
+    public Set<SkillEntity> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(Set<SkillEntity> skills) {
+        this.skills = skills;
+    }
+
+    public Set<InterestEntity> getInterests() {
+        return interests;
+    }
+
+    public void setInterests(Set<InterestEntity> interests) {
+        this.interests = interests;
+    }
+
+    public LaboratoryEntity getLaboratory() {
+        return laboratory;
+    }
+
+    public void setLaboratory(LaboratoryEntity laboratory) {
+        this.laboratory = laboratory;
     }
 
     @Override
