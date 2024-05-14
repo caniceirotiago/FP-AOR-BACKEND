@@ -35,9 +35,6 @@ public class UserEntity implements Serializable {
     @Column(name = "biography", nullable = true, length = 4096)
     private String biography;
 
-    @Column(name = "role", nullable = true)
-    private String role;
-
     @Column(name = "is_private")
     private boolean isPrivate = false;
 
@@ -70,6 +67,20 @@ public class UserEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "laboratory_id")
     private LaboratoryEntity laboratory;
+
+    @OneToMany(mappedBy = "user")
+    private Set<NotificationEntity> notifications = new HashSet<>();
+
+    @OneToMany(mappedBy = "sender")
+    private Set<MessageEntity> sentMessages;
+
+    @OneToMany(mappedBy = "recipient")
+    private Set<IndividualMessageEntity> receivedMessages;
+    @OneToMany(mappedBy = "user")
+    private Set<ProjectLogEntity> projectLogs = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
+    private RoleEntity role;
 
 
     public UserEntity() {}
@@ -140,13 +151,6 @@ public class UserEntity implements Serializable {
         this.biography = biography;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
 
     public boolean isPrivate() {
         return isPrivate;
@@ -218,6 +222,46 @@ public class UserEntity implements Serializable {
 
     public void setLaboratory(LaboratoryEntity laboratory) {
         this.laboratory = laboratory;
+    }
+
+    public Set<NotificationEntity> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(Set<NotificationEntity> notifications) {
+        this.notifications = notifications;
+    }
+
+    public Set<MessageEntity> getSentMessages() {
+        return sentMessages;
+    }
+
+    public void setSentMessages(Set<MessageEntity> sentMessages) {
+        this.sentMessages = sentMessages;
+    }
+
+    public Set<IndividualMessageEntity> getReceivedMessages() {
+        return receivedMessages;
+    }
+
+    public void setReceivedMessages(Set<IndividualMessageEntity> receivedMessages) {
+        this.receivedMessages = receivedMessages;
+    }
+
+    public Set<ProjectLogEntity> getProjectLogs() {
+        return projectLogs;
+    }
+
+    public void setProjectLogs(Set<ProjectLogEntity> projectLogs) {
+        this.projectLogs = projectLogs;
+    }
+
+    public RoleEntity getRole() {
+        return role;
+    }
+
+    public void setRole(RoleEntity role) {
+        this.role = role;
     }
 
     @Override
