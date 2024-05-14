@@ -10,9 +10,9 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 
-//Neste momento esta classe está a interagir de forma direta com a base de dados, o que não é uma boa prática.
-//Terá depois de ser feita a converssão para um sistema indireto que utiliza o dao apropriado ou outros beans para o efeito.
-//Sugiro que comentários em portugues sejam apenas temporários.
+//TODO Neste momento esta classe está a interagir de forma direta com a base de dados, o que não é uma boa prática.
+//TODO Terá depois de ser feita a converssão para um sistema indireto que utiliza o dao apropriado ou outros beans para o efeito.
+//TODO Sugiro que comentários em portugues sejam apenas temporários.
 
 @Singleton
 @Startup
