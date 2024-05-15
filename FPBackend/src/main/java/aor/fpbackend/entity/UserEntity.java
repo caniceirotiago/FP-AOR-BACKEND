@@ -40,9 +40,6 @@ public class UserEntity implements Serializable {
     @Column(name = "last_name", nullable = true)
     private String lastName;
 
-    @Column(name = "workplace", nullable = true)
-    private String workplace;
-
     @Column(name = "photo", nullable = true, length = 2048)
     private String photo;
 
@@ -71,16 +68,14 @@ public class UserEntity implements Serializable {
     @JoinTable(
             name = "user_skills",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private Set<SkillEntity> skills = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
             name = "user_interests",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "interest_id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "interest_id"))
     private Set<InterestEntity> interests = new HashSet<>();
 
     @ManyToOne
@@ -95,8 +90,10 @@ public class UserEntity implements Serializable {
 
     @OneToMany(mappedBy = "recipient")
     private Set<IndividualMessageEntity> receivedMessages;
+
     @OneToMany(mappedBy = "user")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity role;
@@ -291,7 +288,6 @@ public class UserEntity implements Serializable {
                 ", password='" + password + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", firstName='" + firstName + '\'' +
-                ", workplace='" + workplace + '\'' +
                 ", photo='" + photo + '\'' +
                 ", biography='" + biography + '\'' +
                 ", role='" + role + '\'' +

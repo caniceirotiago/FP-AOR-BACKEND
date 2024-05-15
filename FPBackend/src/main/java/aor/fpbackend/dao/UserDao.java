@@ -13,11 +13,13 @@ import java.util.List;
 @Stateless
 public class UserDao extends AbstractDao<UserEntity> {
     private static final long serialVersionUID = 1L;
+
     public UserDao() {
         super(UserEntity.class);
     }
+
     @PersistenceContext
-    private EntityManager entityManager;
+    private EntityManager em;
 
 //    public UserEntity findUserByToken(String token) {
 //        try {
@@ -30,9 +32,9 @@ public class UserDao extends AbstractDao<UserEntity> {
 
     public boolean checkIfEmailExists(String email) {
         try {
-            Query query = entityManager.createNamedQuery("User.checkIfEmailExists");
+            Query query = em.createNamedQuery("User.checkIfEmailExists");
             Long count = (Long) query.setParameter("email", email).getSingleResult();
-            if (count > 0){
+            if (count > 0) {
                 return true;
             } else return false;
         } catch (NoResultException e) {
@@ -48,6 +50,7 @@ public class UserDao extends AbstractDao<UserEntity> {
             return null;
         }
     }
+
     public UserEntity findUserByEmail(String email) {
         try {
             return (UserEntity) em.createNamedQuery("User.findUserByEmail").setParameter("email", email)
@@ -57,6 +60,7 @@ public class UserDao extends AbstractDao<UserEntity> {
             return null;
         }
     }
+
     public UserEntity findUserByUsername(String username) {
         try {
             return (UserEntity) em.createNamedQuery("User.findUserByNickname").setParameter("nickname", username)

@@ -8,6 +8,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "laboratory")
+
+@NamedQuery(name = "Laboratory.findLaboratoryById", query = "SELECT l FROM LaboratoryEntity l WHERE l.id = :labId")
+
 public class LaboratoryEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

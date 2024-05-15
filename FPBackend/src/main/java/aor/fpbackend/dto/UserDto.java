@@ -48,7 +48,7 @@ public class UserDto {
 
     @XmlElement
     @NotNull
-    private String appRole;
+    private long laboratoryId;
 
     @XmlElement
     @NotNull
@@ -61,7 +61,7 @@ public class UserDto {
     public UserDto() {
     }
 
-    public UserDto(long id, String email, String password, String nickname, String firstName, String lastName, String photo, String biography, String appRole, boolean isPrivate, boolean isDeleted) {
+    public UserDto(long id, String email, String password, String nickname, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate, boolean isDeleted) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -70,7 +70,7 @@ public class UserDto {
         this.lastName = lastName;
         this.photo = photo;
         this.biography = biography;
-        this.appRole = appRole;
+        this.laboratoryId = laboratoryId;
         this.isPrivate = isPrivate;
         this.isDeleted = isDeleted;
     }
@@ -127,7 +127,7 @@ public class UserDto {
         return photo;
     }
 
-    public void setPhotoURL(String photo) {
+    public void setPhoto(String photo) {
         this.photo = photo;
     }
 
@@ -139,12 +139,12 @@ public class UserDto {
         this.biography = biography;
     }
 
-    public String getAppRole() {
-        return appRole;
+    public long getLaboratoryId() {
+        return laboratoryId;
     }
 
-    public void setAppRole(String appRole) {
-        this.appRole = appRole;
+    public void setLaboratoryId(long laboratoryId) {
+        this.laboratoryId = laboratoryId;
     }
 
     public boolean isPrivate() {
