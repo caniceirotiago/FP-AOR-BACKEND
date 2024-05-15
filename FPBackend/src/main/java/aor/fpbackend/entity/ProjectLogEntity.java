@@ -12,6 +12,7 @@ public class ProjectLogEntity implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @Column(name = "creation_date", nullable = false)

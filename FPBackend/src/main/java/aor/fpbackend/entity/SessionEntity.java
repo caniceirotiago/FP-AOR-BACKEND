@@ -15,6 +15,7 @@ public class SessionEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @Column(name = "session_token", nullable = false, unique = true)

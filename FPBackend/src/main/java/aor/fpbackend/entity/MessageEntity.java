@@ -11,20 +11,21 @@ public abstract class MessageEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
+    @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(nullable = false)
+    @Column(name = "content",nullable = false)
     private String content;
 
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = false)
     private UserEntity sender;
 
-    @Column(nullable = false)
+    @Column(name = "sent_time", nullable = false)
     private Instant sentTime;
 
-    @Column(nullable = false)
-    private boolean isViewed = false;
+    @Column(name = "is_viewed", nullable = false)
+    private boolean isViewed;
 
     // Construtores, getters e setters
     public MessageEntity() {}

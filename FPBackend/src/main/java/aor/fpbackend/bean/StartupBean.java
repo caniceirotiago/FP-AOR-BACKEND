@@ -35,9 +35,9 @@ public class StartupBean {
         //Create laboratories
         createLaboratories();
 
-        //Create functions
+        // Create functions
 
-        //Create an admin
+        // Create an admin
 
         // Create a test user
 
@@ -45,13 +45,16 @@ public class StartupBean {
 
         // Create a test task in the test project
 
+        //Create default session timeout
+
+        //Create default max members per project
+
     }
 
     @Transactional
     private void createRoles() {
         roleDao.createRoleIfNotExists("Admin");
         roleDao.createRoleIfNotExists("Standard User");
-        roleDao.createRoleIfNotExists("Unauthenticated User");
     }
 
     @Transactional

@@ -11,6 +11,7 @@ public class NotificationEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @Column(name = "type", nullable = false)

@@ -1,6 +1,8 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
+import aor.fpbackend.enums.ProjectState;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
@@ -8,11 +10,16 @@ import java.util.Set;
 
 @Entity
 @Table(name = "project")
+
+@NamedQuery(name = "Project.findProjectById", query = "SELECT p FROM ProjectEntity p WHERE p.id = :projectId")
+@NamedQuery(name = "Project.findAllProjects", query = "SELECT p FROM ProjectEntity p")
+
 public class ProjectEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @Column(name = "name", nullable = false)
@@ -24,8 +31,9 @@ public class ProjectEntity implements Serializable {
     @Column(name = "motivation", nullable = true, length = 2048)
     private String motivation;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
-    private String state;
+    private ProjectState state;
 
     @Column(name = "creation_date", nullable = false)
     private Instant creationDate;
@@ -40,7 +48,7 @@ public class ProjectEntity implements Serializable {
     private Instant conclusionDate;
 
     @Column(name = "max_members")
-    private Integer maxMembers;
+    private int maxMembers;
     @OneToMany(mappedBy = "project")
     private Set<ProjectMembershipEntity> members = new HashSet<>();
     @OneToMany(mappedBy = "project")
@@ -54,11 +62,11 @@ public class ProjectEntity implements Serializable {
     private Set<SkillEntity> skills = new HashSet<>();
     @ManyToMany
     @JoinTable(
-            name = "project_interests",
+            name = "project_interest",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "interest_id")
     )
-    private Set<InterestEntity> interests = new HashSet<>();
+    private Set<InterestEntity> projectInterests = new HashSet<>();
     @ManyToOne
     @JoinColumn(name = "laboratory_id")
     private LaboratoryEntity laboratory;
@@ -107,12 +115,20 @@ public class ProjectEntity implements Serializable {
         this.motivation = motivation;
     }
 
-    public String getState() {
+    public ProjectState getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(ProjectState state) {
         this.state = state;
+    }
+
+    public int getMaxMembers() {
+        return maxMembers;
+    }
+
+    public void setMaxMembers(int maxMembers) {
+        this.maxMembers = maxMembers;
     }
 
     public Instant getCreationDate() {
@@ -147,14 +163,6 @@ public class ProjectEntity implements Serializable {
         this.conclusionDate = conclusionDate;
     }
 
-    public Integer getMaxMembers() {
-        return maxMembers;
-    }
-
-    public void setMaxMembers(Integer maxMembers) {
-        this.maxMembers = maxMembers;
-    }
-
     public Set<ProjectMembershipEntity> getMembers() {
         return members;
     }
@@ -179,12 +187,12 @@ public class ProjectEntity implements Serializable {
         this.skills = skills;
     }
 
-    public Set<InterestEntity> getInterests() {
-        return interests;
+    public Set<InterestEntity> getProjectInterests() {
+        return projectInterests;
     }
 
-    public void setInterests(Set<InterestEntity> interests) {
-        this.interests = interests;
+    public void setProjectInterests(Set<InterestEntity> projectInterests) {
+        this.projectInterests = projectInterests;
     }
 
     public LaboratoryEntity getLaboratory() {

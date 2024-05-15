@@ -1,7 +1,7 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
-import util.enums.TaskState;
+import aor.fpbackend.enums.TaskState;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -15,6 +15,7 @@ public class TaskEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @Column(name = "title", nullable = false)

@@ -15,14 +15,15 @@ public class RoleEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "name",nullable = false, unique = true)
     private String name;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "role_permissions",
+            name = "role_permission",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
