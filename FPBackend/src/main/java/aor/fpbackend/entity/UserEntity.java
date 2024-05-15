@@ -2,6 +2,7 @@ package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 //        "WHERE u.token = :token")
 @NamedQuery(name = "User.checkIfEmailExists", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.email = :email")
 @NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
+@NamedQuery(name = "User.findUserByConfirmationToken", query = "SELECT u FROM UserEntity u WHERE u.confirmationToken = :confirmationToken")
 @NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u " +
         "WHERE u.email = :email")
 @NamedQuery(name = "User.findUserByNickname", query = "SELECT u FROM UserEntity u " +
@@ -55,6 +57,12 @@ public class UserEntity implements Serializable {
 
     @Column(name = "is_confirmed", nullable = false)
     private boolean isConfirmed;
+
+    @Column(name = "confirmation_token")
+    private String confirmationToken;
+
+    @Column(name="last_sent_email_timestamp", nullable=true, updatable = true)
+    private Instant lastSentEmailTimestamp;
 
     @OneToMany(mappedBy = "user")
     private Set<ProjectMembershipEntity> projects = new HashSet<>();
@@ -193,6 +201,22 @@ public class UserEntity implements Serializable {
 
     public void setConfirmed(boolean confirmed) {
         isConfirmed = confirmed;
+    }
+
+    public String getConfirmationToken() {
+        return confirmationToken;
+    }
+
+    public void setConfirmationToken(String confirmationToken) {
+        this.confirmationToken = confirmationToken;
+    }
+
+    public Instant getLastSentEmailTimestamp() {
+        return lastSentEmailTimestamp;
+    }
+
+    public void setLastSentEmailTimestamp(Instant lastSentEmailTimestamp) {
+        this.lastSentEmailTimestamp = lastSentEmailTimestamp;
     }
 
     public Set<ProjectMembershipEntity> getProjects() {

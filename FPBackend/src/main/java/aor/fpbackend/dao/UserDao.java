@@ -30,6 +30,17 @@ public class UserDao extends AbstractDao<UserEntity> {
 //        }
 //    }
 
+
+    public UserEntity findUserByConfirmationToken(String token) {
+        try {
+            Query query = em.createNamedQuery("User.findUserByConfirmationToken", UserEntity.class);
+            query.setParameter("confirmationToken", token);
+            return (UserEntity) query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     public boolean checkIfEmailExists(String email) {
         try {
             Query query = em.createNamedQuery("User.checkIfEmailExists");

@@ -8,6 +8,7 @@ import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,12 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     public void registerUser(UserDto user) {
         userBean.register(user);
+    }
+
+    @PUT
+    @Path("/confirm")
+    public void confirmRegistration(@QueryParam("token") String token) {
+        userBean.validateUser(token);
     }
 
 

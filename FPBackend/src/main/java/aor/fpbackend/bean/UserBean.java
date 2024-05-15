@@ -11,6 +11,7 @@ import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.Column;
@@ -23,6 +24,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 @Stateless
 public class UserBean implements Serializable {
@@ -39,12 +41,8 @@ public class UserBean implements Serializable {
     @EJB
     LaboratoryDao labDao;
 
-
-
-//    private boolean isPrivate; (default true)
-//    private boolean isDeleted;  (default false)
-//    private boolean isConfirmed;  (default false)
-
+    @EJB
+    EmailService emailService;
 
 
     public boolean register(UserDto user) {
@@ -57,10 +55,10 @@ public class UserBean implements Serializable {
             UserEntity newUserEntity = convertUserDtotoUserEntity(user);
             String encryptedPassword = passEncoder.encode(user.getPassword());
             newUserEntity.setPassword(encryptedPassword);
-            // Retrieve the role with ID 3 "Unauthenticated User" (as default user role)
-            RoleEntity role = roleDao.findRoleById(3);
+            // Retrieve the role with ID 2 "Standard User" (as default user role)
+            RoleEntity role = roleDao.findRoleById(2);
             if (role == null) {
-                System.out.println("Role with ID 3 not found");
+                System.out.println("Role not found");
                 return false;
             }
             // Set the role to the new user
@@ -68,8 +66,18 @@ public class UserBean implements Serializable {
             // Retrieve the LaboratoryEntity from userDto and set it to the new user
             LaboratoryEntity lab = labDao.findLaboratoryById(user.getLaboratoryId());
             newUserEntity.setLaboratory(lab);
+            // Set default parameters for the new user
+            newUserEntity.setDeleted(false);
+            newUserEntity.setConfirmed(false);
+            newUserEntity.setPrivate(true);
+            // Create a confirmation token
+            String confirmationToken = generateNewToken();
+            newUserEntity.setConfirmationToken(confirmationToken);
+            newUserEntity.setLastSentEmailTimestamp(Instant.now());
             // Persist the new User
             userDao.persist(newUserEntity);
+            // Send confirmation token by email
+            emailService.sendConfirmationEmail(user.getEmail(), confirmationToken);
             return true;
         } catch (NoResultException e) {
             System.out.println("Error while persisting user");
@@ -77,6 +85,16 @@ public class UserBean implements Serializable {
         }
     }
 
+    public boolean validateUser(String token) {
+        UserEntity userEntity = userDao.findUserByConfirmationToken(token);
+        if (userEntity != null) {
+            if (userEntity.getConfirmationToken().equals(token)) {
+                userEntity.setConfirmed(true);
+                return true;
+            }
+        }
+        return false;
+    }
 
     public TokenDto login(LoginDto userLogin) {
         UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
