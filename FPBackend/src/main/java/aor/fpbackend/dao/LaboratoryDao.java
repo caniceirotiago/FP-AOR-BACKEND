@@ -7,25 +7,40 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 
-    @Stateless
-    public class LaboratoryDao extends AbstractDao<LaboratoryEntity> {
-        private static final long serialVersionUID = 1L;
+import java.util.List;
 
-        public LaboratoryDao() {
-            super(LaboratoryEntity.class);
-        }
+@Stateless
+public class LaboratoryDao extends AbstractDao<LaboratoryEntity> {
+    private static final long serialVersionUID = 1L;
 
-        @PersistenceContext
-        private EntityManager em;
-
-        public LaboratoryEntity findLaboratoryById(Long labId) {
-            try {
-                return (LaboratoryEntity) em.createNamedQuery("Laboratory.findLaboratoryById")
-                        .setParameter("labId", labId)
-                        .getSingleResult();
-            } catch (NoResultException e) {
-                return null;
-            }
-        }
-
+    public LaboratoryDao() {
+        super(LaboratoryEntity.class);
     }
+
+    @PersistenceContext
+    private EntityManager em;
+
+    public void createLaboratoryIfNotExists(String location) {
+        List<LaboratoryEntity> labs = em.createQuery(
+                        "SELECT l FROM LaboratoryEntity l WHERE l.location = :location", LaboratoryEntity.class)
+                .setParameter("location", location)
+                .getResultList();
+
+        if (labs.isEmpty()) {
+            LaboratoryEntity lab = new LaboratoryEntity(location);
+            em.persist(lab);
+        }
+    }
+
+    public LaboratoryEntity findLaboratoryById(Long labId) {
+        try {
+            return (LaboratoryEntity) em.createNamedQuery("Laboratory.findLaboratoryById")
+                    .setParameter("labId", labId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+
+}

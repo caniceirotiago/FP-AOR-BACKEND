@@ -1,6 +1,9 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
+
+import java.io.Serializable;
+
 /**
  * The ConfigurationEntity class is used to store key-value pairs for system settings.
  * The design is intended to provide a flexible and efficient means
@@ -11,10 +14,12 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "configuration")
-public class ConfigurationEntity {
+public class ConfigurationEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "config_key", nullable = false, unique = true)
     private String key;

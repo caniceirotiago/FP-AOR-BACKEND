@@ -8,6 +8,7 @@ import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -44,7 +45,7 @@ public class UserService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<UserDto> getAllUsers() {
+    public ArrayList<UserDto> getAllUsers() {
         return userBean.getAllRegUsers();
     }
 

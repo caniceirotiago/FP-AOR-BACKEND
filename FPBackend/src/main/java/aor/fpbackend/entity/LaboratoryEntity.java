@@ -17,7 +17,7 @@ public class LaboratoryEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private long id;
 
     @Column(name = "location", nullable = false)
     private String location;

@@ -167,13 +167,12 @@ public class UserEntity implements Serializable {
         this.biography = biography;
     }
 
-
     public boolean isPrivate() {
         return isPrivate;
     }
 
-    public void setPrivate(boolean isPrivate) {
-        this.isPrivate = isPrivate;
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
     }
 
     public boolean isDeleted() {

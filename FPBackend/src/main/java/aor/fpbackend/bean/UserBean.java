@@ -35,7 +35,6 @@ public class UserBean implements Serializable {
     SessionDao sessionDao;
     @EJB
     RoleDao roleDao;
-
     @EJB
     LaboratoryDao labDao;
 
