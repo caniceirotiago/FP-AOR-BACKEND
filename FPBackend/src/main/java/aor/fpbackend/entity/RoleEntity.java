@@ -1,11 +1,18 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
 @Table(name = "role")
-public class RoleEntity {
+
+@NamedQuery(name = "Role.findRoleById", query = "SELECT r FROM RoleEntity r WHERE r.id = :roleId")
+
+public class RoleEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,7 +29,8 @@ public class RoleEntity {
     private Set<PermissionEntity> permissions;
 
     // Construtores, getters e setters
-    public RoleEntity() {}
+    public RoleEntity() {
+    }
 
     public RoleEntity(String name) {
         this.name = name;

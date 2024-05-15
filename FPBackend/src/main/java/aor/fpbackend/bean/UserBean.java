@@ -1,10 +1,14 @@
 package aor.fpbackend.bean;
 
+import aor.fpbackend.dao.LaboratoryDao;
+import aor.fpbackend.dao.RoleDao;
 import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.LoginDto;
 import aor.fpbackend.dto.TokenDto;
 import aor.fpbackend.dto.UserDto;
+import aor.fpbackend.entity.LaboratoryEntity;
+import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.EJB;
@@ -25,23 +29,38 @@ public class UserBean implements Serializable {
 
     @EJB
     UserDao userDao;
-
     @EJB
     PassEncoder passEncoder;
-
     @EJB
     SessionDao sessionDao;
+    @EJB
+    RoleDao roleDao;
+
+    @EJB
+    LaboratoryDao labDao;
 
     public boolean register(UserDto user) {
         if (user == null) return false;
-        if (userDao.checkIfEmailExists(user.getEmail())) return false;
-        {
+        if (userDao.checkIfEmailExists(user.getEmail())) {
             System.out.println("Invalid credentials");
+            return false;
         }
         try {
             UserEntity newUserEntity = convertUserDtotoUserEntity(user);
             String encryptedPassword = passEncoder.encode(user.getPassword());
             newUserEntity.setPassword(encryptedPassword);
+            // Retrieve the role with ID 3 "Unauthenticated User" (as default user role)
+            RoleEntity role = roleDao.findRoleById(3L);
+            if (role == null) {
+                System.out.println("Role with ID 3 not found");
+                return false;
+            }
+            // Set the role to the new user
+            newUserEntity.setRole(role);
+            // Retrieve the LaboratoryEntity from userDto and set it to the new user
+            LaboratoryEntity lab = labDao.findLaboratoryById(user.getLaboratoryId());
+            newUserEntity.setLaboratory(lab);
+            // Persist the new User
             userDao.persist(newUserEntity);
             return true;
         } catch (NoResultException e) {
@@ -104,7 +123,6 @@ public class UserBean implements Serializable {
 //    }
 
 
-
     public void logout(String token) {
         SessionEntity session = sessionDao.findSessionByToken(token);
         if (session != null) {
@@ -131,9 +149,7 @@ public class UserBean implements Serializable {
             userEntity.setFirstName(user.getFirstName());
             userEntity.setLastName(user.getLastName());
             userEntity.setPhoto(user.getPhoto());
-            //userEntity.setRole(user.getAppRole());
-            userEntity.setDeleted(user.isDeleted());
-            userEntity.setPrivate(user.isPrivate());
+            userEntity.setBiography(user.getBiography());
             return userEntity;
         }
         return null;
@@ -146,8 +162,8 @@ public class UserBean implements Serializable {
         userDto.setNickname(userEntity.getNickname());
         userDto.setFirstName(userEntity.getFirstName());
         userDto.setLastName(userEntity.getLastName());
-        userDto.setPhotoURL(userEntity.getPhoto());
-        //userDto.setAppRole(userEntity.getRole());
+        userDto.setPhoto(userEntity.getPhoto());
+        userDto.setBiography(userEntity.getBiography());
         userDto.setDeleted(userEntity.isDeleted());
         userDto.setPrivate(userEntity.isPrivate());
         return userDto;
