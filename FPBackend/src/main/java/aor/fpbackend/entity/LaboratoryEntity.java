@@ -10,6 +10,7 @@ import java.util.Set;
 @Table(name = "laboratory")
 
 @NamedQuery(name = "Laboratory.findLaboratoryById", query = "SELECT l FROM LaboratoryEntity l WHERE l.id = :labId")
+@NamedQuery(name = "Laboratory.findAllLaboratories", query = "SELECT l FROM LaboratoryEntity l")
 
 public class LaboratoryEntity implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -37,11 +38,11 @@ public class LaboratoryEntity implements Serializable {
     }
 
     // Getters and setters
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

@@ -15,7 +15,7 @@ public class SessionEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "session_token", nullable = false, unique = true)
     private String sessionToken;
@@ -31,11 +31,11 @@ public class SessionEntity implements Serializable {
     public SessionEntity() {}
 
     // Getters and setters
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

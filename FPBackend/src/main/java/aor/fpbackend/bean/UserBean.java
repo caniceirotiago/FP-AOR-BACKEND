@@ -49,7 +49,7 @@ public class UserBean implements Serializable {
             String encryptedPassword = passEncoder.encode(user.getPassword());
             newUserEntity.setPassword(encryptedPassword);
             // Retrieve the role with ID 3 "Unauthenticated User" (as default user role)
-            RoleEntity role = roleDao.findRoleById(3L);
+            RoleEntity role = roleDao.findRoleById(3);
             if (role == null) {
                 System.out.println("Role with ID 3 not found");
                 return false;

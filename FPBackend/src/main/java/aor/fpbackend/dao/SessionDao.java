@@ -30,7 +30,7 @@ public class SessionDao extends AbstractDao<SessionEntity> {
         }
     }
 
-    public ArrayList<SessionEntity> findAllSessionsByUserId(int userId) {
+    public ArrayList<SessionEntity> findAllSessionsByUserId(long userId) {
         try {
             ArrayList<SessionEntity> sessionsByUserId = (ArrayList<SessionEntity>) em.createNamedQuery("Session.findAllSessionsByUserId")
                     .setParameter("userId", userId)

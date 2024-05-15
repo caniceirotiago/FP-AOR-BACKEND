@@ -2,12 +2,16 @@ package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "permission")
-public class PermissionEntity {
+public class PermissionEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(nullable = false, unique = true)
     private String name;
@@ -23,11 +27,11 @@ public class PermissionEntity {
         this.description = description;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

@@ -1,6 +1,7 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.LaboratoryBean;
+import aor.fpbackend.dto.LaboratoryDto;
 import aor.fpbackend.dto.UserDto;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -24,7 +25,7 @@ public class LaboratoryService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    public ArrayList<UserDto> getAllUsers() {
+    public ArrayList<LaboratoryDto> getAllLabs() {
         return labBean.getLaboratories();
     }
 

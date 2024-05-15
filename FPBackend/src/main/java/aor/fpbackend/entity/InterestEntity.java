@@ -14,7 +14,7 @@ public class InterestEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private long id;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -34,11 +34,11 @@ public class InterestEntity implements Serializable {
     }
 
     // Getters and setters
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
