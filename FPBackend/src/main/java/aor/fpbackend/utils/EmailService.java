@@ -41,8 +41,6 @@ public class EmailService {
                     + "<a href='http://localhost:3000/confirm?token=" + confirmationToken + "' style='padding: 8px 12px; " +
                     "border: 1px solid #007bff; color: white; background-color: #007bff; text-decoration: none;'>Confirm Account</a>"
                     + "</body></html>";
-
-
             message.setContent(htmlMessage, "text/html; charset=utf-8");
             Transport.send(message);
         } catch (MessagingException e) {
