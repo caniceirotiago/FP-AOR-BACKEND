@@ -19,6 +19,7 @@ public class ConfigurationEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @Column(name = "config_key", nullable = false, unique = true)

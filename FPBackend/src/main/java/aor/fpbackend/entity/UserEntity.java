@@ -23,6 +23,7 @@ public class UserEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @Column(name = "email", nullable = false, unique = true, updatable = false)
@@ -47,10 +48,10 @@ public class UserEntity implements Serializable {
     private String biography;
 
     @Column(name = "is_private")
-    private boolean isPrivate = false;
+    private boolean isPrivate;
 
     @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    private boolean isDeleted;
 
     @OneToMany(mappedBy = "user")
     private Set<ProjectMembershipEntity> projects = new HashSet<>();
@@ -66,20 +67,20 @@ public class UserEntity implements Serializable {
 
     @ManyToMany
     @JoinTable(
-            name = "user_skills",
+            name = "user_skill",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private Set<SkillEntity> skills = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
-            name = "user_interests",
+            name = "user_interest",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "interest_id"))
-    private Set<InterestEntity> interests = new HashSet<>();
+    private Set<InterestEntity> userInterests = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "laboratory_id")
+    @JoinColumn(name = "laboratory_id", nullable = false)
     private LaboratoryEntity laboratory;
 
     @OneToMany(mappedBy = "user")
@@ -223,12 +224,12 @@ public class UserEntity implements Serializable {
         this.skills = skills;
     }
 
-    public Set<InterestEntity> getInterests() {
-        return interests;
+    public Set<InterestEntity> getUserInterests() {
+        return userInterests;
     }
 
-    public void setInterests(Set<InterestEntity> interests) {
-        this.interests = interests;
+    public void setUserInterests(Set<InterestEntity> userInterests) {
+        this.userInterests = userInterests;
     }
 
     public LaboratoryEntity getLaboratory() {

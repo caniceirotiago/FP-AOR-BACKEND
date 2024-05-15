@@ -13,6 +13,7 @@ import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.persistence.Column;
 import jakarta.persistence.NoResultException;
 
 import java.io.Serializable;
@@ -37,6 +38,14 @@ public class UserBean implements Serializable {
     RoleDao roleDao;
     @EJB
     LaboratoryDao labDao;
+
+
+
+//    private boolean isPrivate; (default true)
+//    private boolean isDeleted;  (default false)
+//
+
+
 
     public boolean register(UserDto user) {
         if (user == null) return false;

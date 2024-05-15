@@ -12,6 +12,7 @@ public class ProjectMembershipEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @ManyToOne
@@ -26,7 +27,7 @@ public class ProjectMembershipEntity implements Serializable {
     @Column(name = "role", nullable = false)
     private ProjectRoleType role;
 
-    @Column(name = "is_Accepted", nullable = false)
+    @Column(name = "is_accepted", nullable = false)
     private boolean isAccepted = false;
 
     @Column(name = "acceptance_token", nullable = true)

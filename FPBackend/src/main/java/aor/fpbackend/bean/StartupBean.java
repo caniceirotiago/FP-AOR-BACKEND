@@ -35,15 +35,19 @@ public class StartupBean {
         //Create laboratories
         createLaboratories();
 
-        //Create functions
+        // Create functions
 
-        //Create an admin
+        // Create an admin
 
         // Create a test user
 
         // Create a test project where the test user is a manager
 
         // Create a test task in the test project
+
+        //Create default session timeout
+
+        //Create default max members per project
 
     }
 

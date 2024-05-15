@@ -13,16 +13,16 @@ public class InterestEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "interests")
+    @ManyToMany(mappedBy = "userInterests")
     private Set<UserEntity> users = new HashSet<>();
 
-    @ManyToMany(mappedBy = "interests")
+    @ManyToMany(mappedBy = "projectInterests")
     private Set<ProjectEntity> projects = new HashSet<>();
 
     // Constructors
