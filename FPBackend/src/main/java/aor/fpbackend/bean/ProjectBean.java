@@ -57,6 +57,7 @@ import java.util.ArrayList;
         projectDto.setName(projectEntity.getName());
         projectDto.setDescription(projectEntity.getDescription());
         projectDto.setMotivation(projectEntity.getMotivation());
+        System.out.println(projectEntity.getState());
         projectDto.setState(projectEntity.getState());
         projectDto.setCreationDate(projectEntity.getCreationDate());
         projectDto.setInitialDate(projectEntity.getInitialDate());
