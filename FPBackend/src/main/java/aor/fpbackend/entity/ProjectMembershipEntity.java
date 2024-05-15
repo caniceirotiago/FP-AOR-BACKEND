@@ -1,7 +1,7 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
-import util.enums.ProjectRoleType;
+import aor.fpbackend.enums.ProjectRoleType;
 
 import java.io.Serializable;
 

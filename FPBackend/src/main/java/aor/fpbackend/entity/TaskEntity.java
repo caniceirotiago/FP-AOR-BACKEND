@@ -1,7 +1,7 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
-import util.enums.TaskState;
+import aor.fpbackend.enums.TaskState;
 
 import java.io.Serializable;
 import java.time.Instant;

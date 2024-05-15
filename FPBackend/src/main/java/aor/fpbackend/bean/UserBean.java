@@ -43,7 +43,7 @@ public class UserBean implements Serializable {
 
 //    private boolean isPrivate; (default true)
 //    private boolean isDeleted;  (default false)
-//
+//    private boolean isConfirmed;  (default false)
 
 
 

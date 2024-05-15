@@ -53,6 +53,9 @@ public class UserEntity implements Serializable {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
+    @Column(name = "is_confirmed", nullable = false)
+    private boolean isConfirmed;
+
     @OneToMany(mappedBy = "user")
     private Set<ProjectMembershipEntity> projects = new HashSet<>();
 
@@ -182,6 +185,14 @@ public class UserEntity implements Serializable {
 
     public void setDeleted(boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public boolean isConfirmed() {
+        return isConfirmed;
+    }
+
+    public void setConfirmed(boolean confirmed) {
+        isConfirmed = confirmed;
     }
 
     public Set<ProjectMembershipEntity> getProjects() {

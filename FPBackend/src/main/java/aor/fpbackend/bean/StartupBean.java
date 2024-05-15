@@ -55,7 +55,6 @@ public class StartupBean {
     private void createRoles() {
         roleDao.createRoleIfNotExists("Admin");
         roleDao.createRoleIfNotExists("Standard User");
-        roleDao.createRoleIfNotExists("Unauthenticated User");
     }
 
     @Transactional
