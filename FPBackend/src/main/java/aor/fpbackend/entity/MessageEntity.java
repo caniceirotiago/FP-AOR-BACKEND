@@ -11,7 +11,7 @@ public abstract class MessageEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
-    private Long id;
+    private long id;
 
     @Column(nullable = false)
     private String content;
@@ -37,11 +37,11 @@ public abstract class MessageEntity implements Serializable {
 
     // Standard getters and setters
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

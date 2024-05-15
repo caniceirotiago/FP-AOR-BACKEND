@@ -23,7 +23,7 @@ public class UserEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "email", nullable = false, unique = true, updatable = false)
     private String email;
@@ -103,11 +103,11 @@ public class UserEntity implements Serializable {
 
     // Getters and setters
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

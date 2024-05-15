@@ -1,14 +1,18 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.time.Instant;
 
 @Entity
 @Table(name = "project_log")
-public class ProjectLogEntity {
+public class ProjectLogEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "creation_date", nullable = false)
     private Instant creationDate;
@@ -44,11 +48,11 @@ public class ProjectLogEntity {
     }
 
     // Getters and setters
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

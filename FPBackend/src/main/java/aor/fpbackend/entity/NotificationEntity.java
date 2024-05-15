@@ -11,7 +11,7 @@ public class NotificationEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "type", nullable = false)
     private String type;
@@ -37,11 +37,11 @@ public class NotificationEntity implements Serializable {
     }
 
     // Getters and setters
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

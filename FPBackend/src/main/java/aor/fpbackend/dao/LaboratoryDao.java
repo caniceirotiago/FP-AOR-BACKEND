@@ -2,11 +2,13 @@ package aor.fpbackend.dao;
 
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
+import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Stateless
@@ -32,11 +34,20 @@ public class LaboratoryDao extends AbstractDao<LaboratoryEntity> {
         }
     }
 
-    public LaboratoryEntity findLaboratoryById(Long labId) {
+    public LaboratoryEntity findLaboratoryById(long labId) {
         try {
             return (LaboratoryEntity) em.createNamedQuery("Laboratory.findLaboratoryById")
                     .setParameter("labId", labId)
                     .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public ArrayList<LaboratoryEntity> findAllLaboratories() {
+        try {
+            return (ArrayList<LaboratoryEntity>) em.createNamedQuery("Laboratory.findAllLaboratories").getResultList();
+
         } catch (NoResultException e) {
             return null;
         }

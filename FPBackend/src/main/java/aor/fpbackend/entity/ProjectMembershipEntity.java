@@ -12,7 +12,7 @@ public class ProjectMembershipEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -36,11 +36,11 @@ public class ProjectMembershipEntity implements Serializable {
 
     public ProjectMembershipEntity() {}
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

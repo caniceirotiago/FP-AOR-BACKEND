@@ -32,7 +32,7 @@ public class RoleDao extends AbstractDao<RoleEntity> {
         }
     }
 
-    public RoleEntity findRoleById(Long roleId) {
+    public RoleEntity findRoleById(long roleId) {
         try {
             return (RoleEntity) em.createNamedQuery("Role.findRoleById")
                     .setParameter("roleId", roleId)
