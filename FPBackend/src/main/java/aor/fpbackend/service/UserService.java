@@ -35,16 +35,16 @@ public class UserService {
     }
 
     @PUT
-    @Path("/request-password-reset")
+    @Path("/request/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
     public void requestPasswordReset(ResetPasswordDto resetPasswordDto) {
-        userBean.requestPasswordReset(resetPasswordDto.getEmail());
+        userBean.requestPasswordReset(resetPasswordDto);
     }
     @PUT
-    @Path("/reset-password")
+    @Path("/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void resetPassword( ResetPasswordDto resetPasswordDto) {
-        userBean.resetPassword(resetPasswordDto.getToken(), resetPasswordDto.getNewPassword());
+    public void resetPassword(ResetPasswordDto resetPasswordDto) {
+        userBean.resetPassword(resetPasswordDto);
     }
 
 

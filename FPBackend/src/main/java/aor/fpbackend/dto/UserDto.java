@@ -60,10 +60,14 @@ public class UserDto implements Serializable {
     @NotNull
     private boolean isDeleted;
 
+    @XmlElement
+    @NotNull
+    private boolean isConfirmed;
+
     public UserDto() {
     }
 
-    public UserDto(long id, String email, String password, String nickname, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate, boolean isDeleted) {
+    public UserDto(long id, String email, String password, String nickname, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate, boolean isDeleted, boolean isConfirmed) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -75,6 +79,7 @@ public class UserDto implements Serializable {
         this.laboratoryId = laboratoryId;
         this.isPrivate = isPrivate;
         this.isDeleted = isDeleted;
+        this.isConfirmed = isConfirmed;
     }
 
     public long getId() {
@@ -163,5 +168,13 @@ public class UserDto implements Serializable {
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public boolean isConfirmed() {
+        return isConfirmed;
+    }
+
+    public void setConfirmed(boolean confirmed) {
+        isConfirmed = confirmed;
     }
 }

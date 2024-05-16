@@ -11,7 +11,7 @@ public class ResetPasswordDto implements Serializable {
     @XmlElement
     private String email;
     @XmlElement
-    private String token;
+    private String resetToken;
     @XmlElement
     @Size(min = 4, message = "Password must be greater than 4 characters")
     private String newPassword;
@@ -19,9 +19,9 @@ public class ResetPasswordDto implements Serializable {
     public ResetPasswordDto() {
     }
 
-    public ResetPasswordDto(String email, String token, String newPassword) {
+    public ResetPasswordDto(String email, String resetToken, String newPassword) {
         this.email = email;
-        this.token = token;
+        this.resetToken = resetToken;
         this.newPassword = newPassword;
     }
 
@@ -33,12 +33,12 @@ public class ResetPasswordDto implements Serializable {
         this.email = email;
     }
 
-    public String getToken() {
-        return token;
+    public String getResetToken() {
+        return resetToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setResetToken(String token) {
+        this.resetToken = token;
     }
 
     public String getNewPassword() {
