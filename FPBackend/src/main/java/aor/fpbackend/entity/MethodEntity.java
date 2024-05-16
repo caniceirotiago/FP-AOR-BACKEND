@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "function")
-public class FunctionEntity implements Serializable {
+@Table(name = "method")
+public class MethodEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     
     @Id
@@ -21,9 +21,9 @@ public class FunctionEntity implements Serializable {
     private String description;
 
     // Construtores, getters e setters
-    public FunctionEntity() {}
+    public MethodEntity() {}
 
-    public FunctionEntity(String name, String description) {
+    public MethodEntity(String name, String description) {
         this.name = name;
         this.description = description;
     }

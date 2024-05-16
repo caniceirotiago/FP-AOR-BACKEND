@@ -15,11 +15,9 @@ import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.InvalidPasswordRequestException;
 import aor.fpbackend.exception.UserConfirmationException;
-import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.persistence.Column;
 import jakarta.persistence.NoResultException;
 import org.apache.logging.log4j.LogManager;
 
@@ -30,7 +28,6 @@ import java.security.SecureRandom;
 import java.time.Instant;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 

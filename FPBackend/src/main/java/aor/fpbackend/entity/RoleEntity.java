@@ -25,9 +25,9 @@ public class RoleEntity implements Serializable {
     @JoinTable(
             name = "permission",
             joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "function_id")
+            inverseJoinColumns = @JoinColumn(name = "method_id")
     )
-    private Set<FunctionEntity> functions;
+    private Set<MethodEntity> methods;
 
     // Construtores, getters e setters
     public RoleEntity() {
@@ -53,12 +53,12 @@ public class RoleEntity implements Serializable {
         this.name = name;
     }
 
-    public Set<FunctionEntity> getFunctions() {
-        return functions;
+    public Set<MethodEntity> getMethods() {
+        return methods;
     }
 
-    public void setFunctions(Set<FunctionEntity> functions) {
-        this.functions = functions;
+    public void setMethods(Set<MethodEntity> methods) {
+        this.methods = methods;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class RoleEntity implements Serializable {
         return "RoleEntity{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", functions=" + functions +
+                ", methods=" + methods +
                 '}';
     }
 }

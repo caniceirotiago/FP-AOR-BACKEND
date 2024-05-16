@@ -14,7 +14,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -26,11 +25,13 @@ public class UserService {
 
     @POST
     @Path("/register")
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public void registerUser (@Valid UserDto user) throws InvalidCredentialsException, UnknownHostException {userBean.register(user);}
 
     @PUT
     @Path("/confirm")
+    @Consumes(MediaType.APPLICATION_JSON)
     public void confirmRegistration(@QueryParam("token") String token) throws UserConfirmationException {
         userBean.confirmUser(token);
     }
