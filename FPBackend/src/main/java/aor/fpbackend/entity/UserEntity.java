@@ -9,8 +9,7 @@ import java.util.Set;
 @Entity
 @Table(name = "user")
 
-//@NamedQuery(name = "User.findUserByToken", query = "SELECT DISTINCT u FROM UserEntity u " +
-//        "WHERE u.token = :token")
+@NamedQuery(name = "User.findUserByToken", query = "SELECT u FROM UserEntity u JOIN u.sessions s WHERE s.sessionToken = :token AND u.isDeleted = false")
 @NamedQuery(name = "User.checkIfEmailExists", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.email = :email")
 @NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
 @NamedQuery(name = "User.findUserByConfirmationToken", query = "SELECT u FROM UserEntity u WHERE u.confirmationToken = :confirmationToken")

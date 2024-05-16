@@ -21,14 +21,14 @@ public class UserDao extends AbstractDao<UserEntity> {
     @PersistenceContext
     private EntityManager em;
 
-//    public UserEntity findUserByToken(String token) {
-//        try {
-//            return (UserEntity) em.createNamedQuery("User.findUserByToken").setParameter("token", token)
-//                    .getSingleResult();
-//        } catch (NoResultException e) {
-//            return null;
-//        }
-//    }
+    public UserEntity findUserByToken(String token) {
+        try {
+            return (UserEntity) em.createNamedQuery("User.findUserByToken").setParameter("token", token)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
 
 
     public UserEntity findUserByConfirmationToken(String token) {
