@@ -27,9 +27,7 @@ public class UserService {
     @POST
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void registerUser (UserDto user) throws InvalidCredentialsException, UnknownHostException {
-        userBean.register(user);
-    }
+    public void registerUser (@Valid UserDto user) throws InvalidCredentialsException, UnknownHostException {userBean.register(user);}
 
     @PUT
     @Path("/confirm")
