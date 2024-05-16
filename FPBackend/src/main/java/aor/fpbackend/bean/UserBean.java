@@ -12,11 +12,14 @@ import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.exception.InvalidCredentialsException;
+import aor.fpbackend.exception.UserConfirmationException;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.Column;
 import jakarta.persistence.NoResultException;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -34,6 +37,8 @@ import java.util.UUID;
 public class UserBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(UserBean.class);
+
     @EJB
     UserDao userDao;
     @EJB
@@ -48,9 +53,10 @@ public class UserBean implements Serializable {
     EmailService emailService;
 
 
-    public void register(UserDto user) {
+    public void register(UserDto user) throws InvalidCredentialsException, UnknownHostException {
         if ((user == null) || (userDao.findUserByEmail(user.getEmail())!=null)) {
-            System.out.println("Invalid credentials");
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to register with invalid credentials!");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
         try {
             UserEntity newUserEntity = convertUserDtotoUserEntity(user);
@@ -78,11 +84,11 @@ public class UserBean implements Serializable {
                 emailService.sendConfirmationEmail(user.getEmail(), confirmationToken);
             }
         } catch (NoResultException e) {
-            System.out.println("Error while persisting user");
+            LOGGER.error(InetAddress.getLocalHost().getHostAddress() + " - Error while persisting user at: " + e.getMessage());
         }
     }
 
-    public void validateUser(String token) {
+    public void confirmUser(String token) throws UserConfirmationException, UnknownHostException {
         UserEntity userEntity = userDao.findUserByConfirmationToken(token);
         if (userEntity != null) {
             if (userEntity.getConfirmationToken().equals(token)) {
@@ -90,6 +96,9 @@ public class UserBean implements Serializable {
                 userEntity.setConfirmationToken(null);
                 userEntity.setConfirmationTokenTimestamp(null);
             }
+        } else {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to confirm user with invalid token");
+            throw new UserConfirmationException("Invalid token");
         }
     }
 
