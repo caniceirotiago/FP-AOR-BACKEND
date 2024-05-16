@@ -5,6 +5,8 @@ import aor.fpbackend.dto.LoginDto;
 import aor.fpbackend.dto.ResetPasswordDto;
 import aor.fpbackend.dto.TokenDto;
 import aor.fpbackend.dto.UserDto;
+import aor.fpbackend.exception.InvalidCredentialsException;
+import aor.fpbackend.exception.UserConfirmationException;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -24,27 +26,27 @@ public class UserService {
     @POST
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void registerUser(UserDto user) {
+    public void registerUser (UserDto user) throws InvalidCredentialsException, UnknownHostException {
         userBean.register(user);
     }
 
     @PUT
     @Path("/confirm")
-    public void confirmRegistration(@QueryParam("token") String token) {
-        userBean.validateUser(token);
+    public void confirmRegistration(@QueryParam("token") String token) throws UserConfirmationException, UnknownHostException {
+        userBean.confirmUser(token);
     }
 
     @PUT
-    @Path("/request-password-reset")
+    @Path("/request/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
     public void requestPasswordReset(ResetPasswordDto resetPasswordDto) {
-        userBean.requestPasswordReset(resetPasswordDto.getEmail());
+        userBean.requestPasswordReset(resetPasswordDto);
     }
     @PUT
-    @Path("/reset-password")
+    @Path("/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void resetPassword( ResetPasswordDto resetPasswordDto) {
-        userBean.resetPassword(resetPasswordDto.getToken(), resetPasswordDto.getNewPassword());
+    public void resetPassword(ResetPasswordDto resetPasswordDto) {
+        userBean.resetPassword(resetPasswordDto);
     }
 
 

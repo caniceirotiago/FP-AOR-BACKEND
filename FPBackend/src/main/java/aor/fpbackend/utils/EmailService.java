@@ -47,6 +47,7 @@ public class EmailService {
             throw new RuntimeException(e);
         }
     }
+
     public void sendPasswordResetEmail(String toEmail, String resetToken) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -62,11 +63,11 @@ public class EmailService {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("antnestservice@gmail.com")); // O e-mail do remetente
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // O e-mail do destinatário
-            message.setSubject("Redefinição de Senha"); // O assunto do e-mail
+            message.setFrom(new InternetAddress("antnestservice@gmail.com")); // Sender e-mail
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // Receiver e-mail
+            message.setSubject("Reset Password"); // E-mail subject
             String resetUrl = "http://localhost:3000/reset-password?token=" + resetToken;
-            message.setText("Solicitou a redefinição de sua password. Por favor, clique no link abaixo para criar uma nova password:\n" + resetUrl);
+            message.setText("You have requested to reset your password. Please click the link below to create a new password:\n" + resetUrl);
             Transport.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException(e);

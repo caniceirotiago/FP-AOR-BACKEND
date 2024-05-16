@@ -5,17 +5,21 @@ import aor.fpbackend.dao.RoleDao;
 import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.LoginDto;
+import aor.fpbackend.dto.ResetPasswordDto;
 import aor.fpbackend.dto.TokenDto;
 import aor.fpbackend.dto.UserDto;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.exception.InvalidCredentialsException;
+import aor.fpbackend.exception.UserConfirmationException;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.Column;
 import jakarta.persistence.NoResultException;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -33,6 +37,8 @@ import java.util.UUID;
 public class UserBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(UserBean.class);
+
     @EJB
     UserDao userDao;
     @EJB
@@ -43,16 +49,14 @@ public class UserBean implements Serializable {
     RoleDao roleDao;
     @EJB
     LaboratoryDao labDao;
-
     @EJB
     EmailService emailService;
 
 
-    public boolean register(UserDto user) {
-        if (user == null) return false;
-        if (userDao.findUserByEmail(user.getEmail())!=null) {
-            System.out.println("Invalid credentials");
-            return false;
+    public void register(UserDto user) throws InvalidCredentialsException, UnknownHostException {
+        if ((user == null) || (userDao.findUserByEmail(user.getEmail())!=null)) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to register with invalid credentials!");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
         try {
             UserEntity newUserEntity = convertUserDtotoUserEntity(user);
@@ -60,52 +64,51 @@ public class UserBean implements Serializable {
             newUserEntity.setPassword(encryptedPassword);
             // Retrieve the role with ID 2 "Standard User" (as default user role)
             RoleEntity role = roleDao.findRoleById(2);
-            if (role == null) {
-                System.out.println("Role not found");
-                return false;
+            if (role != null) {
+                // Set the role to the new user
+                newUserEntity.setRole(role);
+                // Retrieve the LaboratoryEntity from userDto and set it to the new user
+                LaboratoryEntity lab = labDao.findLaboratoryById(user.getLaboratoryId());
+                newUserEntity.setLaboratory(lab);
+                // Set default parameters for the new user
+                newUserEntity.setDeleted(false);
+                newUserEntity.setConfirmed(false);
+                newUserEntity.setPrivate(true);
+                // Create a confirmation token
+                String confirmationToken = generateNewToken();
+                newUserEntity.setConfirmationToken(confirmationToken);
+                newUserEntity.setConfirmationTokenTimestamp(Instant.now());
+                // Persist the new User
+                userDao.persist(newUserEntity);
+                // Send confirmation token by email
+                emailService.sendConfirmationEmail(user.getEmail(), confirmationToken);
             }
-            // Set the role to the new user
-            newUserEntity.setRole(role);
-            // Retrieve the LaboratoryEntity from userDto and set it to the new user
-            LaboratoryEntity lab = labDao.findLaboratoryById(user.getLaboratoryId());
-            newUserEntity.setLaboratory(lab);
-            // Set default parameters for the new user
-            newUserEntity.setDeleted(false);
-            newUserEntity.setConfirmed(false);
-            newUserEntity.setPrivate(true);
-            // Create a confirmation token
-            String confirmationToken = generateNewToken();
-            newUserEntity.setConfirmationToken(confirmationToken);
-            newUserEntity.setConfirmationTokenTimestamp(Instant.now());
-            // Persist the new User
-            userDao.persist(newUserEntity);
-            // Send confirmation token by email
-            emailService.sendConfirmationEmail(user.getEmail(), confirmationToken);
-            return true;
         } catch (NoResultException e) {
-            System.out.println("Error while persisting user");
-            return false;
+            LOGGER.error(InetAddress.getLocalHost().getHostAddress() + " - Error while persisting user at: " + e.getMessage());
         }
     }
 
-    public boolean validateUser(String token) {
+    public void confirmUser(String token) throws UserConfirmationException, UnknownHostException {
         UserEntity userEntity = userDao.findUserByConfirmationToken(token);
         if (userEntity != null) {
             if (userEntity.getConfirmationToken().equals(token)) {
                 userEntity.setConfirmed(true);
                 userEntity.setConfirmationToken(null);
                 userEntity.setConfirmationTokenTimestamp(null);
-                return true;
             }
+        } else {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to confirm user with invalid token");
+            throw new UserConfirmationException("Invalid token");
         }
-        return false;
     }
 
-    public void requestPasswordReset(String email) {
-        UserEntity user = userDao.findUserByEmail(email);
+    public void requestPasswordReset(ResetPasswordDto resetPasswordDto) {
+        UserEntity user = userDao.findUserByEmail(resetPasswordDto.getEmail());
         if (user == null) {
+            System.out.println("No user found for this email");
         }
-        if (user.getResetPasswordTimestamp() != null && user.getResetPasswordTimestamp().isAfter(Instant.now())) {
+        if ((user.getResetPasswordTimestamp() != null) && (user.getResetPasswordTimestamp().isAfter(Instant.now()))) {
+            System.out.println("You already requested a password reset, please check your email or contact the administrator");
         }
         String resetToken = generateNewToken();
         user.setResetPasswordToken(resetToken);
@@ -113,15 +116,15 @@ public class UserBean implements Serializable {
         emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
     }
 
-    public void resetPassword(String token, String newPassword) {
-        UserEntity user = userDao.findUserByResetPasswordToken(token);
-        if ((user == null) && (!user.getResetPasswordToken().equals(token))) {
+    public void resetPassword(ResetPasswordDto resetPasswordDto) {
+        UserEntity user = userDao.findUserByResetPasswordToken(resetPasswordDto.getResetToken());
+        if (user == null) {
             System.out.println("Invalid token");
         }
         if (user.getResetPasswordTimestamp().isBefore(Instant.now())) {
             System.out.println("Token expired");
         }
-        String encryptedPassword = passEncoder.encode(newPassword);
+        String encryptedPassword = passEncoder.encode(resetPasswordDto.getNewPassword());
         user.setPassword(encryptedPassword);
         user.setResetPasswordToken(null);
         user.setResetPasswordTimestamp(null);
@@ -223,6 +226,7 @@ public class UserBean implements Serializable {
         userDto.setBiography(userEntity.getBiography());
         userDto.setDeleted(userEntity.isDeleted());
         userDto.setPrivate(userEntity.isPrivate());
+        userDto.setConfirmed(userEntity.isConfirmed());
         return userDto;
     }
 
