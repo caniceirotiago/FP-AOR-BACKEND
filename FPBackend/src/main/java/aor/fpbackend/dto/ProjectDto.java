@@ -5,10 +5,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import aor.fpbackend.enums.ProjectState;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 @XmlRootElement
-public class ProjectDto {
+public class ProjectDto implements Serializable {
 
     @XmlElement
     @NotNull

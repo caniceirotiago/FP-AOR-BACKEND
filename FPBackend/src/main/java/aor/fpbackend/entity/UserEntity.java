@@ -10,14 +10,11 @@ import java.util.Set;
 @Table(name = "user")
 
 @NamedQuery(name = "User.findUserByToken", query = "SELECT u FROM UserEntity u JOIN u.sessions s WHERE s.sessionToken = :token AND u.isDeleted = false")
-@NamedQuery(name = "User.findUserByResetPasswordToken", query = "SELECT u FROM UserEntity u WHERE u.resetPasswordToken = :resetPasswordToken")
-@NamedQuery(name = "User.checkIfEmailExists", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.email = :email")
-@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
 @NamedQuery(name = "User.findUserByConfirmationToken", query = "SELECT u FROM UserEntity u WHERE u.confirmationToken = :confirmationToken")
-@NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u " +
-        "WHERE u.email = :email")
-@NamedQuery(name = "User.findUserByNickname", query = "SELECT u FROM UserEntity u " +
-        "WHERE u.nickname = :nickname")
+@NamedQuery(name = "User.findUserByResetPasswordToken", query = "SELECT u FROM UserEntity u WHERE u.resetPasswordToken = :resetPasswordToken")
+@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
+@NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u WHERE u.email = :email")
+@NamedQuery(name = "User.findUserByNickname", query = "SELECT u FROM UserEntity u WHERE u.nickname = :nickname")
 
 
 public class UserEntity implements Serializable {
@@ -61,13 +58,13 @@ public class UserEntity implements Serializable {
     @Column(name = "confirmation_token")
     private String confirmationToken;
 
-    @Column(name="last_sent_email_timestamp", nullable=true, updatable = true)
-    private Instant lastSentEmailTimestamp;
+    @Column(name="confirmation_token_timestamp", nullable=true, updatable = true)
+    private Instant confirmationTokenTimestamp;
 
     @Column(name="reset_password_token")
     private String resetPasswordToken;
-    @Column(name="reset_password_token_expiry")
-    private Instant resetPasswordTokenExpiry;
+    @Column(name="reset_password_token_timestamp")
+    private Instant resetPasswordTimestamp;
 
     @OneToMany(mappedBy = "user")
     private Set<ProjectMembershipEntity> projects = new HashSet<>();
@@ -216,12 +213,12 @@ public class UserEntity implements Serializable {
         this.confirmationToken = confirmationToken;
     }
 
-    public Instant getLastSentEmailTimestamp() {
-        return lastSentEmailTimestamp;
+    public Instant getConfirmationTokenTimestamp() {
+        return confirmationTokenTimestamp;
     }
 
-    public void setLastSentEmailTimestamp(Instant lastSentEmailTimestamp) {
-        this.lastSentEmailTimestamp = lastSentEmailTimestamp;
+    public void setConfirmationTokenTimestamp(Instant confirmationTokenTimestamp) {
+        this.confirmationTokenTimestamp = confirmationTokenTimestamp;
     }
 
     public String getResetPasswordToken() {
@@ -232,12 +229,12 @@ public class UserEntity implements Serializable {
         this.resetPasswordToken = resetPasswordToken;
     }
 
-    public Instant getResetPasswordTokenExpiry() {
-        return resetPasswordTokenExpiry;
+    public Instant getResetPasswordTimestamp() {
+        return resetPasswordTimestamp;
     }
 
-    public void setResetPasswordTokenExpiry(Instant resetPasswordTokenExpiry) {
-        this.resetPasswordTokenExpiry = resetPasswordTokenExpiry;
+    public void setResetPasswordTimestamp(Instant resetPasswordTimestamp) {
+        this.resetPasswordTimestamp = resetPasswordTimestamp;
     }
 
     public Set<ProjectMembershipEntity> getProjects() {

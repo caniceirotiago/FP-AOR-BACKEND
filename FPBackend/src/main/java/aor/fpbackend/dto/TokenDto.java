@@ -3,8 +3,10 @@ package aor.fpbackend.dto;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
+
 @XmlRootElement
-public class TokenDto {
+public class TokenDto implements Serializable {
 
     @XmlElement
     private long id;

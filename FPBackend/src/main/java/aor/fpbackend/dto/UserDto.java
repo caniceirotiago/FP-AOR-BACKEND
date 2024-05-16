@@ -4,8 +4,10 @@ import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
+
 @XmlRootElement
-public class UserDto {
+public class UserDto implements Serializable {
 
     @XmlElement
     @NotNull

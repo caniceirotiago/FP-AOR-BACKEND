@@ -5,8 +5,10 @@ import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
+
 @XmlRootElement
-public class UserPasswordDto {
+public class UserPasswordDto implements Serializable {
 
 
     @XmlElement

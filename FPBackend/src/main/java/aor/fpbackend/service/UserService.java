@@ -2,6 +2,7 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dto.LoginDto;
+import aor.fpbackend.dto.ResetPasswordDto;
 import aor.fpbackend.dto.TokenDto;
 import aor.fpbackend.dto.UserDto;
 import jakarta.ejb.EJB;
@@ -33,18 +34,18 @@ public class UserService {
         userBean.validateUser(token);
     }
 
-//    @POST
-//    @Path("/request-password-reset")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    public void requestPasswordReset(ResetPasswordRequestDTO requestPasswordResetDto) {
-//        userBean.requestPasswordReset(requestPasswordResetDto.getEmail());
-//    }
-//    @POST
-//    @Path("/reset-password")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    public void resetPassword(@Valid ResetPasswordDTO resetPasswordDto) {
-//        userBean.resetPassword(resetPasswordDto.getToken(), resetPasswordDto.getNewPassword());
-//    }
+    @PUT
+    @Path("/request-password-reset")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void requestPasswordReset(ResetPasswordDto resetPasswordDto) {
+        userBean.requestPasswordReset(resetPasswordDto.getEmail());
+    }
+    @PUT
+    @Path("/reset-password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void resetPassword( ResetPasswordDto resetPasswordDto) {
+        userBean.resetPassword(resetPasswordDto.getToken(), resetPasswordDto.getNewPassword());
+    }
 
 
     /**

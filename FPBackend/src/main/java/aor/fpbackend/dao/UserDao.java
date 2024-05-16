@@ -51,18 +51,6 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-    public boolean checkIfEmailExists(String email) {
-        try {
-            Query query = em.createNamedQuery("User.checkIfEmailExists");
-            Long count = (Long) query.setParameter("email", email).getSingleResult();
-            if (count > 0) {
-                return true;
-            } else return false;
-        } catch (NoResultException e) {
-            return false;
-        }
-    }
-
     public ArrayList<UserEntity> findAllUsers() {
         try {
             return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
