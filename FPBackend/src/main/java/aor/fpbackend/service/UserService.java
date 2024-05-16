@@ -6,6 +6,7 @@ import aor.fpbackend.dto.ResetPasswordDto;
 import aor.fpbackend.dto.TokenDto;
 import aor.fpbackend.dto.UserDto;
 import aor.fpbackend.exception.InvalidCredentialsException;
+import aor.fpbackend.exception.InvalidPasswordRequestException;
 import aor.fpbackend.exception.UserConfirmationException;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
@@ -32,20 +33,20 @@ public class UserService {
 
     @PUT
     @Path("/confirm")
-    public void confirmRegistration(@QueryParam("token") String token) throws UserConfirmationException, UnknownHostException {
+    public void confirmRegistration(@QueryParam("token") String token) throws UserConfirmationException {
         userBean.confirmUser(token);
     }
 
     @PUT
     @Path("/request/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void requestPasswordReset(ResetPasswordDto resetPasswordDto) {
+    public void requestPasswordReset(ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
         userBean.requestPasswordReset(resetPasswordDto);
     }
     @PUT
     @Path("/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void resetPassword(ResetPasswordDto resetPasswordDto) {
+    public void resetPassword(ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
         userBean.resetPassword(resetPasswordDto);
     }
 
@@ -61,7 +62,7 @@ public class UserService {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public TokenDto login(LoginDto userLogin) {
+    public TokenDto login(LoginDto userLogin) throws InvalidCredentialsException {
         return userBean.login(userLogin);
     }
 
@@ -69,7 +70,7 @@ public class UserService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    public ArrayList<UserDto> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return userBean.getAllRegUsers();
     }
 
@@ -82,7 +83,7 @@ public class UserService {
     @POST
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@HeaderParam("token") String token) {
+    public void logout(@HeaderParam("token") String token)throws InvalidCredentialsException {
         userBean.logout(token);
     }
 }
