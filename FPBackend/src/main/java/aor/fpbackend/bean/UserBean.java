@@ -40,7 +40,6 @@ public class UserBean implements Serializable {
 
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(UserBean.class);
 
-
     @EJB
     UserDao userDao;
     @EJB
@@ -94,39 +93,39 @@ public class UserBean implements Serializable {
     }
 
     public void confirmUser(String token) throws UserConfirmationException {
-       // try {
+        try {
             UserEntity userEntity = userDao.findUserByConfirmationToken(token);
             if (userEntity != null) {
                 userEntity.setConfirmed(true);
                 userEntity.setConfirmationToken(null);
                 userEntity.setConfirmationTokenTimestamp(null);
             } else {
-                //LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()} - Attempt to confirm user with invalid token");
+                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to confirm user with invalid token");
                 throw new UserConfirmationException("Invalid token");
             }
-//        } catch ( e) {
-//            throw new RuntimeException("Unable to retrieve host address", e);
-//        }
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Unable to retrieve host address", e);
+        }
     }
 
     public void requestPasswordReset(ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
-//        try {
+        try {
             UserEntity user = userDao.findUserByEmail(resetPasswordDto.getEmail());
             if (user == null) {
-                //LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()} - Attempt to reset password with invalid credentials!");
+                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with invalid credentials!");
                 throw new InvalidPasswordRequestException("Invalid credentials");
             }
             if (isResetTokenNotExpired(user)) {
-                //LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to reset password with token not expired at: \{LocalDate.now()}");
+                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with token not expired at: " + LocalDate.now());
                 throw new InvalidPasswordRequestException("Request password reset done, please check your email or contact the system administrator");
             }
             String resetToken = generateNewToken();
             user.setResetPasswordToken(resetToken);
             user.setResetPasswordTimestamp(Instant.now().plus(30, ChronoUnit.MINUTES));
             emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
-//        } catch (UnknownHostException e) {
-//            throw new RuntimeException("Unable to retrieve host address", e);
-//        }
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Unable to retrieve host address", e);
+        }
     }
 
     private boolean isResetTokenNotExpired(UserEntity user) {
@@ -134,23 +133,23 @@ public class UserBean implements Serializable {
     }
 
     public void resetPassword(ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
-       // try {
-            UserEntity user = userDao.findUserByResetPasswordToken(resetPasswordDto.getResetToken());
-            if (user == null) {
-                //LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to reset password with invalid token at: \{LocalDate.now()}");
-                throw new InvalidPasswordRequestException("Invalid token");
-            }
-            if (isTokenExpired(user)) {
-                //LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to reset password with expired token at: \{LocalDate.now()}");
-                throw new InvalidPasswordRequestException("Token expired");
-            }
-            String encryptedPassword = passEncoder.encode(resetPasswordDto.getNewPassword());
-            user.setPassword(encryptedPassword);
-            user.setResetPasswordToken(null);
-            user.setResetPasswordTimestamp(null);
-//        } catch (UnknownHostException e) {
-//            throw new RuntimeException("Unable to retrieve host address", e);
-//        }
+         try {
+        UserEntity user = userDao.findUserByResetPasswordToken(resetPasswordDto.getResetToken());
+        if (user == null) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with invalid token at: " + LocalDate.now());
+            throw new InvalidPasswordRequestException("Invalid token");
+        }
+        if (isTokenExpired(user)) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with expired token at: " + LocalDate.now());
+            throw new InvalidPasswordRequestException("Token expired");
+        }
+        String encryptedPassword = passEncoder.encode(resetPasswordDto.getNewPassword());
+        user.setPassword(encryptedPassword);
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTimestamp(null);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Unable to retrieve host address", e);
+        }
     }
 
     private boolean isTokenExpired(UserEntity user) {
@@ -158,38 +157,38 @@ public class UserBean implements Serializable {
     }
 
     public TokenDto login(LoginDto userLogin) throws InvalidCredentialsException {
-      //  try {
-            UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
-            if (userEntity != null) {
-                // Retrieve the hashed password associated with the user
-                String hashedPassword = userEntity.getPassword();
-                // Check if the provided password matches the hashed password
-                if (passEncoder.matches(userLogin.getPassword(), hashedPassword)) {
-                    String tokenValue = generateNewToken();
-                    SessionEntity sessionEntity = new SessionEntity();
-                    sessionEntity.setSessionToken(tokenValue);
-                    sessionEntity.setUser(userEntity);
-                    sessionEntity.setLastActivityTimestamp(Instant.now());
-                    sessionDao.persist(sessionEntity);
+        try {
+        UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
+        if (userEntity != null) {
+            // Retrieve the hashed password associated with the user
+            String hashedPassword = userEntity.getPassword();
+            // Check if the provided password matches the hashed password
+            if (passEncoder.matches(userLogin.getPassword(), hashedPassword)) {
+                String tokenValue = generateNewToken();
+                SessionEntity sessionEntity = new SessionEntity();
+                sessionEntity.setSessionToken(tokenValue);
+                sessionEntity.setUser(userEntity);
+                sessionEntity.setLastActivityTimestamp(Instant.now());
+                sessionDao.persist(sessionEntity);
 
-                    TokenDto tokenDto = new TokenDto();
-                    tokenDto.setId(userEntity.getId());
-                    tokenDto.setEmail(userEntity.getEmail());
-                    tokenDto.setNickname(userEntity.getNickname());
-                    tokenDto.setToken(sessionEntity.getSessionToken());
-                    tokenDto.setPhoto(userEntity.getPhoto());
-                    return tokenDto;
-                } else {
-                    //LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()} - Attempt to login with invalid credentials: \{userLogin.getEmail()}");
-                    throw new InvalidCredentialsException("Invalid credentials");
-                }
+                TokenDto tokenDto = new TokenDto();
+                tokenDto.setId(userEntity.getId());
+                tokenDto.setEmail(userEntity.getEmail());
+                tokenDto.setNickname(userEntity.getNickname());
+                tokenDto.setToken(sessionEntity.getSessionToken());
+                tokenDto.setPhoto(userEntity.getPhoto());
+                return tokenDto;
             } else {
-                //LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()} - Attempt to login with invalid credentials: \{userLogin.getEmail()}");
+                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to login with invalid credentials: " + userLogin.getEmail());
                 throw new InvalidCredentialsException("Invalid credentials");
             }
-//        } catch (UnknownHostException e) {
-//            throw new RuntimeException("Unable to retrieve host address", e);
-//        }
+        } else {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to login with invalid credentials: " + userLogin.getEmail());
+            throw new InvalidCredentialsException("Invalid credentials");
+        }
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Unable to retrieve host address", e);
+        }
     }
 
     private String generateNewToken() {
@@ -218,35 +217,32 @@ public class UserBean implements Serializable {
 //        return false;
 //    }
 
-
     public void logout(String token) throws InvalidCredentialsException {
-      //  try {
-            SessionEntity session = sessionDao.findSessionByToken(token);
-            if (session == null) {
-                //LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to logout with invalid token at \{LocalDate.now()}");
-                throw new InvalidCredentialsException("User not found");
-            }
-            sessionDao.remove(session);
-//        } catch (UnknownHostException e) {
-//            throw new RuntimeException("Unable to retrieve host address", e);
-//        }
+        try {
+        SessionEntity session = sessionDao.findSessionByToken(token);
+        if (session == null) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to logout with invalid token at: " + LocalDate.now());
+            throw new InvalidCredentialsException("User not found");
+        }
+        sessionDao.remove(session);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Unable to retrieve host address", e);
+        }
     }
-
 
     public List<UserDto> getAllRegUsers() {
-        //try {
-            ArrayList<UserEntity> users = userDao.findAllUsers();
-            if (users != null && !users.isEmpty()) {
-                return convertUserEntityListToUserDtoList(users);
-            } else {
-                //LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}No users found at \{LocalDate.now()}");
-                return Collections.emptyList(); // Return empty list when no users found
-            }
-//        } catch (UnknownHostException e) {
-//            throw new RuntimeException("Unable to retrieve host address", e);
-//        }
+        try {
+        ArrayList<UserEntity> users = userDao.findAllUsers();
+        if (users != null && !users.isEmpty()) {
+            return convertUserEntityListToUserDtoList(users);
+        } else {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - No users found at: " + LocalDate.now());
+            return Collections.emptyList(); // Return empty list when no users found
+        }
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Unable to retrieve host address", e);
+        }
     }
-
 
     private UserEntity convertUserDtotoUserEntity(UserDto user) {
         UserEntity userEntity = new UserEntity();
