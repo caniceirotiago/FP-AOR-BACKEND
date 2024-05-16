@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.time.Instant;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -115,7 +116,7 @@ public class UserBean implements Serializable {
                 throw new InvalidPasswordRequestException("Invalid credentials");
             }
             if (isResetTokenNotExpired(user)) {
-                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to reset password with token not expired at: \{Instant.now()}");
+                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to reset password with token not expired at: \{LocalDate.now()}");
                 throw new InvalidPasswordRequestException("Request password reset done, please check your email or contact the system administrator");
             }
             String resetToken = generateNewToken();
@@ -135,11 +136,11 @@ public class UserBean implements Serializable {
         try {
             UserEntity user = userDao.findUserByResetPasswordToken(resetPasswordDto.getResetToken());
             if (user == null) {
-                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to reset password with invalid token at: \{Instant.now()}");
+                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to reset password with invalid token at: \{LocalDate.now()}");
                 throw new InvalidPasswordRequestException("Invalid token");
             }
             if (isTokenExpired(user)) {
-                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to reset password with expired token at: \{Instant.now()}");
+                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to reset password with expired token at: \{LocalDate.now()}");
                 throw new InvalidPasswordRequestException("Token expired");
             }
             String encryptedPassword = passEncoder.encode(resetPasswordDto.getNewPassword());
@@ -221,7 +222,7 @@ public class UserBean implements Serializable {
         try {
             SessionEntity session = sessionDao.findSessionByToken(token);
             if (session == null) {
-                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to logout with invalid token at \{Instant.now()}");
+                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}Attempt to logout with invalid token at \{LocalDate.now()}");
                 throw new InvalidCredentialsException("User not found");
             }
             sessionDao.remove(session);
@@ -237,7 +238,7 @@ public class UserBean implements Serializable {
             if (users != null && !users.isEmpty()) {
                 return convertUserEntityListToUserDtoList(users);
             } else {
-                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}No users found at \{Instant.now()}");
+                LOGGER.warn(STR."\{InetAddress.getLocalHost().getHostAddress()}No users found at \{LocalDate.now()}");
                 return Collections.emptyList(); // Return empty list when no users found
             }
         } catch (UnknownHostException e) {
