@@ -10,6 +10,7 @@ import java.util.Set;
 @Table(name = "user")
 
 @NamedQuery(name = "User.findUserByToken", query = "SELECT u FROM UserEntity u JOIN u.sessions s WHERE s.sessionToken = :token AND u.isDeleted = false")
+@NamedQuery(name = "User.findUserByResetPasswordToken", query = "SELECT u FROM UserEntity u WHERE u.resetPasswordToken = :resetPasswordToken")
 @NamedQuery(name = "User.checkIfEmailExists", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.email = :email")
 @NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
 @NamedQuery(name = "User.findUserByConfirmationToken", query = "SELECT u FROM UserEntity u WHERE u.confirmationToken = :confirmationToken")
@@ -62,6 +63,11 @@ public class UserEntity implements Serializable {
 
     @Column(name="last_sent_email_timestamp", nullable=true, updatable = true)
     private Instant lastSentEmailTimestamp;
+
+    @Column(name="reset_password_token")
+    private String resetPasswordToken;
+    @Column(name="reset_password_token_expiry")
+    private Instant resetPasswordTokenExpiry;
 
     @OneToMany(mappedBy = "user")
     private Set<ProjectMembershipEntity> projects = new HashSet<>();
@@ -216,6 +222,22 @@ public class UserEntity implements Serializable {
 
     public void setLastSentEmailTimestamp(Instant lastSentEmailTimestamp) {
         this.lastSentEmailTimestamp = lastSentEmailTimestamp;
+    }
+
+    public String getResetPasswordToken() {
+        return resetPasswordToken;
+    }
+
+    public void setResetPasswordToken(String resetPasswordToken) {
+        this.resetPasswordToken = resetPasswordToken;
+    }
+
+    public Instant getResetPasswordTokenExpiry() {
+        return resetPasswordTokenExpiry;
+    }
+
+    public void setResetPasswordTokenExpiry(Instant resetPasswordTokenExpiry) {
+        this.resetPasswordTokenExpiry = resetPasswordTokenExpiry;
     }
 
     public Set<ProjectMembershipEntity> getProjects() {

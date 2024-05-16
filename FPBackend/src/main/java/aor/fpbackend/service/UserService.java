@@ -5,6 +5,7 @@ import aor.fpbackend.dto.LoginDto;
 import aor.fpbackend.dto.TokenDto;
 import aor.fpbackend.dto.UserDto;
 import jakarta.ejb.EJB;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
@@ -31,6 +32,19 @@ public class UserService {
     public void confirmRegistration(@QueryParam("token") String token) {
         userBean.validateUser(token);
     }
+
+//    @POST
+//    @Path("/request-password-reset")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    public void requestPasswordReset(ResetPasswordRequestDTO requestPasswordResetDto) {
+//        userBean.requestPasswordReset(requestPasswordResetDto.getEmail());
+//    }
+//    @POST
+//    @Path("/reset-password")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    public void resetPassword(@Valid ResetPasswordDTO resetPasswordDto) {
+//        userBean.resetPassword(resetPasswordDto.getToken(), resetPasswordDto.getNewPassword());
+//    }
 
 
     /**

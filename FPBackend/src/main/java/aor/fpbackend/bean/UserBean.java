@@ -18,9 +18,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.NoResultException;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.time.Instant;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -94,6 +97,32 @@ public class UserBean implements Serializable {
             }
         }
         return false;
+    }
+
+//    public void requestPasswordReset(String email) {
+//        UserEntity user = userDao.findUserByEmail(email);
+//        if (user == null) {
+//        }
+//        if (user.getResetPasswordTokenExpiry() != null && user.getResetPasswordTokenExpiry().isAfter(Instant.now())) {
+//        }
+//        String resetToken = UUID.randomUUID().toString();
+//        user.setResetPasswordToken(resetToken);
+//        user.setResetPasswordTokenExpiry(Instant.now().plus(30, ChronoUnit.MINUTES));
+//        emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+//    }
+
+    public void resetPassword(String token, String newPassword) {
+        UserEntity user = userDao.findUserByResetPasswordToken(token);
+        if ((user == null) && (!user.getResetPasswordToken().equals(token))) {
+            System.out.println("Invalid token");
+        }
+        if (user.getResetPasswordTokenExpiry().isBefore(Instant.now())) {
+            System.out.println("Token expired");
+        }
+        String encryptedPassword = passEncoder.encode(newPassword);
+        user.setPassword(encryptedPassword);
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTokenExpiry(null);
     }
 
     public TokenDto login(LoginDto userLogin) {
