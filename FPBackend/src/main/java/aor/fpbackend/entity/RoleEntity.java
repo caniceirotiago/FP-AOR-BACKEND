@@ -23,11 +23,11 @@ public class RoleEntity implements Serializable {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "role_permission",
+            name = "permission",
             joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
+            inverseJoinColumns = @JoinColumn(name = "function_id")
     )
-    private Set<PermissionEntity> permissions;
+    private Set<FunctionEntity> functions;
 
     // Construtores, getters e setters
     public RoleEntity() {
@@ -53,12 +53,12 @@ public class RoleEntity implements Serializable {
         this.name = name;
     }
 
-    public Set<PermissionEntity> getPermissions() {
-        return permissions;
+    public Set<FunctionEntity> getFunctions() {
+        return functions;
     }
 
-    public void setPermissions(Set<PermissionEntity> permissions) {
-        this.permissions = permissions;
+    public void setFunctions(Set<FunctionEntity> functions) {
+        this.functions = functions;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class RoleEntity implements Serializable {
         return "RoleEntity{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", permissions=" + permissions +
+                ", functions=" + functions +
                 '}';
     }
 }

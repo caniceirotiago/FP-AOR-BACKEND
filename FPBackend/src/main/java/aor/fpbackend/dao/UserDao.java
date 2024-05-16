@@ -41,15 +41,13 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-    public boolean checkIfEmailExists(String email) {
+    public UserEntity findUserByResetPasswordToken(String resetPasswordToken) {
         try {
-            Query query = em.createNamedQuery("User.checkIfEmailExists");
-            Long count = (Long) query.setParameter("email", email).getSingleResult();
-            if (count > 0) {
-                return true;
-            } else return false;
+            return em.createNamedQuery("User.findUserByResetPasswordToken", UserEntity.class)
+                    .setParameter("resetPasswordToken", resetPasswordToken)
+                    .getSingleResult();
         } catch (NoResultException e) {
-            return false;
+            return null; // Token inválido ou expirado
         }
     }
 

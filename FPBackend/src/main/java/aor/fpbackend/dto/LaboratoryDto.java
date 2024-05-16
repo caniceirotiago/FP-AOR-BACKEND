@@ -3,9 +3,11 @@ package aor.fpbackend.dto;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
+
 
 @XmlRootElement
-public class LaboratoryDto {
+public class LaboratoryDto implements Serializable {
 
     @XmlElement
     long id;

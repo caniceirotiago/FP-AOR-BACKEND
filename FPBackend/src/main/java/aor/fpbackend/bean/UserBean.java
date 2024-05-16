@@ -18,9 +18,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.NoResultException;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.time.Instant;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -47,7 +50,7 @@ public class UserBean implements Serializable {
 
     public boolean register(UserDto user) {
         if (user == null) return false;
-        if (userDao.checkIfEmailExists(user.getEmail())) {
+        if (userDao.findUserByEmail(user.getEmail())!=null) {
             System.out.println("Invalid credentials");
             return false;
         }
@@ -73,7 +76,7 @@ public class UserBean implements Serializable {
             // Create a confirmation token
             String confirmationToken = generateNewToken();
             newUserEntity.setConfirmationToken(confirmationToken);
-            newUserEntity.setLastSentEmailTimestamp(Instant.now());
+            newUserEntity.setConfirmationTokenTimestamp(Instant.now());
             // Persist the new User
             userDao.persist(newUserEntity);
             // Send confirmation token by email
@@ -90,10 +93,38 @@ public class UserBean implements Serializable {
         if (userEntity != null) {
             if (userEntity.getConfirmationToken().equals(token)) {
                 userEntity.setConfirmed(true);
+                userEntity.setConfirmationToken(null);
+                userEntity.setConfirmationTokenTimestamp(null);
                 return true;
             }
         }
         return false;
+    }
+
+    public void requestPasswordReset(String email) {
+        UserEntity user = userDao.findUserByEmail(email);
+        if (user == null) {
+        }
+        if (user.getResetPasswordTimestamp() != null && user.getResetPasswordTimestamp().isAfter(Instant.now())) {
+        }
+        String resetToken = generateNewToken();
+        user.setResetPasswordToken(resetToken);
+        user.setResetPasswordTimestamp(Instant.now().plus(30, ChronoUnit.MINUTES));
+        emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        UserEntity user = userDao.findUserByResetPasswordToken(token);
+        if ((user == null) && (!user.getResetPasswordToken().equals(token))) {
+            System.out.println("Invalid token");
+        }
+        if (user.getResetPasswordTimestamp().isBefore(Instant.now())) {
+            System.out.println("Token expired");
+        }
+        String encryptedPassword = passEncoder.encode(newPassword);
+        user.setPassword(encryptedPassword);
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTimestamp(null);
     }
 
     public TokenDto login(LoginDto userLogin) {

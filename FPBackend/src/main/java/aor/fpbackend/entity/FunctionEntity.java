@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "permission")
-public class PermissionEntity implements Serializable {
+@Table(name = "function")
+public class FunctionEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     
     @Id
@@ -21,9 +21,9 @@ public class PermissionEntity implements Serializable {
     private String description;
 
     // Construtores, getters e setters
-    public PermissionEntity() {}
+    public FunctionEntity() {}
 
-    public PermissionEntity(String name, String description) {
+    public FunctionEntity(String name, String description) {
         this.name = name;
         this.description = description;
     }
