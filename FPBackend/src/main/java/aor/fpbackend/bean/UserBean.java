@@ -52,7 +52,7 @@ public class UserBean implements Serializable {
 
 
     public void register(UserDto user) throws InvalidCredentialsException, UnknownHostException {
-        if ((user == null) || (userDao.findUserByEmail(user.getEmail()) != null)) {
+        if ((user == null) || (userDao.checkEmailExist(user.getEmail()))) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to register with invalid credentials!");
             throw new InvalidCredentialsException("Invalid credentials");
         }

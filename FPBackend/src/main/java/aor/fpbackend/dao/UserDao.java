@@ -30,7 +30,6 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-
     public UserEntity findUserByConfirmationToken(String token) {
         try {
             Query query = em.createNamedQuery("User.findUserByConfirmationToken", UserEntity.class);
@@ -51,15 +50,6 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-    public ArrayList<UserEntity> findAllUsers() {
-        try {
-            return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
-
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
     public UserEntity findUserByEmail(String email) {
         try {
             return (UserEntity) em.createNamedQuery("User.findUserByEmail").setParameter("email", email)
@@ -70,7 +60,7 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-    public UserEntity findUserByUsername(String username) {
+    public UserEntity findUserByNickname(String username) {
         try {
             return (UserEntity) em.createNamedQuery("User.findUserByNickname").setParameter("nickname", username)
                     .getSingleResult();
@@ -80,5 +70,20 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
+    public ArrayList<UserEntity> findAllUsers() {
+        try {
+            return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
+
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public boolean checkEmailExist(String email) {
+        Long count = (Long) em.createNamedQuery("User.countUserByEmail")
+                .setParameter("email", email)
+                .getSingleResult();
+        return count > 0;
+    }
 
 }
