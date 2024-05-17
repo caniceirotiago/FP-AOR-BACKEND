@@ -34,6 +34,7 @@ import java.util.function.Function;
             if (path.endsWith("/login")
                     || path.endsWith("/register")
                     || path.contains("/confirm")
+                    || path.contains("/labs")
                     || path.contains("/request-password-reset")
                     || path.contains("/reset-password")
                     || path.contains("/request-confirmation-email")) {

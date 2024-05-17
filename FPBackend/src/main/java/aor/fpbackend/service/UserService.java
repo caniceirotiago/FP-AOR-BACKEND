@@ -1,10 +1,7 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.UserBean;
-import aor.fpbackend.dto.LoginDto;
-import aor.fpbackend.dto.ResetPasswordDto;
-import aor.fpbackend.dto.TokenDto;
-import aor.fpbackend.dto.UserDto;
+import aor.fpbackend.dto.*;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.InvalidPasswordRequestException;
 import aor.fpbackend.exception.UserConfirmationException;
@@ -66,6 +63,18 @@ public class UserService {
         return userBean.login(userLogin);
     }
 
+    /**
+     * This endpoint makes logging out a user. Since this example does not
+     * manage user sessions or authentication tokens explicitly, the endpoint simply returns
+     * a response indicating that the user has been logged out successfully.
+     */
+    @POST
+    @Path("/logout")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void logout(@HeaderParam("token") String token)throws InvalidCredentialsException {
+        userBean.logout(token);
+    }
+
     @GET
     @Path("profile")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -82,16 +91,19 @@ public class UserService {
         return userBean.getAllRegUsers();
     }
 
-
     /**
-     * This endpoint makes logging out a user. Since this example does not
-     * manage user sessions or authentication tokens explicitly, the endpoint simply returns
-     * a response indicating that the user has been logged out successfully.
+     * Allows an authenticated user to update their own data. It checks for valid authentication and
+     * proper permissions before allowing the update. The method ensures that the user can only update
+     * their own information and not that of others unless specifically authorized.
      */
-    @POST
-    @Path("/logout")
+    @PUT
+    @Path("/profile")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@HeaderParam("token") String token)throws InvalidCredentialsException {
-        userBean.logout(token);
-    }
+    @Produces(MediaType.APPLICATION_JSON)
+    public void editUserData(@Valid EditProfileDto updatedUser, @HeaderParam("Authorization") String authHeader) throws UserNotFoundException, UnknownHostException {
+        String token = authHeader.substring(7);
+        userBean.updateUserProfile(token, updatedUser);}
+
+
+
 }
