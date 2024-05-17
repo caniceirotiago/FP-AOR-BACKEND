@@ -14,6 +14,10 @@ import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.NewCookie;
+import jakarta.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.Serializable;
@@ -150,7 +154,7 @@ public class UserBean implements Serializable {
         return user.getResetPasswordTimestamp().isBefore(Instant.now());
     }
 
-    public TokenDto login(LoginDto userLogin) throws InvalidCredentialsException {
+    public Response login(LoginDto userLogin, HttpServletResponse response) throws InvalidCredentialsException {
         try {
             UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
             if (userEntity != null) {
@@ -164,14 +168,11 @@ public class UserBean implements Serializable {
                     sessionEntity.setUser(userEntity);
                     sessionEntity.setLastActivityTimestamp(Instant.now());
                     sessionDao.persist(sessionEntity);
-
-                    TokenDto tokenDto = new TokenDto();
-                    tokenDto.setId(userEntity.getId());
-                    tokenDto.setNickname(userEntity.getNickname());
-                    tokenDto.setToken(sessionEntity.getSessionToken());
-                    tokenDto.setPhoto(userEntity.getPhoto());
-                    tokenDto.setRoleId(userEntity.getRole().getId());
-                    return tokenDto;
+                    // Create and set the cookie for the token
+                    NewCookie cookie = new NewCookie("authToken", tokenValue, "/", null, "Auth Token", 3600, false);
+                    return Response.ok()
+                            .cookie(cookie)
+                            .build();
                 } else {
                     LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to login with invalid credentials: " + userLogin.getEmail());
                     throw new InvalidCredentialsException("Invalid credentials");
@@ -209,19 +210,20 @@ public class UserBean implements Serializable {
     public boolean tokenValidator(String token) throws InvalidCredentialsException {
         SessionEntity sessionEntity = sessionDao.findSessionByToken(token);
         if (sessionEntity != null) {
-            int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
-            Instant tokenExpiration = sessionEntity.getLastActivityTimestamp().plusSeconds(tokenTimerInSeconds);
-            Instant now = Instant.now();
-            if (now.isBefore(tokenExpiration)) {
-                sessionEntity.setLastActivityTimestamp(now);
-                return true;
+//            int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
+//            Instant tokenExpiration = sessionEntity.getLastActivityTimestamp().plusSeconds(tokenTimerInSeconds);
+//            Instant now = Instant.now();
+//            if (now.isBefore(tokenExpiration)) {
+//                sessionEntity.setLastActivityTimestamp(now);
+//                return true;
+            return true; // Remove the token expiration check
             } else {
                 logout(token);
                 return false;
             }
         }
-        return false;
-    }
+//        return false;
+//    }
 
     public UserDto getLoggedUser(String tokenValue) throws UserNotFoundException {
         try {
@@ -267,6 +269,22 @@ public class UserBean implements Serializable {
             userEntity.setLaboratory(laboratory);
         }
         userEntity.setPrivate(updatedUser.isPrivate());
+    }
+    public UserDto getUserByToken(String token) throws UserNotFoundException {
+        UserEntity userEntity = userDao.findUserByToken(token);
+        if (userEntity != null) {
+            return convertUserEntitytoUserDto(userEntity);
+        } else {
+            throw new UserNotFoundException("No user found for this token");
+        }
+    }
+    public UserBasicInfoDto getUserBasicInfo(UserDto user) {
+        UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
+        userBasicInfo.setNickname(user.getNickname());
+        userBasicInfo.setPhoto(user.getPhoto());
+        System.out.println(userBasicInfo + " -3");
+
+        return userBasicInfo;
     }
 
     private UserEntity convertUserDtotoUserEntity(UserDto user) {

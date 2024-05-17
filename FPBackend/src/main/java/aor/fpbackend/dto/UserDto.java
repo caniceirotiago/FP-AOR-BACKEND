@@ -4,10 +4,12 @@ import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import javax.security.auth.Subject;
 import java.io.Serializable;
+import java.security.Principal;
 
 @XmlRootElement
-public class UserDto implements Serializable {
+public class UserDto implements Serializable, Principal {
 
     @XmlElement
     @NotNull
@@ -176,5 +178,33 @@ public class UserDto implements Serializable {
 
     public void setConfirmed(boolean confirmed) {
         isConfirmed = confirmed;
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public boolean implies(Subject subject) {
+        return Principal.super.implies(subject);
+    }
+
+    @Override
+    public String toString() {
+        return "UserDto{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", photo='" + photo + '\'' +
+                ", biography='" + biography + '\'' +
+                ", laboratoryId=" + laboratoryId +
+                ", isPrivate=" + isPrivate +
+                ", isDeleted=" + isDeleted +
+                ", isConfirmed=" + isConfirmed +
+                '}';
     }
 }

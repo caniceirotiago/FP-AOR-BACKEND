@@ -7,9 +7,13 @@ import aor.fpbackend.exception.InvalidPasswordRequestException;
 import aor.fpbackend.exception.UserConfirmationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.net.UnknownHostException;
 import java.util.List;
@@ -59,8 +63,19 @@ public class UserService {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public TokenDto login(LoginDto userLogin) throws InvalidCredentialsException {
-        return userBean.login(userLogin);
+    public Response login(LoginDto userLogin, @Context HttpServletResponse response) throws InvalidCredentialsException {
+        return userBean.login(userLogin, response);
+    }
+
+    //TODO: De forma a experimentar o security context
+    @GET
+    @Path("/userBasicInfo")
+    @Produces(MediaType.APPLICATION_JSON)
+    public UserBasicInfoDto getBasicInfo(@Context SecurityContext securityContext)  {
+        System.out.println(securityContext);
+        UserDto user = (UserDto) securityContext.getUserPrincipal();
+        System.out.println(user + " -2");
+        return userBean.getUserBasicInfo(user);
     }
 
     /**
