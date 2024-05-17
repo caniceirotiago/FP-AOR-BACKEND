@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Stateless
 public class PassEncoder implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private static final int LOG_ROUNDS = 12;
 
