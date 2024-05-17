@@ -1,10 +1,7 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
-import aor.fpbackend.dto.LoginDto;
-import aor.fpbackend.dto.ResetPasswordDto;
-import aor.fpbackend.dto.TokenDto;
-import aor.fpbackend.dto.UserDto;
+import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.SessionEntity;
@@ -253,6 +250,20 @@ public class UserBean implements Serializable {
         } catch (UnknownHostException e) {
             throw new RuntimeException("Unable to retrieve host address", e);
         }
+    }
+
+    public void updateUserProfile(String token, EditProfileDto updatedUser) throws UserNotFoundException, UnknownHostException {
+        UserEntity userEntity = userDao.findUserByToken(token);
+        if(userEntity == null){
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token at: " + token);
+            throw new UserNotFoundException("User not found");
+        }
+//        if(updatedUser.getPhoneNumber() != null) userEntity.setPhoneNumber(updatedUser.getPhoneNumber());
+//        if(updatedUser.getFirstName() != null) userEntity.setFirstName(updatedUser.getFirstName());
+//        if(updatedUser.getLastName() != null) userEntity.setLastName(updatedUser.getLastName());
+//        if(updatedUser.getPhotoURL() != null) userEntity.setPhoto(updatedUser.getPhotoURL());
+//        if(updatedUser.isDeleted() != null)userEntity.setDeleted(updatedUser.isDeleted());
+
     }
 
     private UserEntity convertUserDtotoUserEntity(UserDto user) {
