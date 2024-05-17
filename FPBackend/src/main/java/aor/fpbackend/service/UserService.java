@@ -8,6 +8,7 @@ import aor.fpbackend.dto.UserDto;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.InvalidPasswordRequestException;
 import aor.fpbackend.exception.UserConfirmationException;
+import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -65,6 +66,14 @@ public class UserService {
         return userBean.login(userLogin);
     }
 
+    @GET
+    @Path("profile")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public UserDto getUserProfile(@HeaderParam("Authorization") String authHeader) throws UserNotFoundException {
+        String token = authHeader.substring(7);
+        return userBean.getLoggedUser(token);
+    }
 
     @GET
     @Path("")

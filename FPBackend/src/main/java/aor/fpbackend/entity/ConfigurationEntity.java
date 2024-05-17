@@ -14,6 +14,12 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "configuration")
+
+@NamedQuery(name = "Configuration.findConfigValueByKey", query = "SELECT c.value FROM ConfigurationEntity c WHERE c.key = :configKey")
+@NamedQuery(name = "Configuration.findConfigEntityByKey", query = "SELECT c FROM ConfigurationEntity c WHERE c.key = :configKey")
+@NamedQuery(name = "Configuration.countConfigByKey", query = "SELECT count(c) FROM ConfigurationEntity c WHERE c.key = :configKey")
+
+
 public class ConfigurationEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -22,14 +28,15 @@ public class ConfigurationEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(name = "config_key", nullable = false, unique = true)
+    @Column(name = "key", nullable = false, unique = true)
     private String key;
 
-    @Column(name = "config_value", nullable = false)
+    @Column(name = "value", nullable = false)
     private int value;
 
     // Construtores
-    public ConfigurationEntity() {}
+    public ConfigurationEntity() {
+    }
 
     public ConfigurationEntity(String key, int value) {
         this.key = key;

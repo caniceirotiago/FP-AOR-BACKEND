@@ -30,7 +30,6 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-
     public UserEntity findUserByConfirmationToken(String token) {
         try {
             Query query = em.createNamedQuery("User.findUserByConfirmationToken", UserEntity.class);
@@ -51,28 +50,18 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-    public ArrayList<UserEntity> findAllUsers() {
-        try {
-            return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
-
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
     public UserEntity findUserByEmail(String email) {
         try {
             return (UserEntity) em.createNamedQuery("User.findUserByEmail").setParameter("email", email)
                     .getSingleResult();
-
         } catch (NoResultException e) {
             return null;
         }
     }
 
-    public UserEntity findUserByUsername(String username) {
+    public UserEntity findUserByNickname(String nickname) {
         try {
-            return (UserEntity) em.createNamedQuery("User.findUserByNickname").setParameter("nickname", username)
+            return (UserEntity) em.createNamedQuery("User.findUserByNickname").setParameter("nickname", nickname)
                     .getSingleResult();
 
         } catch (NoResultException e) {
@@ -80,5 +69,23 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
+    public ArrayList<UserEntity> findAllUsers() {
+        try {
+            return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public boolean checkEmailExist(String email) {
+        try {
+            Long count = (Long) em.createNamedQuery("User.countUserByEmail")
+                    .setParameter("email", email)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
 
 }

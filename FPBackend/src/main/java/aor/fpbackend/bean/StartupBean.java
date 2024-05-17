@@ -12,11 +12,13 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Singleton
 @Startup
-public class StartupBean {
+public class StartupBean implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @EJB
     LaboratoryDao labDao;
