@@ -1,6 +1,9 @@
 package aor.fpbackend.dao;
 
+import aor.fpbackend.bean.PassEncoder;
+import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.UserEntity;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -20,6 +23,30 @@ public class UserDao extends AbstractDao<UserEntity> {
 
     @PersistenceContext
     private EntityManager em;
+
+    @EJB
+    PassEncoder passEncoder;
+    @EJB
+    RoleDao roleDao;
+
+
+    public void createDefaultUserIfNotExistent(String nickname, int roleId) {
+        List<UserEntity> users = em.createQuery(
+                        "SELECT u FROM UserEntity u WHERE u.nickname = :nickname", UserEntity.class)
+                .setParameter("nickname", nickname)
+                .getResultList();
+        if (users.isEmpty()) {
+            String email = nickname + "@" + nickname + ".com";
+            String encryptedPassword = passEncoder.encode(nickname);
+            RoleEntity role = roleDao.findRoleById(roleId);
+            if (role == null) {
+                throw new IllegalStateException("Role not found.");
+            }
+            UserEntity userEntity = new UserEntity(email,encryptedPassword, nickname, nickname, nickname, true, false, true, role);
+            em.persist(userEntity);
+        }
+    }
+
 
     public UserEntity findUserByToken(String token) {
         try {

@@ -81,6 +81,16 @@ public class ProjectEntity implements Serializable {
 
     public ProjectEntity() {}
 
+    public ProjectEntity(String name, String description, String motivation, Instant creationDate, Instant finalDate, int maxMembers, LaboratoryEntity laboratory) {
+        this.name = name;
+        this.description = description;
+        this.motivation = motivation;
+        this.creationDate = creationDate;
+        this.finalDate = finalDate;
+        this.maxMembers = maxMembers;
+        this.laboratory = laboratory;
+    }
+
     // Getters and setters
 
     public long getId() {

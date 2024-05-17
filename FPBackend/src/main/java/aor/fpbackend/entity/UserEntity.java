@@ -48,7 +48,7 @@ public class UserEntity implements Serializable {
     @Column(name = "biography", nullable = true, length = 4096)
     private String biography;
 
-    @Column(name = "is_private")
+    @Column(name = "is_private", nullable = false)
     private boolean isPrivate;
 
     @Column(name = "is_deleted", nullable = false)
@@ -116,6 +116,18 @@ public class UserEntity implements Serializable {
 
 
     public UserEntity() {}
+
+    public UserEntity(String email, String password, String nickname, String firstName, String lastName, boolean isPrivate, boolean isDeleted, boolean isConfirmed, RoleEntity role) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.isPrivate = isPrivate;
+        this.isDeleted = isDeleted;
+        this.isConfirmed = isConfirmed;
+        this.role = role;
+    }
 
     // Getters and setters
 

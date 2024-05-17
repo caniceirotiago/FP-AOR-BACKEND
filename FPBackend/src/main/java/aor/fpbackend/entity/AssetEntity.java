@@ -47,6 +47,17 @@ public class AssetEntity implements Serializable {
 
     public AssetEntity() {}
 
+    public AssetEntity(String name, String type, String description, Integer totalQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
+        this.name = name;
+        this.type = type;
+        this.description = description;
+        this.totalQuantity = totalQuantity;
+        this.partNumber = partNumber;
+        this.manufacturer = manufacturer;
+        this.manufacturerPhone = manufacturerPhone;
+        this.observations = observations;
+    }
+
     // Getters and setters
 
     public long getId() {
