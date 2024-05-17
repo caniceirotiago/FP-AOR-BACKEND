@@ -258,12 +258,15 @@ public class UserBean implements Serializable {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token at: " + token);
             throw new UserNotFoundException("User not found");
         }
-//        if(updatedUser.getPhoneNumber() != null) userEntity.setPhoneNumber(updatedUser.getPhoneNumber());
-//        if(updatedUser.getFirstName() != null) userEntity.setFirstName(updatedUser.getFirstName());
-//        if(updatedUser.getLastName() != null) userEntity.setLastName(updatedUser.getLastName());
-//        if(updatedUser.getPhotoURL() != null) userEntity.setPhoto(updatedUser.getPhotoURL());
-//        if(updatedUser.isDeleted() != null)userEntity.setDeleted(updatedUser.isDeleted());
-
+        if(updatedUser.getFirstName() != null) userEntity.setFirstName(updatedUser.getFirstName());
+        if(updatedUser.getLastName() != null) userEntity.setLastName(updatedUser.getLastName());
+        if(updatedUser.getPhoto() != null) userEntity.setPhoto(updatedUser.getPhoto());
+        if(updatedUser.getBiography() != null) userEntity.setBiography(updatedUser.getBiography());
+        LaboratoryEntity laboratory = labDao.findLaboratoryById(updatedUser.getLaboratoryId());
+        if(laboratory != null) {
+            userEntity.setLaboratory(laboratory);
+        }
+        userEntity.setPrivate(updatedUser.isPrivate());
     }
 
     private UserEntity convertUserDtotoUserEntity(UserDto user) {
