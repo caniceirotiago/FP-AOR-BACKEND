@@ -1,6 +1,7 @@
 package aor.fpbackend.dao;
 
 import aor.fpbackend.bean.PassEncoder;
+import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.EJB;
@@ -27,6 +28,8 @@ public class UserDao extends AbstractDao<UserEntity> {
     @EJB
     PassEncoder passEncoder;
     @EJB
+    LaboratoryDao labDao;
+    @EJB
     RoleDao roleDao;
 
 
@@ -38,11 +41,12 @@ public class UserDao extends AbstractDao<UserEntity> {
         if (users.isEmpty()) {
             String email = nickname + "@" + nickname + ".com";
             String encryptedPassword = passEncoder.encode(nickname);
+            LaboratoryEntity laboratory = labDao.findLaboratoryById(2);
             RoleEntity role = roleDao.findRoleById(roleId);
             if (role == null) {
                 throw new IllegalStateException("Role not found.");
             }
-            UserEntity userEntity = new UserEntity(email,encryptedPassword, nickname, nickname, nickname, true, false, true, role);
+            UserEntity userEntity = new UserEntity(email,encryptedPassword, nickname, nickname, nickname, true, false, true,laboratory, role);
             em.persist(userEntity);
         }
     }

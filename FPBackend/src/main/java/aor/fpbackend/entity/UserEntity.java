@@ -68,6 +68,14 @@ public class UserEntity implements Serializable {
     @Column(name="reset_password_token_timestamp")
     private Instant resetPasswordTimestamp;
 
+    @ManyToOne
+    @JoinColumn(name = "laboratory_id", nullable = false)
+    private LaboratoryEntity laboratory;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
+    private RoleEntity role;
+
     @OneToMany(mappedBy = "user")
     private Set<ProjectMembershipEntity> projects = new HashSet<>();
 
@@ -94,10 +102,6 @@ public class UserEntity implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "interest_id"))
     private Set<InterestEntity> userInterests = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "laboratory_id", nullable = false)
-    private LaboratoryEntity laboratory;
-
     @OneToMany(mappedBy = "user")
     private Set<NotificationEntity> notifications = new HashSet<>();
 
@@ -110,14 +114,10 @@ public class UserEntity implements Serializable {
     @OneToMany(mappedBy = "user")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id", nullable = false)
-    private RoleEntity role;
-
 
     public UserEntity() {}
 
-    public UserEntity(String email, String password, String nickname, String firstName, String lastName, boolean isPrivate, boolean isDeleted, boolean isConfirmed, RoleEntity role) {
+    public UserEntity(String email, String password, String nickname, String firstName, String lastName, boolean isPrivate, boolean isDeleted, boolean isConfirmed, LaboratoryEntity laboratory, RoleEntity role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
@@ -126,6 +126,7 @@ public class UserEntity implements Serializable {
         this.isPrivate = isPrivate;
         this.isDeleted = isDeleted;
         this.isConfirmed = isConfirmed;
+        this.laboratory = laboratory;
         this.role = role;
     }
 
