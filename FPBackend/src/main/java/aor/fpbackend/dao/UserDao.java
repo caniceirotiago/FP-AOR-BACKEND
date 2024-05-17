@@ -1,5 +1,6 @@
 package aor.fpbackend.dao;
 
+import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -20,6 +21,27 @@ public class UserDao extends AbstractDao<UserEntity> {
 
     @PersistenceContext
     private EntityManager em;
+
+
+    public void createDefaultUserIfNotExistent(String nickname) {
+        List<UserEntity> users = em.createQuery(
+                        "SELECT u FROM UserEntity u WHERE u.nickname = :nickname", UserEntity.class)
+                .setParameter("nickname", nickname)
+                .getResultList();
+
+        if (users.isEmpty()) {
+            UserEntity user = new UserEntity();
+            user.setNickname(nickname);
+            //String hashedAdminPassword = HashUtil.toSHA256("admin");
+            //        if(productOwner == null){
+            //            userDao.persist(new UserEntity("admin", hashedAdminPassword,"admin@admin.com",
+            //                    "admin", "admin", "admin",
+            //                    "https://icons.veryicon.com/png/o/miscellaneous/yuanql/icon-admin.png",
+            //                    "admin", userRoleManager.PRODUCT_OWNER,false, true, "admin"));
+            em.persist(user);
+        }
+    }
+
 
     public UserEntity findUserByToken(String token) {
         try {

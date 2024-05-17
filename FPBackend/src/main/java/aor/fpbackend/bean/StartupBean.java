@@ -2,18 +2,17 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.LaboratoryDao;
 import aor.fpbackend.dao.RoleDao;
-import aor.fpbackend.entity.LaboratoryEntity;
-import aor.fpbackend.entity.RoleEntity;
+import aor.fpbackend.dao.UserDao;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+
 import jakarta.transaction.Transactional;
 
 import java.io.Serializable;
-import java.util.List;
+
 
 @Singleton
 @Startup
@@ -21,10 +20,12 @@ public class StartupBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @EJB
-    LaboratoryDao labDao;
-
-    @EJB
     RoleDao roleDao;
+    @EJB
+    LaboratoryDao labDao;
+    @EJB
+    UserDao userDao;
+
 
     @PostConstruct
     public void init() {
@@ -40,6 +41,8 @@ public class StartupBean implements Serializable {
         // Create functions
 
         // Create an admin
+
+        createUsers();
 
         // Create a test user
 
@@ -68,5 +71,14 @@ public class StartupBean implements Serializable {
         labDao.createLaboratoryIfNotExists("Viseu");
         labDao.createLaboratoryIfNotExists("Vila Real");
     }
+
+
+    @Transactional
+    private void createUsers() {
+        userDao.createDefaultUserIfNotExistent("admin");
+
+
+    }
+
 
 }
