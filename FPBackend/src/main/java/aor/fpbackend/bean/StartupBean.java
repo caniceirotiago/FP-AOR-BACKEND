@@ -75,9 +75,8 @@ public class StartupBean implements Serializable {
 
     @Transactional
     private void createUsers() {
-        userDao.createDefaultUserIfNotExistent("admin");
-
-
+        userDao.createDefaultUserIfNotExistent("admin", 1);
+        userDao.createDefaultUserIfNotExistent("standardUser", 2);
     }
 
 

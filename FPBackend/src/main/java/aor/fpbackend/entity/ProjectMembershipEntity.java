@@ -37,6 +37,7 @@ public class ProjectMembershipEntity implements Serializable {
 
     public ProjectMembershipEntity() {}
 
+
     public long getId() {
         return id;
     }
