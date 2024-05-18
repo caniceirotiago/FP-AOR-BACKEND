@@ -83,7 +83,8 @@ public class StartupBean implements Serializable {
 
     @Transactional
     private void createSessionTimeout() {
-        configDao.createDefaultSessionTimeoutIfNotExistent("sessionTimeout", 900);
+        configDao.createDefaultConfigIfNotExistent("sessionTimeout", 900);
+        configDao.createDefaultConfigIfNotExistent("maxProjectMembers", 4);
     }
 
 

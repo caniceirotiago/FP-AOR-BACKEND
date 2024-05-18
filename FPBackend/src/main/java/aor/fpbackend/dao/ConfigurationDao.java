@@ -20,11 +20,9 @@ public class ConfigurationDao extends AbstractDao<ConfigurationEntity> {
     }
 
 
-    public void createDefaultSessionTimeoutIfNotExistent (String configKey, int value) {
+    public void createDefaultConfigIfNotExistent (String configKey, int value) {
         if(!checkConfigExist(configKey)){
-            ConfigurationEntity configEntity = new ConfigurationEntity();
-            configEntity.setConfigKey(configKey);
-            configEntity.setValue(value);
+            ConfigurationEntity configEntity = new ConfigurationEntity(configKey, value);
             em.persist(configEntity);
         }
     }
