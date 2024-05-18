@@ -47,7 +47,7 @@ import java.util.ArrayList;
         projectEntity.setInitialDate(projectDto.getInitialDate());
         projectEntity.setFinalDate(projectDto.getFinalDate());
         projectEntity.setConclusionDate(projectDto.getConclusionDate());
-        projectEntity.setMaxMembers(projectDto.getMaxMembers());
+        projectEntity.setMembersCount(projectDto.getMembersCount());
         return projectEntity;
     }
 
@@ -63,7 +63,7 @@ import java.util.ArrayList;
         projectDto.setInitialDate(projectEntity.getInitialDate());
         projectDto.setFinalDate(projectEntity.getFinalDate());
         projectDto.setConclusionDate(projectEntity.getConclusionDate());
-        projectDto.setMaxMembers(projectEntity.getMaxMembers());
+        projectDto.setMembersCount(projectEntity.getMembersCount());
         return projectDto;
     }
 

@@ -47,8 +47,8 @@ public class ProjectEntity implements Serializable {
     @Column(name = "conclusion_date", nullable = true)
     private Instant conclusionDate;
 
-    @Column(name = "max_members")
-    private int maxMembers;
+    @Column(name = "members_count")
+    private int membersCount;
     @OneToMany(mappedBy = "project")
     private Set<ProjectMembershipEntity> members = new HashSet<>();
     @OneToMany(mappedBy = "project")
@@ -81,13 +81,13 @@ public class ProjectEntity implements Serializable {
 
     public ProjectEntity() {}
 
-    public ProjectEntity(String name, String description, String motivation, Instant creationDate, Instant finalDate, int maxMembers, LaboratoryEntity laboratory) {
+    public ProjectEntity(String name, String description, String motivation, Instant creationDate, Instant finalDate, int membersCount, LaboratoryEntity laboratory) {
         this.name = name;
         this.description = description;
         this.motivation = motivation;
         this.creationDate = creationDate;
         this.finalDate = finalDate;
-        this.maxMembers = maxMembers;
+        this.membersCount = membersCount;
         this.laboratory = laboratory;
     }
 
@@ -133,12 +133,12 @@ public class ProjectEntity implements Serializable {
         this.state = state;
     }
 
-    public int getMaxMembers() {
-        return maxMembers;
+    public int getMembersCount() {
+        return membersCount;
     }
 
-    public void setMaxMembers(int maxMembers) {
-        this.maxMembers = maxMembers;
+    public void setMembersCount(int membersCount) {
+        this.membersCount = membersCount;
     }
 
     public Instant getCreationDate() {
@@ -249,7 +249,7 @@ public class ProjectEntity implements Serializable {
                 ", initialDate=" + initialDate +
                 ", finalDate=" + finalDate +
                 ", conclusionDate=" + conclusionDate +
-                ", maxMembers=" + maxMembers +
+                ", membersCount=" + membersCount +
                 '}';
     }
 }
