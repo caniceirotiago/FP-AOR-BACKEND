@@ -14,7 +14,6 @@ import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
@@ -254,7 +253,7 @@ public class UserBean implements Serializable {
         }
     }
 
-    public void updateUserProfile(String token, EditProfileDto updatedUser) throws UserNotFoundException, UnknownHostException {
+    public void updateUserProfile(String token, ProfileDto updatedUser) throws UserNotFoundException, UnknownHostException {
         UserEntity userEntity = userDao.findUserByToken(token);
         if(userEntity == null){
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token at: " + token);
@@ -285,6 +284,22 @@ public class UserBean implements Serializable {
         System.out.println(userBasicInfo + " -3");
 
         return userBasicInfo;
+    }
+    public ProfileDto getProfileDto(String nickname) throws UserNotFoundException {
+        UserEntity userEntity = userDao.findUserByNickname(nickname);
+        if (userEntity != null) {
+            ProfileDto profileDto = new ProfileDto();
+            profileDto.setFirstName(userEntity.getFirstName());
+            profileDto.setLastName(userEntity.getLastName());
+            profileDto.setPhoto(userEntity.getPhoto());
+            profileDto.setBiography(userEntity.getBiography());
+            profileDto.setLaboratoryId(userEntity.getLaboratory().getId());
+            profileDto.setPrivate(userEntity.isPrivate());
+            profileDto.setEmail(userEntity.getEmail());
+            return profileDto;
+        } else {
+            throw new UserNotFoundException("No user found for this nickname");
+        }
     }
 
     private UserEntity convertUserDtotoUserEntity(UserDto user) {

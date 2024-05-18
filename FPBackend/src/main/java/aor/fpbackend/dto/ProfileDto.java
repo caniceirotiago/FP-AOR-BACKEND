@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class EditProfileDto implements Serializable {
+public class ProfileDto implements Serializable {
 
     @XmlElement
     @NotNull
@@ -20,6 +20,10 @@ public class EditProfileDto implements Serializable {
     @NotNull
     @Size(min = 2, max = 25, message = "Last name must be between 2 and 25 characters")
     private String lastName;
+
+    @XmlElement
+    @NotNull
+    private String email;
 
 
     @XmlElement
@@ -39,16 +43,17 @@ public class EditProfileDto implements Serializable {
     @NotNull
     private boolean isPrivate;
 
-    public EditProfileDto() {
+    public ProfileDto() {
     }
 
-    public EditProfileDto(String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
+    public ProfileDto(String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.photo = photo;
         this.biography = biography;
         this.laboratoryId = laboratoryId;
         this.isPrivate = isPrivate;
+        this.email = email;
     }
 
     public String getFirstName() {
@@ -97,5 +102,13 @@ public class EditProfileDto implements Serializable {
 
     public void setPrivate(boolean aPrivate) {
         isPrivate = aPrivate;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

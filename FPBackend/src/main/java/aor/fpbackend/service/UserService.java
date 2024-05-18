@@ -79,6 +79,21 @@ public class UserService {
     }
 
     /**
+     * Retrieves user information for the given username.
+     * If the username or password is missing in the request headers, returns a status code 401 (Unauthorized)
+     * with the error message "User not logged in".
+     * If the provided credentials are invalid, returns a status code 403 (Forbidden) with the error message "Access denied".
+     * If the user information is successfully retrieved, returns a status code 200 (OK) with the user information
+     * (without the password) in JSON format.
+     */
+    @GET
+    @Path("info/{nicknameProfile}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ProfileDto userInfo(@PathParam("nicknameProfile") String nicknameProfile) throws UserNotFoundException {
+        return userBean.getProfileDto(nicknameProfile);
+    }
+
+    /**
      * This endpoint makes logging out a user. Since this example does not
      * manage user sessions or authentication tokens explicitly, the endpoint simply returns
      * a response indicating that the user has been logged out successfully.
@@ -115,7 +130,7 @@ public class UserService {
     @Path("/profile")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void editUserData(@Valid EditProfileDto updatedUser, @HeaderParam("Authorization") String authHeader) throws UserNotFoundException, UnknownHostException {
+    public void editUserData(@Valid ProfileDto updatedUser, @HeaderParam("Authorization") String authHeader) throws UserNotFoundException, UnknownHostException {
         String token = authHeader.substring(7);
         userBean.updateUserProfile(token, updatedUser);}
 

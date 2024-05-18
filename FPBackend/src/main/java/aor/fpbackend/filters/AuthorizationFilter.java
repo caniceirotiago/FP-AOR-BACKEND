@@ -41,8 +41,7 @@ import java.util.function.Function;
                     || path.endsWith("/register")
                     || path.contains("/confirm")
                     || path.contains("/labs")
-                    || path.contains("/request-password-reset")
-                    || path.contains("/reset-password")
+                    || path.contains("/password/reset")
                     || path.contains("/request-confirmation-email")) {
                 return;
             }
