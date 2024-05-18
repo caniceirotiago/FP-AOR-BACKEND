@@ -21,7 +21,7 @@ public class AssetEntity implements Serializable {
     @Column(name = "type", nullable = false)
     private String type;  // Could be "Component" or "Resource"
 
-    @Column(name = "description", nullable = true, length = 2048)
+    @Column(name = "description", nullable = false, length = 2048)
     private String description;
 
     @Column(name = "total_quantity", nullable = false)
@@ -30,13 +30,13 @@ public class AssetEntity implements Serializable {
     @Column(name = "available_quantity", nullable = false)
     private Integer availableQuantity;
 
-    @Column(name = "part_number", nullable = true)
+    @Column(name = "part_number", nullable = false)
     private String partNumber;
 
-    @Column(name = "manufacturer", nullable = true)
+    @Column(name = "manufacturer", nullable = false)
     private String manufacturer;
 
-    @Column(name = "manufacturer_phone", nullable = true)
+    @Column(name = "manufacturer_phone", nullable = false)
     private String manufacturerPhone;
 
     @Column(name = "observations", nullable = true, length = 2048)

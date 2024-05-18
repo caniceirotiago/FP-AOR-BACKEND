@@ -1,8 +1,6 @@
 package aor.fpbackend.bean;
 
-import aor.fpbackend.dao.LaboratoryDao;
-import aor.fpbackend.dao.RoleDao;
-import aor.fpbackend.dao.UserDao;
+import aor.fpbackend.dao.*;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -25,6 +23,8 @@ public class StartupBean implements Serializable {
     LaboratoryDao labDao;
     @EJB
     UserDao userDao;
+    @EJB
+    ConfigurationDao configDao;
 
 
     @PostConstruct
@@ -35,24 +35,26 @@ public class StartupBean implements Serializable {
     private void createData() {
         //Create roles
         createRoles();
+
         //Create laboratories
         createLaboratories();
 
-        // Create functions
-
         // Create an admin
-
+        // Create a test user
         createUsers();
 
-        // Create a test user
+        //Create default session timeout
+        createSessionTimeout();
+
+        //Create default max members per project
+
+        // Create functions
 
         // Create a test project where the test user is a manager
 
         // Create a test task in the test project
 
-        //Create default session timeout
 
-        //Create default max members per project
 
     }
 
@@ -77,6 +79,11 @@ public class StartupBean implements Serializable {
     private void createUsers() {
         userDao.createDefaultUserIfNotExistent("admin", 1);
         userDao.createDefaultUserIfNotExistent("standardUser", 2);
+    }
+
+    @Transactional
+    private void createSessionTimeout() {
+        configDao.createDefaultSessionTimeoutIfNotExistent("sessionTimeout", 900);
     }
 
 

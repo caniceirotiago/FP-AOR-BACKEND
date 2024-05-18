@@ -47,12 +47,12 @@ public class ProjectDto implements Serializable {
 
     @XmlElement
     @NotNull
-    private int maxMembers;
+    private int membersCount;
 
     public ProjectDto() {
     }
 
-    public ProjectDto(long id, String name, String description, String motivation, ProjectState state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, int maxMembers) {
+    public ProjectDto(long id, String name, String description, String motivation, ProjectState state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, int membersCount) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -62,7 +62,7 @@ public class ProjectDto implements Serializable {
         this.initialDate = initialDate;
         this.finalDate = finalDate;
         this.conclusionDate = conclusionDate;
-        this.maxMembers = maxMembers;
+        this.membersCount = membersCount;
     }
 
     public long getId() {
@@ -137,11 +137,11 @@ public class ProjectDto implements Serializable {
         this.conclusionDate = conclusionDate;
     }
 
-    public int getMaxMembers() {
-        return maxMembers;
+    public int getMembersCount() {
+        return membersCount;
     }
 
-    public void setMaxMembers(int maxMembers) {
-        this.maxMembers = maxMembers;
+    public void setMembersCount(int membersCount) {
+        this.membersCount = membersCount;
     }
 }
