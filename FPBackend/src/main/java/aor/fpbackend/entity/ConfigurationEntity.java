@@ -15,9 +15,9 @@ import java.io.Serializable;
 @Entity
 @Table(name = "configuration")
 
-@NamedQuery(name = "Configuration.findConfigValueByKey", query = "SELECT c.value FROM ConfigurationEntity c WHERE c.key = :configKey")
-@NamedQuery(name = "Configuration.findConfigEntityByKey", query = "SELECT c FROM ConfigurationEntity c WHERE c.key = :configKey")
-@NamedQuery(name = "Configuration.countConfigByKey", query = "SELECT count(c) FROM ConfigurationEntity c WHERE c.key = :configKey")
+@NamedQuery(name = "Configuration.findConfigValueByConfigKey", query = "SELECT c.value FROM ConfigurationEntity c WHERE c.configKey = :configKey")
+@NamedQuery(name = "Configuration.findConfigEntityByConfigKey", query = "SELECT c FROM ConfigurationEntity c WHERE c.configKey = :configKey")
+@NamedQuery(name = "Configuration.countConfigByConfigKey", query = "SELECT count(c) FROM ConfigurationEntity c WHERE c.configKey = :configKey")
 
 
 public class ConfigurationEntity implements Serializable {
@@ -28,18 +28,18 @@ public class ConfigurationEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(name = "key", nullable = false, unique = true)
-    private String key;
+    @Column(name = "config_key", nullable = false, unique = true)
+    private String configKey;
 
-    @Column(name = "value", nullable = false)
+    @Column(name = "config_value", nullable = false)
     private int value;
 
     // Construtores
     public ConfigurationEntity() {
     }
 
-    public ConfigurationEntity(String key, int value) {
-        this.key = key;
+    public ConfigurationEntity(String configKey, int value) {
+        this.configKey = configKey;
         this.value = value;
     }
 
@@ -52,12 +52,12 @@ public class ConfigurationEntity implements Serializable {
         this.id = id;
     }
 
-    public String getKey() {
-        return key;
+    public String getConfigKey() {
+        return configKey;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setConfigKey(String key) {
+        this.configKey = key;
     }
 
     public int getValue() {

@@ -1,12 +1,15 @@
 package aor.fpbackend.dao;
 
+
 import aor.fpbackend.entity.SessionEntity;
+
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 
 import java.util.ArrayList;
+
 
 
 @Stateless
@@ -19,6 +22,7 @@ public class SessionDao extends AbstractDao<SessionEntity> {
 
     @PersistenceContext
     private EntityManager em;
+
 
     public SessionEntity findSessionByToken(String tokenValue) {
         try {

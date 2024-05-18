@@ -33,7 +33,7 @@ public class UserEntity implements Serializable {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "nickname", nullable = true)
+    @Column(name = "nickname", nullable = false, unique = true, updatable = false)
     private String nickname;
 
     @Column(name = "first_name", nullable = true)
