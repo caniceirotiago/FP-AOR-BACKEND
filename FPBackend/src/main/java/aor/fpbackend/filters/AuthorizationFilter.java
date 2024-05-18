@@ -1,9 +1,12 @@
 package aor.fpbackend.filters;
 
+import aor.fpbackend.dto.UserDto;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.annotation.Priority;
 import jakarta.ejb.EJB;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -11,10 +14,12 @@ import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import aor.fpbackend.bean.UserBean;
 import java.lang.reflect.Method;
 import java.net.UnknownHostException;
+import java.security.Principal;
 import java.util.function.Function;
 
 @Provider
@@ -25,8 +30,9 @@ import java.util.function.Function;
 
         @Context
         private ResourceInfo resourceInfo;
-//        @EJB
-//        private PermissionDao permissionDao;
+
+        @Context
+        private HttpServletRequest request;
 
         @Override
         public void filter(ContainerRequestContext requestContext) {
@@ -40,17 +46,56 @@ import java.util.function.Function;
                     || path.contains("/request-confirmation-email")) {
                 return;
             }
-            String authHeader = requestContext.getHeaderString("Authorization");
+            if (request == null) {
+                System.out.println("HttpServletRequest is null");
+                abortUnauthorized(requestContext);
+                return;
+            }
+            Cookie[] cookies = request.getCookies();
+            String token = null;
 
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("authToken".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+            System.out.println(token);
+            if (token != null ) {
                 try {
+                    System.out.println("Token is not null");
+                    UserDto user = userBean.getUserByToken(token);
+                    System.out.println(user);
                     if (userBean.tokenValidator(token)) {
-                        checkAuthorization(requestContext, token);
+                        requestContext.setSecurityContext(new SecurityContext() {
+                            @Override
+                            public Principal getUserPrincipal() {
+                                return user;
+                            }
+
+                            @Override
+                            public boolean isUserInRole(String role) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean isSecure() {
+                                return false;
+                            }
+
+                            @Override
+                            public String getAuthenticationScheme() {
+                                return null;
+                            }
+                        });
                     } else {
                         abortUnauthorized(requestContext);
                     }
                 } catch (InvalidCredentialsException e) {
+                    throw new RuntimeException(e);
+                } catch (UserNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             } else {
