@@ -252,10 +252,11 @@ public class UserBean implements Serializable {
         }
     }
 
-    public void updateUserProfile(String token, ProfileDto updatedUser) throws UserNotFoundException, UnknownHostException {
-        UserEntity userEntity = userDao.findUserByToken(token);
+    public void updateUserProfile(@Context SecurityContext securityContext, ProfileDto updatedUser) throws UserNotFoundException, UnknownHostException {
+        UserDto user = (UserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = convertUserDtotoUserEntity(user);
         if(userEntity == null){
-            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token at: " + token);
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token at: ");
             throw new UserNotFoundException("User not found");
         }
         if(updatedUser.getFirstName() != null) userEntity.setFirstName(updatedUser.getFirstName());

@@ -36,6 +36,6 @@ public class CORSFilter implements Filter {
     private boolean isAllowedOrigin(String origin) {
         // Implement your logic to check if the origin is allowed
         // Example: return origin.equals("http://localhost:3000");
-        return true; // Temporarily allow all for testing, adjust in production
+        return origin.equals("http://localhost:3000"); // Temporarily allow all for testing, adjust in production
     }
 }
