@@ -6,17 +6,16 @@ import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.entity.UserEntity;
-import aor.fpbackend.exception.InvalidCredentialsException;
-import aor.fpbackend.exception.InvalidPasswordRequestException;
-import aor.fpbackend.exception.UserConfirmationException;
-import aor.fpbackend.exception.UserNotFoundException;
+import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.Serializable;
@@ -285,21 +284,25 @@ public class UserBean implements Serializable {
 
         return userBasicInfo;
     }
-    public ProfileDto getProfileDto(String nickname) throws UserNotFoundException {
+    public ProfileDto getProfileDto(String nickname, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
+        UserDto user = (UserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserByNickname(nickname);
-        if (userEntity != null) {
-            ProfileDto profileDto = new ProfileDto();
-            profileDto.setFirstName(userEntity.getFirstName());
-            profileDto.setLastName(userEntity.getLastName());
-            profileDto.setPhoto(userEntity.getPhoto());
-            profileDto.setBiography(userEntity.getBiography());
-            profileDto.setLaboratoryId(userEntity.getLaboratory().getId());
-            profileDto.setPrivate(userEntity.isPrivate());
-            profileDto.setEmail(userEntity.getEmail());
-            return profileDto;
-        } else {
+        if (userEntity == null){
             throw new UserNotFoundException("No user found for this nickname");
         }
+        if(userEntity.isPrivate() && !user.getNickname().equals(nickname)){
+            System.out.println("User is private");
+            throw new UnauthorizedAccessException("User is private");
+        }
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setFirstName(userEntity.getFirstName());
+        profileDto.setLastName(userEntity.getLastName());
+        profileDto.setPhoto(userEntity.getPhoto());
+        profileDto.setBiography(userEntity.getBiography());
+        profileDto.setLaboratoryId(userEntity.getLaboratory().getId());
+        profileDto.setPrivate(userEntity.isPrivate());
+        profileDto.setEmail(userEntity.getEmail());
+        return profileDto;
     }
 
     private UserEntity convertUserDtotoUserEntity(UserDto user) {

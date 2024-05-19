@@ -2,10 +2,7 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dto.*;
-import aor.fpbackend.exception.InvalidCredentialsException;
-import aor.fpbackend.exception.InvalidPasswordRequestException;
-import aor.fpbackend.exception.UserConfirmationException;
-import aor.fpbackend.exception.UserNotFoundException;
+import aor.fpbackend.exception.*;
 import jakarta.ejb.EJB;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -72,9 +69,7 @@ public class UserService {
     @Path("/userBasicInfo")
     @Produces(MediaType.APPLICATION_JSON)
     public UserBasicInfoDto getBasicInfo(@Context SecurityContext securityContext)  {
-        System.out.println(securityContext);
         UserDto user = (UserDto) securityContext.getUserPrincipal();
-        System.out.println(user + " -2");
         return userBean.getUserBasicInfo(user);
     }
 
@@ -89,8 +84,8 @@ public class UserService {
     @GET
     @Path("info/{nicknameProfile}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ProfileDto userInfo(@PathParam("nicknameProfile") String nicknameProfile) throws UserNotFoundException {
-        return userBean.getProfileDto(nicknameProfile);
+    public ProfileDto userInfo(@PathParam("nicknameProfile") String nicknameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
+        return userBean.getProfileDto(nicknameProfile, securityContext);
     }
 
     /**
