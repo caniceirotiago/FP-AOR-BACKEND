@@ -17,7 +17,6 @@ public class CORSFilter implements Filter {
 
         String origin = request.getHeader("Origin");
 
-        // Check if the origin is one of the allowed origins
         if (origin != null && isAllowedOrigin(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
@@ -25,7 +24,9 @@ public class CORSFilter implements Filter {
             response.setHeader("Access-Control-Allow-Credentials", "true");
 
             if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+                System.out.println("OPTIONS request intercepted");
                 response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write("OK");
                 return;
             }
         }
@@ -34,8 +35,16 @@ public class CORSFilter implements Filter {
     }
 
     private boolean isAllowedOrigin(String origin) {
-        // Implement your logic to check if the origin is allowed
-        // Example: return origin.equals("http://localhost:3000");
-        return origin.equals("http://localhost:3000"); // Temporarily allow all for testing, adjust in production
+        // Ajuste a lógica conforme necessário para seu ambiente de produção
+        System.out.println("Origin: " + origin);
+        return origin.equals("http://localhost:3000");
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    @Override
+    public void destroy() {
     }
 }
