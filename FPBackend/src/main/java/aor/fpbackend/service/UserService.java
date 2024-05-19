@@ -100,14 +100,14 @@ public class UserService {
         userBean.logout(token);
     }
 
-    @GET
-    @Path("/profile")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public UserDto getUserProfile(@HeaderParam("Authorization") String authHeader) throws UserNotFoundException {
-        String token = authHeader.substring(7);
-        return userBean.getLoggedUser(token);
-    }
+//    @GET
+//    @Path("/profile")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public UserDto getUserProfile(@HeaderParam("Authorization") String authHeader) throws UserNotFoundException {
+//        String token = authHeader.substring(7);
+//        return userBean.getLoggedUser(token);
+//    }
 
     @GET
     @Path("")
@@ -125,7 +125,7 @@ public class UserService {
     @Path("/profile")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void editUserData(@Valid ProfileDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, UnknownHostException {
+    public void editUserData(@Valid UpdateUserDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, UnknownHostException {
         userBean.updateUserProfile(securityContext, updatedUser);}
 
 
