@@ -47,47 +47,50 @@ public class ProjectEntity implements Serializable {
     @Column(name = "conclusion_date", nullable = true)
     private Instant conclusionDate;
 
-    @Column(name = "members_count")
-    private int membersCount;
     @OneToMany(mappedBy = "project")
     private Set<ProjectMembershipEntity> members = new HashSet<>();
+
     @OneToMany(mappedBy = "project")
     private Set<TaskEntity> tasks = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
             name = "project_skills",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    private Set<SkillEntity> skills = new HashSet<>();
+    private Set<SkillEntity> projectSkills = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
-            name = "project_interest",
+            name = "project_keyword",
             joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "interest_id")
+            inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
-    private Set<InterestEntity> projectInterests = new HashSet<>();
+    private Set<InterestEntity> projectKeywords = new HashSet<>();
+
     @ManyToOne
     @JoinColumn(name = "laboratory_id")
     private LaboratoryEntity laboratory;
 
     @OneToMany(mappedBy = "group")
     private Set<GroupMessageEntity> groupMessages;
+
     @OneToMany(mappedBy = "project")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectAssetEntity> projectAssets = new HashSet<>();
 
 
     public ProjectEntity() {}
 
-    public ProjectEntity(String name, String description, String motivation, Instant creationDate, Instant finalDate, int membersCount, LaboratoryEntity laboratory) {
+    public ProjectEntity(String name, String description, String motivation, Instant creationDate, Instant finalDate, LaboratoryEntity laboratory) {
         this.name = name;
         this.description = description;
         this.motivation = motivation;
         this.creationDate = creationDate;
         this.finalDate = finalDate;
-        this.membersCount = membersCount;
         this.laboratory = laboratory;
     }
 
@@ -131,14 +134,6 @@ public class ProjectEntity implements Serializable {
 
     public void setState(ProjectState state) {
         this.state = state;
-    }
-
-    public int getMembersCount() {
-        return membersCount;
-    }
-
-    public void setMembersCount(int membersCount) {
-        this.membersCount = membersCount;
     }
 
     public Instant getCreationDate() {
@@ -189,20 +184,20 @@ public class ProjectEntity implements Serializable {
         this.tasks = tasks;
     }
 
-    public Set<SkillEntity> getSkills() {
-        return skills;
+    public Set<SkillEntity> getProjectSkills() {
+        return projectSkills;
     }
 
-    public void setSkills(Set<SkillEntity> skills) {
-        this.skills = skills;
+    public void setProjectSkills(Set<SkillEntity> projectSkills) {
+        this.projectSkills = projectSkills;
     }
 
-    public Set<InterestEntity> getProjectInterests() {
-        return projectInterests;
+    public Set<InterestEntity> getProjectKeywords() {
+        return projectKeywords;
     }
 
-    public void setProjectInterests(Set<InterestEntity> projectInterests) {
-        this.projectInterests = projectInterests;
+    public void setProjectKeywords(Set<InterestEntity> projectKeywords) {
+        this.projectKeywords = projectKeywords;
     }
 
     public LaboratoryEntity getLaboratory() {
@@ -249,7 +244,8 @@ public class ProjectEntity implements Serializable {
                 ", initialDate=" + initialDate +
                 ", finalDate=" + finalDate +
                 ", conclusionDate=" + conclusionDate +
-                ", membersCount=" + membersCount +
                 '}';
     }
+
+
 }

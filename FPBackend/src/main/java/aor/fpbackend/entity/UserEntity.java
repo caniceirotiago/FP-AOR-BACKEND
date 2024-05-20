@@ -93,7 +93,7 @@ public class UserEntity implements Serializable {
             name = "user_skill",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id"))
-    private Set<SkillEntity> skills = new HashSet<>();
+    private Set<SkillEntity> userSkills = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -284,12 +284,12 @@ public class UserEntity implements Serializable {
         this.tasksAsExecutor = tasksAsExecutor;
     }
 
-    public Set<SkillEntity> getSkills() {
-        return skills;
+    public Set<SkillEntity> getUserSkills() {
+        return userSkills;
     }
 
-    public void setSkills(Set<SkillEntity> skills) {
-        this.skills = skills;
+    public void setUserSkills(Set<SkillEntity> userSkills) {
+        this.userSkills = userSkills;
     }
 
     public Set<InterestEntity> getUserInterests() {

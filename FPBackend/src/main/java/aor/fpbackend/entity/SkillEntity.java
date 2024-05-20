@@ -19,10 +19,10 @@ public class SkillEntity implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "skills")
+    @ManyToMany(mappedBy = "userSkills")
     private Set<UserEntity> users = new HashSet<>();
 
-    @ManyToMany(mappedBy = "skills")
+    @ManyToMany(mappedBy = "projectSkills")
     private Set<ProjectEntity> projects = new HashSet<>();
 
     // Constructors
