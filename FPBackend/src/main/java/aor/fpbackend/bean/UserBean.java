@@ -309,6 +309,32 @@ public class UserBean implements Serializable {
         return profileDto;
     }
 
+    public void updatePassword(UserPasswordDto userPasswordDto, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
+        UserDto user = (UserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserByEmail(user.getEmail());
+        if (userEntity == null) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");
+            throw new InvalidPasswordRequestException("User not found");
+        }
+        if (!oldPasswordConfirmation(userEntity, userPasswordDto)) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + "Attempt to update password with invalid old password or password should not be the same at: " + LocalDate.now());
+            throw new InvalidPasswordRequestException("Invalid old password or password should not be the same");
+        }
+        String encryptedNewPassword = passEncoder.encode(userPasswordDto.getNewPassword());
+        userEntity.setPassword(encryptedNewPassword);
+    }
+
+    public boolean oldPasswordConfirmation(UserEntity userEntity, UserPasswordDto userPasswordDto) {
+        String oldPassword = userPasswordDto.getOldPassword();
+        String newPassword = userPasswordDto.getNewPassword();
+        String hashedPassword = userEntity.getPassword();
+        // Checks that the old password provided matches the hashed password and that the new password is different from the one saved
+        if (passEncoder.matches(oldPassword, hashedPassword) && !passEncoder.matches(newPassword, hashedPassword)) {
+            return true;
+        }
+        return false;
+    }
+
     private UserEntity convertUserDtotoUserEntity(UserDto user) {
         UserEntity userEntity = new UserEntity();
         if (userEntity != null) {
