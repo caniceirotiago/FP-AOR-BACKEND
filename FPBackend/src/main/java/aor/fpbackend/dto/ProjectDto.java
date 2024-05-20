@@ -47,12 +47,12 @@ public class ProjectDto implements Serializable {
 
     @XmlElement
     @NotNull
-    private int membersCount;
+    private int openVacancies;
 
     public ProjectDto() {
     }
 
-    public ProjectDto(long id, String name, String description, String motivation, ProjectState state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, int membersCount) {
+    public ProjectDto(long id, String name, String description, String motivation, ProjectState state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, int openVacancies) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -62,7 +62,7 @@ public class ProjectDto implements Serializable {
         this.initialDate = initialDate;
         this.finalDate = finalDate;
         this.conclusionDate = conclusionDate;
-        this.membersCount = membersCount;
+        this.openVacancies = openVacancies;
     }
 
     public long getId() {
@@ -137,11 +137,11 @@ public class ProjectDto implements Serializable {
         this.conclusionDate = conclusionDate;
     }
 
-    public int getMembersCount() {
-        return membersCount;
+    public int getOpenVacancies() {
+        return openVacancies;
     }
 
-    public void setMembersCount(int membersCount) {
-        this.membersCount = membersCount;
+    public void setOpenVacancies(int openVacancies) {
+        this.openVacancies = openVacancies;
     }
 }

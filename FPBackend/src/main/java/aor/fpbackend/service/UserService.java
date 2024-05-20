@@ -82,10 +82,10 @@ public class UserService {
      * (without the password) in JSON format.
      */
     @GET
-    @Path("info/{nicknameProfile}")
+    @Path("info/{usernameProfile}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ProfileDto userInfo(@PathParam("nicknameProfile") String nicknameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
-        return userBean.getProfileDto(nicknameProfile, securityContext);
+    public ProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
+        return userBean.getProfileDto(usernameProfile, securityContext);
     }
 
     /**

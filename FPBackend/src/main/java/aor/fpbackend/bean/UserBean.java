@@ -208,20 +208,19 @@ public class UserBean implements Serializable {
     public boolean tokenValidator(String token) throws InvalidCredentialsException {
         SessionEntity sessionEntity = sessionDao.findSessionByToken(token);
         if (sessionEntity != null) {
-//            int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
-//            Instant tokenExpiration = sessionEntity.getLastActivityTimestamp().plusSeconds(tokenTimerInSeconds);
-//            Instant now = Instant.now();
-//            if (now.isBefore(tokenExpiration)) {
-//                sessionEntity.setLastActivityTimestamp(now);
-//                return true;
-            return true; // Remove the token expiration check
+            int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
+            Instant tokenExpiration = sessionEntity.getLastActivityTimestamp().plusSeconds(tokenTimerInSeconds);
+            Instant now = Instant.now();
+            if (now.isBefore(tokenExpiration)) {
+                sessionEntity.setLastActivityTimestamp(now);
+                return true;
             } else {
                 logout(token);
                 return false;
             }
         }
-//        return false;
-//    }
+        return false;
+    }
 
     public UserDto getLoggedUser(String tokenValue) throws UserNotFoundException {
         try {
@@ -258,21 +257,22 @@ public class UserBean implements Serializable {
         UserEntity userEntity = userDao.findUserByEmail(user.getEmail());
         System.out.println(userEntity + " -1");
         System.out.println(updatedUser);
-        if(userEntity == null){
+        if (userEntity == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token at: ");
             throw new UserNotFoundException("User not found");
         }
-        if(updatedUser.getFirstName() != null) userEntity.setFirstName(updatedUser.getFirstName());
-        if(updatedUser.getLastName() != null) userEntity.setLastName(updatedUser.getLastName());
-        if(updatedUser.getPhoto() != null) userEntity.setPhoto(updatedUser.getPhoto());
-        if(updatedUser.getBiography() != null) userEntity.setBiography(updatedUser.getBiography());
+        if (updatedUser.getFirstName() != null) userEntity.setFirstName(updatedUser.getFirstName());
+        if (updatedUser.getLastName() != null) userEntity.setLastName(updatedUser.getLastName());
+        if (updatedUser.getPhoto() != null) userEntity.setPhoto(updatedUser.getPhoto());
+        if (updatedUser.getBiography() != null) userEntity.setBiography(updatedUser.getBiography());
         LaboratoryEntity laboratory = labDao.findLaboratoryById(updatedUser.getLaboratoryId());
-        if(laboratory != null) {
+        if (laboratory != null) {
             userEntity.setLaboratory(laboratory);
         }
         userEntity.setPrivate(updatedUser.isPrivate());
         userDao.merge(userEntity);
     }
+
     public UserDto getUserByToken(String token) throws UserNotFoundException {
         UserEntity userEntity = userDao.findUserByToken(token);
         if (userEntity != null) {
@@ -281,21 +281,23 @@ public class UserBean implements Serializable {
             throw new UserNotFoundException("No user found for this token");
         }
     }
+
     public UserBasicInfoDto getUserBasicInfo(UserDto user) {
         UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
-        userBasicInfo.setNickname(user.getNickname());
+        userBasicInfo.setUsername(user.getUsername());
         userBasicInfo.setPhoto(user.getPhoto());
         System.out.println(userBasicInfo + " -3");
 
         return userBasicInfo;
     }
-    public ProfileDto getProfileDto(String nickname, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
+
+    public ProfileDto getProfileDto(String username, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
         UserDto user = (UserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserByNickname(nickname);
-        if (userEntity == null){
-            throw new UserNotFoundException("No user found for this nickname");
+        UserEntity userEntity = userDao.findUserByUsername(username);
+        if (userEntity == null) {
+            throw new UserNotFoundException("No user found for this username");
         }
-        if(userEntity.isPrivate() && !user.getNickname().equals(nickname)){
+        if (userEntity.isPrivate() && !user.getUsername().equals(username)) {
             System.out.println("User is private");
             throw new UnauthorizedAccessException("User is private");
         }
@@ -314,7 +316,7 @@ public class UserBean implements Serializable {
         UserEntity userEntity = new UserEntity();
         if (userEntity != null) {
             userEntity.setEmail(user.getEmail());
-            userEntity.setNickname(user.getNickname());
+            userEntity.setUsername(user.getUsername());
             userEntity.setFirstName(user.getFirstName());
             userEntity.setLastName(user.getLastName());
             userEntity.setPhoto(user.getPhoto());
@@ -328,7 +330,7 @@ public class UserBean implements Serializable {
         UserDto userDto = new UserDto();
         userDto.setId(userEntity.getId());
         userDto.setEmail(userEntity.getEmail());
-        userDto.setNickname(userEntity.getNickname());
+        userDto.setUsername(userEntity.getUsername());
         userDto.setFirstName(userEntity.getFirstName());
         userDto.setLastName(userEntity.getLastName());
         userDto.setPhoto(userEntity.getPhoto());

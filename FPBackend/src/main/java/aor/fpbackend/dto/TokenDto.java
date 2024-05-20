@@ -11,7 +11,7 @@ public class TokenDto implements Serializable {
     @XmlElement
     private long id;
     @XmlElement
-    private String nickname;
+    private String username;
     @XmlElement
     private String token;
     @XmlElement
@@ -22,9 +22,9 @@ public class TokenDto implements Serializable {
     public TokenDto() {
     }
 
-    public TokenDto(long id, String nickname, String token, String photo, long roleId) {
+    public TokenDto(long id, String username, String token, String photo, long roleId) {
         this.id = id;
-        this.nickname = nickname;
+        this.username = username;
         this.token = token;
         this.photo = photo;
         this.roleId = roleId;
@@ -38,12 +38,12 @@ public class TokenDto implements Serializable {
         this.id = id;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getToken() {
