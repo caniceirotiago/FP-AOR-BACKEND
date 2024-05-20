@@ -29,6 +29,11 @@ public class SkillService {
           return skillBean.getSkills();
     }
 
-
+    @GET
+    @Path("/byfirstletter/{firstLetter}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<SkillDto> getAllSkillsByFirstLetter(@PathParam("firstLetter") String firstLetter) {
+        return skillBean.getSkillsByFirstLetter(firstLetter);
+    }
 
 }

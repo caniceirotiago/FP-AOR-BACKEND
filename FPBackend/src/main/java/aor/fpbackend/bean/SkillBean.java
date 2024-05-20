@@ -1,6 +1,7 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.SkillDao;
+import aor.fpbackend.dto.InterestDto;
 import aor.fpbackend.dto.SkillDto;
 import aor.fpbackend.entity.SkillEntity;
 import jakarta.ejb.EJB;
@@ -25,6 +26,14 @@ public class SkillBean implements Serializable {
     }
     public List<SkillDto> getSkills() {
         return convertSkillEntityListToSkillDtoList(skillDao.getAllSkills());
+    }
+
+    public List<SkillDto> getSkillsByFirstLetter(String firstLetter) {
+        if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
+            LOGGER.error("Invalid first letter: " + firstLetter);
+            return new ArrayList<>();
+        }
+        return convertSkillEntityListToSkillDtoList(skillDao.getSkillsByFirstLetter(firstLetter.charAt(0)));
     }
 
     public SkillDto convertSkillEntitytoSkillDto(SkillEntity SkillEntity) {
