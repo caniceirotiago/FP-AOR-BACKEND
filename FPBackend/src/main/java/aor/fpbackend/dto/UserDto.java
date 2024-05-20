@@ -26,9 +26,9 @@ public class UserDto implements Serializable, Principal {
     private String password;
 
     @XmlElement
-    @NotNull(message = "Nickname is required")
-    @Size(min = 2, max = 25, message = "Nickname must be between 2 and 20 characters")
-    private String nickname;
+    @NotNull(message = "Username is required")
+    @Size(min = 2, max = 25, message = "Username must be between 2 and 20 characters")
+    private String username;
 
     @XmlElement
     @NotNull
@@ -69,11 +69,11 @@ public class UserDto implements Serializable, Principal {
     public UserDto() {
     }
 
-    public UserDto(long id, String email, String password, String nickname, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate, boolean isDeleted, boolean isConfirmed) {
+    public UserDto(long id, String email, String password, String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate, boolean isDeleted, boolean isConfirmed) {
         this.id = id;
         this.email = email;
         this.password = password;
-        this.nickname = nickname;
+        this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
         this.photo = photo;
@@ -108,12 +108,12 @@ public class UserDto implements Serializable, Principal {
         this.password = password;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getFirstName() {
@@ -196,7 +196,7 @@ public class UserDto implements Serializable, Principal {
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", nickname='" + nickname + '\'' +
+                ", username='" + username + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", photo='" + photo + '\'' +

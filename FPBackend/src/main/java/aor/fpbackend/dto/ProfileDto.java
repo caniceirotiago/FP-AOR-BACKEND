@@ -13,6 +13,18 @@ public class ProfileDto implements Serializable {
 
     @XmlElement
     @NotNull
+    private long id;
+
+    @XmlElement
+    @NotNull
+    private String email;
+
+    @XmlElement
+    @NotNull
+    private String username;
+
+    @XmlElement
+    @NotNull
     @Size(min = 2, max = 25, message = "First name must be between 2 and 25 characters")
     private String firstName;
 
@@ -20,11 +32,6 @@ public class ProfileDto implements Serializable {
     @NotNull
     @Size(min = 2, max = 25, message = "Last name must be between 2 and 25 characters")
     private String lastName;
-
-    @XmlElement
-    @NotNull
-    private String email;
-
 
     @XmlElement
     @NotNull
@@ -46,14 +53,41 @@ public class ProfileDto implements Serializable {
     public ProfileDto() {
     }
 
-    public ProfileDto(String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate, String email) {
+    public ProfileDto(long id, String email, String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
+        this.id = id;
+        this.email = email;
+        this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
         this.photo = photo;
         this.biography = biography;
         this.laboratoryId = laboratoryId;
         this.isPrivate = isPrivate;
+
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getFirstName() {
@@ -102,13 +136,5 @@ public class ProfileDto implements Serializable {
 
     public void setPrivate(boolean aPrivate) {
         isPrivate = aPrivate;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 }

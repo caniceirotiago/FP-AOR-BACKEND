@@ -13,7 +13,7 @@ import java.util.Set;
 @NamedQuery(name = "User.findUserByConfirmationToken", query = "SELECT u FROM UserEntity u WHERE u.confirmationToken = :confirmationToken")
 @NamedQuery(name = "User.findUserByResetPasswordToken", query = "SELECT u FROM UserEntity u WHERE u.resetPasswordToken = :resetPasswordToken")
 @NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
-@NamedQuery(name = "User.findUserByNickname", query = "SELECT u FROM UserEntity u WHERE u.nickname = :nickname")
+@NamedQuery(name = "User.findUserByUsername", query = "SELECT u FROM UserEntity u WHERE u.username = :username")
 @NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u WHERE u.email = :email")
 @NamedQuery(name = "User.countUserByEmail", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.email = :email")
 
@@ -33,8 +33,8 @@ public class UserEntity implements Serializable {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "nickname", nullable = false, unique = true, updatable = false)
-    private String nickname;
+    @Column(name = "username", nullable = false, unique = true, updatable = false)
+    private String username;
 
     @Column(name = "first_name", nullable = true)
     private String firstName;
@@ -117,10 +117,10 @@ public class UserEntity implements Serializable {
 
     public UserEntity() {}
 
-    public UserEntity(String email, String password, String nickname, String firstName, String lastName, boolean isPrivate, boolean isDeleted, boolean isConfirmed, LaboratoryEntity laboratory, RoleEntity role) {
+    public UserEntity(String email, String password, String username, String firstName, String lastName, boolean isPrivate, boolean isDeleted, boolean isConfirmed, LaboratoryEntity laboratory, RoleEntity role) {
         this.email = email;
         this.password = password;
-        this.nickname = nickname;
+        this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
         this.isPrivate = isPrivate;
@@ -156,12 +156,12 @@ public class UserEntity implements Serializable {
         this.password = password;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getFirstName() {
@@ -354,7 +354,7 @@ public class UserEntity implements Serializable {
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", nickname='" + nickname + '\'' +
+                ", username='" + username + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", photo='" + photo + '\'' +
                 ", biography='" + biography + '\'' +

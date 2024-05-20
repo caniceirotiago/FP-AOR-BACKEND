@@ -33,20 +33,20 @@ public class UserDao extends AbstractDao<UserEntity> {
     RoleDao roleDao;
 
 
-    public void createDefaultUserIfNotExistent(String nickname, int roleId) {
+    public void createDefaultUserIfNotExistent(String username, int roleId) {
         List<UserEntity> users = em.createQuery(
-                        "SELECT u FROM UserEntity u WHERE u.nickname = :nickname", UserEntity.class)
-                .setParameter("nickname", nickname)
+                        "SELECT u FROM UserEntity u WHERE u.username = :username", UserEntity.class)
+                .setParameter("username", username)
                 .getResultList();
         if (users.isEmpty()) {
-            String email = nickname + "@" + nickname + ".com";
-            String encryptedPassword = passEncoder.encode(nickname);
+            String email = username + "@" + username + ".com";
+            String encryptedPassword = passEncoder.encode(username);
             LaboratoryEntity laboratory = labDao.findLaboratoryById(2);
             RoleEntity role = roleDao.findRoleById(roleId);
             if (role == null) {
                 throw new IllegalStateException("Role not found.");
             }
-            UserEntity userEntity = new UserEntity(email,encryptedPassword, nickname, nickname, nickname, true, false, true,laboratory, role);
+            UserEntity userEntity = new UserEntity(email,encryptedPassword, username, username, username, true, false, true,laboratory, role);
             em.persist(userEntity);
         }
     }
@@ -90,9 +90,9 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-    public UserEntity findUserByNickname(String nickname) {
+    public UserEntity findUserByUsername(String username) {
         try {
-            return (UserEntity) em.createNamedQuery("User.findUserByNickname").setParameter("nickname", nickname)
+            return (UserEntity) em.createNamedQuery("User.findUserByUsername").setParameter("username", username)
                     .getSingleResult();
 
         } catch (NoResultException e) {

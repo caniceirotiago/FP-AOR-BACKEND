@@ -67,7 +67,7 @@ public class ProjectEntity implements Serializable {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
-    private Set<InterestEntity> projectKeywords = new HashSet<>();
+    private Set<KeywordEntity> projectKeywords = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "laboratory_id")
@@ -192,11 +192,11 @@ public class ProjectEntity implements Serializable {
         this.projectSkills = projectSkills;
     }
 
-    public Set<InterestEntity> getProjectKeywords() {
+    public Set<KeywordEntity> getProjectKeywords() {
         return projectKeywords;
     }
 
-    public void setProjectKeywords(Set<InterestEntity> projectKeywords) {
+    public void setProjectKeywords(Set<KeywordEntity> projectKeywords) {
         this.projectKeywords = projectKeywords;
     }
 
