@@ -12,7 +12,7 @@ public class UserPasswordDto implements Serializable {
 
 
     @XmlElement
-    private String password;
+    private String oldPassword;
     @XmlElement
     @NotNull
     @Size(min = 4, message = "Password must be greater than 4 characters")
@@ -21,17 +21,17 @@ public class UserPasswordDto implements Serializable {
     public UserPasswordDto() {
     }
 
-    public UserPasswordDto(String password, String newPassword) {
-        this.password = password;
+    public UserPasswordDto(String oldPassword, String newPassword) {
+        this.oldPassword = oldPassword;
         this.newPassword = newPassword;
     }
 
-    public String getPassword() {
-        return password;
+    public String getOldPassword() {
+        return oldPassword;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
     }
 
     public String getNewPassword() {

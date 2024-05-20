@@ -38,8 +38,8 @@ public class UserService {
     @PUT
     @Path("/request/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void requestPasswordReset(ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
-        userBean.requestPasswordReset(resetPasswordDto);
+    public void requestPasswordReset(RequestResetPasswordDto requestResetPasswordDto) throws InvalidPasswordRequestException {
+        userBean.requestPasswordReset(requestResetPasswordDto);
     }
     @PUT
     @Path("/password/reset")
@@ -65,8 +65,9 @@ public class UserService {
     }
 
     //TODO: De forma a experimentar o security context
+    // Corrigir endpoint no frontend
     @GET
-    @Path("/userBasicInfo")
+    @Path("/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
     public UserBasicInfoDto getBasicInfo(@Context SecurityContext securityContext)  {
         UserDto user = (UserDto) securityContext.getUserPrincipal();
@@ -99,15 +100,6 @@ public class UserService {
     public void logout(@HeaderParam("token") String token)throws InvalidCredentialsException {
         userBean.logout(token);
     }
-
-//    @GET
-//    @Path("/profile")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public UserDto getUserProfile(@HeaderParam("Authorization") String authHeader) throws UserNotFoundException {
-//        String token = authHeader.substring(7);
-//        return userBean.getLoggedUser(token);
-//    }
 
     @GET
     @Path("")

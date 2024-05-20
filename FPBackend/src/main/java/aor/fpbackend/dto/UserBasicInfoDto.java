@@ -11,6 +11,10 @@ import java.io.Serializable;
 @XmlRootElement
 public class UserBasicInfoDto implements Serializable {
 
+//    @XmlElement
+//    private long id;
+    //TODO Boa prática passar id?
+
     @XmlElement
     @NotNull
     @Size(min = 2, max = 2048, message = "Photo URL must be between 2 and 2048 characters")
@@ -24,12 +28,12 @@ public class UserBasicInfoDto implements Serializable {
 
     @XmlElement
     @NotNull(message = "Role is required")
-    private String role;
+    private long role;
 
     public UserBasicInfoDto() {
     }
 
-    public UserBasicInfoDto(String photo, String username, String role) {
+    public UserBasicInfoDto(String photo, String username, long role) {
         this.photo = photo;
         this.username = username;
         this.role = role;
@@ -51,11 +55,11 @@ public class UserBasicInfoDto implements Serializable {
         this.username = username;
     }
 
-    public String getRole() {
+    public long getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(long role) {
         this.role = role;
     }
 }

@@ -56,6 +56,10 @@ public class UserDto implements Serializable, Principal {
 
     @XmlElement
     @NotNull
+    private long roleId;
+
+    @XmlElement
+    @NotNull
     private boolean isPrivate;
 
     @XmlElement
@@ -69,7 +73,7 @@ public class UserDto implements Serializable, Principal {
     public UserDto() {
     }
 
-    public UserDto(long id, String email, String password, String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate, boolean isDeleted, boolean isConfirmed) {
+    public UserDto(long id, String email, String password, String username, String firstName, String lastName, String photo, String biography, long laboratoryId, long roleId, boolean isPrivate, boolean isDeleted, boolean isConfirmed) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -79,6 +83,7 @@ public class UserDto implements Serializable, Principal {
         this.photo = photo;
         this.biography = biography;
         this.laboratoryId = laboratoryId;
+        this.roleId = roleId;
         this.isPrivate = isPrivate;
         this.isDeleted = isDeleted;
         this.isConfirmed = isConfirmed;
@@ -156,6 +161,14 @@ public class UserDto implements Serializable, Principal {
         this.laboratoryId = laboratoryId;
     }
 
+    public long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(long roleId) {
+        this.roleId = roleId;
+    }
+
     public boolean isPrivate() {
         return isPrivate;
     }
@@ -202,6 +215,7 @@ public class UserDto implements Serializable, Principal {
                 ", photo='" + photo + '\'' +
                 ", biography='" + biography + '\'' +
                 ", laboratoryId=" + laboratoryId +
+                ", roleId=" + roleId +
                 ", isPrivate=" + isPrivate +
                 ", isDeleted=" + isDeleted +
                 ", isConfirmed=" + isConfirmed +
