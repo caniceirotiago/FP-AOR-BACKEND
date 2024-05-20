@@ -26,7 +26,6 @@ public class CORSFilter implements Filter {
             if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
                 System.out.println("OPTIONS request intercepted");
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write("OK");
                 return;
             }
         }

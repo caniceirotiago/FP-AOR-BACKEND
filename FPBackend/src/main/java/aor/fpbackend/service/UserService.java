@@ -126,7 +126,8 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void editUserData(@Valid UpdateUserDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, UnknownHostException {
-        userBean.updateUserProfile(securityContext, updatedUser);}
+        userBean.updateUserProfile(securityContext, updatedUser);
+    }
 
 
 
