@@ -8,7 +8,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 @XmlRootElement
-public class UserPasswordDto implements Serializable {
+public class UpdatePasswordDto implements Serializable {
 
 
     @XmlElement
@@ -18,10 +18,10 @@ public class UserPasswordDto implements Serializable {
     @Size(min = 4, message = "Password must be greater than 4 characters")
     private String newPassword;
 
-    public UserPasswordDto() {
+    public UpdatePasswordDto() {
     }
 
-    public UserPasswordDto(String oldPassword, String newPassword) {
+    public UpdatePasswordDto(String oldPassword, String newPassword) {
         this.oldPassword = oldPassword;
         this.newPassword = newPassword;
     }
