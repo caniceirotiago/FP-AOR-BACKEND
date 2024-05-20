@@ -125,10 +125,16 @@ public class UserService {
     @Path("/password")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateUserPassword(@Valid UserPasswordDto updatedPassword, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
+    public void updateUserPassword(@Valid UpdatePasswordDto updatedPassword, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
         userBean.updatePassword(updatedPassword, securityContext);
     }
 
-
+    @PUT
+    @Path("/role")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void updateUserPassword(@Valid UpdateRoleDto updatedRole, @Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
+        userBean.updateRole(updatedRole, securityContext);
+    }
 
 }
