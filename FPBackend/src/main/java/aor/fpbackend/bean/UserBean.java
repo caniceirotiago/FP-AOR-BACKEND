@@ -104,9 +104,9 @@ public class UserBean implements Serializable {
         }
     }
 
-    public void requestPasswordReset(ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
+    public void requestPasswordReset(RequestResetPasswordDto requestResetPasswordDto) throws InvalidPasswordRequestException {
         try {
-            UserEntity user = userDao.findUserByEmail(resetPasswordDto.getEmail());
+            UserEntity user = userDao.findUserByEmail(requestResetPasswordDto.getEmail());
             if (user == null) {
                 LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with invalid credentials!");
                 throw new InvalidPasswordRequestException("Invalid credentials");
@@ -168,9 +168,7 @@ public class UserBean implements Serializable {
                     sessionDao.persist(sessionEntity);
                     // Create and set the cookie for the token
                     NewCookie cookie = new NewCookie("authToken", tokenValue, "/", null, "Auth Token", 3600, false);
-                    return Response.ok()
-                            .cookie(cookie)
-                            .build();
+                    return Response.ok().cookie(cookie).build();
                 } else {
                     LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to login with invalid credentials: " + userLogin.getEmail());
                     throw new InvalidCredentialsException("Invalid credentials");
@@ -286,8 +284,7 @@ public class UserBean implements Serializable {
         UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
         userBasicInfo.setUsername(user.getUsername());
         userBasicInfo.setPhoto(user.getPhoto());
-        System.out.println(userBasicInfo + " -3");
-
+        userBasicInfo.setRole(user.getRoleId());
         return userBasicInfo;
     }
 
