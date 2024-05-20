@@ -24,9 +24,11 @@ public class InterestDao extends AbstractDao<InterestEntity> {
         TypedQuery<InterestEntity> query = em.createQuery("SELECT i FROM InterestEntity i", InterestEntity.class);
         return query.getResultList();
     }
-
-    public void createInterest(String name) {
-        InterestEntity newInterest = new InterestEntity(name);
-        em.persist(newInterest);
+    public List<InterestEntity> getInterestsByFirstLetter(char firstLetter) {
+        System.out.println("firstLetter: " + firstLetter);
+        TypedQuery<InterestEntity> query = em.createQuery(
+                "SELECT i FROM InterestEntity i WHERE i.name LIKE :pattern", InterestEntity.class);
+        query.setParameter("pattern", firstLetter + "%");
+        return query.getResultList();
     }
 }

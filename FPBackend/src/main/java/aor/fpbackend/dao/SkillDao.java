@@ -1,6 +1,7 @@
 package aor.fpbackend.dao;
 
 
+import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.SkillEntity;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -25,8 +26,10 @@ public class SkillDao extends AbstractDao<SkillEntity> {
         return query.getResultList();
     }
 
-    public void createSkill(String name) {
-        SkillEntity newSkill = new SkillEntity(name);
-        em.persist(newSkill);
+    public List<SkillEntity> getSkillsByFirstLetter(char firstLetter) {
+        TypedQuery<SkillEntity> query = em.createQuery(
+                "SELECT i FROM SkillEntity i WHERE i.name LIKE :pattern", SkillEntity.class);
+        query.setParameter("pattern", firstLetter + "%");
+        return query.getResultList();
     }
 }
