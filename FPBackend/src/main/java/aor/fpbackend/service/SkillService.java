@@ -1,32 +1,32 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.InterestBean;
+import aor.fpbackend.bean.SkillBean;
 import aor.fpbackend.dto.InterestDto;
-import aor.fpbackend.dto.LaboratoryDto;
+import aor.fpbackend.dto.SkillDto;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Path("/interests")
-public class InterestService {
+@Path("/skills")
+public class SkillService {
 
     @EJB
-    InterestBean interestBean;
+    SkillBean skillBean;
     @POST
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void createInterest(InterestDto interestDto) {
-        interestBean.createInterest(interestDto.getName());
+    public void createSkill(SkillDto skillDto) {
+        skillBean.createSkill(skillDto.getName());
     }
 
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<InterestDto> getAllLabs() {
-          return interestBean.getInterests();
+    public List<SkillDto> getAllSkills() {
+          return skillBean.getSkills();
     }
 
 
