@@ -1,5 +1,6 @@
 package aor.fpbackend.dto;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -9,29 +10,19 @@ import java.io.Serializable;
 @XmlRootElement
 public class UpdateRoleDto implements Serializable {
 
-
     @XmlElement
-    private int id;
-    @XmlElement
+    @NotNull
     private String username;
     @XmlElement
+    @NotNull
     private long roleId;
 
     public UpdateRoleDto() {
     }
 
-    public UpdateRoleDto(int id, String username, long roleId) {
-        this.id = id;
+    public UpdateRoleDto(String username, long roleId) {
         this.username = username;
         this.roleId = roleId;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getUsername() {

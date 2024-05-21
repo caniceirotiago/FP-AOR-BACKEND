@@ -43,7 +43,6 @@ public class UserDto implements Serializable, Principal {
     @XmlElement
     @NotNull
     @Size(min = 2, max = 2048, message = "Photo URL must be between 2 and 2048 characters")
-    @NotBlank
     private String photo;
 
     @XmlElement

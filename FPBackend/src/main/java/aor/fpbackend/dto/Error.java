@@ -9,6 +9,7 @@ public class Error implements Serializable {
     @JsonbProperty("errorMessage")
     private final String errorMessage;
 
+
     public Error(String message) {
         this.errorMessage = message;
     }

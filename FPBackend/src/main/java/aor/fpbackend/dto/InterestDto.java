@@ -1,7 +1,16 @@
 package aor.fpbackend.dto;
+import jakarta.validation.constraints.NotNull;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
 public class InterestDto {
+
+    @XmlElement
+    @NotNull
     private Long id;
+    @XmlElement
+    @NotNull
     private String name;
 
     public InterestDto() {

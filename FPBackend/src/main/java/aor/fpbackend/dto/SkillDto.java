@@ -1,7 +1,13 @@
 package aor.fpbackend.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class SkillDto {
+    @NotNull
     private Long id;
+    @NotNull
     private String name;
 
     public SkillDto() {

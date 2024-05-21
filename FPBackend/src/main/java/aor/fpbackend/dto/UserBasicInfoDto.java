@@ -11,14 +11,10 @@ import java.io.Serializable;
 @XmlRootElement
 public class UserBasicInfoDto implements Serializable {
 
-//    @XmlElement
-//    private long id;
-    //TODO Boa prática passar id?
 
     @XmlElement
     @NotNull
     @Size(min = 2, max = 2048, message = "Photo URL must be between 2 and 2048 characters")
-    @NotBlank
     private String photo;
 
     @XmlElement

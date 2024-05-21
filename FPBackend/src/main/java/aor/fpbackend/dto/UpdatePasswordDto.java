@@ -10,8 +10,8 @@ import java.io.Serializable;
 @XmlRootElement
 public class UpdatePasswordDto implements Serializable {
 
-
     @XmlElement
+    @NotNull
     private String oldPassword;
     @XmlElement
     @NotNull

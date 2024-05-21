@@ -1,5 +1,6 @@
 package aor.fpbackend.dto;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -9,8 +10,10 @@ import java.io.Serializable;
 public class LoginDto implements Serializable {
 
     @XmlElement
+    @NotNull
     String email;
     @XmlElement
+    @NotNull
     String password;
 
     public LoginDto() {
