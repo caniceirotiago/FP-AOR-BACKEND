@@ -2,7 +2,9 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dto.*;
+import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.*;
+import aor.fpbackend.filters.RequiresPermission;
 import jakarta.ejb.EJB;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -132,6 +134,7 @@ public class UserService {
     @Path("/role")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.UPDATE_ROLE)
     public void updateUserPassword(@Valid UpdateRoleDto updatedRole, @Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
         userBean.updateRole(updatedRole, securityContext);
     }
