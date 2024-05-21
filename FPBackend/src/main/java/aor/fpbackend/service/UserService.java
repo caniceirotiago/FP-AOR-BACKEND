@@ -60,8 +60,8 @@ public class UserService {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response login(LoginDto userLogin, @Context HttpServletResponse response) throws InvalidCredentialsException {
-        return userBean.login(userLogin, response);
+    public Response login(LoginDto userLogin) throws InvalidCredentialsException {
+        return userBean.login(userLogin);
     }
 
     //TODO: De forma a experimentar o security context

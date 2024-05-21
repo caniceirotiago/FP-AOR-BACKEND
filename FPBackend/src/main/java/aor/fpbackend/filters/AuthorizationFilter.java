@@ -1,6 +1,7 @@
 package aor.fpbackend.filters;
 
 import aor.fpbackend.dto.UserDto;
+import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.annotation.Priority;
@@ -101,14 +102,14 @@ import java.util.function.Function;
                 abortUnauthorized(requestContext);
             }
         }
-        private void checkAuthorization(ContainerRequestContext requestContext, String token) {
+        private void checkAuthorization(ContainerRequestContext requestContext, UserDto user) throws UnknownHostException, InvalidCredentialsException {
             Method method = resourceInfo.getResourceMethod();
             if (method.isAnnotationPresent(RequiresPermission.class)) {
-              //  Function requiredPermissions = method.getAnnotation(RequiresPermission.class).value();
-               // boolean hasPermission = permissionBean.getPermission(token, requiredPermissions);
-                //if (!hasPermission) {
+                MethodEnum requiredPermissions = method.getAnnotation(RequiresPermission.class).value();
+                boolean hasPermission = userBean.isMethodAssociatedWithRole(user.getRoleId(), requiredPermissions);
+                if (!hasPermission) {
                     requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
-               // }
+                }
             }
         }
 

@@ -1,6 +1,6 @@
 package aor.fpbackend.enums;
 
-public enum ProjectRoleType {
+public enum ProjectRoleEnum {
     NORMAL_USER,
     PROJECT_MANAGER
 }

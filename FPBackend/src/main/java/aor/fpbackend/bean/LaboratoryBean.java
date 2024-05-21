@@ -6,6 +6,7 @@ import aor.fpbackend.dto.UserDto;
 import aor.fpbackend.entity.ConfigurationEntity;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.exception.DatabaseOperationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -22,7 +23,7 @@ public class LaboratoryBean implements Serializable {
     @EJB
     LaboratoryDao laboratoryDao;
 
-    public void createLaboratoryIfNotExists(String location) throws DatabaseOperationException {
+    public void createLaboratoryIfNotExists(LocationEnum location) throws DatabaseOperationException {
         if (!laboratoryDao.checkLaboratoryExist(location)) {
             LaboratoryEntity laboratory = new LaboratoryEntity(location);
             laboratoryDao.persist(laboratory);

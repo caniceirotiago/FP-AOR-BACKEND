@@ -1,7 +1,7 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
-import aor.fpbackend.enums.TaskState;
+import aor.fpbackend.enums.TaskStateEnum;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -38,7 +38,7 @@ public class TaskEntity implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
-    private TaskState state;
+    private TaskStateEnum state;
 
     // Relationships
     @ManyToOne
@@ -138,11 +138,11 @@ public class TaskEntity implements Serializable {
         this.conclusionDate = conclusionDate;
     }
 
-    public TaskState getState() {
+    public TaskStateEnum getState() {
         return state;
     }
 
-    public void setState(TaskState state) {
+    public void setState(TaskStateEnum state) {
         this.state = state;
     }
 

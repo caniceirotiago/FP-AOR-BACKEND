@@ -1,5 +1,6 @@
 package aor.fpbackend.entity;
 
+import aor.fpbackend.enums.MethodEnum;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -21,8 +22,9 @@ public class MethodEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false, unique = true)
-    private String name;
+    private MethodEnum name;
 
     @Column(name = "description", nullable = false)
     private String description;
@@ -33,7 +35,7 @@ public class MethodEntity implements Serializable {
     // Construtores, getters e setters
     public MethodEntity() {}
 
-    public MethodEntity(String name, String description) {
+    public MethodEntity(MethodEnum name, String description) {
         this.name = name;
         this.description = description;
     }
@@ -46,11 +48,11 @@ public class MethodEntity implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
+    public MethodEnum getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(MethodEnum name) {
         this.name = name;
     }
 
@@ -68,5 +70,15 @@ public class MethodEntity implements Serializable {
 
     public void setRoles(Set<RoleEntity> roles) {
         this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "MethodEntity{" +
+                "id=" + id +
+                ", name=" + name +
+                ", description='" + description + '\'' +
+                ", roles=" + roles +
+                '}';
     }
 }

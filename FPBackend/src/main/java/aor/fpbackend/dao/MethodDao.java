@@ -2,6 +2,7 @@ package aor.fpbackend.dao;
 
 import aor.fpbackend.entity.MethodEntity;
 
+import aor.fpbackend.enums.MethodEnum;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -19,7 +20,7 @@ public class MethodDao extends AbstractDao<MethodEntity> {
     @PersistenceContext
     private EntityManager em;
 
-    public boolean checkMethodExist(String name) {
+    public boolean checkMethodExist(MethodEnum name) {
         try {
             Long count = (Long) em.createNamedQuery("Method.countMethodByName")
                     .setParameter("name", name)
@@ -40,7 +41,7 @@ public class MethodDao extends AbstractDao<MethodEntity> {
         }
     }
 
-    public MethodEntity findMethodByName(String name) {
+    public MethodEntity findMethodByName(MethodEnum name) {
         try {
             return (MethodEntity) em.createNamedQuery("Method.findMethodByName")
                     .setParameter("name", name)

@@ -1,6 +1,6 @@
 package aor.fpbackend.enums;
 
-public enum TaskState {
+public enum TaskStateEnum {
     PLANNED,
     IN_PROGRESS,
     FINISHED

@@ -1,7 +1,8 @@
 package aor.fpbackend.bean;
 
-import aor.fpbackend.dao.*;
-
+import aor.fpbackend.enums.LocationEnum;
+import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.DatabaseOperationException;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -68,18 +69,18 @@ public class StartupBean implements Serializable {
 
     @Transactional
     private void createRoles() throws DatabaseOperationException {
-        roleBean.createRoleIfNotExists("Admin");
-        roleBean.createRoleIfNotExists("Standard User");
+        roleBean.createRoleIfNotExists(UserRoleEnum.ADMIN);
+        roleBean.createRoleIfNotExists(UserRoleEnum.STANDARD_USER);
     }
 
     @Transactional
     private void createLaboratories() throws DatabaseOperationException {
-        labBean.createLaboratoryIfNotExists("Lisboa");
-        labBean.createLaboratoryIfNotExists("Coimbra");
-        labBean.createLaboratoryIfNotExists("Porto");
-        labBean.createLaboratoryIfNotExists("Tomar");
-        labBean.createLaboratoryIfNotExists("Viseu");
-        labBean.createLaboratoryIfNotExists("Vila Real");
+        labBean.createLaboratoryIfNotExists(LocationEnum.LISBOA);
+        labBean.createLaboratoryIfNotExists(LocationEnum.COIMBRA);
+        labBean.createLaboratoryIfNotExists(LocationEnum.PORTO);
+        labBean.createLaboratoryIfNotExists(LocationEnum.TOMAR);
+        labBean.createLaboratoryIfNotExists(LocationEnum.VISEU);
+        labBean.createLaboratoryIfNotExists(LocationEnum.VILA_REAL);
     }
 
 
@@ -97,12 +98,12 @@ public class StartupBean implements Serializable {
 
     @Transactional
     private void createMethods() throws DatabaseOperationException {
-        methodBean.createMethodIfNotExistent("updateRole", "updates user role");
+        methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_ROLE, "updates user role");
     }
 
     @Transactional
     private void addPermissions() throws DatabaseOperationException {
-        roleBean.addPermission(1, 1);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.UPDATE_ROLE);
     }
 
 }

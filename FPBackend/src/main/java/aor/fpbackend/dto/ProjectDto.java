@@ -3,7 +3,7 @@ package aor.fpbackend.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import aor.fpbackend.enums.ProjectState;
+import aor.fpbackend.enums.ProjectStateEnum;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -29,7 +29,7 @@ public class ProjectDto implements Serializable {
 
     @XmlElement
     @NotNull
-    private ProjectState state;
+    private ProjectStateEnum state;
 
     @XmlElement
     @NotNull
@@ -52,7 +52,7 @@ public class ProjectDto implements Serializable {
     public ProjectDto() {
     }
 
-    public ProjectDto(long id, String name, String description, String motivation, ProjectState state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, int openVacancies) {
+    public ProjectDto(long id, String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, int openVacancies) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -97,11 +97,11 @@ public class ProjectDto implements Serializable {
         this.motivation = motivation;
     }
 
-    public ProjectState getState() {
+    public ProjectStateEnum getState() {
         return state;
     }
 
-    public void setState(ProjectState state) {
+    public void setState(ProjectStateEnum state) {
         this.state = state;
     }
 

@@ -1,5 +1,6 @@
 package aor.fpbackend.entity;
 
+import aor.fpbackend.enums.UserRoleEnum;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -10,8 +11,9 @@ import java.util.Set;
 @Table(name = "role")
 
 @NamedQuery(name = "Role.findRoleById", query = "SELECT r FROM RoleEntity r WHERE r.id = :roleId")
+@NamedQuery(name = "Role.findRoleByName", query = "SELECT r FROM RoleEntity r WHERE r.name = :name")
 @NamedQuery(name = "Role.countRoleByName", query = "SELECT count(r) FROM RoleEntity r WHERE r.name = :name")
-@NamedQuery(name = "Role.isMethodAssociatedWithRole", query = "SELECT COUNT(r) FROM RoleEntity r JOIN r.methods m WHERE r.id = :roleId AND m.id = :methodId")
+@NamedQuery(name = "Role.isMethodAssociatedWithRole", query = "SELECT COUNT(r) FROM RoleEntity r JOIN r.methods m WHERE r.id = :roleId AND m.name = :method")
 
 public class RoleEntity implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -21,8 +23,9 @@ public class RoleEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "name",nullable = false, unique = true)
-    private String name;
+    private UserRoleEnum name;
 
     @ManyToMany
     @JoinTable(
@@ -37,7 +40,7 @@ public class RoleEntity implements Serializable {
     public RoleEntity() {
     }
 
-    public RoleEntity(String name) {
+    public RoleEntity(UserRoleEnum name) {
         this.name = name;
     }
 
@@ -49,11 +52,11 @@ public class RoleEntity implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
+    public UserRoleEnum getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(UserRoleEnum name) {
         this.name = name;
     }
 
@@ -69,7 +72,7 @@ public class RoleEntity implements Serializable {
     public String toString() {
         return "RoleEntity{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", name=" + name +
                 ", methods=" + methods +
                 '}';
     }

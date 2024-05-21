@@ -3,6 +3,7 @@ package aor.fpbackend.dao;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.LocationEnum;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -22,7 +23,7 @@ public class LaboratoryDao extends AbstractDao<LaboratoryEntity> {
     @PersistenceContext
     private EntityManager em;
 
-    public boolean checkLaboratoryExist(String location) {
+    public boolean checkLaboratoryExist(LocationEnum location) {
         try {
             Long count = (Long) em.createNamedQuery("Laboratory.countLaboratoryByLocation")
                     .setParameter("location", location)

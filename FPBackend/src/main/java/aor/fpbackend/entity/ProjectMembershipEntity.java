@@ -1,7 +1,7 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
-import aor.fpbackend.enums.ProjectRoleType;
+import aor.fpbackend.enums.ProjectRoleEnum;
 
 import java.io.Serializable;
 
@@ -25,7 +25,7 @@ public class ProjectMembershipEntity implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private ProjectRoleType role;
+    private ProjectRoleEnum role;
 
     @Column(name = "is_accepted", nullable = false)
     private boolean isAccepted = false;
@@ -62,11 +62,11 @@ public class ProjectMembershipEntity implements Serializable {
         this.project = project;
     }
 
-    public ProjectRoleType getRole() {
+    public ProjectRoleEnum getRole() {
         return role;
     }
 
-    public void setRole(ProjectRoleType role) {
+    public void setRole(ProjectRoleEnum role) {
         this.role = role;
     }
     public boolean isAccepted() {

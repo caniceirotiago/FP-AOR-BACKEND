@@ -1,7 +1,7 @@
 package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
-import aor.fpbackend.enums.ProjectState;
+import aor.fpbackend.enums.ProjectStateEnum;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -33,7 +33,7 @@ public class ProjectEntity implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
-    private ProjectState state;
+    private ProjectStateEnum state;
 
     @Column(name = "creation_date", nullable = false)
     private Instant creationDate;
@@ -128,11 +128,11 @@ public class ProjectEntity implements Serializable {
         this.motivation = motivation;
     }
 
-    public ProjectState getState() {
+    public ProjectStateEnum getState() {
         return state;
     }
 
-    public void setState(ProjectState state) {
+    public void setState(ProjectStateEnum state) {
         this.state = state;
     }
 

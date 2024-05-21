@@ -2,12 +2,12 @@ package aor.fpbackend.dao;
 
 import aor.fpbackend.entity.RoleEntity;
 
+import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.enums.UserRoleEnum;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
-
-import java.util.List;
 
 @Stateless
 public class RoleDao extends AbstractDao<RoleEntity> {
@@ -20,7 +20,7 @@ public class RoleDao extends AbstractDao<RoleEntity> {
     @PersistenceContext
     private EntityManager em;
 
-    public boolean checkRoleExist(String name) {
+    public boolean checkRoleExist(UserRoleEnum name) {
         try {
             Long count = (Long) em.createNamedQuery("Role.countRoleByName")
                     .setParameter("name", name)
@@ -41,11 +41,21 @@ public class RoleDao extends AbstractDao<RoleEntity> {
         }
     }
 
-    public boolean isMethodAssociatedWithRole(long roleId, long methodId) {
+    public RoleEntity findRoleByName(UserRoleEnum name) {
+        try {
+            return (RoleEntity) em.createNamedQuery("Role.findRoleByName")
+                    .setParameter("name", name)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public boolean isMethodAssociatedWithRole(long roleId, MethodEnum method) {
         try {
             Long count = (Long) em.createNamedQuery("Role.isMethodAssociatedWithRole")
                     .setParameter("roleId", roleId)
-                    .setParameter("methodId", methodId)
+                    .setParameter("method", method)
                     .getSingleResult();
             return count > 0;
         } catch (NoResultException e) {

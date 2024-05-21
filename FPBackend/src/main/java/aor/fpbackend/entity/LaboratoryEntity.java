@@ -1,5 +1,6 @@
 package aor.fpbackend.entity;
 
+import aor.fpbackend.enums.LocationEnum;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -21,8 +22,9 @@ public class LaboratoryEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "location", nullable = false)
-    private String location;
+    private LocationEnum location;
 
     @OneToMany(mappedBy = "laboratory")
     private Set<UserEntity> users = new HashSet<>();
@@ -34,7 +36,7 @@ public class LaboratoryEntity implements Serializable {
     public LaboratoryEntity() {
     }
 
-    public LaboratoryEntity(String location) {
+    public LaboratoryEntity(LocationEnum location) {
         this.location = location;
     }
 
@@ -47,11 +49,11 @@ public class LaboratoryEntity implements Serializable {
         this.id = id;
     }
 
-    public String getLocation() {
+    public LocationEnum getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(LocationEnum location) {
         this.location = location;
     }
 

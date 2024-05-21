@@ -3,6 +3,7 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
+import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
@@ -174,8 +175,8 @@ public class UserBean implements Serializable {
         return user.getResetPasswordTimestamp().isBefore(Instant.now());
     }
 
-    // TODO parameter response is never used!
-    public Response login(LoginDto userLogin, HttpServletResponse response) throws InvalidCredentialsException {
+
+    public Response login(LoginDto userLogin) throws InvalidCredentialsException {
         try {
             UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
             if (userEntity != null) {
@@ -363,15 +364,15 @@ public class UserBean implements Serializable {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");
             throw new InvalidCredentialsException("User not found");
         }
-        // Check if user's role has permission to this method
-        MethodEntity methodEntity = methodDao.findMethodByName("updateRole");
-        long methodId = methodEntity.getId();
-        long roleId = userEntity.getRole().getId();
-        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, methodId);
-        if (!isMethodAssociated) {
-            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt by user " + user.getEmail());
-            throw new InvalidCredentialsException("Unauthorized access");
-        }
+//        // Check if user's role has permission to this method
+//        MethodEntity methodEntity = methodDao.findMethodByName(MethodEnum.UPDATE_ROLE);
+//        long methodId = methodEntity.getId();
+//        long roleId = userEntity.getRole().getId();
+//        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, methodId);
+//        if (!isMethodAssociated) {
+//            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt by user " + user.getEmail());
+//            throw new InvalidCredentialsException("Unauthorized access");
+//        }
         // Proceed with updating the role
         UserEntity u = userDao.findUserByUsername(updateRoleDto.getUsername());
         if (u == null) {
@@ -380,6 +381,16 @@ public class UserBean implements Serializable {
         }
         RoleEntity newRole = roleDao.findRoleById(updateRoleDto.getRoleId());
         u.setRole(newRole);
+    }
+
+    public boolean isMethodAssociatedWithRole (long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
+        // Check if user's role has permission to this method
+        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, method);
+        if (!isMethodAssociated) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt");
+            throw new InvalidCredentialsException("Unauthorized access");
+        }
+        return true;
     }
 
     private UserEntity convertUserDtotoUserEntity(UserDto user) {

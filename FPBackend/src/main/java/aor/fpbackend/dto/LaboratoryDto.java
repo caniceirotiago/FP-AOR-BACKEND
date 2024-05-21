@@ -1,5 +1,6 @@
 package aor.fpbackend.dto;
 
+import aor.fpbackend.enums.LocationEnum;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -12,12 +13,12 @@ public class LaboratoryDto implements Serializable {
     @XmlElement
     long id;
     @XmlElement
-    String location;
+    LocationEnum location;
 
     public LaboratoryDto() {
     }
 
-    public LaboratoryDto(long id, String location) {
+    public LaboratoryDto(long id, LocationEnum location) {
         this.id = id;
         this.location = location;
     }
@@ -30,11 +31,11 @@ public class LaboratoryDto implements Serializable {
         this.id = id;
     }
 
-    public String getLocation() {
+    public LocationEnum getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(LocationEnum location) {
         this.location = location;
     }
 }

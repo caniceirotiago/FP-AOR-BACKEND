@@ -2,6 +2,7 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.MethodDao;
 import aor.fpbackend.entity.MethodEntity;
+import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.DatabaseOperationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -16,7 +17,7 @@ public class MethodBean implements Serializable {
     MethodDao methodDao;
 
 
-    public void createMethodIfNotExistent(String name, String description) throws DatabaseOperationException {
+    public void createMethodIfNotExistent(MethodEnum name, String description) throws DatabaseOperationException {
         if (!methodDao.checkMethodExist(name)) {
             MethodEntity methodEntity = new MethodEntity(name, description);
             methodDao.persist(methodEntity);

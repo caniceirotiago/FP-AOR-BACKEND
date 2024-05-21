@@ -1,6 +1,6 @@
 package aor.fpbackend.enums;
 
-public enum ProjectState {
+public enum ProjectStateEnum {
     PLANNING,
     READY,
     APPROVED,
