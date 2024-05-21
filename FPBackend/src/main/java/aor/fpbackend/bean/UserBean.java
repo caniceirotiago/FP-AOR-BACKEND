@@ -278,15 +278,6 @@ public class UserBean implements Serializable {
         userDao.merge(userEntity);
     }
 
-    public UserDto getUserByToken(String token) throws UserNotFoundException {
-        UserEntity userEntity = userDao.findUserByToken(token);
-        if (userEntity != null) {
-            return convertUserEntitytoUserDto(userEntity);
-        } else {
-            throw new UserNotFoundException("No user found for this token");
-        }
-    }
-
     public AuthUserDto getAuthUserDtoByToken(String token) throws UserNotFoundException {
         UserEntity userEntity = userDao.findUserByToken(token);
         if (userEntity != null) {

@@ -141,7 +141,7 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.UPDATE_ROLE)
-    public void updateUserPassword(@Valid UpdateRoleDto updatedRole, @Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
+    public void updateUserPassword(@Valid UpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
         userBean.updateRole(updatedRole);
     }
 
