@@ -9,7 +9,6 @@ import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
@@ -46,8 +45,6 @@ public class UserBean implements Serializable {
     EmailService emailService;
     @EJB
     ConfigurationDao configDao;
-    @EJB
-    MethodDao methodDao;
 
 
     public void createDefaultUserIfNotExistent(String username, long roleId, long labId) throws DatabaseOperationException {
@@ -244,21 +241,6 @@ public class UserBean implements Serializable {
         return false;
     }
 
-    public UserDto getLoggedUser(String tokenValue) throws UserNotFoundException {
-        try {
-            UserEntity userEntity = userDao.findUserByToken(tokenValue);
-
-            if (userEntity != null) {
-                return convertUserEntitytoUserDto(userEntity);
-            } else {
-                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - No users found at: " + LocalDate.now());
-                throw new UserNotFoundException("No user found for this token");
-            }
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to retrieve host address", e);
-        }
-    }
-
     public List<UserDto> getAllRegUsers() {
         try {
             ArrayList<UserEntity> users = userDao.findAllUsers();
@@ -356,7 +338,7 @@ public class UserBean implements Serializable {
         return passEncoder.matches(oldPassword, hashedPassword) && !passEncoder.matches(newPassword, hashedPassword);
     }
 
-    public void updateRole(UpdateRoleDto updateRoleDto, @Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
+    public void updateRole(UpdateRoleDto updateRoleDto) throws InvalidCredentialsException, UnknownHostException {
         UserEntity u = userDao.findUserByUsername(updateRoleDto.getUsername());
         if (u == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " User not found for this username");
