@@ -174,6 +174,7 @@ public class UserBean implements Serializable {
         return user.getResetPasswordTimestamp().isBefore(Instant.now());
     }
 
+    // TODO parameter response is never used!
     public Response login(LoginDto userLogin, HttpServletResponse response) throws InvalidCredentialsException {
         try {
             UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
@@ -351,10 +352,7 @@ public class UserBean implements Serializable {
         String newPassword = updatePasswordDto.getNewPassword();
         String hashedPassword = userEntity.getPassword();
         // Checks that the old password provided matches the hashed password and that the new password is different from the one saved
-        if (passEncoder.matches(oldPassword, hashedPassword) && !passEncoder.matches(newPassword, hashedPassword)) {
-            return true;
-        }
-        return false;
+        return passEncoder.matches(oldPassword, hashedPassword) && !passEncoder.matches(newPassword, hashedPassword);
     }
 
     public void updateRole(UpdateRoleDto updateRoleDto, @Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
@@ -386,16 +384,13 @@ public class UserBean implements Serializable {
 
     private UserEntity convertUserDtotoUserEntity(UserDto user) {
         UserEntity userEntity = new UserEntity();
-        if (userEntity != null) {
-            userEntity.setEmail(user.getEmail());
-            userEntity.setUsername(user.getUsername());
-            userEntity.setFirstName(user.getFirstName());
-            userEntity.setLastName(user.getLastName());
-            userEntity.setPhoto(user.getPhoto());
-            userEntity.setBiography(user.getBiography());
-            return userEntity;
-        }
-        return null;
+        userEntity.setEmail(user.getEmail());
+        userEntity.setUsername(user.getUsername());
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+        userEntity.setPhoto(user.getPhoto());
+        userEntity.setBiography(user.getBiography());
+        return userEntity;
     }
 
     private UserDto convertUserEntitytoUserDto(UserEntity userEntity) {

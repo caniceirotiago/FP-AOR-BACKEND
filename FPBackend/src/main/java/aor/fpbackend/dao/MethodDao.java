@@ -1,14 +1,12 @@
 package aor.fpbackend.dao;
 
 import aor.fpbackend.entity.MethodEntity;
-import aor.fpbackend.entity.RoleEntity;
 
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 
-import java.util.List;
 
 @Stateless
 public class MethodDao extends AbstractDao<MethodEntity> {
