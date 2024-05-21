@@ -11,6 +11,7 @@ import java.util.Set;
 
 @NamedQuery(name = "Role.findRoleById", query = "SELECT r FROM RoleEntity r WHERE r.id = :roleId")
 @NamedQuery(name = "Role.countRoleByName", query = "SELECT count(r) FROM RoleEntity r WHERE r.name = :name")
+@NamedQuery(name = "Role.isMethodAssociatedWithRole", query = "SELECT COUNT(r) FROM RoleEntity r JOIN r.methods m WHERE r.id = :roleId AND m.id = :methodId")
 
 public class RoleEntity implements Serializable {
     private static final long serialVersionUID = 1L;

@@ -45,6 +45,8 @@ public class UserBean implements Serializable {
     EmailService emailService;
     @EJB
     ConfigurationDao configDao;
+    @EJB
+    MethodDao methodDao;
 
 
     public void createDefaultUserIfNotExistent(String username, long roleId, long labId) throws DatabaseOperationException {
@@ -362,6 +364,16 @@ public class UserBean implements Serializable {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");
             throw new InvalidCredentialsException("User not found");
         }
+        MethodEntity methodEntity = methodDao.findMethodById(1);
+        long methodId = methodEntity.getId();
+        long roleId = userEntity.getRole().getId();
+        // Check if this method is associated with the user's role
+        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, methodId);
+        if (!isMethodAssociated) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt by user " + user.getEmail());
+            throw new InvalidCredentialsException("Unauthorized access");
+        }
+        // Proceed with updating the role
         UserEntity u = userDao.findUserByUsername(updateRoleDto.getUsername());
         if (u != null) {
             RoleEntity newRole = roleDao.findRoleById(updateRoleDto.getRoleId());

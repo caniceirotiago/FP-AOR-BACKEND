@@ -41,4 +41,15 @@ public class RoleDao extends AbstractDao<RoleEntity> {
         }
     }
 
+    public boolean isMethodAssociatedWithRole(long roleId, long methodId) {
+        try {
+            Long count = (Long) em.createNamedQuery("Role.isMethodAssociatedWithRole")
+                    .setParameter("roleId", roleId)
+                    .setParameter("methodId", methodId)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
 }

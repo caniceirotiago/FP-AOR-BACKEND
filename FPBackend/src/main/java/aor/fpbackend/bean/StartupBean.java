@@ -57,6 +57,9 @@ public class StartupBean implements Serializable {
         // Create methods
         createMethods();
 
+        // Define permissions
+        addPermissions();
+
         // Create a test project where the test user is a manager
 
         // Create a test task in the test project
@@ -95,6 +98,11 @@ public class StartupBean implements Serializable {
     @Transactional
     private void createMethods() throws DatabaseOperationException {
         methodBean.createMethodIfNotExistent("updateRole", "updates user role");
+    }
+
+    @Transactional
+    private void addPermissions() throws DatabaseOperationException {
+        roleBean.addPermission(1, 1);
     }
 
 }
