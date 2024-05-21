@@ -6,7 +6,6 @@ import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresPermission;
 import jakarta.ejb.EJB;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;

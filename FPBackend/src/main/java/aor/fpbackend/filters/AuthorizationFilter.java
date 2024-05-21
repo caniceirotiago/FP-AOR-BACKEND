@@ -17,7 +17,6 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
@@ -26,7 +25,7 @@ import aor.fpbackend.bean.UserBean;
 import java.lang.reflect.Method;
 import java.net.UnknownHostException;
 import java.security.Principal;
-import java.util.function.Function;
+
 
 @Provider
 @Priority(Priorities.AUTHORIZATION)
@@ -105,9 +104,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 } else {
                     abortUnauthorized(requestContext);
                 }
-            } catch (InvalidCredentialsException | UserNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (UnknownHostException e) {
+            } catch (InvalidCredentialsException | UserNotFoundException | UnknownHostException e) {
                 throw new RuntimeException(e);
             }
         } else {
