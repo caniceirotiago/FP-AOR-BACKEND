@@ -42,5 +42,15 @@ public class MethodDao extends AbstractDao<MethodEntity> {
         }
     }
 
+    public MethodEntity findMethodByName(String name) {
+        try {
+            return (MethodEntity) em.createNamedQuery("Method.findMethodByName")
+                    .setParameter("name", name)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
 }
 

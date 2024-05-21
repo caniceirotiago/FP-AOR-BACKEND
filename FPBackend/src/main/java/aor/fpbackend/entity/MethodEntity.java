@@ -10,6 +10,7 @@ import java.util.Set;
 @Table(name = "method")
 
 @NamedQuery(name = "Method.findMethodById", query = "SELECT m FROM MethodEntity m WHERE m.id = :methodId")
+@NamedQuery(name = "Method.findMethodByName", query = "SELECT m FROM MethodEntity m WHERE m.name = :name")
 @NamedQuery(name = "Method.countMethodByName", query = "SELECT count(m) FROM MethodEntity m WHERE m.name = :name")
 
 public class MethodEntity implements Serializable {

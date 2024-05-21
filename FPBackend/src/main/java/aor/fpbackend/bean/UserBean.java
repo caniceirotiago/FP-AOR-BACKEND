@@ -61,7 +61,7 @@ public class UserBean implements Serializable {
             if (role == null) {
                 throw new IllegalStateException("Role not found.");
             }
-            UserEntity userEntity = new UserEntity(email,encryptedPassword, username, username, username, true, false, true, laboratory, role);
+            UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, true, false, true, laboratory, role);
             userDao.persist(userEntity);
         }
     }
@@ -358,16 +358,17 @@ public class UserBean implements Serializable {
     }
 
     public void updateRole(UpdateRoleDto updateRoleDto, @Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
+        // Retrieves user by token SecurityContext
         UserDto user = (UserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserByEmail(user.getEmail());
         if (userEntity == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");
             throw new InvalidCredentialsException("User not found");
         }
-        MethodEntity methodEntity = methodDao.findMethodById(1);
+        // Check if user's role has permission to this method
+        MethodEntity methodEntity = methodDao.findMethodByName("updateRole");
         long methodId = methodEntity.getId();
         long roleId = userEntity.getRole().getId();
-        // Check if this method is associated with the user's role
         boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, methodId);
         if (!isMethodAssociated) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt by user " + user.getEmail());
@@ -375,10 +376,12 @@ public class UserBean implements Serializable {
         }
         // Proceed with updating the role
         UserEntity u = userDao.findUserByUsername(updateRoleDto.getUsername());
-        if (u != null) {
-            RoleEntity newRole = roleDao.findRoleById(updateRoleDto.getRoleId());
-            u.setRole(newRole);
+        if (u == null) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " User not found for this username");
+            throw new InvalidCredentialsException("User not found with this username");
         }
+        RoleEntity newRole = roleDao.findRoleById(updateRoleDto.getRoleId());
+        u.setRole(newRole);
     }
 
     private UserEntity convertUserDtotoUserEntity(UserDto user) {
