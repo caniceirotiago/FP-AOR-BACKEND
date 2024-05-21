@@ -51,10 +51,15 @@ public class UserBean implements Serializable {
 
 
     public void register(UserDto user) throws InvalidCredentialsException, UnknownHostException {
-        if ((user == null) || (userDao.checkEmailExist(user.getEmail()))) {
+        if (user == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to register with invalid credentials!");
             throw new InvalidCredentialsException("Invalid credentials");
         }
+        if (userDao.checkEmailExist(user.getEmail()) || userDao.checkUsernameExist(user.getUsername())) {
+            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to register with invalid credentials!");
+            throw new InvalidCredentialsException("Invalid credentials - Email or username already exists");
+        }
+
         try {
             UserEntity newUserEntity = convertUserDtotoUserEntity(user);
             String encryptedPassword = passEncoder.encode(user.getPassword());
