@@ -357,23 +357,6 @@ public class UserBean implements Serializable {
     }
 
     public void updateRole(UpdateRoleDto updateRoleDto, @Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
-        // Retrieves user by token SecurityContext
-        UserDto user = (UserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserByEmail(user.getEmail());
-        if (userEntity == null) {
-            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");
-            throw new InvalidCredentialsException("User not found");
-        }
-//        // Check if user's role has permission to this method
-//        MethodEntity methodEntity = methodDao.findMethodByName(MethodEnum.UPDATE_ROLE);
-//        long methodId = methodEntity.getId();
-//        long roleId = userEntity.getRole().getId();
-//        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, methodId);
-//        if (!isMethodAssociated) {
-//            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt by user " + user.getEmail());
-//            throw new InvalidCredentialsException("Unauthorized access");
-//        }
-        // Proceed with updating the role
         UserEntity u = userDao.findUserByUsername(updateRoleDto.getUsername());
         if (u == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " User not found for this username");
@@ -383,8 +366,8 @@ public class UserBean implements Serializable {
         u.setRole(newRole);
     }
 
-    public boolean isMethodAssociatedWithRole (long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
-        // Check if user's role has permission to this method
+    public boolean isMethodAssociatedWithRole(long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
+        // Check if user's role has permission to the method
         boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, method);
         if (!isMethodAssociated) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt");
@@ -416,6 +399,7 @@ public class UserBean implements Serializable {
         userDto.setDeleted(userEntity.isDeleted());
         userDto.setPrivate(userEntity.isPrivate());
         userDto.setConfirmed(userEntity.isConfirmed());
+        userDto.setRoleId(userEntity.getRole().getId());
         return userDto;
     }
 

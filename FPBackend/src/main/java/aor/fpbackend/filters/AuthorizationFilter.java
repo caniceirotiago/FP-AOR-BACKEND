@@ -116,6 +116,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
         Method method = resourceInfo.getResourceMethod();
         if (method.isAnnotationPresent(RequiresPermission.class)) {
             MethodEnum requiredPermissions = method.getAnnotation(RequiresPermission.class).value();
+            System.out.println("RoleId: " + user.getRoleId() + "required Permissions: " + requiredPermissions);
             boolean hasPermission = userBean.isMethodAssociatedWithRole(user.getRoleId(), requiredPermissions);
             if (!hasPermission) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
