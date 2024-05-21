@@ -22,15 +22,14 @@ public class LaboratoryDao extends AbstractDao<LaboratoryEntity> {
     @PersistenceContext
     private EntityManager em;
 
-    public void createLaboratoryIfNotExists(String location) {
-        List<LaboratoryEntity> labs = em.createQuery(
-                        "SELECT l FROM LaboratoryEntity l WHERE l.location = :location", LaboratoryEntity.class)
-                .setParameter("location", location)
-                .getResultList();
-
-        if (labs.isEmpty()) {
-            LaboratoryEntity lab = new LaboratoryEntity(location);
-            em.persist(lab);
+    public boolean checkLaboratoryExist(String location) {
+        try {
+            Long count = (Long) em.createNamedQuery("Laboratory.countLaboratoryByLocation")
+                    .setParameter("location", location)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
         }
     }
 

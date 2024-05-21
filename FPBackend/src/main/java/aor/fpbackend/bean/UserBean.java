@@ -2,10 +2,7 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.*;
-import aor.fpbackend.entity.LaboratoryEntity;
-import aor.fpbackend.entity.RoleEntity;
-import aor.fpbackend.entity.SessionEntity;
-import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.entity.*;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
@@ -48,6 +45,24 @@ public class UserBean implements Serializable {
     EmailService emailService;
     @EJB
     ConfigurationDao configDao;
+
+
+    public void createDefaultUserIfNotExistent(String username, long roleId, long labId) throws DatabaseOperationException {
+        if (!userDao.checkUsernameExist(username)) {
+            String email = username + "@" + username + ".com";
+            String encryptedPassword = passEncoder.encode(username);
+            LaboratoryEntity laboratory = labDao.findLaboratoryById(labId);
+            if (laboratory == null) {
+                throw new IllegalStateException("Laboratory not found.");
+            }
+            RoleEntity role = roleDao.findRoleById(roleId);
+            if (role == null) {
+                throw new IllegalStateException("Role not found.");
+            }
+            UserEntity userEntity = new UserEntity(email,encryptedPassword, username, username, username, true, false, true, laboratory, role);
+            userDao.persist(userEntity);
+        }
+    }
 
 
     public void register(UserDto user) throws InvalidCredentialsException, UnknownHostException {

@@ -25,32 +25,28 @@ public class UserDao extends AbstractDao<UserEntity> {
     @PersistenceContext
     private EntityManager em;
 
-    @EJB
-    PassEncoder passEncoder;
-    @EJB
-    LaboratoryDao labDao;
-    @EJB
-    RoleDao roleDao;
 
-
-    public void createDefaultUserIfNotExistent(String username, int roleId) {
-        List<UserEntity> users = em.createQuery(
-                        "SELECT u FROM UserEntity u WHERE u.username = :username", UserEntity.class)
-                .setParameter("username", username)
-                .getResultList();
-        if (users.isEmpty()) {
-            String email = username + "@" + username + ".com";
-            String encryptedPassword = passEncoder.encode(username);
-            LaboratoryEntity laboratory = labDao.findLaboratoryById(2);
-            RoleEntity role = roleDao.findRoleById(roleId);
-            if (role == null) {
-                throw new IllegalStateException("Role not found.");
-            }
-            UserEntity userEntity = new UserEntity(email,encryptedPassword, username, username, username, true, false, true,laboratory, role);
-            em.persist(userEntity);
+    public boolean checkEmailExist(String email) {
+        try {
+            Long count = (Long) em.createNamedQuery("User.countUserByEmail")
+                    .setParameter("email", email)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
         }
     }
 
+    public boolean checkUsernameExist(String username) {
+        try {
+            Long count = (Long) em.createNamedQuery("User.countUserByUsername")
+                    .setParameter("username", username)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
 
     public UserEntity findUserByToken(String token) {
         try {
@@ -105,27 +101,6 @@ public class UserDao extends AbstractDao<UserEntity> {
             return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
         } catch (NoResultException e) {
             return null;
-        }
-    }
-
-    public boolean checkEmailExist(String email) {
-        try {
-            Long count = (Long) em.createNamedQuery("User.countUserByEmail")
-                    .setParameter("email", email)
-                    .getSingleResult();
-            return count > 0;
-        } catch (NoResultException e) {
-            return false;
-        }
-    }
-    public boolean checkUsernameExist(String username) {
-        try {
-            Long count = (Long) em.createNamedQuery("User.countUserByUsername")
-                    .setParameter("username", username)
-                    .getSingleResult();
-            return count > 0;
-        } catch (NoResultException e) {
-            return false;
         }
     }
 

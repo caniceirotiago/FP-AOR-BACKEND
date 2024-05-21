@@ -11,6 +11,7 @@ import java.util.Set;
 
 @NamedQuery(name = "Laboratory.findLaboratoryById", query = "SELECT l FROM LaboratoryEntity l WHERE l.id = :labId")
 @NamedQuery(name = "Laboratory.findAllLaboratories", query = "SELECT l FROM LaboratoryEntity l")
+@NamedQuery(name = "Laboratory.countLaboratoryByLocation", query = "SELECT count(l) FROM LaboratoryEntity l WHERE l.location = :location")
 
 public class LaboratoryEntity implements Serializable {
     private static final long serialVersionUID = 1L;

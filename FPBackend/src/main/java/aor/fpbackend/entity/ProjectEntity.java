@@ -74,7 +74,7 @@ public class ProjectEntity implements Serializable {
     private LaboratoryEntity laboratory;
 
     @OneToMany(mappedBy = "group")
-    private Set<GroupMessageEntity> groupMessages;
+    private Set<GroupMessageEntity> groupMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "project")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();

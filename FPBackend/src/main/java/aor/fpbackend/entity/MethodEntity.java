@@ -3,9 +3,15 @@ package aor.fpbackend.entity;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "method")
+
+@NamedQuery(name = "Method.findMethodById", query = "SELECT m FROM MethodEntity m WHERE m.id = :methodId")
+@NamedQuery(name = "Method.countMethodByName", query = "SELECT count(m) FROM MethodEntity m WHERE m.name = :name")
+
 public class MethodEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     
@@ -19,6 +25,9 @@ public class MethodEntity implements Serializable {
 
     @Column(name = "description", nullable = false)
     private String description;
+
+    @ManyToMany(mappedBy = "methods")
+    private Set<RoleEntity> roles = new HashSet<>();
 
     // Construtores, getters e setters
     public MethodEntity() {}
@@ -50,5 +59,13 @@ public class MethodEntity implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Set<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleEntity> roles) {
+        this.roles = roles;
     }
 }

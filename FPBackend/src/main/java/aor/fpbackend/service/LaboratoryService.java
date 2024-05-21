@@ -3,6 +3,7 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.LaboratoryBean;
 import aor.fpbackend.dto.LaboratoryDto;
 import aor.fpbackend.dto.UserDto;
+import aor.fpbackend.exception.DatabaseOperationException;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -18,8 +19,8 @@ public class LaboratoryService {
     @POST
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void registerUser(String location) {
-        labBean.createLaboratory(location);
+    public void registerUser(String location) throws DatabaseOperationException {
+        labBean.createLaboratoryIfNotExists(location);
     }
 
     @GET

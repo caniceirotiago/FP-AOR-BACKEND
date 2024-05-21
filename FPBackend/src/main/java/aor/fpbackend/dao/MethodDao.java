@@ -1,5 +1,6 @@
 package aor.fpbackend.dao;
 
+import aor.fpbackend.entity.MethodEntity;
 import aor.fpbackend.entity.RoleEntity;
 
 import jakarta.ejb.Stateless;
@@ -10,19 +11,19 @@ import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
 @Stateless
-public class RoleDao extends AbstractDao<RoleEntity> {
+public class MethodDao extends AbstractDao<MethodEntity> {
     private static final long serialVersionUID = 1L;
 
-    public RoleDao() {
-        super(RoleEntity.class);
+    public MethodDao() {
+        super(MethodEntity.class);
     }
 
     @PersistenceContext
     private EntityManager em;
 
-    public boolean checkRoleExist(String name) {
+    public boolean checkMethodExist(String name) {
         try {
-            Long count = (Long) em.createNamedQuery("Role.countRoleByName")
+            Long count = (Long) em.createNamedQuery("Method.countMethodByName")
                     .setParameter("name", name)
                     .getSingleResult();
             return count > 0;
@@ -31,10 +32,10 @@ public class RoleDao extends AbstractDao<RoleEntity> {
         }
     }
 
-    public RoleEntity findRoleById(long roleId) {
+    public MethodEntity findMethodById(long methodId) {
         try {
-            return (RoleEntity) em.createNamedQuery("Role.findRoleById")
-                    .setParameter("roleId", roleId)
+            return (MethodEntity) em.createNamedQuery("Method.findMethodById")
+                    .setParameter("methodId", methodId)
                     .getSingleResult();
         } catch (NoResultException e) {
             return null;
@@ -42,3 +43,4 @@ public class RoleDao extends AbstractDao<RoleEntity> {
     }
 
 }
+

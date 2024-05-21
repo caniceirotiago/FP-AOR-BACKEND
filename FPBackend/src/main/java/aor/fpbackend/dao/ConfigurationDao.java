@@ -20,10 +20,14 @@ public class ConfigurationDao extends AbstractDao<ConfigurationEntity> {
     }
 
 
-    public void createDefaultConfigIfNotExistent (String configKey, int value) {
-        if(!checkConfigExist(configKey)){
-            ConfigurationEntity configEntity = new ConfigurationEntity(configKey, value);
-            em.persist(configEntity);
+    public boolean checkConfigExist(String configKey) {
+        try {
+            Long count = (Long) em.createNamedQuery("Configuration.countConfigByConfigKey")
+                    .setParameter("configKey", configKey)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
         }
     }
 
@@ -47,15 +51,6 @@ public class ConfigurationDao extends AbstractDao<ConfigurationEntity> {
         }
     }
 
-    public boolean checkConfigExist(String configKey) {
-        try {
-            Long count = (Long) em.createNamedQuery("Configuration.countConfigByConfigKey")
-                    .setParameter("configKey", configKey)
-                    .getSingleResult();
-            return count > 0;
-        } catch (NoResultException e) {
-            return false;
-        }
-    }
+
 
 }

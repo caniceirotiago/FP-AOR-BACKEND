@@ -107,10 +107,10 @@ public class UserEntity implements Serializable {
     private Set<NotificationEntity> notifications = new HashSet<>();
 
     @OneToMany(mappedBy = "sender")
-    private Set<MessageEntity> sentMessages;
+    private Set<MessageEntity> sentMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "recipient")
-    private Set<IndividualMessageEntity> receivedMessages;
+    private Set<IndividualMessageEntity> receivedMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();

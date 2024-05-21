@@ -2,6 +2,7 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
 
+import aor.fpbackend.exception.DatabaseOperationException;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
@@ -18,74 +19,82 @@ public class StartupBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @EJB
-    RoleDao roleDao;
+    RoleBean roleBean;
     @EJB
-    LaboratoryDao labDao;
+    LaboratoryBean labBean;
     @EJB
-    UserDao userDao;
+    UserBean userBean;
     @EJB
-    ConfigurationDao configDao;
+    ConfigurationBean configBean;
+    @EJB
+    MethodBean methodBean;
 
 
     @PostConstruct
     public void init() {
-        createData();
+        try {
+            createData();
+        } catch (DatabaseOperationException e) {
+            throw new IllegalStateException("Failed to initialize application data", e);
+        }
     }
 
-    private void createData() {
-        //Create roles
+    private void createData() throws DatabaseOperationException {
+        // Create roles
         createRoles();
 
-        //Create laboratories
+        // Create laboratories
         createLaboratories();
 
         // Create an admin
         // Create a test user
         createUsers();
 
-        //Create default session timeout
-        createSessionTimeout();
+        // Create default session timeout
+        // Create default max members per project
+        createDefaultConfigs();
 
-        //Create default max members per project
-
-        // Create functions
+        // Create methods
+        createMethods();
 
         // Create a test project where the test user is a manager
 
         // Create a test task in the test project
 
-
-
     }
 
     @Transactional
-    private void createRoles() {
-        roleDao.createRoleIfNotExists("Admin");
-        roleDao.createRoleIfNotExists("Standard User");
+    private void createRoles() throws DatabaseOperationException {
+        roleBean.createRoleIfNotExists("Admin");
+        roleBean.createRoleIfNotExists("Standard User");
     }
 
     @Transactional
-    private void createLaboratories() {
-        labDao.createLaboratoryIfNotExists("Lisboa");
-        labDao.createLaboratoryIfNotExists("Coimbra");
-        labDao.createLaboratoryIfNotExists("Porto");
-        labDao.createLaboratoryIfNotExists("Tomar");
-        labDao.createLaboratoryIfNotExists("Viseu");
-        labDao.createLaboratoryIfNotExists("Vila Real");
+    private void createLaboratories() throws DatabaseOperationException {
+        labBean.createLaboratoryIfNotExists("Lisboa");
+        labBean.createLaboratoryIfNotExists("Coimbra");
+        labBean.createLaboratoryIfNotExists("Porto");
+        labBean.createLaboratoryIfNotExists("Tomar");
+        labBean.createLaboratoryIfNotExists("Viseu");
+        labBean.createLaboratoryIfNotExists("Vila Real");
     }
 
 
     @Transactional
-    private void createUsers() {
-        userDao.createDefaultUserIfNotExistent("admin", 1);
-        userDao.createDefaultUserIfNotExistent("standardUser", 2);
+    private void createUsers() throws DatabaseOperationException {
+        userBean.createDefaultUserIfNotExistent("admin", 1, 2);
+        userBean.createDefaultUserIfNotExistent("standardUser", 2, 2);
     }
 
     @Transactional
-    private void createSessionTimeout() {
-        configDao.createDefaultConfigIfNotExistent("sessionTimeout", 900);
-        configDao.createDefaultConfigIfNotExistent("maxProjectMembers", 4);
+    private void createDefaultConfigs() throws DatabaseOperationException {
+        configBean.createDefaultConfigIfNotExistent("sessionTimeout", 1800);
+        configBean.createDefaultConfigIfNotExistent("maxProjectMembers", 4);
     }
 
+    @Transactional
+    private void createMethods() throws DatabaseOperationException {
+        methodBean.createMethodIfNotExistent("updateRole", "updates user role");
+    }
 
 }

@@ -3,12 +3,14 @@ package aor.fpbackend.entity;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "role")
 
 @NamedQuery(name = "Role.findRoleById", query = "SELECT r FROM RoleEntity r WHERE r.id = :roleId")
+@NamedQuery(name = "Role.countRoleByName", query = "SELECT count(r) FROM RoleEntity r WHERE r.name = :name")
 
 public class RoleEntity implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -21,13 +23,14 @@ public class RoleEntity implements Serializable {
     @Column(name = "name",nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(
-            name = "permission",
+            name = "role_method",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "method_id")
     )
-    private Set<MethodEntity> methods;
+    private Set<MethodEntity> methods = new HashSet<>();
+
 
     // Construtores, getters e setters
     public RoleEntity() {
