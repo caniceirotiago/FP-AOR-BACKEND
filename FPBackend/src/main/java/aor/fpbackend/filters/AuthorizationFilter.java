@@ -2,6 +2,7 @@ package aor.fpbackend.filters;
 
 import aor.fpbackend.dao.RoleDao;
 import aor.fpbackend.dao.SessionDao;
+import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.dto.UserDto;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.SessionEntity;
@@ -58,33 +59,24 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             abortUnauthorized(requestContext);
             return;
         }
-        Cookie[] cookies = request.getCookies();
-        String token = null;
+        String token = extractTokenFromCookieHeader(request.getHeader("Cookie"));
 
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("authToken".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
         System.out.println(token);
         if (token != null) {
             try {
-                UserDto user = userBean.getUserByToken(token);
-                SessionEntity sessionEntity = sessionDao.findSessionByToken(token);
+                AuthUserDto authUserDto = userBean.getAuthUserDtoByToken(token);
+                //SessionEntity sessionEntity = sessionDao.findSessionByToken(token);
 
                 if (userBean.tokenValidator(token)) {
                     requestContext.setSecurityContext(new SecurityContext() {
                         @Override
                         public Principal getUserPrincipal() {
-                            return user;
+                            return authUserDto;
                         }
 
                         @Override
                         public boolean isUserInRole(String role) {
-                            RoleEntity roleEntity = roleDao.findRoleById(user.getRoleId());
+                            RoleEntity roleEntity = roleDao.findRoleById(authUserDto.getRoleId());
                             String userRole = roleEntity.getName().toString();
                             return userRole.equalsIgnoreCase(role);
                         }
@@ -99,7 +91,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                             return SecurityContext.BASIC_AUTH;
                         }
                     });
-                    checkAuthorization(requestContext, user);
+                    checkAuthorization(requestContext, authUserDto);
 
                 } else {
                     abortUnauthorized(requestContext);
@@ -112,12 +104,26 @@ public class AuthorizationFilter implements ContainerRequestFilter {
         }
     }
 
-    private void checkAuthorization(ContainerRequestContext requestContext, UserDto user) throws UnknownHostException, InvalidCredentialsException {
+    public String extractTokenFromCookieHeader(String cookieHeader) {
+        if (cookieHeader != null) {
+            String[] cookies = cookieHeader.split(";");
+            for (String cookie : cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith("authToken=")) {
+                    // Extract the value of the authToken cookie
+                    return cookie.substring("authToken=".length());
+                }
+            }
+        }
+        return null;
+    }
+
+    private void checkAuthorization(ContainerRequestContext requestContext, AuthUserDto authUserDto) throws UnknownHostException, InvalidCredentialsException {
         Method method = resourceInfo.getResourceMethod();
         if (method.isAnnotationPresent(RequiresPermission.class)) {
             MethodEnum requiredPermissions = method.getAnnotation(RequiresPermission.class).value();
-            System.out.println("RoleId: " + user.getRoleId() + "required Permissions: " + requiredPermissions);
-            boolean hasPermission = userBean.isMethodAssociatedWithRole(user.getRoleId(), requiredPermissions);
+            System.out.println("RoleId: " + authUserDto.getRoleId() + "required Permissions: " + requiredPermissions);
+            boolean hasPermission = userBean.isMethodAssociatedWithRole(authUserDto.getRoleId(), requiredPermissions);
             if (!hasPermission) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
             }

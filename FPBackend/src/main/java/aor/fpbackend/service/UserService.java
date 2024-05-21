@@ -4,8 +4,10 @@ import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.*;
+import aor.fpbackend.filters.AuthorizationFilter;
 import aor.fpbackend.filters.RequiresPermission;
 import jakarta.ejb.EJB;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -21,6 +23,9 @@ import java.util.List;
 public class UserService {
     @EJB
     UserBean userBean;
+
+    @Inject
+    AuthorizationFilter authFilter;
 
 
     @POST
@@ -97,7 +102,9 @@ public class UserService {
     @POST
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@HeaderParam("token") String token)throws InvalidCredentialsException {
+    public void logout(@HeaderParam("Cookie") String cookieHeader)throws InvalidCredentialsException {
+        // Extract the token from the cookie header
+        String token = authFilter.extractTokenFromCookieHeader(cookieHeader);
         userBean.logout(token);
     }
 

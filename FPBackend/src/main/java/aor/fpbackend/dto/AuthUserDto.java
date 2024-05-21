@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import javax.security.auth.Subject;
 import java.io.Serializable;
 import java.security.Principal;
 
@@ -17,7 +18,7 @@ import java.security.Principal;
 
         @XmlElement
         @NotNull
-        private String role;
+        private long roleId;
 
         @XmlElement
         @NotNull
@@ -27,9 +28,9 @@ import java.security.Principal;
         // Constructors
         public AuthUserDto() {}
 
-        public AuthUserDto(String username, String role, String sessionToken) {
+        public AuthUserDto(String username, long roleId, String sessionToken) {
             this.username = username;
-            this.role = role;
+            this.roleId = roleId;
             this.sessionToken = sessionToken;
         }
 
@@ -37,6 +38,10 @@ import java.security.Principal;
     @Override
     public String getName() {
         return this.username;
+    }
+    @Override
+    public boolean implies(Subject subject) {
+        return Principal.super.implies(subject);
     }
 
     // Getters and setters
@@ -48,12 +53,12 @@ import java.security.Principal;
         this.username = username;
     }
 
-    public String getRole() {
-        return role;
+    public long getRoleId() {
+        return roleId;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoleId(long roleId) {
+        this.roleId = roleId;
     }
 
     public String getSessionToken() {

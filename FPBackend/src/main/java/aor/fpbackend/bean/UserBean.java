@@ -174,33 +174,20 @@ public class UserBean implements Serializable {
 
 
     public Response login(LoginDto userLogin) throws InvalidCredentialsException {
-        try {
-            UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
-            if (userEntity != null) {
-                // Retrieve the hashed password associated with the user
-                String hashedPassword = userEntity.getPassword();
-                // Check if the provided password matches the hashed password
-                if (passEncoder.matches(userLogin.getPassword(), hashedPassword)) {
-                    String tokenValue = generateNewToken();
-                    SessionEntity sessionEntity = new SessionEntity();
-                    sessionEntity.setSessionToken(tokenValue);
-                    sessionEntity.setUser(userEntity);
-                    sessionEntity.setLastActivityTimestamp(Instant.now());
-                    sessionDao.persist(sessionEntity);
-                    // Create and set the cookie for the token
-                    NewCookie cookie = new NewCookie("authToken", tokenValue, "/", null, "Auth Token", 3600, false);
-                    return Response.ok().cookie(cookie).build();
-                } else {
-                    LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to login with invalid credentials: " + userLogin.getEmail());
-                    throw new InvalidCredentialsException("Invalid credentials");
-                }
-            } else {
-                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to login with invalid credentials: " + userLogin.getEmail());
-                throw new InvalidCredentialsException("Invalid credentials");
-            }
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to retrieve host address", e);
+        UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
+        if (userEntity == null || !passEncoder.matches(userLogin.getPassword(), userEntity.getPassword())) {
+            LOGGER.warn("Failed login attempt for email: " + userLogin.getEmail());
+            throw new InvalidCredentialsException("Invalid credentials");
         }
+        String tokenValue = generateNewToken();
+        SessionEntity sessionEntity = new SessionEntity();
+        sessionEntity.setSessionToken(tokenValue);
+        sessionEntity.setUser(userEntity);
+        sessionEntity.setLastActivityTimestamp(Instant.now());
+        sessionDao.persist(sessionEntity);
+        // Create and set the cookie for the token
+        NewCookie cookie = new NewCookie("authToken", tokenValue, "/", null, "Auth Token", 3600, false);
+        return Response.ok().cookie(cookie).build();
     }
 
     private String generateNewToken() {
@@ -211,34 +198,48 @@ public class UserBean implements Serializable {
         return base64Encoder.encodeToString(randomBytes);
     }
 
+
     public void logout(String token) throws InvalidCredentialsException {
-        try {
-            SessionEntity session = sessionDao.findSessionByToken(token);
-            if (session == null) {
-                LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to logout with invalid token at: " + LocalDate.now());
-                throw new InvalidCredentialsException("User not found");
-            }
-            sessionDao.remove(session);
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to retrieve host address", e);
+        if (token == null) {
+            throw new InvalidCredentialsException("No session token found in the request");
         }
+        SessionEntity session = sessionDao.findSessionByToken(token);
+        if (session != null) {
+            sessionDao.remove(session);
+            LOGGER.info("User logged out due to invalid or expired token: " + token);
+        }
+    }
+
+    private String extractTokenFromSecurityContext(SecurityContext securityContext) {
+        if (securityContext != null && securityContext.getUserPrincipal() instanceof AuthUserDto) {
+            AuthUserDto authUser = (AuthUserDto) securityContext.getUserPrincipal();
+            return authUser.getSessionToken();
+        }
+        return null;
     }
 
     public boolean tokenValidator(String token) throws InvalidCredentialsException {
         SessionEntity sessionEntity = sessionDao.findSessionByToken(token);
-        if (sessionEntity != null) {
-            int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
-            Instant tokenExpiration = sessionEntity.getLastActivityTimestamp().plusSeconds(tokenTimerInSeconds);
-            Instant now = Instant.now();
-            if (now.isBefore(tokenExpiration)) {
-                sessionEntity.setLastActivityTimestamp(now);
-                return true;
-            } else {
-                logout(token);
-                return false;
-            }
+        if (sessionEntity == null) {
+            // Invalid token, log and return false
+            LOGGER.warn("Invalid token: " + token);
+            return false;
         }
-        return false;
+        int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
+        Instant tokenExpiration = sessionEntity.getLastActivityTimestamp().plusSeconds(tokenTimerInSeconds);
+        Instant now = Instant.now();
+        if (now.isBefore(tokenExpiration)) {
+            // Extend the validity of the session by updating the last activity timestamp
+            sessionEntity.setLastActivityTimestamp(now);
+            // Log token validation success
+            LOGGER.info("Token validation successful for token: " + token);
+            return true;
+        } else {
+            // Token has expired
+            LOGGER.warn("Token expired: " + token);
+            logout(token);
+            return false;
+        }
     }
 
     public List<UserDto> getAllRegUsers() {
@@ -281,6 +282,19 @@ public class UserBean implements Serializable {
         UserEntity userEntity = userDao.findUserByToken(token);
         if (userEntity != null) {
             return convertUserEntitytoUserDto(userEntity);
+        } else {
+            throw new UserNotFoundException("No user found for this token");
+        }
+    }
+
+    public AuthUserDto getAuthUserDtoByToken(String token) throws UserNotFoundException {
+        UserEntity userEntity = userDao.findUserByToken(token);
+        if (userEntity != null) {
+            AuthUserDto authUserDto = new AuthUserDto();
+            authUserDto.setUsername(userEntity.getUsername());
+            authUserDto.setSessionToken(userEntity.getUsername());
+            authUserDto.setRoleId(userEntity.getRole().getId());
+            return authUserDto;
         } else {
             throw new UserNotFoundException("No user found for this token");
         }
