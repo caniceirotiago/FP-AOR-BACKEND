@@ -118,5 +118,15 @@ public class UserDao extends AbstractDao<UserEntity> {
             return false;
         }
     }
+    public boolean checkUsernameExist(String username) {
+        try {
+            Long count = (Long) em.createNamedQuery("User.countUserByUsername")
+                    .setParameter("username", username)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
 
 }
