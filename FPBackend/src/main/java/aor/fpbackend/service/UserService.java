@@ -65,7 +65,6 @@ public class UserService {
     }
 
     //TODO: De forma a experimentar o security context
-    // Corrigir endpoint no frontend
     @GET
     @Path("/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
