@@ -8,6 +8,9 @@ import java.time.Instant;
 @Table(name = "session")
 
 @NamedQuery(name = "Session.findSessionByToken", query = "SELECT s FROM SessionEntity s WHERE s.sessionToken = :tokenValue")
+@NamedQuery(name = "Session.findSessionByToken",query = "SELECT s FROM SessionEntity s WHERE s.sessionToken = :tokenValue")
+@NamedQuery(name = "Session.findValidSessionByToken",query =
+        "SELECT s FROM SessionEntity s WHERE s.sessionToken = :tokenValue AND s.tokenExpiration > CURRENT_TIMESTAMP")
 @NamedQuery(name = "Session.findAllSessionsByUserId", query = "SELECT s FROM SessionEntity s WHERE s.user.id = :userId")
 
 public class SessionEntity implements Serializable {
@@ -21,8 +24,8 @@ public class SessionEntity implements Serializable {
     @Column(name = "session_token", nullable = false, unique = true)
     private String sessionToken;
 
-    @Column(name = "last_activity_timestamp", nullable = false)
-    private Instant lastActivityTimestamp;
+    @Column(name = "session_token_expiration", nullable = false)
+    private Instant tokenExpiration;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -48,12 +51,12 @@ public class SessionEntity implements Serializable {
         this.sessionToken = sessionToken;
     }
 
-    public Instant getLastActivityTimestamp() {
-        return lastActivityTimestamp;
+    public Instant getTokenExpiration() {
+        return tokenExpiration;
     }
 
-    public void setLastActivityTimestamp(Instant lastActivityTimestamp) {
-        this.lastActivityTimestamp = lastActivityTimestamp;
+    public void setTokenExpiration(Instant tokenExpiration) {
+        this.tokenExpiration = tokenExpiration;
     }
 
     public UserEntity getUser() {
@@ -69,7 +72,7 @@ public class SessionEntity implements Serializable {
         return "Session{" +
                 "id=" + id +
                 ", sessionToken='" + sessionToken + '\'' +
-                ", lastActivityTimestamp=" + lastActivityTimestamp +
+                ", tokenExpiration=" + tokenExpiration +
                 ", user=" + user +
                 '}';
     }

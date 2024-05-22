@@ -24,6 +24,16 @@ public class SessionDao extends AbstractDao<SessionEntity> {
     private EntityManager em;
 
 
+    public SessionEntity findValidSessionByToken(String tokenValue) {
+        try {
+            return (SessionEntity) em.createNamedQuery("Session.findValidSessionByToken")
+                    .setParameter("tokenValue", tokenValue)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     public SessionEntity findSessionByToken(String tokenValue) {
         try {
             return (SessionEntity) em.createNamedQuery("Session.findSessionByToken")

@@ -1,10 +1,9 @@
 package aor.fpbackend.filters;
 
+
 import aor.fpbackend.dao.RoleDao;
-import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.entity.RoleEntity;
-import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -29,6 +28,8 @@ import java.security.Principal;
 @Provider
 @Priority(Priorities.AUTHORIZATION)
 public class AuthorizationFilter implements ContainerRequestFilter {
+
+
     @EJB
     UserBean userBean;
     @EJB
@@ -48,22 +49,27 @@ public class AuthorizationFilter implements ContainerRequestFilter {
         }
         String token = extractTokenFromCookieHeader(request.getHeader("Cookie"));
 
-        System.out.println("Passou aqui no Authorization Filter: " + token);
-        if (token != null) {
-            try {
-                AuthUserDto authUserDto = userBean.getAuthUserDtoByToken(token);
-                if (userBean.tokenValidator(token)) {
-                    setSecurityContext(requestContext, authUserDto);
-                    checkAuthorization(requestContext, authUserDto);
-
-                } else {
-                    abortUnauthorized(requestContext);
-                }
-            } catch (Exception e) {
-                abortUnauthorized(requestContext);
-            }
-        } else {
+        if (token == null) {
             abortUnauthorized(requestContext);
+        }
+        try {
+            AuthUserDto authUserDto = userBean.getAuthUserDtoByToken(token);
+            if (!userBean.tokenValidator(token)) {
+                abortUnauthorized(requestContext);
+                return;
+            }
+            setSecurityContext(requestContext, authUserDto);
+            checkAuthorization(requestContext, authUserDto);
+
+        } catch (UserNotFoundException e) {
+            // Handle UserNotFoundException by responding with an Unauthorized status
+            abortUnauthorized(requestContext);
+        } catch (Exception e) {
+            // Handle other exceptions by responding with an Internal Server Error status
+            Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Internal Server Error")
+                    .build();
+            requestContext.abortWith(response);
         }
     }
 
@@ -119,7 +125,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
         Method method = resourceInfo.getResourceMethod();
         if (method.isAnnotationPresent(RequiresPermission.class)) {
             MethodEnum requiredPermissions = method.getAnnotation(RequiresPermission.class).value();
-            System.out.println("RoleId: " + authUserDto.getRoleId() + "required Permissions: " + requiredPermissions);
             boolean hasPermission = userBean.isMethodAssociatedWithRole(authUserDto.getRoleId(), requiredPermissions);
             if (!hasPermission) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
@@ -128,7 +133,10 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     }
 
     private void abortUnauthorized(ContainerRequestContext requestContext) {
-        requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("No Permission, invalid or expired token").build());
+        Response response = Response.status(Response.Status.UNAUTHORIZED)
+                .entity("No Permission, invalid or expired token")
+                .build();
+        requestContext.abortWith(response);
     }
 
 }
