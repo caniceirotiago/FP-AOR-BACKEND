@@ -210,18 +210,9 @@ public class UserBean implements Serializable {
         }
     }
 
-    private String extractTokenFromSecurityContext(SecurityContext securityContext) {
-        if (securityContext != null && securityContext.getUserPrincipal() instanceof AuthUserDto) {
-            AuthUserDto authUser = (AuthUserDto) securityContext.getUserPrincipal();
-            return authUser.getSessionToken();
-        }
-        return null;
-    }
-
     public boolean tokenValidator(String token) throws InvalidCredentialsException {
         SessionEntity sessionEntity = sessionDao.findSessionByToken(token);
         if (sessionEntity == null) {
-            // Invalid token, log and return false
             LOGGER.warn("Invalid token: " + token);
             return false;
         }
@@ -229,13 +220,11 @@ public class UserBean implements Serializable {
         Instant tokenExpiration = sessionEntity.getLastActivityTimestamp().plusSeconds(tokenTimerInSeconds);
         Instant now = Instant.now();
         if (now.isBefore(tokenExpiration)) {
-            // Extend the validity of the session by updating the last activity timestamp
+            // Extend the validity of the session by updating the last activity timestamp and Log token validation success
             sessionEntity.setLastActivityTimestamp(now);
-            // Log token validation success
             LOGGER.info("Token validation successful for token: " + token);
             return true;
         } else {
-            // Token has expired
             LOGGER.warn("Token expired: " + token);
             logout(token);
             return false;
@@ -256,12 +245,10 @@ public class UserBean implements Serializable {
         }
     }
 
-    public void updateUserProfile(@Context SecurityContext securityContext, UpdateUserDto updatedUser) throws UserNotFoundException, UnknownHostException {
-        UserDto user = (UserDto) securityContext.getUserPrincipal();
 
-        UserEntity userEntity = userDao.findUserByEmail(user.getEmail());
-        System.out.println(userEntity + " -1");
-        System.out.println(updatedUser);
+    public void updateUserProfile(@Context SecurityContext securityContext, UpdateUserDto updatedUser) throws UserNotFoundException, UnknownHostException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserByUsername(authUserDto.getName());
         if (userEntity == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token at: ");
             throw new UserNotFoundException("User not found");
@@ -306,7 +293,6 @@ public class UserBean implements Serializable {
             throw new UserNotFoundException("No user found for this username");
         }
         if (userEntity.isPrivate() && !user.getUsername().equals(username)) {
-            System.out.println("User is private");
             throw new UnauthorizedAccessException("User is private");
         }
         ProfileDto profileDto = new ProfileDto();

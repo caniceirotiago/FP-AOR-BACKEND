@@ -35,13 +35,14 @@ public class EmailService {
             message.setFrom(new InternetAddress("antnestservice@gmail.com"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             message.setSubject("Account Confirmation");
-            String htmlMessage = "<html><body>"
+            String confirmButton = "<html><body>"
                     + "<h1>Confirm Your Account</h1>"
-                    + "<p>Thank you for registering. Please click the link below to activate your account:</p>"
-                    + "<a href='http://localhost:3000/confirm?token=" + confirmationToken + "' style='padding: 8px 12px; " +
-                    "border: 1px solid #007bff; color: white; background-color: #007bff; text-decoration: none;'>Confirm Account</a>"
+                    + "<p>Thank you for registering. Please click the button below to activate your account:</p>"
+                    + "<table cellspacing=\"0\" cellpadding=\"0\"><tr><td>"
+                    + "<a href='http://localhost:3000/confirm?token=" + confirmationToken + "' style='background-color:#007bff;border:1px solid #007bff;border-radius:5px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;line-height:44px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;mso-hide:all;'>Confirm Account</a>"
+                    + "</td></tr></table>"
                     + "</body></html>";
-            message.setContent(htmlMessage, "text/html; charset=utf-8");
+            message.setContent(confirmButton, "text/html; charset=utf-8");
             Transport.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
@@ -67,7 +68,14 @@ public class EmailService {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // Receiver e-mail
             message.setSubject("Reset Password"); // E-mail subject
             String resetUrl = "http://localhost:3000/reset-password?token=" + resetToken;
-            message.setText("You have requested to reset your password. Please click the link below to create a new password:\n" + resetUrl);
+            String resetButton = "<html><body>"
+                    + "<h1>Reset Your Password</h1>"
+                    + "<p>You have requested to reset your password. Please click the button below to create a new password:</p>"
+                    + "<table cellspacing=\"0\" cellpadding=\"0\"><tr><td>"
+                    + "<a href='" + resetUrl + "' style='background-color:#007bff;border:1px solid #007bff;border-radius:5px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;line-height:44px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;mso-hide:all;'>Reset Password</a>"
+                    + "</td></tr></table>"
+                    + "</body></html>";
+            message.setContent(resetButton, "text/html; charset=utf-8");
             Transport.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException(e);

@@ -13,49 +13,41 @@ import java.security.Principal;
 public class UpdateUserDto implements Serializable, Principal {
 
     @XmlElement
-    @NotNull
+    private long id;
+
+    @XmlElement
     @Size(min = 2, max = 25, message = "First name must be between 2 and 25 characters")
     private String firstName;
 
     @XmlElement
-    @NotNull
     @Size(min = 2, max = 25, message = "Last name must be between 2 and 25 characters")
     private String lastName;
 
     @XmlElement
-    @NotNull
     @Size(min = 2, max = 2048, message = "Photo URL must be between 2 and 2048 characters")
     private String photo;
 
     @XmlElement
-    @NotNull
     private String biography;
 
     @XmlElement
-    @NotNull
     private long laboratoryId;
 
     @XmlElement
     @JsonProperty("isPrivate")
-    @NotNull
     private boolean isPrivate;
 
-    @XmlElement
-    @JsonProperty("isDeleted")
-    @NotNull
-    private boolean isDeleted;
 
     public UpdateUserDto() {
     }
 
-    public UpdateUserDto(String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate, boolean isDeleted) {
+    public UpdateUserDto(String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.photo = photo;
         this.biography = biography;
         this.laboratoryId = laboratoryId;
         this.isPrivate = isPrivate;
-        this.isDeleted = isDeleted;
     }
 
     public String getFirstName() {
@@ -106,13 +98,6 @@ public class UpdateUserDto implements Serializable, Principal {
         isPrivate = aPrivate;
     }
 
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
-    }
 
     @Override
     public String getName() {
@@ -127,8 +112,6 @@ public class UpdateUserDto implements Serializable, Principal {
                 ", photo='" + photo + '\'' +
                 ", biography='" + biography + '\'' +
                 ", laboratoryId=" + laboratoryId +
-                ", isPrivate=" + isPrivate +
-                ", isDeleted=" + isDeleted +
-                '}';
+                ", isPrivate=" + isPrivate + '}';
     }
 }

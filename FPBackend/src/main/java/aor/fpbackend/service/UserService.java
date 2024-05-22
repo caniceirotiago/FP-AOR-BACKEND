@@ -23,16 +23,16 @@ import java.util.List;
 public class UserService {
     @EJB
     UserBean userBean;
-
     @Inject
     AuthorizationFilter authFilter;
-
 
     @POST
     @Path("/register")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public void registerUser (@Valid UserDto user) throws InvalidCredentialsException, UnknownHostException {userBean.register(user);}
+    public void registerUser(@Valid UserDto user) throws InvalidCredentialsException, UnknownHostException {
+        userBean.register(user);
+    }
 
     @PUT
     @Path("/confirm")
@@ -47,6 +47,7 @@ public class UserService {
     public void requestPasswordReset(RequestResetPasswordDto requestResetPasswordDto) throws InvalidPasswordRequestException {
         userBean.requestPasswordReset(requestResetPasswordDto);
     }
+
     @PUT
     @Path("/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -70,11 +71,11 @@ public class UserService {
         return userBean.login(userLogin);
     }
 
-    //TODO: De forma a experimentar o security context
+
     @GET
     @Path("/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
-    public UserBasicInfoDto getBasicInfo(@Context SecurityContext securityContext)  {
+    public UserBasicInfoDto getBasicInfo(@Context SecurityContext securityContext) {
         UserDto user = (UserDto) securityContext.getUserPrincipal();
         return userBean.getUserBasicInfo(user);
     }
@@ -102,7 +103,7 @@ public class UserService {
     @POST
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@HeaderParam("Cookie") String cookieHeader)throws InvalidCredentialsException {
+    public void logout(@HeaderParam("Cookie") String cookieHeader) throws InvalidCredentialsException {
         // Extract the token from the cookie header
         String token = authFilter.extractTokenFromCookieHeader(cookieHeader);
         userBean.logout(token);

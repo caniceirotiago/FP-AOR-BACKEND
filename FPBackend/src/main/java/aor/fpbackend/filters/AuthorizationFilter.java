@@ -32,8 +32,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     @EJB
     UserBean userBean;
     @EJB
-    SessionDao sessionDao;
-    @EJB
     RoleDao roleDao;
 
     @Context
@@ -45,61 +43,36 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) {
         String path = requestContext.getUriInfo().getPath();
-        if (path.endsWith("/login")
-                || path.endsWith("/register")
-                || path.contains("/confirm")
-                || path.contains("/labs")
-                || path.contains("/password/reset")) {
-            return;
-        }
-        if (request == null) {
-            System.out.println("HttpServletRequest is null");
-            abortUnauthorized(requestContext);
+        if (isPublicEndpoint(path)) {
             return;
         }
         String token = extractTokenFromCookieHeader(request.getHeader("Cookie"));
 
-        System.out.println(token);
+        System.out.println("Passou aqui no Authorization Filter: " + token);
         if (token != null) {
             try {
                 AuthUserDto authUserDto = userBean.getAuthUserDtoByToken(token);
-                //SessionEntity sessionEntity = sessionDao.findSessionByToken(token);
-
                 if (userBean.tokenValidator(token)) {
-                    requestContext.setSecurityContext(new SecurityContext() {
-                        @Override
-                        public Principal getUserPrincipal() {
-                            return authUserDto;
-                        }
-
-                        @Override
-                        public boolean isUserInRole(String role) {
-                            RoleEntity roleEntity = roleDao.findRoleById(authUserDto.getRoleId());
-                            String userRole = roleEntity.getName().toString();
-                            return userRole.equalsIgnoreCase(role);
-                        }
-
-                        @Override
-                        public boolean isSecure() {
-                            return requestContext.getUriInfo().getRequestUri().getScheme().equals("https");
-                        }
-
-                        @Override
-                        public String getAuthenticationScheme() {
-                            return SecurityContext.BASIC_AUTH;
-                        }
-                    });
+                    setSecurityContext(requestContext, authUserDto);
                     checkAuthorization(requestContext, authUserDto);
 
                 } else {
                     abortUnauthorized(requestContext);
                 }
-            } catch (InvalidCredentialsException | UserNotFoundException | UnknownHostException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                abortUnauthorized(requestContext);
             }
         } else {
             abortUnauthorized(requestContext);
         }
+    }
+
+    private boolean isPublicEndpoint(String path) {
+        return path.endsWith("/login")
+                || path.endsWith("/register")
+                || path.contains("/confirm")
+                || path.contains("/labs")
+                || path.contains("/password/reset");
     }
 
     public String extractTokenFromCookieHeader(String cookieHeader) {
@@ -114,6 +87,32 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             }
         }
         return null;
+    }
+
+    private void setSecurityContext(ContainerRequestContext requestContext, AuthUserDto authUserDto) {
+        requestContext.setSecurityContext(new SecurityContext() {
+            @Override
+            public Principal getUserPrincipal() {
+                return authUserDto;
+            }
+
+            @Override
+            public boolean isUserInRole(String role) {
+                RoleEntity roleEntity = roleDao.findRoleById(authUserDto.getRoleId());
+                String userRole = roleEntity.getName().toString();
+                return userRole.equalsIgnoreCase(role);
+            }
+
+            @Override
+            public boolean isSecure() {
+                return requestContext.getUriInfo().getRequestUri().getScheme().equals("https");
+            }
+
+            @Override
+            public String getAuthenticationScheme() {
+                return SecurityContext.BASIC_AUTH;
+            }
+        });
     }
 
     private void checkAuthorization(ContainerRequestContext requestContext, AuthUserDto authUserDto) throws UnknownHostException, InvalidCredentialsException {
