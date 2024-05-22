@@ -68,12 +68,12 @@ public class RoleEntity implements Serializable {
         this.methods = methods;
     }
 
-    @Override
-    public String toString() {
-        return "RoleEntity{" +
-                "id=" + id +
-                ", name=" + name +
-                ", methods=" + methods +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "RoleEntity{" +
+//                "id=" + id +
+//                ", name=" + name +
+//                ", methods=" + methods +
+//                '}';
+//    }
 }

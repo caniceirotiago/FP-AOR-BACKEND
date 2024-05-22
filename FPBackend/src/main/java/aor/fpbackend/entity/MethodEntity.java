@@ -72,13 +72,13 @@ public class MethodEntity implements Serializable {
         this.roles = roles;
     }
 
-    @Override
-    public String toString() {
-        return "MethodEntity{" +
-                "id=" + id +
-                ", name=" + name +
-                ", description='" + description + '\'' +
-                ", roles=" + roles +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "MethodEntity{" +
+//                "id=" + id +
+//                ", name=" + name +
+//                ", description='" + description + '\'' +
+//                ", roles=" + roles +
+//                '}';
+//    }
 }
