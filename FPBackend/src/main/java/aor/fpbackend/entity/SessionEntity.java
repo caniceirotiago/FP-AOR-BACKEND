@@ -8,7 +8,6 @@ import java.time.Instant;
 @Table(name = "session")
 
 @NamedQuery(name = "Session.findSessionByToken", query = "SELECT s FROM SessionEntity s WHERE s.sessionToken = :tokenValue")
-@NamedQuery(name = "Session.findSessionByToken",query = "SELECT s FROM SessionEntity s WHERE s.sessionToken = :tokenValue")
 @NamedQuery(name = "Session.findValidSessionByToken",query =
         "SELECT s FROM SessionEntity s WHERE s.sessionToken = :tokenValue AND s.tokenExpiration > CURRENT_TIMESTAMP")
 @NamedQuery(name = "Session.findAllSessionsByUserId", query = "SELECT s FROM SessionEntity s WHERE s.user.id = :userId")
