@@ -30,7 +30,7 @@ public class UserService {
     @Path("/register")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public void registerUser(@Valid UserDto user) throws InvalidCredentialsException, UnknownHostException {
+    public void registerUser(@Valid UserRegisterDto user) throws InvalidCredentialsException, UnknownHostException {
         userBean.register(user);
     }
 
@@ -44,17 +44,16 @@ public class UserService {
     @PUT
     @Path("/request/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void requestPasswordReset(RequestResetPasswordDto requestResetPasswordDto) throws InvalidPasswordRequestException {
+    public void requestPasswordReset(@Valid RequestResetPasswordDto requestResetPasswordDto) throws InvalidPasswordRequestException {
         userBean.requestPasswordReset(requestResetPasswordDto);
     }
 
     @PUT
     @Path("/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void resetPassword(ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
+    public void resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
         userBean.resetPassword(resetPasswordDto);
     }
-
 
     /**
      * This endpoint is responsible for user authentication. It accepts JSON-formatted requests containing
@@ -67,17 +66,15 @@ public class UserService {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response login(LoginDto userLogin) throws InvalidCredentialsException {
+    public Response login(@Valid LoginDto userLogin) throws InvalidCredentialsException {
         return userBean.login(userLogin);
     }
-
 
     @GET
     @Path("/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
     public UserBasicInfoDto getBasicInfo(@Context SecurityContext securityContext) {
-        UserDto user = (UserDto) securityContext.getUserPrincipal();
-        return userBean.getUserBasicInfo(user);
+        return userBean.getUserBasicInfo(securityContext);
     }
 
     /**
@@ -112,7 +109,7 @@ public class UserService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<UserDto> getAllUsers() {
+    public List<UsernameDto> getAllUsers() {
         return userBean.getAllRegUsers();
     }
 
@@ -142,7 +139,7 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.UPDATE_ROLE)
-    public void updateUserPassword(@Valid UpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
+    public void updateUserRole(@Valid UpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
         userBean.updateRole(updatedRole);
     }
 

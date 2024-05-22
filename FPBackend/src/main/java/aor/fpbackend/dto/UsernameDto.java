@@ -1,6 +1,7 @@
 package aor.fpbackend.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -8,25 +9,22 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class UpdateDeletedDto implements Serializable {
+public class UsernameDto implements Serializable {
 
     @XmlElement
+    @NotNull
     private long id;
 
     @XmlElement
+    @NotNull
     private String username;
 
-    @XmlElement
-    @JsonProperty("isDeleted")
-    private boolean isDeleted;
-
-    public UpdateDeletedDto() {
+    public UsernameDto() {
     }
 
-    public UpdateDeletedDto(long id, String username, boolean isDeleted) {
+    public UsernameDto(long id, String username) {
         this.id = id;
         this.username = username;
-        this.isDeleted = isDeleted;
     }
 
     public long getId() {
@@ -43,13 +41,5 @@ public class UpdateDeletedDto implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
     }
 }

@@ -1,66 +1,71 @@
 package aor.fpbackend.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import javax.security.auth.Subject;
 import java.io.Serializable;
 import java.security.Principal;
 
 @XmlRootElement
-public class UpdateUserDto implements Serializable {
+public class UserRegisterDto implements Serializable {
 
     @XmlElement
-    private long id;
+    @NotNull
+    @Email(message = "Email is required")
+    private String email;
 
     @XmlElement
+    @NotNull
+    @Size(min = 4, message = "Password must be greater than 4 characters")
+    private String password;
+
+    @XmlElement
+    @NotNull(message = "Username is required")
+    @Size(min = 2, max = 25, message = "Username must be between 2 and 20 characters")
     private String username;
 
     @XmlElement
+    @NotNull
     @Size(min = 2, max = 25, message = "First name must be between 2 and 25 characters")
     private String firstName;
 
     @XmlElement
+    @NotNull
     @Size(min = 2, max = 25, message = "Last name must be between 2 and 25 characters")
     private String lastName;
 
     @XmlElement
-    @Size(min = 2, max = 2048, message = "Photo URL must be between 2 and 2048 characters")
-    private String photo;
-
-    @XmlElement
-    private String biography;
-
-    @XmlElement
+    @NotNull
     private long laboratoryId;
 
-    @XmlElement
-    @JsonProperty("isPrivate")
-    private boolean isPrivate;
-
-
-    public UpdateUserDto() {
+    public UserRegisterDto() {
     }
 
-    public UpdateUserDto(long id, String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
-        this.id = id;
+    public UserRegisterDto(String email, String password, String username, String firstName, String lastName, long laboratoryId) {
+        this.email = email;
+        this.password = password;
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.photo = photo;
-        this.biography = biography;
         this.laboratoryId = laboratoryId;
-        this.isPrivate = isPrivate;
     }
 
-    public long getId() {
-        return id;
+    public String getEmail() {
+        return email;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getUsername() {
@@ -87,35 +92,11 @@ public class UpdateUserDto implements Serializable {
         this.lastName = lastName;
     }
 
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
-
-    public String getBiography() {
-        return biography;
-    }
-
-    public void setBiography(String biography) {
-        this.biography = biography;
-    }
-
     public long getLaboratoryId() {
         return laboratoryId;
     }
 
     public void setLaboratoryId(long laboratoryId) {
         this.laboratoryId = laboratoryId;
-    }
-
-    public boolean isPrivate() {
-        return isPrivate;
-    }
-
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
     }
 }

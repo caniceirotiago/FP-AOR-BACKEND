@@ -2,7 +2,6 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.LaboratoryBean;
 import aor.fpbackend.dto.LaboratoryDto;
-import aor.fpbackend.dto.UserDto;
 import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.exception.DatabaseOperationException;
 import jakarta.ejb.EJB;
@@ -10,7 +9,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Path("/labs")
 public class LaboratoryService {

@@ -4,6 +4,7 @@ import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
@@ -64,8 +65,7 @@ public class UserBean implements Serializable {
         }
     }
 
-
-    public void register(UserDto user) throws InvalidCredentialsException, UnknownHostException {
+    public void register(UserRegisterDto user) throws InvalidCredentialsException, UnknownHostException {
         if (user == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to register with invalid credentials!");
             throw new InvalidCredentialsException("Invalid credentials");
@@ -76,11 +76,11 @@ public class UserBean implements Serializable {
         }
 
         try {
-            UserEntity newUserEntity = convertUserDtotoUserEntity(user);
+            UserEntity newUserEntity = convertUserRegisterDtotoUserEntity(user);
             String encryptedPassword = passEncoder.encode(user.getPassword());
             newUserEntity.setPassword(encryptedPassword);
             // Retrieve and set the default role "Standard User"
-            RoleEntity role = roleDao.findRoleById(2);
+            RoleEntity role = roleDao.findRoleByName(UserRoleEnum.STANDARD_USER);
             if (role == null) {
                 throw new IllegalStateException("Default role not found.");
             }
@@ -95,6 +95,8 @@ public class UserBean implements Serializable {
             newUserEntity.setDeleted(false);
             newUserEntity.setConfirmed(false);
             newUserEntity.setPrivate(true);
+            // TODO Verificar a fotografia Default
+            newUserEntity.setPhoto("https://www.silcharmunicipality.in/wp-content/uploads/2021/02/male-face.jpg");
             // Create a confirmation token
             String confirmationToken = generateNewToken();
             newUserEntity.setConfirmationToken(confirmationToken);
@@ -172,7 +174,6 @@ public class UserBean implements Serializable {
         return user.getResetPasswordTimestamp().isBefore(Instant.now());
     }
 
-
     public Response login(LoginDto userLogin) throws InvalidCredentialsException {
         UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
         if (userEntity == null || !passEncoder.matches(userLogin.getPassword(), userEntity.getPassword())) {
@@ -231,11 +232,18 @@ public class UserBean implements Serializable {
         }
     }
 
-    public List<UserDto> getAllRegUsers() {
+    public List<UsernameDto> getAllRegUsers() {
         try {
-            ArrayList<UserEntity> users = userDao.findAllUsers();
-            if (users != null && !users.isEmpty()) {
-                return convertUserEntityListToUserDtoList(users);
+            ArrayList<UserEntity> userEntities = userDao.findAllUsers();
+            if (userEntities != null && !userEntities.isEmpty()) {
+                ArrayList<UsernameDto> usernameDtos = new ArrayList<>();
+                for (UserEntity u : userEntities) {
+                    UsernameDto usernameDto = new UsernameDto();
+                    usernameDto.setId(u.getId());
+                    usernameDto.setUsername(u.getUsername());
+                    usernameDtos.add(usernameDto);
+                }
+                return usernameDtos;
             } else {
                 LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - No users found at: " + LocalDate.now());
                 return Collections.emptyList(); // Return empty list when no users found
@@ -244,7 +252,6 @@ public class UserBean implements Serializable {
             throw new RuntimeException("Unable to retrieve host address", e);
         }
     }
-
 
     public void updateUserProfile(@Context SecurityContext securityContext, UpdateUserDto updatedUser) throws UserNotFoundException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
@@ -278,37 +285,41 @@ public class UserBean implements Serializable {
         }
     }
 
-    public UserBasicInfoDto getUserBasicInfo(UserDto user) {
+    public UserBasicInfoDto getUserBasicInfo(@Context SecurityContext securityContext) {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserByUsername(authUserDto.getName());
         UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
-        userBasicInfo.setUsername(user.getUsername());
-        userBasicInfo.setPhoto(user.getPhoto());
-        userBasicInfo.setRole(user.getRoleId());
+        userBasicInfo.setUsername(userEntity.getUsername());
+        userBasicInfo.setRole(userEntity.getRole().getId());
+        userBasicInfo.setPhoto(userEntity.getPhoto());
         return userBasicInfo;
     }
 
     public ProfileDto getProfileDto(String username, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
-        UserDto user = (UserDto) securityContext.getUserPrincipal();
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
             throw new UserNotFoundException("No user found for this username");
         }
-        if (userEntity.isPrivate() && !user.getUsername().equals(username)) {
+        if (userEntity.isPrivate() && !authUserDto.getUsername().equals(username)) {
             throw new UnauthorizedAccessException("User is private");
         }
         ProfileDto profileDto = new ProfileDto();
+        profileDto.setId(userEntity.getId());
+        profileDto.setEmail(userEntity.getEmail());
+        profileDto.setUsername(userEntity.getUsername());
         profileDto.setFirstName(userEntity.getFirstName());
         profileDto.setLastName(userEntity.getLastName());
         profileDto.setPhoto(userEntity.getPhoto());
         profileDto.setBiography(userEntity.getBiography());
         profileDto.setLaboratoryId(userEntity.getLaboratory().getId());
         profileDto.setPrivate(userEntity.isPrivate());
-        profileDto.setEmail(userEntity.getEmail());
         return profileDto;
     }
 
     public void updatePassword(UpdatePasswordDto updatePasswordDto, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
-        UserDto user = (UserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserByEmail(user.getEmail());
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserByEmail(authUserDto.getUsername());
         if (userEntity == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");
             throw new InvalidPasswordRequestException("User not found");
@@ -349,40 +360,32 @@ public class UserBean implements Serializable {
         return true;
     }
 
-    private UserEntity convertUserDtotoUserEntity(UserDto user) {
+    private UserEntity convertUserRegisterDtotoUserEntity(UserRegisterDto user) {
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(user.getEmail());
         userEntity.setUsername(user.getUsername());
         userEntity.setFirstName(user.getFirstName());
         userEntity.setLastName(user.getLastName());
-        userEntity.setPhoto(user.getPhoto());
-        userEntity.setBiography(user.getBiography());
         return userEntity;
     }
 
-    private UserDto convertUserEntitytoUserDto(UserEntity userEntity) {
-        UserDto userDto = new UserDto();
-        userDto.setId(userEntity.getId());
-        userDto.setEmail(userEntity.getEmail());
-        userDto.setUsername(userEntity.getUsername());
-        userDto.setFirstName(userEntity.getFirstName());
-        userDto.setLastName(userEntity.getLastName());
-        userDto.setPhoto(userEntity.getPhoto());
-        userDto.setBiography(userEntity.getBiography());
-        userDto.setDeleted(userEntity.isDeleted());
-        userDto.setPrivate(userEntity.isPrivate());
-        userDto.setConfirmed(userEntity.isConfirmed());
-        userDto.setRoleId(userEntity.getRole().getId());
-        return userDto;
+    private UserRegisterDto convertUserEntitytoUserRegisterDto(UserEntity userEntity) {
+        UserRegisterDto userRegisterDto = new UserRegisterDto();
+        userRegisterDto.setEmail(userEntity.getEmail());
+        userRegisterDto.setUsername(userEntity.getUsername());
+        userRegisterDto.setFirstName(userEntity.getFirstName());
+        userRegisterDto.setLastName(userEntity.getLastName());
+        userRegisterDto.setLaboratoryId(userEntity.getLaboratory().getId());
+        return userRegisterDto;
     }
 
-    private ArrayList<UserDto> convertUserEntityListToUserDtoList(ArrayList<UserEntity> userEntities) {
-        ArrayList<UserDto> userDtos = new ArrayList<>();
+    private ArrayList<UserRegisterDto> convertUserRegisterEntityListToUserDtoList(ArrayList<UserEntity> userEntities) {
+        ArrayList<UserRegisterDto> userRegisterDtos = new ArrayList<>();
         for (UserEntity u : userEntities) {
-            UserDto userDto = convertUserEntitytoUserDto(u);
-            userDtos.add(userDto);
+            UserRegisterDto userRegisterDto = convertUserEntitytoUserRegisterDto(u);
+            userRegisterDtos.add(userRegisterDto);
         }
-        return userDtos;
+        return userRegisterDtos;
     }
 
 }
