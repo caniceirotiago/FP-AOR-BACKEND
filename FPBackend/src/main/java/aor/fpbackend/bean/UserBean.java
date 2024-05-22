@@ -316,15 +316,19 @@ public class UserBean implements Serializable {
 
     public void updatePassword(UpdatePasswordDto updatePasswordDto, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserByEmail(authUserDto.getUsername());
+        System.out.println("Username: " + authUserDto.getUsername());
+        UserEntity userEntity = userDao.findUserByUsername(authUserDto.getUsername());
+        System.out.println("UserEntity: " + userEntity);
         if (userEntity == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");
             throw new InvalidPasswordRequestException("User not found");
         }
+        System.out.println("User found");
         if (!oldPasswordConfirmation(userEntity, updatePasswordDto)) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + "Attempt to update password with invalid old password or password should not be the same at: " + LocalDate.now());
             throw new InvalidPasswordRequestException("Invalid old password or password should not be the same");
         }
+        System.out.println("Old password confirmed");
         String encryptedNewPassword = passEncoder.encode(updatePasswordDto.getNewPassword());
         userEntity.setPassword(encryptedNewPassword);
     }
@@ -333,6 +337,7 @@ public class UserBean implements Serializable {
         String oldPassword = updatePasswordDto.getOldPassword();
         String newPassword = updatePasswordDto.getNewPassword();
         String hashedPassword = userEntity.getPassword();
+        System.out.println("Old Password: " + hashedPassword);
         // Checks that the old password provided matches the hashed password and that the new password is different from the one saved
         return passEncoder.matches(oldPassword, hashedPassword) && !passEncoder.matches(newPassword, hashedPassword);
     }
