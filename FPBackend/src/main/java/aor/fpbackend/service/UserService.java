@@ -106,10 +106,8 @@ public class UserService {
     @POST
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@HeaderParam("Cookie") String cookieHeader) throws InvalidCredentialsException {
-        // Extract the token from the cookie header
-        String token = authFilter.extractTokenFromCookieHeader(cookieHeader);
-        userBean.logout(token);
+    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException {
+        userBean.logout(securityContext);
     }
 
     @GET

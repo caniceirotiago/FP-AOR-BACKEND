@@ -1,6 +1,7 @@
 package aor.fpbackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -34,6 +35,7 @@ public class UpdateUserDto implements Serializable {
     private String biography;
 
     @XmlElement
+    @Min(value = 1, message = "Laboratory ID must be greater than 0")
     private long laboratoryId;
 
     @XmlElement

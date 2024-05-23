@@ -15,12 +15,15 @@ import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.time.Instant;
+
+import aor.fpbackend.exception.UserNotFoundException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,7 +34,7 @@ import java.util.*;
 public class UserBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(UserBean.class);
+    private static final Logger LOGGER = LogManager.getLogger(UserBean.class);
 
     @EJB
     UserDao userDao;
@@ -181,7 +184,7 @@ public class UserBean implements Serializable {
                 LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with invalid token at: " + LocalDate.now());
                 throw new InvalidPasswordRequestException("Invalid token");
             }
-            if (isTokenExpired(user)) {
+            if (!isResetTokenNotExpired(user)) {
                 LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with expired token at: " + LocalDate.now());
                 throw new InvalidPasswordRequestException("Token expired");
             }
@@ -194,10 +197,6 @@ public class UserBean implements Serializable {
         }
     }
 
-    private boolean isTokenExpired(UserEntity user) {
-        return user.getResetPasswordTimestamp().isBefore(Instant.now());
-    }
-
     public Response login(LoginDto userLogin) throws InvalidCredentialsException {
         UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
         if (userEntity == null || !passEncoder.matches(userLogin.getPassword(), userEntity.getPassword())) {
@@ -208,7 +207,8 @@ public class UserBean implements Serializable {
         SessionEntity sessionEntity = new SessionEntity();
         sessionEntity.setSessionToken(tokenValue);
         sessionEntity.setUser(userEntity);
-        sessionEntity.setLastActivityTimestamp(Instant.now());
+        int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
+        sessionEntity.setTokenExpiration(Instant.now().plusSeconds(tokenTimerInSeconds));
         sessionDao.persist(sessionEntity);
         // Create and set the cookie for the token
         NewCookie cookie = new NewCookie("authToken", tokenValue, "/", null, "Auth Token", 3600, false);
@@ -223,8 +223,26 @@ public class UserBean implements Serializable {
         return base64Encoder.encodeToString(randomBytes);
     }
 
+    public boolean tokenValidator(String token) {
+        SessionEntity sessionEntity = sessionDao.findValidSessionByToken(token);
+        if (sessionEntity == null) {
+            LOGGER.warn("Invalid token: " + token);
+            SessionEntity session = sessionDao.findSessionByToken(token);
+            if (session != null) {
+                sessionDao.remove(session);
+                return false;
+            }
+        }
+        int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
+        // Extend the validity of the session by adding the sessionTimeout time
+        sessionEntity.setTokenExpiration(Instant.now().plusSeconds(tokenTimerInSeconds));
+        LOGGER.info("Token validation successful for token: " + token);
+        return true;
+    }
 
-    public void logout(String token) throws InvalidCredentialsException {
+    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        String token = authUserDto.getSessionToken();
         if (token == null) {
             throw new InvalidCredentialsException("No session token found in the request");
         }
@@ -232,27 +250,6 @@ public class UserBean implements Serializable {
         if (session != null) {
             sessionDao.remove(session);
             LOGGER.info("User logged out due to invalid or expired token: " + token);
-        }
-    }
-
-    public boolean tokenValidator(String token) throws InvalidCredentialsException {
-        SessionEntity sessionEntity = sessionDao.findSessionByToken(token);
-        if (sessionEntity == null) {
-            LOGGER.warn("Invalid token: " + token);
-            return false;
-        }
-        int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
-        Instant tokenExpiration = sessionEntity.getLastActivityTimestamp().plusSeconds(tokenTimerInSeconds);
-        Instant now = Instant.now();
-        if (now.isBefore(tokenExpiration)) {
-            // Extend the validity of the session by updating the last activity timestamp and Log token validation success
-            sessionEntity.setLastActivityTimestamp(now);
-            LOGGER.info("Token validation successful for token: " + token);
-            return true;
-        } else {
-            LOGGER.warn("Token expired: " + token);
-            logout(token);
-            return false;
         }
     }
 
@@ -301,7 +298,7 @@ public class UserBean implements Serializable {
         if (userEntity != null) {
             AuthUserDto authUserDto = new AuthUserDto();
             authUserDto.setUsername(userEntity.getUsername());
-            authUserDto.setSessionToken(userEntity.getUsername());
+            authUserDto.setSessionToken(token);
             authUserDto.setRoleId(userEntity.getRole().getId());
             return authUserDto;
         } else {

@@ -38,6 +38,7 @@ public class UserRegisterDto implements Serializable {
 
     @XmlElement
     @NotNull
+    @Min(value = 1, message = "Laboratory ID must be greater than 0")
     private long laboratoryId;
 
     public UserRegisterDto() {
