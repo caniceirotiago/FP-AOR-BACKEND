@@ -23,6 +23,7 @@ import java.security.SecureRandom;
 import java.time.Instant;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -60,7 +61,7 @@ public class UserBean implements Serializable {
             if (role == null) {
                 throw new IllegalStateException("Role not found.");
             }
-            UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, true, false, true, laboratory, role);
+            UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, true, false, true, laboratory, role, Instant.now());
             userDao.persist(userEntity);
         }
     }
@@ -144,6 +145,29 @@ public class UserBean implements Serializable {
         } catch (UnknownHostException e) {
             throw new RuntimeException("Unable to retrieve host address", e);
         }
+    }
+    public void requestNewConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException {
+        UserEntity user = userDao.findUserByEmail(email.getEmail());
+        if(user == null){
+            LOGGER.warn("Attempt to request new confirmation email at - User not foud: " + email.getEmail());
+            throw new InvalidRequestOnRegistConfirmationException("Not found user with this email");
+        }
+        if(user.isConfirmed()){
+            LOGGER.warn("Attempt to request new confirmation email at - User already confirmed: " + email.getEmail());
+            throw new InvalidRequestOnRegistConfirmationException("Not possible to request confirmation email please contact the administrator");
+        }
+        if(user.getLastSentEmailTimestamp() != null){
+            Instant now = Instant.now();
+            Instant lastSentEmail = user.getLastSentEmailTimestamp();
+            long timeDifference = ChronoUnit.MINUTES.between(lastSentEmail, now);
+            if(timeDifference < 1){
+                LOGGER.warn("Attempt to request new confirmation email at - Time difference less than 1 minute" +
+                        LocalDateTime.now() + ": " + email.getEmail());
+                throw new InvalidRequestOnRegistConfirmationException("You can't request a new confirmation email now, please wait 1 minute");
+            }
+        }
+        emailService.sendConfirmationEmail(user.getEmail(), user.getConfirmationToken());
+        user.setLastSentEmailTimestamp(Instant.now());
     }
 
     private boolean isResetTokenNotExpired(UserEntity user) {

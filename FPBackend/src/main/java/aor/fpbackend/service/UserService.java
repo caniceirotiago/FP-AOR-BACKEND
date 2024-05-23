@@ -40,6 +40,12 @@ public class UserService {
     public void confirmRegistration(@QueryParam("token") String token) throws UserConfirmationException {
         userBean.confirmUser(token);
     }
+    @POST
+    @Path("/request/confirmation/email")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void requestConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException {
+        userBean.requestNewConfirmationEmail(email);
+    }
 
     @PUT
     @Path("/request/password/reset")

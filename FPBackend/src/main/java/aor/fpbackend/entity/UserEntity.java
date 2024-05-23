@@ -68,6 +68,8 @@ public class UserEntity implements Serializable {
     private String resetPasswordToken;
     @Column(name="reset_password_token_timestamp")
     private Instant resetPasswordTimestamp;
+    @Column(name="last_sent_email_timestamp", nullable=true, updatable = true)
+    private Instant lastSentEmailTimestamp;
 
     @ManyToOne
     @JoinColumn(name = "laboratory_id", nullable = false)
@@ -118,7 +120,7 @@ public class UserEntity implements Serializable {
 
     public UserEntity() {}
 
-    public UserEntity(String email, String password, String username, String firstName, String lastName, boolean isPrivate, boolean isDeleted, boolean isConfirmed, LaboratoryEntity laboratory, RoleEntity role) {
+    public UserEntity(String email, String password, String username, String firstName, String lastName, boolean isPrivate, boolean isDeleted, boolean isConfirmed, LaboratoryEntity laboratory, RoleEntity role, Instant lastSentEmailTimestamp) {
         this.email = email;
         this.password = password;
         this.username = username;
@@ -129,6 +131,7 @@ public class UserEntity implements Serializable {
         this.isConfirmed = isConfirmed;
         this.laboratory = laboratory;
         this.role = role;
+        this.lastSentEmailTimestamp = lastSentEmailTimestamp;
     }
 
     // Getters and setters
@@ -347,6 +350,14 @@ public class UserEntity implements Serializable {
 
     public void setRole(RoleEntity role) {
         this.role = role;
+    }
+
+    public Instant getLastSentEmailTimestamp() {
+        return lastSentEmailTimestamp;
+    }
+
+    public void setLastSentEmailTimestamp(Instant lastSentEmailTimestamp) {
+        this.lastSentEmailTimestamp = lastSentEmailTimestamp;
     }
 
     @Override
