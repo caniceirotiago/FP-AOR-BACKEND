@@ -101,11 +101,24 @@ public class StartupBean implements Serializable {
     @Transactional
     private void createMethods() throws DatabaseOperationException {
         methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_ROLE, "updates user role");
+        methodBean.createMethodIfNotExistent(MethodEnum.ADD_SKILL, "creates new skill");
+        methodBean.createMethodIfNotExistent(MethodEnum.ALL_SKILLS, "retrieves all persisted skills");
+        methodBean.createMethodIfNotExistent(MethodEnum.SKILL_BY_USER, "all skills by userId");
+        methodBean.createMethodIfNotExistent(MethodEnum.SKILL_FIRST_LETTER, "all skills by first letter");
+
     }
 
     @Transactional
     private void addPermissions() throws DatabaseOperationException {
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.UPDATE_ROLE);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_SKILL);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_SKILL);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ALL_SKILLS);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ALL_SKILLS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.SKILL_BY_USER);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILL_BY_USER);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.SKILL_FIRST_LETTER);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILL_FIRST_LETTER);
     }
 
 

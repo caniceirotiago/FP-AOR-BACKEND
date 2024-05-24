@@ -25,16 +25,6 @@ public class UserDao extends AbstractDao<UserEntity> {
     @PersistenceContext
     private EntityManager em;
 
-    public UserEntity findUserById(long userId) {
-        try {
-            return (UserEntity) em.createNamedQuery("User.findUserById")
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
     public boolean checkEmailExist(String email) {
         try {
             Long count = (Long) em.createNamedQuery("User.countUserByEmail")
@@ -54,6 +44,16 @@ public class UserDao extends AbstractDao<UserEntity> {
             return count > 0;
         } catch (NoResultException e) {
             return false;
+        }
+    }
+
+    public UserEntity findUserById(long userId) {
+        try {
+            return (UserEntity) em.createNamedQuery("User.findUserById")
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         }
     }
 
