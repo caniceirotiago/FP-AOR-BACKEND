@@ -1,5 +1,6 @@
 package aor.fpbackend.dao;
 
+import aor.fpbackend.entity.MethodEntity;
 import aor.fpbackend.entity.RoleEntity;
 
 import aor.fpbackend.enums.MethodEnum;
@@ -8,6 +9,9 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Stateless
 public class RoleDao extends AbstractDao<RoleEntity> {
@@ -19,6 +23,16 @@ public class RoleDao extends AbstractDao<RoleEntity> {
 
     @PersistenceContext
     private EntityManager em;
+    public Set<MethodEntity> findPermissionsByRoleId(Long roleId) {
+        try {
+            return em.createQuery("SELECT r FROM RoleEntity r JOIN FETCH r.methods WHERE r.id = :roleId", RoleEntity.class)
+                    .setParameter("roleId", roleId)
+                    .getSingleResult()
+                    .getMethods();
+        } catch (NoResultException e) {
+            return new HashSet<>();
+        }
+    }
 
     public boolean checkRoleExist(UserRoleEnum name) {
         try {

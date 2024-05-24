@@ -4,6 +4,7 @@ import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.DatabaseOperationException;
+import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
@@ -12,6 +13,7 @@ import jakarta.ejb.Startup;
 import jakarta.transaction.Transactional;
 
 import java.io.Serializable;
+import java.util.Base64;
 
 
 @Singleton
@@ -105,5 +107,8 @@ public class StartupBean implements Serializable {
     private void addPermissions() throws DatabaseOperationException {
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.UPDATE_ROLE);
     }
+
+
+
 
 }
