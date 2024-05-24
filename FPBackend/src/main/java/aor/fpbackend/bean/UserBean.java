@@ -210,11 +210,13 @@ public class UserBean implements Serializable {
             throw new InvalidCredentialsException("Invalid credentials");
         }
         String jwtToken = generateJwtToken(userEntity);
-        NewCookie authCookie = new NewCookie("authToken", jwtToken, "/", null, "Auth Token", 3600, false, false);
-        return Response.ok().cookie(authCookie).build();
+        NewCookie authCookie = new NewCookie("authToken", jwtToken, "/", null, "Auth Token", 3600, false, true);
+        String sessionToken = generateNewToken();
+        NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
+        return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
     }
     public String generateJwtToken(UserEntity user) {
-        long expirationTime = 3600000; //TODO 1 hora
+        long expirationTime = 36000000; //TODO 1 dia
         Key secretKey = JwtKeyProvider.getKey(); //TODO Alterar e Guardar de forma segura
 
         Set<MethodEntity> permissions = roleDao.findPermissionsByRoleId(user.getRole().getId());
@@ -235,7 +237,7 @@ public class UserBean implements Serializable {
 
 
 
-    private String generateNewToken() {
+    public String generateNewToken() {
         SecureRandom secureRandom = new SecureRandom();
         Base64.Encoder base64Encoder = Base64.getUrlEncoder();
         byte[] randomBytes = new byte[24];
