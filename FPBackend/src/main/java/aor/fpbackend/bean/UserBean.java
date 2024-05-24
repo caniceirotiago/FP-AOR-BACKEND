@@ -248,6 +248,16 @@ public class UserBean implements Serializable {
             if (secretKey == null) {
                 throw new IllegalStateException("Secret key not configured");
             }
+            SessionEntity se = sessionDao.findSessionByToken(token);
+            if (se == null) {
+                throw new InvalidCredentialsException("Invalid token");
+            }
+            if (!se.isActive()) {
+                throw new InvalidCredentialsException("Token inativated");
+            }
+            if (se.getTokenExpiration().isBefore(Instant.now())) {
+                throw new InvalidCredentialsException("Token expired");
+            }
             Jws<Claims> jwsClaims = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
@@ -258,6 +268,7 @@ public class UserBean implements Serializable {
             UserEntity user = userDao.findUserById(userId);
             AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()));
             return authUserDto;
+
 
         } catch (ExpiredJwtException e) {
             throw new InvalidCredentialsException("Token expired: " + e.getMessage());
