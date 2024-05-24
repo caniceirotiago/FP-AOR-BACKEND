@@ -5,6 +5,7 @@ import aor.fpbackend.dao.RoleDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.entity.RoleEntity;
+import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -79,11 +80,12 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                     .getExpiration();
 
             long timeRemaining = expiration.getTime() - currentTimeMillis;
-            long fiveMinutesInMillis = 3600000; //tempo para iniciar logica de renovação do token 1 hora antes
+            long fiveMinutesInMillis = 360000; //tempo para iniciar logica de renovação do token 1 hora antes
 
             if (timeRemaining < fiveMinutesInMillis) {
-                String newToken = userBean.generateJwtToken(userDao.findUserById(authUserDto.getUserId()));
-                String newSessionToken = userBean.generateNewToken();
+                UserEntity user = userDao.findUserById(authUserDto.getUserId());
+                String newToken = userBean.generateJwtToken(user);
+                String newSessionToken = userBean.generateJwtToken(user);
                 requestContext.setProperty("newAuthToken", newToken);
                 requestContext.setProperty("newSessionToken", newSessionToken);
             }

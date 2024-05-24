@@ -211,7 +211,7 @@ public class UserBean implements Serializable {
         }
         String jwtToken = generateJwtToken(userEntity);
         NewCookie authCookie = new NewCookie("authToken", jwtToken, "/", null, "Auth Token", 3600, false, true);
-        String sessionToken = generateNewToken();
+        String sessionToken = generateJwtToken(userEntity);
         NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
         return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
     }
