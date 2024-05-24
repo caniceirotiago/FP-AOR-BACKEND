@@ -2,11 +2,14 @@ package aor.fpbackend.filters;
 
 
 import aor.fpbackend.dao.RoleDao;
+import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.UserNotFoundException;
+import aor.fpbackend.utils.JwtKeyProvider;
+import io.jsonwebtoken.Jwts;
 import jakarta.annotation.Priority;
 import jakarta.ejb.EJB;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +18,7 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
@@ -23,6 +27,7 @@ import aor.fpbackend.bean.UserBean;
 import java.lang.reflect.Method;
 import java.net.UnknownHostException;
 import java.security.Principal;
+import java.util.Date;
 
 
 @Provider
@@ -40,6 +45,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     @Context
     private HttpServletRequest request;
+    @EJB
+    private UserDao userDao;
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -60,6 +67,23 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             if (authUserDto == null) {
                 abortUnauthorized(requestContext);
                 return;
+            }
+
+            //Adding new token to cookie if the token is about to expire
+            long currentTimeMillis = System.currentTimeMillis();
+            Date expiration = Jwts.parserBuilder()
+                    .setSigningKey(JwtKeyProvider.getKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration();
+
+            long timeRemaining = expiration.getTime() - currentTimeMillis;
+            long fiveMinutesInMillis = 5000;
+
+            if (timeRemaining < fiveMinutesInMillis) {
+                String newToken = userBean.generateJwtToken(userDao.findUserById(authUserDto.getUserId()));
+                requestContext.setProperty("newAuthToken", newToken);
             }
 
             setSecurityContext(requestContext, authUserDto);
