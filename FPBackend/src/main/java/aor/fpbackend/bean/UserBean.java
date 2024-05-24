@@ -214,7 +214,7 @@ public class UserBean implements Serializable {
         return Response.ok().cookie(authCookie).build();
     }
     public String generateJwtToken(UserEntity user) {
-        long expirationTime = 10000; //TODO 1 hora
+        long expirationTime = 3600000; //TODO 1 hora
         Key secretKey = JwtKeyProvider.getKey(); //TODO Alterar e Guardar de forma segura
 
         Set<MethodEntity> permissions = roleDao.findPermissionsByRoleId(user.getRole().getId());
