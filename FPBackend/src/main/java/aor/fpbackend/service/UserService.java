@@ -10,6 +10,7 @@ import jakarta.ejb.EJB;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -106,8 +107,9 @@ public class UserService {
     @POST
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException {
-        //userBean.logout(securityContext);
+    @Produces(MediaType.APPLICATION_JSON)
+    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
+        userBean.logout(securityContext);
     }
 
     @GET

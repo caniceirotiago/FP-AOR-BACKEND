@@ -1,7 +1,9 @@
 package aor.fpbackend.dto;
 import aor.fpbackend.entity.MethodEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.enterprise.context.control.RequestContextController;
 import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -24,14 +26,20 @@ import java.util.Set;
         @XmlElement
         @NotNull
         private Set<MethodEntity> permissions;
+        @XmlElement
+        @NotNull
+        private String token;
+
+
 
         // Constructors
         public AuthUserDto() {}
 
-        public AuthUserDto(Long userId, Long roleId, Set<MethodEntity> permissions) {
+        public AuthUserDto(Long userId, Long roleId, Set<MethodEntity> permissions, String token) {
             this.userId = userId;
             this.roleId = roleId;
             this.permissions = permissions;
+            this.token = token;
         }
 
     // Implementing the getName method from Principal
@@ -71,5 +79,15 @@ import java.util.Set;
 
     public void setPermissions(Set<MethodEntity> permissions) {
         this.permissions = permissions;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

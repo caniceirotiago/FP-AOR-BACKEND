@@ -86,6 +86,9 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 userBean.createNewSessionAndInvaladateOld(authUserDto, requestContext, expirationTime, token);
             }
             setSecurityContext(requestContext, authUserDto);
+            if(path.contains("/logout")){
+                userBean.createInvalidSession(authUserDto, requestContext);
+            }
             checkAuthorization(requestContext, authUserDto);
 
         } catch (InvalidCredentialsException e) {
@@ -140,7 +143,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 //TODO mudar para https
                 return requestContext.getUriInfo().getRequestUri().getScheme().equals("http");
             }
-
             @Override
             public String getAuthenticationScheme() {
                 return SecurityContext.BASIC_AUTH;
