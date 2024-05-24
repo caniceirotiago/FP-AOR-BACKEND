@@ -30,13 +30,10 @@ public class SkillBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SkillBean.class);
 
     public void addSkill(SkillDto skillDto, @Context SecurityContext securityContext) {
-        // Find the skill by name, if it exists
+        // Ensure the skill exists, creating it if necessary
+        checkSkillExist(skillDto.getName());
+        // Find the skill by name
         SkillEntity skillEntity = skillDao.findSkillByName(skillDto.getName());
-        // If the skill doesn't exist, create and persist it
-        if(skillEntity==null) {
-            SkillEntity skill = new SkillEntity(skillDto.getName());
-            skillDao.persist(skill);
-        }
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -45,10 +42,28 @@ public class SkillBean implements Serializable {
         if (userSkills == null) {
             userSkills = new HashSet<>();
         }
-        userSkills.add(skillEntity);
-
-        userEntity.setUserSkills(userSkills);
+        if (!userSkills.contains(skillEntity)) {
+            userSkills.add(skillEntity);
+            userEntity.setUserSkills(userSkills);
+        }
+        // Add the user to the skill's users
+        Set<UserEntity> skillUsers = skillEntity.getUsers();
+        if (skillUsers == null) {
+            skillUsers = new HashSet<>();
+        }
+        if (!skillUsers.contains(userEntity)) {
+            skillUsers.add(userEntity);
+            skillEntity.setUsers(skillUsers);
+        }
     }
+
+    private void checkSkillExist(String name) {
+        if(!skillDao.checkSkillExist(name)) {
+            SkillEntity skill = new SkillEntity(name);
+            skillDao.persist(skill);
+        }
+    }
+
 
     public List<SkillDto> getSkills() {
         return convertSkillEntityListToSkillDtoList(skillDao.getAllSkills());
