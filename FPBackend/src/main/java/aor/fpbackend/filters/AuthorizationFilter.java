@@ -106,6 +106,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 || path.endsWith("/register")
                 || path.contains("/confirm")
                 || path.contains("/labs")
+                || path.contains("/skills")
                 || path.contains("/password/reset");
     }
 
