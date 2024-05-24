@@ -21,6 +21,9 @@ public class UserBasicInfoDto implements Serializable {
     @NotNull(message = "Username is required")
     @Size(min = 2, max = 25, message = "Username must be between 2 and 25 characters")
     private String username;
+    @XmlElement
+    @NotNull
+    private Long id;
 
     @XmlElement
     @NotNull(message = "Role is required")
@@ -29,10 +32,11 @@ public class UserBasicInfoDto implements Serializable {
     public UserBasicInfoDto() {
     }
 
-    public UserBasicInfoDto(String photo, String username, long role) {
+    public UserBasicInfoDto(String photo, String username, long role, long id) {
         this.photo = photo;
         this.username = username;
         this.role = role;
+        this.id = id;
     }
 
     public String getPhoto() {
@@ -57,5 +61,13 @@ public class UserBasicInfoDto implements Serializable {
 
     public void setRole(long role) {
         this.role = role;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

@@ -7,6 +7,9 @@ import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
+import aor.fpbackend.utils.JwtKeyProvider;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
@@ -20,6 +23,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.security.SecureRandom;
 import java.time.Instant;
 
@@ -29,6 +34,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Stateless
 public class UserBean implements Serializable {
@@ -203,17 +209,30 @@ public class UserBean implements Serializable {
             LOGGER.warn("Failed login attempt for email: " + userLogin.getEmail());
             throw new InvalidCredentialsException("Invalid credentials");
         }
-        String tokenValue = generateNewToken();
-        SessionEntity sessionEntity = new SessionEntity();
-        sessionEntity.setSessionToken(tokenValue);
-        sessionEntity.setUser(userEntity);
-        int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
-        sessionEntity.setTokenExpiration(Instant.now().plusSeconds(tokenTimerInSeconds));
-        sessionDao.persist(sessionEntity);
-        // Create and set the cookie for the token
-        NewCookie cookie = new NewCookie("authToken", tokenValue, "/", null, "Auth Token", 3600, false);
-        return Response.ok().cookie(cookie).build();
+        String jwtToken = generateJwtToken(userEntity);
+        NewCookie authCookie = new NewCookie("authToken", jwtToken, "/", null, "Auth Token", 3600, false, false);
+        return Response.ok().cookie(authCookie).build();
     }
+    private String generateJwtToken(UserEntity user) {
+        long expirationTime = 3600000; //TODO 1 hora
+        Key secretKey = JwtKeyProvider.getKey(); //TODO Alterar e Guardar de forma segura
+
+        Set<MethodEntity> permissions = roleDao.findPermissionsByRoleId(user.getRole().getId());
+
+        String permissionsIdsString = permissions.stream()
+                .map(permission -> String.valueOf(permission.getId()))
+                .collect(Collectors.joining(", "));
+
+        return Jwts.builder()
+                .setSubject(String.valueOf(user.getId()))
+                .claim("role", user.getRole().getId())
+                .claim("permissions", permissionsIdsString)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .compact();
+    }
+
 
     private String generateNewToken() {
         SecureRandom secureRandom = new SecureRandom();
@@ -223,35 +242,53 @@ public class UserBean implements Serializable {
         return base64Encoder.encodeToString(randomBytes);
     }
 
-    public boolean tokenValidator(String token) {
-        SessionEntity sessionEntity = sessionDao.findValidSessionByToken(token);
-        if (sessionEntity == null) {
-            LOGGER.warn("Invalid token: " + token);
-            SessionEntity session = sessionDao.findSessionByToken(token);
-            if (session != null) {
-                sessionDao.remove(session);
-                return false;
+
+    public AuthUserDto validateTokenAndGetUserDetails(String token) throws InvalidCredentialsException {
+        try {
+            Key secretKey = JwtKeyProvider.getKey();
+            if (secretKey == null) {
+                throw new IllegalStateException("Secret key not configured");
             }
+            Jws<Claims> jwsClaims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
+            Claims claims = jwsClaims.getBody();
+            Long userId = Long.parseLong(claims.getSubject());
+            Long roleId = claims.get("role", Long.class);
+            String permissionsString = claims.get("permissions", String.class);
+            Set<String> permissions = new HashSet<>();
+            if (permissionsString != null && !permissionsString.isEmpty()) {
+                permissions = Arrays.stream(permissionsString.split(","))
+                        .map(String::trim)
+                        .collect(Collectors.toSet());
+            }
+            AuthUserDto authUserDto = new AuthUserDto(userId, roleId, permissions);
+            return authUserDto;
+
+        } catch (ExpiredJwtException e) {
+            throw new InvalidCredentialsException("Token expired: " + e.getMessage());
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new InvalidCredentialsException("Invalid token: " + e.getMessage());
+        } catch (Exception e) {
+            throw new InvalidCredentialsException("Error processing token: " + e.getMessage());
         }
-        int tokenTimerInSeconds = configDao.findConfigValueByKey("sessionTimeout");
-        // Extend the validity of the session by adding the sessionTimeout time
-        sessionEntity.setTokenExpiration(Instant.now().plusSeconds(tokenTimerInSeconds));
-        LOGGER.info("Token validation successful for token: " + token);
-        return true;
     }
 
-    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException {
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        String token = authUserDto.getSessionToken();
-        if (token == null) {
-            throw new InvalidCredentialsException("No session token found in the request");
-        }
-        SessionEntity session = sessionDao.findSessionByToken(token);
-        if (session != null) {
-            sessionDao.remove(session);
-            LOGGER.info("User logged out due to invalid or expired token: " + token);
-        }
-    }
+
+
+//    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException {
+//        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+//        String token = authUserDto.getSessionToken();
+//        if (token == null) {
+//            throw new InvalidCredentialsException("No session token found in the request");
+//        }
+//        SessionEntity session = sessionDao.findSessionByToken(token);
+//        if (session != null) {
+//            sessionDao.remove(session);
+//            LOGGER.info("User logged out due to invalid or expired token: " + token);
+//        }
+//    }
 
     public List<UsernameDto> getAllRegUsers() {
         try {
@@ -276,7 +313,7 @@ public class UserBean implements Serializable {
 
     public void updateUserProfile(@Context SecurityContext securityContext, UpdateUserDto updatedUser) throws UserNotFoundException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserByUsername(authUserDto.getName());
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         if (userEntity == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token at: ");
             throw new UserNotFoundException("User not found");
@@ -293,26 +330,28 @@ public class UserBean implements Serializable {
         userDao.merge(userEntity);
     }
 
-    public AuthUserDto getAuthUserDtoByToken(String token) throws UserNotFoundException {
-        UserEntity userEntity = userDao.findUserByToken(token);
-        if (userEntity != null) {
-            AuthUserDto authUserDto = new AuthUserDto();
-            authUserDto.setUsername(userEntity.getUsername());
-            authUserDto.setSessionToken(token);
-            authUserDto.setRoleId(userEntity.getRole().getId());
-            return authUserDto;
-        } else {
-            throw new UserNotFoundException("No user found for this token");
-        }
-    }
+//    public AuthUserDto getAuthUserDtoByToken(String token) throws UserNotFoundException {
+//        UserEntity userEntity = userDao.findUserByToken(token);
+//        if (userEntity != null) {
+//            AuthUserDto authUserDto = new AuthUserDto();
+//            authUserDto.setUsername(userEntity.getUsername());
+//            authUserDto.setSessionToken(token);
+//            authUserDto.setRoleId(userEntity.getRole().getId());
+//            return authUserDto;
+//        } else {
+//            throw new UserNotFoundException("No user found for this token");
+//        }
+//    }
 
     public UserBasicInfoDto getUserBasicInfo(@Context SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserByUsername(authUserDto.getName());
+        System.out.println("AuthUserDto on getUserBasicInfo: " + authUserDto);
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
         userBasicInfo.setUsername(userEntity.getUsername());
         userBasicInfo.setRole(userEntity.getRole().getId());
         userBasicInfo.setPhoto(userEntity.getPhoto());
+        userBasicInfo.setId(userEntity.getId());
         return userBasicInfo;
     }
 
@@ -322,7 +361,7 @@ public class UserBean implements Serializable {
         if (userEntity == null) {
             throw new UserNotFoundException("No user found for this username");
         }
-        if (userEntity.isPrivate() && !authUserDto.getUsername().equals(username)) {
+        if (userEntity.isPrivate() && !authUserDto.getUserId().equals(userEntity.getId())) {
             throw new UnauthorizedAccessException("User is private");
         }
         ProfileDto profileDto = new ProfileDto();
@@ -340,8 +379,7 @@ public class UserBean implements Serializable {
 
     public void updatePassword(UpdatePasswordDto updatePasswordDto, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        System.out.println("Username: " + authUserDto.getUsername());
-        UserEntity userEntity = userDao.findUserByUsername(authUserDto.getUsername());
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         System.out.println("UserEntity: " + userEntity);
         if (userEntity == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");

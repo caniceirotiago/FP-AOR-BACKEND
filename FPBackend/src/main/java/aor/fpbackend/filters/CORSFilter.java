@@ -24,7 +24,6 @@ public class CORSFilter implements Filter {
             response.setHeader("Access-Control-Allow-Credentials", "true");
 
             if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-                System.out.println("OPTIONS request intercepted");
                 response.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
@@ -34,8 +33,6 @@ public class CORSFilter implements Filter {
     }
 
     private boolean isAllowedOrigin(String origin) {
-        // Ajuste a lógica conforme necessário para seu ambiente de produção
-        System.out.println("Origin: " + origin);
         return origin.equals("http://localhost:3000");
     }
 

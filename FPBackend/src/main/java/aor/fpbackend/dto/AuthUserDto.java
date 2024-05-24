@@ -7,6 +7,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import javax.security.auth.Subject;
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.Set;
 
 
 @XmlRootElement
@@ -14,58 +15,60 @@ import java.security.Principal;
 
         @XmlElement
         @NotNull
-        private String username;
+        private Long userId;
 
         @XmlElement
         @NotNull
-        private long roleId;
-
+        private Long roleId;
         @XmlElement
         @NotNull
-        @JsonProperty("sessionToken")
-        private String sessionToken;
+        private Set<String> permissions;
 
         // Constructors
         public AuthUserDto() {}
 
-        public AuthUserDto(String username, long roleId, String sessionToken) {
-            this.username = username;
+        public AuthUserDto(Long userId, Long roleId, Set<String> permissions) {
+            this.userId = userId;
             this.roleId = roleId;
-            this.sessionToken = sessionToken;
+            this.permissions = permissions;
         }
 
     // Implementing the getName method from Principal
+
     @Override
     public String getName() {
-        return this.username;
+        return null;
     }
+
     @Override
     public boolean implies(Subject subject) {
         return Principal.super.implies(subject);
     }
 
     // Getters and setters
-    public String getUsername() {
-        return username;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
-    public long getRoleId() {
+    public Long getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(long roleId) {
+    public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
 
-    public String getSessionToken() {
-        return sessionToken;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setSessionToken(String sessionToken) {
-        this.sessionToken = sessionToken;
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Set<String> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<String> permissions) {
+        this.permissions = permissions;
     }
 }

@@ -51,17 +51,21 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
         if (token == null) {
             abortUnauthorized(requestContext);
+            return;
         }
         try {
-            AuthUserDto authUserDto = userBean.getAuthUserDtoByToken(token);
-            if (!userBean.tokenValidator(token)) {
+            System.out.println("Validating token");
+            AuthUserDto authUserDto = userBean.validateTokenAndGetUserDetails(token);
+            System.out.println("Token validated");
+            if (authUserDto == null) {
                 abortUnauthorized(requestContext);
                 return;
             }
+
             setSecurityContext(requestContext, authUserDto);
             checkAuthorization(requestContext, authUserDto);
 
-        } catch (UserNotFoundException e) {
+        } catch (InvalidCredentialsException e) {
             // Handle UserNotFoundException by responding with an Unauthorized status
             abortUnauthorized(requestContext);
         } catch (Exception e) {
@@ -96,6 +100,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     }
 
     private void setSecurityContext(ContainerRequestContext requestContext, AuthUserDto authUserDto) {
+        System.out.println("Setting security context");
         requestContext.setSecurityContext(new SecurityContext() {
             @Override
             public Principal getUserPrincipal() {
@@ -103,15 +108,14 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             }
 
             @Override
-            public boolean isUserInRole(String role) {
-                RoleEntity roleEntity = roleDao.findRoleById(authUserDto.getRoleId());
-                String userRole = roleEntity.getName().toString();
-                return userRole.equalsIgnoreCase(role);
+            public boolean isUserInRole(String roleId) {
+                return roleId.equals(authUserDto.getRoleId());
             }
 
             @Override
             public boolean isSecure() {
-                return requestContext.getUriInfo().getRequestUri().getScheme().equals("https");
+                //TODO mudar para https
+                return requestContext.getUriInfo().getRequestUri().getScheme().equals("http");
             }
 
             @Override
