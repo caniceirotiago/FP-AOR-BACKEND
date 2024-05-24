@@ -29,9 +29,9 @@ public class InterestService {
           return interestBean.getInterests();
     }
     @GET
-    @Path("/byfirstletter/{firstLetter}")
+    @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<InterestDto> getAllInterestsByFirstLetter(@PathParam("firstLetter") String firstLetter) {
+    public List<InterestDto> getAllInterestsByFirstLetter(@QueryParam("value") String firstLetter) {
         return interestBean.getInterestsByFirstLetter(firstLetter);
     }
 
