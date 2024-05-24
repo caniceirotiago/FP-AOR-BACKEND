@@ -1,4 +1,5 @@
 package aor.fpbackend.dto;
+import aor.fpbackend.entity.MethodEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -22,12 +23,12 @@ import java.util.Set;
         private Long roleId;
         @XmlElement
         @NotNull
-        private Set<String> permissions;
+        private Set<MethodEntity> permissions;
 
         // Constructors
         public AuthUserDto() {}
 
-        public AuthUserDto(Long userId, Long roleId, Set<String> permissions) {
+        public AuthUserDto(Long userId, Long roleId, Set<MethodEntity> permissions) {
             this.userId = userId;
             this.roleId = roleId;
             this.permissions = permissions;
@@ -64,11 +65,11 @@ import java.util.Set;
         this.userId = userId;
     }
 
-    public Set<String> getPermissions() {
+    public Set<MethodEntity> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(Set<String> permissions) {
+    public void setPermissions(Set<MethodEntity> permissions) {
         this.permissions = permissions;
     }
 }

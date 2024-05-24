@@ -43,7 +43,18 @@ public class SessionDao extends AbstractDao<SessionEntity> {
             return null;
         }
     }
-
+    public boolean inativateSessionbyToken(String tokenValue) {
+        try {
+            SessionEntity session = (SessionEntity) em.createNamedQuery("Session.findSessionByToken")
+                    .setParameter("tokenValue", tokenValue)
+                    .getSingleResult();
+            session.setActive(false);
+            em.merge(session);
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
     public ArrayList<SessionEntity> findAllSessionsByUserId(long userId) {
         try {
             ArrayList<SessionEntity> sessionsByUserId = (ArrayList<SessionEntity>) em.createNamedQuery("Session.findAllSessionsByUserId")

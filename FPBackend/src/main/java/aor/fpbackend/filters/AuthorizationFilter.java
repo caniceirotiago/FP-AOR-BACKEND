@@ -80,16 +80,11 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                     .getExpiration();
 
             long timeRemaining = expiration.getTime() - currentTimeMillis;
-            long fiveMinutesInMillis = 360000; //tempo para iniciar logica de renovação do token 1 hora antes
-
+            long fiveMinutesInMillis = 3600000; //tempo para iniciar logica de renovação do token 1 hora antes
+            long expirationTime = 36000000; //TODO 10 horas reparar que a variavel esta noutro sitio
             if (timeRemaining < fiveMinutesInMillis) {
-                UserEntity user = userDao.findUserById(authUserDto.getUserId());
-                String newToken = userBean.generateJwtToken(user);
-                String newSessionToken = userBean.generateJwtToken(user);
-                requestContext.setProperty("newAuthToken", newToken);
-                requestContext.setProperty("newSessionToken", newSessionToken);
+                userBean.createNewSessionAndInvaladateOld(authUserDto, requestContext, expirationTime, token);
             }
-
             setSecurityContext(requestContext, authUserDto);
             checkAuthorization(requestContext, authUserDto);
 
@@ -156,8 +151,9 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     private void checkAuthorization(ContainerRequestContext requestContext, AuthUserDto authUserDto) throws UnknownHostException, InvalidCredentialsException {
         Method method = resourceInfo.getResourceMethod();
         if (method.isAnnotationPresent(RequiresPermission.class)) {
-            MethodEnum requiredPermissions = method.getAnnotation(RequiresPermission.class).value();
-            boolean hasPermission = userBean.isMethodAssociatedWithRole(authUserDto.getRoleId(), requiredPermissions);
+            long permissionId = method.getAnnotation(RequiresPermission.class).value().getValue();
+            boolean hasPermission = authUserDto.getPermissions().stream()
+                    .anyMatch(methodEntity -> methodEntity.getId() == permissionId);
             if (!hasPermission) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
             }

@@ -25,6 +25,8 @@ public class SessionEntity implements Serializable {
 
     @Column(name = "session_token_expiration", nullable = false)
     private Instant tokenExpiration;
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -32,6 +34,12 @@ public class SessionEntity implements Serializable {
 
     // Constructors
     public SessionEntity() {}
+
+    public SessionEntity(String sessionToken, Instant tokenExpiration, UserEntity user) {
+        this.sessionToken = sessionToken;
+        this.tokenExpiration = tokenExpiration;
+        this.user = user;
+    }
 
     // Getters and setters
     public long getId() {
@@ -64,6 +72,14 @@ public class SessionEntity implements Serializable {
 
     public void setUser(UserEntity user) {
         this.user = user;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     @Override

@@ -17,9 +17,9 @@ public class MethodBean implements Serializable {
     MethodDao methodDao;
 
 
-    public void createMethodIfNotExistent(MethodEnum name, String description) throws DatabaseOperationException {
+    public void createMethodIfNotExistent(MethodEnum name, String description, long id) throws DatabaseOperationException {
         if (!methodDao.checkMethodExist(name)) {
-            MethodEntity methodEntity = new MethodEntity(name, description);
+            MethodEntity methodEntity = new MethodEntity(name, description, id);
             methodDao.persist(methodEntity);
         }
     }

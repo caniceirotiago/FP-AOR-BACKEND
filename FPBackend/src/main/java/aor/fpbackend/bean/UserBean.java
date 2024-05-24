@@ -13,10 +13,8 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.NewCookie;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,6 +24,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.Instant;
 
 import aor.fpbackend.exception.UserNotFoundException;
@@ -209,26 +208,23 @@ public class UserBean implements Serializable {
             LOGGER.warn("Failed login attempt for email: " + userLogin.getEmail());
             throw new InvalidCredentialsException("Invalid credentials");
         }
-        String jwtToken = generateJwtToken(userEntity);
+        long expirationTimeMillis = 36000000L; // 10 horas em milissegundos
+        // Obter o Instant atual
+        Instant now = Instant.now();
+        // Calcular o Instant de expiração adicionando o tempo de expiração em milissegundos
+        Instant expirationInstant = now.plus(Duration.ofMillis(expirationTimeMillis));
+
+        String jwtToken = generateJwtToken(userEntity, expirationTimeMillis);
         NewCookie authCookie = new NewCookie("authToken", jwtToken, "/", null, "Auth Token", 3600, false, true);
-        String sessionToken = generateJwtToken(userEntity);
+        String sessionToken = generateJwtToken(userEntity, expirationTimeMillis);
         NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
+        sessionDao.persist(new SessionEntity(jwtToken, expirationInstant, userEntity));
         return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
     }
-    public String generateJwtToken(UserEntity user) {
-        long expirationTime = 36000000; //TODO 1 dia
+    public String generateJwtToken(UserEntity user, long expirationTime) {
         Key secretKey = JwtKeyProvider.getKey(); //TODO Alterar e Guardar de forma segura
-
-        Set<MethodEntity> permissions = roleDao.findPermissionsByRoleId(user.getRole().getId());
-
-        String permissionsIdsString = permissions.stream()
-                .map(permission -> String.valueOf(permission.getId()))
-                .collect(Collectors.joining(", "));
-
         return Jwts.builder()
                 .setSubject(String.valueOf(user.getId()))
-                .claim("role", user.getRole().getId())
-                .claim("permissions", permissionsIdsString)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS512, secretKey)
@@ -258,15 +254,9 @@ public class UserBean implements Serializable {
                     .parseClaimsJws(token);
             Claims claims = jwsClaims.getBody();
             Long userId = Long.parseLong(claims.getSubject());
-            Long roleId = claims.get("role", Long.class);
-            String permissionsString = claims.get("permissions", String.class);
-            Set<String> permissions = new HashSet<>();
-            if (permissionsString != null && !permissionsString.isEmpty()) {
-                permissions = Arrays.stream(permissionsString.split(","))
-                        .map(String::trim)
-                        .collect(Collectors.toSet());
-            }
-            AuthUserDto authUserDto = new AuthUserDto(userId, roleId, permissions);
+
+            UserEntity user = userDao.findUserById(userId);
+            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()));
             return authUserDto;
 
         } catch (ExpiredJwtException e) {
@@ -276,6 +266,14 @@ public class UserBean implements Serializable {
         } catch (Exception e) {
             throw new InvalidCredentialsException("Error processing token: " + e.getMessage());
         }
+    }
+    public void createNewSessionAndInvaladateOld(AuthUserDto authUserDto, ContainerRequestContext requestContext, long expirationTime, String oldToken) throws UnknownHostException {
+        UserEntity user = userDao.findUserById(authUserDto.getUserId());
+        String newToken = generateJwtToken(user, expirationTime);
+        String newSessionToken = generateJwtToken(user, expirationTime);
+        requestContext.setProperty("newAuthToken", newToken);
+        requestContext.setProperty("newSessionToken", newSessionToken);
+        sessionDao.inativateSessionbyToken(oldToken);
     }
 
 

@@ -100,11 +100,11 @@ public class StartupBean implements Serializable {
 
     @Transactional
     private void createMethods() throws DatabaseOperationException {
-        methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_ROLE, "updates user role");
-        methodBean.createMethodIfNotExistent(MethodEnum.ADD_SKILL, "creates new skill");
-        methodBean.createMethodIfNotExistent(MethodEnum.ALL_SKILLS, "retrieves all persisted skills");
-        methodBean.createMethodIfNotExistent(MethodEnum.SKILL_BY_USER, "all skills by userId");
-        methodBean.createMethodIfNotExistent(MethodEnum.SKILL_FIRST_LETTER, "all skills by first letter");
+        methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_ROLE, "updates user role",MethodEnum.UPDATE_ROLE.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ADD_SKILL, "creates new skill", MethodEnum.ADD_SKILL.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ALL_SKILLS, "retrieves all persisted skills", MethodEnum.ALL_SKILLS.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.SKILL_BY_USER, "all skills by userId", MethodEnum.SKILL_BY_USER.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.SKILL_FIRST_LETTER, "all skills by first letter", MethodEnum.SKILL_FIRST_LETTER.getValue());
 
     }
 

@@ -18,7 +18,6 @@ public class MethodEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false)
     private long id;
 
@@ -35,9 +34,10 @@ public class MethodEntity implements Serializable {
     // Construtores, getters e setters
     public MethodEntity() {}
 
-    public MethodEntity(MethodEnum name, String description) {
+    public MethodEntity(MethodEnum name, String description, long id) {
         this.name = name;
         this.description = description;
+        this.id = id;
     }
 
     public long getId() {
@@ -71,6 +71,9 @@ public class MethodEntity implements Serializable {
     public void setRoles(Set<RoleEntity> roles) {
         this.roles = roles;
     }
+
+
+
 
 //    @Override
 //    public String toString() {
