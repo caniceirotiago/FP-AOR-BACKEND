@@ -288,19 +288,26 @@ public class UserBean implements Serializable {
     }
 
 
-
 //    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException {
 //        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
 //        String token = authUserDto.getSessionToken();
 //        if (token == null) {
 //            throw new InvalidCredentialsException("No session token found in the request");
 //        }
-//        SessionEntity session = sessionDao.findSessionByToken(token);
-//        if (session != null) {
-//            sessionDao.remove(session);
-//            LOGGER.info("User logged out due to invalid or expired token: " + token);
+//        try {
+//            SessionEntity session = sessionDao.findSessionByToken(token);
+//            if (session != null) {
+//                session.setActive(false); // Inativa a sessão ao invés de remover
+//                sessionDao.update(session); // Supondo que você tenha um método de update
+//                LOGGER.info("User logged out, session inactivated: " + token);
+//            }
+//        } catch (Exception e) {
+//            LOGGER.error("Error inactivating session: " + e.getMessage());
+//            throw new InvalidCredentialsException("Error during logout process");
 //        }
 //    }
+
+
 
     public List<UsernameDto> getAllRegUsers() {
         try {
