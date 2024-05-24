@@ -79,11 +79,13 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                     .getExpiration();
 
             long timeRemaining = expiration.getTime() - currentTimeMillis;
-            long fiveMinutesInMillis = 3600000;
+            long fiveMinutesInMillis = 5000;
 
             if (timeRemaining < fiveMinutesInMillis) {
                 String newToken = userBean.generateJwtToken(userDao.findUserById(authUserDto.getUserId()));
+                String newSessionToken = userBean.generateNewToken();
                 requestContext.setProperty("newAuthToken", newToken);
+                requestContext.setProperty("newSessionToken", newSessionToken);
             }
 
             setSecurityContext(requestContext, authUserDto);
