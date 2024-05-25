@@ -14,33 +14,33 @@ import java.util.Set;
 
 
 @XmlRootElement
-    public class AuthUserDto implements Serializable, Principal {
+public class AuthUserDto implements Serializable, Principal {
 
-        @XmlElement
-        @NotNull
-        private Long userId;
+    @XmlElement
+    @NotNull
+    private Long userId;
 
-        @XmlElement
-        @NotNull
-        private Long roleId;
-        @XmlElement
-        @NotNull
-        private Set<MethodEntity> permissions;
-        @XmlElement
-        @NotNull
-        private String token;
+    @XmlElement
+    @NotNull
+    private Long roleId;
+    @XmlElement
+    @NotNull
+    private Set<MethodEntity> permissions;
+    @XmlElement
+    @NotNull
+    private String token;
 
 
 
-        // Constructors
-        public AuthUserDto() {}
+    // Constructors
+    public AuthUserDto() {}
 
-        public AuthUserDto(Long userId, Long roleId, Set<MethodEntity> permissions, String token) {
-            this.userId = userId;
-            this.roleId = roleId;
-            this.permissions = permissions;
-            this.token = token;
-        }
+    public AuthUserDto(Long userId, Long roleId, Set<MethodEntity> permissions, String token) {
+        this.userId = userId;
+        this.roleId = roleId;
+        this.permissions = permissions;
+        this.token = token;
+    }
 
     // Implementing the getName method from Principal
 

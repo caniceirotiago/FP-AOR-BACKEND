@@ -1,7 +1,9 @@
 package aor.fpbackend.filters;
 
 
+import aor.fpbackend.bean.ConfigurationBean;
 import aor.fpbackend.dao.RoleDao;
+import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.entity.RoleEntity;
@@ -28,6 +30,7 @@ import aor.fpbackend.bean.UserBean;
 import java.lang.reflect.Method;
 import java.net.UnknownHostException;
 import java.security.Principal;
+import java.time.Instant;
 import java.util.Date;
 
 
@@ -48,6 +51,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     private HttpServletRequest request;
     @EJB
     private UserDao userDao;
+    @EJB
+    private ConfigurationBean configurationBean;
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -62,16 +67,14 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             return;
         }
         try {
-            System.out.println("Validating token");
             AuthUserDto authUserDto = userBean.validateTokenAndGetUserDetails(token);
-            System.out.println("Token validated");
             if (authUserDto == null) {
                 abortUnauthorized(requestContext);
                 return;
             }
 
             //Adding new token to cookie if the token is about to expire
-            long currentTimeMillis = System.currentTimeMillis();
+            Instant now = Instant.now();
             Date expiration = Jwts.parserBuilder()
                     .setSigningKey(JwtKeyProvider.getKey())
                     .build()
@@ -79,17 +82,18 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                     .getBody()
                     .getExpiration();
 
-            long timeRemaining = expiration.getTime() - currentTimeMillis;
-            long fiveMinutesInMillis = 3600000; //tempo para iniciar logica de renovação do token 1 hora antes
-            long expirationTime = 36000000; //TODO 10 horas reparar que a variavel esta noutro sitio
-            if (timeRemaining < fiveMinutesInMillis) {
-                userBean.createNewSessionAndInvaladateOld(authUserDto, requestContext, expirationTime, token);
+            long timeRemaining = expiration.getTime() - now.toEpochMilli();
+
+            long definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
+            long renovateSessionTime = definedTimeOut / 2; //Renovate session if it has less than half of the time remaining
+            if (timeRemaining < renovateSessionTime && !path.contains("/logout")) {
+                userBean.createNewSessionAndInvaladateOld(authUserDto, requestContext, definedTimeOut, token);
             }
             setSecurityContext(requestContext, authUserDto);
+            checkAuthorization(requestContext, authUserDto);
             if(path.contains("/logout")){
                 userBean.createInvalidSession(authUserDto, requestContext);
             }
-            checkAuthorization(requestContext, authUserDto);
 
         } catch (InvalidCredentialsException e) {
             // Handle UserNotFoundException by responding with an Unauthorized status
@@ -126,7 +130,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     }
 
     private void setSecurityContext(ContainerRequestContext requestContext, AuthUserDto authUserDto) {
-        System.out.println("Setting security context");
         requestContext.setSecurityContext(new SecurityContext() {
             @Override
             public Principal getUserPrincipal() {
@@ -143,6 +146,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 //TODO mudar para https
                 return requestContext.getUriInfo().getRequestUri().getScheme().equals("http");
             }
+
             @Override
             public String getAuthenticationScheme() {
                 return SecurityContext.BASIC_AUTH;

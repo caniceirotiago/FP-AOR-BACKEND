@@ -71,7 +71,6 @@ public class SkillBean implements Serializable {
 
     public List<SkillDto> getSkillsByUser(@Context SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        System.out.println(authUserDto);
         return convertSkillEntityListToSkillDtoList(skillDao.getSkillsByUserId(authUserDto.getUserId()));
     }
 

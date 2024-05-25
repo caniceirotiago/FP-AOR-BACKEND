@@ -25,7 +25,6 @@ public class InterestDao extends AbstractDao<InterestEntity> {
         return query.getResultList();
     }
     public List<InterestEntity> getInterestsByFirstLetter(char firstLetter) {
-        System.out.println("firstLetter: " + firstLetter);
         TypedQuery<InterestEntity> query = em.createQuery(
                 "SELECT i FROM InterestEntity i WHERE i.name LIKE :pattern", InterestEntity.class);
         query.setParameter("pattern", firstLetter + "%");
