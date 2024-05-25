@@ -9,6 +9,7 @@ import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import aor.fpbackend.utils.JwtKeyProvider;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
@@ -20,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -31,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Stateless
 public class UserBean implements Serializable {
@@ -211,34 +214,22 @@ public class UserBean implements Serializable {
         // Calcular o Instant de expiração adicionando o tempo de expiração em milissegundos
         Instant expirationInstant = now.plus(Duration.ofMillis(expirationTimeMillis));
 
-        String jwtToken = generateJwtToken(userEntity, expirationTimeMillis, "auth");
+        String jwtToken = generateJwtToken(userEntity, expirationTimeMillis);
         NewCookie authCookie = new NewCookie("authToken", jwtToken, "/", null, "Auth Token", 3600, false, true);
-        String sessionToken = generateJwtToken(userEntity, expirationTimeMillis, "session");
+        String sessionToken = generateJwtToken(userEntity, expirationTimeMillis);
         NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
         sessionDao.persist(new SessionEntity(jwtToken, expirationInstant, userEntity));
         return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
     }
-
-
-    public String generateJwtToken(UserEntity user, long expirationTime, String tokenType) {
-        Key secretKey = JwtKeyProvider.getKey();
-
-        JwtBuilder builder = Jwts.builder()
-                .setId(UUID.randomUUID().toString())
+    public String generateJwtToken(UserEntity user, long expirationTime) {
+        Key secretKey = JwtKeyProvider.getKey(); //TODO Alterar e Guardar de forma segura
+        return Jwts.builder()
+                .setSubject(String.valueOf(user.getId()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .claim("type", tokenType) // Adiciona um claim para o tipo de token
-                .signWith(secretKey, SignatureAlgorithm.HS512);
-
-        if (user != null) {
-            builder.setSubject(String.valueOf(user.getId()));
-            builder.claim("username", user.getUsername());
-            builder.claim("role", user.getRole().getName());
-        }
-
-        return builder.compact();
+                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .compact();
     }
-
 
 
 
@@ -275,7 +266,7 @@ public class UserBean implements Serializable {
             Long userId = Long.parseLong(claims.getSubject());
 
             UserEntity user = userDao.findUserById(userId);
-            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()),token);
+            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()));
             return authUserDto;
 
 
@@ -289,30 +280,32 @@ public class UserBean implements Serializable {
     }
     public void createNewSessionAndInvaladateOld(AuthUserDto authUserDto, ContainerRequestContext requestContext, long expirationTime, String oldToken) throws UnknownHostException {
         UserEntity user = userDao.findUserById(authUserDto.getUserId());
-        String newToken = generateJwtToken(user, expirationTime, "auth");
-        String newSessionToken = generateJwtToken(user, expirationTime, "session");
+        String newToken = generateJwtToken(user, expirationTime);
+        String newSessionToken = generateJwtToken(user, expirationTime);
         requestContext.setProperty("newAuthToken", newToken);
         requestContext.setProperty("newSessionToken", newSessionToken);
         sessionDao.inativateSessionbyToken(oldToken);
     }
 
 
-    public void createInvalidSession(AuthUserDto authUserDto ,ContainerRequestContext requestContext) throws UnknownHostException {
-
-        // Gera tokens inválidos (valor "null")
-        String invalidToken = "null";
-        // Define novos tokens inválidos no contexto da requisição
-        requestContext.setProperty("newAuthToken", invalidToken);
-        requestContext.setProperty("newSessionToken", invalidToken);
-    }
-
-    public void logout(SecurityContext securityContext ) throws InvalidCredentialsException, UnknownHostException {
-        // Invalida a sessão antiga
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        sessionDao.inativateSessionbyToken(authUserDto.getToken());
-        // Configura cookies para expirar imediatamente
-    }
-
+//    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException {
+//        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+//        String token = authUserDto.getSessionToken();
+//        if (token == null) {
+//            throw new InvalidCredentialsException("No session token found in the request");
+//        }
+//        try {
+//            SessionEntity session = sessionDao.findSessionByToken(token);
+//            if (session != null) {
+//                session.setActive(false); // Inativa a sessão ao invés de remover
+//                sessionDao.update(session); // Supondo que você tenha um método de update
+//                LOGGER.info("User logged out, session inactivated: " + token);
+//            }
+//        } catch (Exception e) {
+//            LOGGER.error("Error inactivating session: " + e.getMessage());
+//            throw new InvalidCredentialsException("Error during logout process");
+//        }
+//    }
 
 
 

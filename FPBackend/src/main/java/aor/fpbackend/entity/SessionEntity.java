@@ -20,7 +20,7 @@ public class SessionEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(name = "session_token", nullable = false, unique = true, length = 1024)
+    @Column(name = "session_token", nullable = false, unique = true)
     private String sessionToken;
 
     @Column(name = "session_token_expiration", nullable = false)
