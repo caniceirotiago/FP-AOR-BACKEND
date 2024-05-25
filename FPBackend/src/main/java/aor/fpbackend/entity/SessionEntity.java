@@ -13,7 +13,7 @@ import java.time.Instant;
 @NamedQuery(name = "Session.findValidSessionByToken",query =
         "SELECT s FROM SessionEntity s WHERE s.authToken = :tokenValue AND s.tokenExpiration > CURRENT_TIMESTAMP")
 @NamedQuery(name = "Session.findAllSessionsByUserId", query = "SELECT s FROM SessionEntity s WHERE s.user.id = :userId")
-@NamedQuery(name = "Session.findSessionsExpiringInOneMinute", query = "SELECT s FROM SessionEntity s WHERE s.tokenExpiration <= :expirationTime AND s.isActive = true")
+@NamedQuery(name = "Session.findSessionsExpiringInACertainAmountOfSeconds", query = "SELECT s FROM SessionEntity s WHERE s.tokenExpiration <= :expirationTime AND s.isActive = true")
 
 
 public class SessionEntity implements Serializable {

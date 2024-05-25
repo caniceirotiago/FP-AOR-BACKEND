@@ -54,9 +54,9 @@ public class SessionDao extends AbstractDao<SessionEntity> {
             return null;
         }
     }
-    public List<SessionEntity> findSessionsExpiringInOneMinute() {
+    public List<SessionEntity> findSessionsExpiringInThreeMinutes() {
         Instant oneMinuteFromNow = Instant.now().plusSeconds(180);
-        TypedQuery<SessionEntity> query = em.createNamedQuery("Session.findSessionsExpiringInOneMinute", SessionEntity.class);
+        TypedQuery<SessionEntity> query = em.createNamedQuery("Session.findSessionsExpiringInACertainAmountOfSeconds", SessionEntity.class);
         query.setParameter("expirationTime", oneMinuteFromNow);
         System.out.println("Sessions expiring in 3 minute: " + query.getResultList().size());
         return query.getResultList();
@@ -64,6 +64,18 @@ public class SessionDao extends AbstractDao<SessionEntity> {
     public boolean inativateSessionbyAuthToken(String tokenValue) {
         try {
             SessionEntity session = (SessionEntity) em.createNamedQuery("Session.findSessionByAuthToken")
+                    .setParameter("tokenValue", tokenValue)
+                    .getSingleResult();
+            session.setActive(false);
+            em.merge(session);
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+    public boolean inativateSessionbySessionToken(String tokenValue) {
+        try {
+            SessionEntity session = (SessionEntity) em.createNamedQuery("Session.findSessionBySessionToken")
                     .setParameter("tokenValue", tokenValue)
                     .getSingleResult();
             session.setActive(false);

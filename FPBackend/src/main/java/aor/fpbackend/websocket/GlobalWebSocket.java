@@ -7,6 +7,8 @@ import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.utils.GsonSetup;
 import aor.fpbackend.utils.JwtKeyProvider;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.ejb.EJB;
@@ -57,7 +59,16 @@ public class GlobalWebSocket {
 
     @OnMessage
     public void onMessage(String message, Session session) {
-        // Opcional: Processar mensagens recebidas do cliente
+        try {
+            JsonObject json = JsonParser.parseString(message).getAsJsonObject();
+            String type = json.get("type").getAsString();
+            if (type.equals("forcedLogoutFailed")) {
+                System.out.println("Forced logout failed for session token: " + session.getQueryString().split("=")[1]);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error processing message: " + e.getMessage());
+        }
     }
 
     public static void sendForcedLogoutRequest(SessionEntity sessionEntity) {

@@ -295,7 +295,6 @@ public class UserBean implements Serializable {
         sessionDao.inativateSessionbyAuthToken(oldToken);
     }
 
-
     public void createInvalidSession(AuthUserDto authUserDto ,ContainerRequestContext requestContext) throws UnknownHostException {
         sessionDao.inativateSessionbyAuthToken(authUserDto.getToken());
         // Gera tokens inválidos (valor "null")
@@ -311,9 +310,6 @@ public class UserBean implements Serializable {
         sessionDao.inativateSessionbyAuthToken(authUserDto.getToken());
         // Configura cookies para expirar imediatamente
     }
-
-
-
 
     public List<UsernameDto> getAllRegUsers() {
         try {
