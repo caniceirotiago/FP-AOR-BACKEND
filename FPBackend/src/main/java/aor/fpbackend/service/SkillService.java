@@ -21,7 +21,7 @@ public class SkillService {
     @EJB
     SkillBean skillBean;
     @POST
-    @Path("")
+    @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_SKILL)
     public void addSkill(SkillDto skillDto, @Context SecurityContext securityContext) {
@@ -37,7 +37,7 @@ public class SkillService {
     }
 
     @GET
-    @Path("")
+    @Path("/user")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.SKILL_BY_USER)
     public List<SkillDto> getAllSkillsByUser(@Context SecurityContext securityContext) {
