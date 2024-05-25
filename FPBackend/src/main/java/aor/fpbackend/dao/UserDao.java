@@ -96,7 +96,6 @@ public class UserDao extends AbstractDao<UserEntity> {
     }
 
     public UserEntity findUserByUsername(String username) {
-        System.out.println("finding username: " + username);
         try {
             return (UserEntity) em.createNamedQuery("User.findUserByUsername").setParameter("username", username)
                     .getSingleResult();

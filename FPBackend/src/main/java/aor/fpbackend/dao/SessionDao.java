@@ -7,9 +7,11 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
+import java.time.Instant;
 import java.util.ArrayList;
-
+import java.util.List;
 
 
 @Stateless
@@ -34,18 +36,34 @@ public class SessionDao extends AbstractDao<SessionEntity> {
         }
     }
 
-    public SessionEntity findSessionByToken(String tokenValue) {
+    public SessionEntity findSessionByAuthToken(String tokenValue) {
         try {
-            return (SessionEntity) em.createNamedQuery("Session.findSessionByToken")
+            return (SessionEntity) em.createNamedQuery("Session.findSessionByAuthToken")
                     .setParameter("tokenValue", tokenValue)
                     .getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
     }
-    public boolean inativateSessionbyToken(String tokenValue) {
+    public SessionEntity findSessionBySessionToken(String tokenValue) {
         try {
-            SessionEntity session = (SessionEntity) em.createNamedQuery("Session.findSessionByToken")
+            return (SessionEntity) em.createNamedQuery("Session.findSessionBySessionToken")
+                    .setParameter("tokenValue", tokenValue)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+    public List<SessionEntity> findSessionsExpiringInOneMinute() {
+        Instant oneMinuteFromNow = Instant.now().plusSeconds(180);
+        TypedQuery<SessionEntity> query = em.createNamedQuery("Session.findSessionsExpiringInOneMinute", SessionEntity.class);
+        query.setParameter("expirationTime", oneMinuteFromNow);
+        System.out.println("Sessions expiring in 3 minute: " + query.getResultList().size());
+        return query.getResultList();
+    }
+    public boolean inativateSessionbyAuthToken(String tokenValue) {
+        try {
+            SessionEntity session = (SessionEntity) em.createNamedQuery("Session.findSessionByAuthToken")
                     .setParameter("tokenValue", tokenValue)
                     .getSingleResult();
             session.setActive(false);

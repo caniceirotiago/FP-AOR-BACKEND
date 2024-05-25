@@ -21,6 +21,9 @@ public class ConfigurationBean implements Serializable {
             configurationDao.persist(configEntity);
         }
     }
+    public int getConfigValueByKey(String configKey) {
+        return configurationDao.findConfigValueByKey(configKey);
+    }
 
 
     public void updateConfigValue(String configKey, int configValue) {

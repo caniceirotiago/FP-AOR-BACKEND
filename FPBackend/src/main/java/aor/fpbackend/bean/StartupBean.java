@@ -94,7 +94,7 @@ public class StartupBean implements Serializable {
 
     @Transactional
     private void createDefaultConfigs() throws DatabaseOperationException {
-        configBean.createDefaultConfigIfNotExistent("sessionTimeout", 1800);
+        configBean.createDefaultConfigIfNotExistent("sessionTimeout", 36000000); //10 horas  em milissegundos
         configBean.createDefaultConfigIfNotExistent("maxProjectMembers", 4);
     }
 

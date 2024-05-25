@@ -106,8 +106,8 @@ public class UserService {
     @POST
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException {
-        //userBean.logout(securityContext);
+    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
+        userBean.logout(securityContext);
     }
 
     @GET
