@@ -147,5 +147,9 @@ public class UserService {
     public void updateUserRole(@Valid UpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
         userBean.updateRole(updatedRole);
     }
+    @GET
+    @Path("/session/check")
+    @Produces(MediaType.APPLICATION_JSON)
+    public void checkSession() {}
 
 }
