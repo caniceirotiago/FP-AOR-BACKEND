@@ -8,7 +8,6 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class SkillDto {
-    @NotNull
     private Long id;
     @NotBlank
     @Size(min = 2, max = 25, message = "Last name must be between 2 and 25 characters")
