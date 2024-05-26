@@ -3,7 +3,6 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.SkillDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
-import aor.fpbackend.dto.InterestDto;
 import aor.fpbackend.dto.SkillDto;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
@@ -94,7 +93,7 @@ public class SkillBean implements Serializable {
         if (userEntity == null) {
             throw new UserNotFoundException("User not found");
         }
-        // Find the skill by name
+        // Find the skill by Id
         SkillEntity skillEntity = skillDao.findSkillById(skillDto.getId());
         if (skillEntity == null) {
             throw new EntityNotFoundException("Skill not found");

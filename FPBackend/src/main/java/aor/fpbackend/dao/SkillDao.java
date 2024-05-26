@@ -66,6 +66,12 @@ public class SkillDao extends AbstractDao<SkillEntity> {
         return query.getResultList();
     }
 
+    public List<SkillEntity> getSkillsByProjectId(long projectId) {
+        TypedQuery<SkillEntity> query = em.createQuery("SELECT s FROM SkillEntity s JOIN s.projects p WHERE p.id = :projectId ORDER BY s.name", SkillEntity.class);
+        query.setParameter("projectId", projectId);
+        return query.getResultList();
+    }
+
     public List<SkillEntity> getSkillsByFirstLetter(char firstLetter) {
         TypedQuery<SkillEntity> query = em.createQuery(
                 "SELECT s FROM SkillEntity s WHERE s.name LIKE :pattern", SkillEntity.class);
