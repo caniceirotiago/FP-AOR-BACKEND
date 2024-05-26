@@ -111,6 +111,11 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.INTEREST_BY_USER, "all interests by userId", MethodEnum.INTEREST_BY_USER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.INTEREST_FIRST_LETTER, "all interests by first letter", MethodEnum.INTEREST_FIRST_LETTER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_INTEREST, "remove interest from user's list", MethodEnum.REMOVE_INTEREST.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ADD_KEYWORD, "add keyword to project's list", MethodEnum.ADD_KEYWORD.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ALL_KEYWORDS, "retrieves all persisted keywords", MethodEnum.ALL_KEYWORDS.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.KEYWORD_BY_PROJECT, "all keywords by userId", MethodEnum.KEYWORD_BY_PROJECT.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.KEYWORD_FIRST_LETTER, "all keywords by first letter", MethodEnum.KEYWORD_FIRST_LETTER.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_KEYWORD, "remove keyword from user's list", MethodEnum.REMOVE_KEYWORD.getValue());
     }
 
     @Transactional
@@ -136,6 +141,16 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.INTEREST_FIRST_LETTER);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_INTEREST);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_INTEREST);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_KEYWORD);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_KEYWORD);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ALL_KEYWORDS);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ALL_KEYWORDS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.KEYWORD_BY_PROJECT);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.KEYWORD_BY_PROJECT);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.KEYWORD_FIRST_LETTER);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.KEYWORD_FIRST_LETTER);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_KEYWORD);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_KEYWORD);
     }
-    
+
 }
