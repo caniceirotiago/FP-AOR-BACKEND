@@ -22,7 +22,7 @@ public class SkillEntity implements Serializable {
     @Column(name = "id", nullable = false)
     private long id;
 
-    @Column(name = "name", nullable = false, length = 30)
+    @Column(name = "name", unique = true, nullable = false, length = 30)
     private String name;
 
     @ManyToMany(mappedBy = "userSkills")
