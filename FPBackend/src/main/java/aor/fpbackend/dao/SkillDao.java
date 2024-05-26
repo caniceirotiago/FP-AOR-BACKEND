@@ -61,7 +61,7 @@ public class SkillDao extends AbstractDao<SkillEntity> {
     }
 
     public List<SkillEntity> getSkillsByUserId(long userId) {
-        TypedQuery<SkillEntity> query = em.createQuery("SELECT s FROM SkillEntity s JOIN s.users u WHERE u.id = :userId", SkillEntity.class);
+        TypedQuery<SkillEntity> query = em.createQuery("SELECT s FROM SkillEntity s JOIN s.users u WHERE u.id = :userId ORDER BY s.name", SkillEntity.class);
         query.setParameter("userId", userId);
         return query.getResultList();
     }
