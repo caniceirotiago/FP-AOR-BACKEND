@@ -4,10 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+
 @XmlRootElement
-public class SkillDto {
+public class KeywordDto {
+
+    @XmlElement
     @NotNull
     private Long id;
     @NotBlank
@@ -15,10 +19,10 @@ public class SkillDto {
     @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
     private String name;
 
-    public SkillDto() {
+    public KeywordDto() {
     }
 
-    public SkillDto(String name, Long id) {
+    public KeywordDto(String name, Long id) {
         this.name = name;
         this.id = id;
     }
@@ -39,3 +43,4 @@ public class SkillDto {
         this.name = name;
     }
 }
+

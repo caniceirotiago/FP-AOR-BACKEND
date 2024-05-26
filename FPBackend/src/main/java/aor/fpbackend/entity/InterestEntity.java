@@ -8,6 +8,11 @@ import java.util.Set;
 
 @Entity
 @Table(name = "interest")
+
+@NamedQuery(name = "Interest.countInterestByName", query = "SELECT COUNT(i) FROM InterestEntity i WHERE i.name = :name")
+@NamedQuery(name = "Interest.findInterestByName", query = "SELECT i FROM InterestEntity i WHERE i.name = :name")
+@NamedQuery(name = "Interest.findInterestById", query = "SELECT i FROM InterestEntity i WHERE i.id = :interestId")
+
 public class InterestEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -16,7 +21,7 @@ public class InterestEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", unique = true, nullable = false, length = 30)
     private String name;
 
     @ManyToMany(mappedBy = "userInterests")

@@ -1,15 +1,13 @@
 package aor.fpbackend.service;
 
-import aor.fpbackend.bean.InterestBean;
 import aor.fpbackend.bean.SkillBean;
-import aor.fpbackend.dto.InterestDto;
 import aor.fpbackend.dto.SkillDto;
 import aor.fpbackend.enums.MethodEnum;
-import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresPermission;
 import jakarta.ejb.EJB;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -26,7 +24,7 @@ public class SkillService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_SKILL)
-    public void addSkill(SkillDto skillDto, @Context SecurityContext securityContext) {
+    public void addSkill(@Valid SkillDto skillDto, @Context SecurityContext securityContext) {
         skillBean.addSkill(skillDto, securityContext);
     }
 
@@ -58,7 +56,7 @@ public class SkillService {
     @Path("/remove")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_SKILL)
-    public void removeSkill(SkillDto skillDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+    public void removeSkill(@Valid SkillDto skillDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         skillBean.removeSkill(skillDto, securityContext);
     }
 
