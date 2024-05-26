@@ -2,6 +2,7 @@ package aor.fpbackend.dto;
 
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -17,6 +18,7 @@ public class UsernameDto implements Serializable {
 
     @XmlElement
     @NotNull
+    @Size(min = 2, max = 20, message = "Last name must be between 2 and 20 characters")
     private String username;
 
     public UsernameDto() {
