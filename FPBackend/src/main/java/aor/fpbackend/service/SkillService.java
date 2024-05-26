@@ -6,6 +6,8 @@ import aor.fpbackend.dto.InterestDto;
 import aor.fpbackend.dto.SkillDto;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.UserRoleEnum;
+import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresPermission;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -50,6 +52,14 @@ public class SkillService {
     @RequiresPermission(MethodEnum.SKILL_FIRST_LETTER)
     public List<SkillDto> getAllSkillsByFirstLetter(@QueryParam("value") String firstLetter) {
         return skillBean.getSkillsByFirstLetter(firstLetter);
+    }
+
+    @PUT
+    @Path("/remove")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.REMOVE_SKILL)
+    public void removeSkill(SkillDto skillDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+        skillBean.removeSkill(skillDto, securityContext);
     }
 
 }
