@@ -6,7 +6,12 @@ public enum MethodEnum {
     ALL_SKILLS(3L),
     SKILL_BY_USER(4L),
     SKILL_FIRST_LETTER(5L),
-    REMOVE_SKILL(6L);
+    REMOVE_SKILL(6L),
+    ADD_INTEREST(7L),
+    ALL_INTERESTS(8L),
+    INTEREST_BY_USER(9L),
+    INTEREST_FIRST_LETTER(10L),
+    REMOVE_INTEREST(11L);
 
     private final long value;
 

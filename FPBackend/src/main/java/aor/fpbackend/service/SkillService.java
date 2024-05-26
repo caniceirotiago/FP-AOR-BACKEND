@@ -1,11 +1,8 @@
 package aor.fpbackend.service;
 
-import aor.fpbackend.bean.InterestBean;
 import aor.fpbackend.bean.SkillBean;
-import aor.fpbackend.dto.InterestDto;
 import aor.fpbackend.dto.SkillDto;
 import aor.fpbackend.enums.MethodEnum;
-import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresPermission;

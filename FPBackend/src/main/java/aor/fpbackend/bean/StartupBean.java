@@ -106,6 +106,11 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.SKILL_BY_USER, "all skills by userId", MethodEnum.SKILL_BY_USER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.SKILL_FIRST_LETTER, "all skills by first letter", MethodEnum.SKILL_FIRST_LETTER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_SKILL, "remove skill from user's list", MethodEnum.REMOVE_SKILL.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ADD_INTEREST, "add interest to user's list", MethodEnum.ADD_INTEREST.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ALL_INTERESTS, "retrieves all persisted interests", MethodEnum.ALL_INTERESTS.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.INTEREST_BY_USER, "all interests by userId", MethodEnum.INTEREST_BY_USER.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.INTEREST_FIRST_LETTER, "all interests by first letter", MethodEnum.INTEREST_FIRST_LETTER.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_INTEREST, "remove interest from user's list", MethodEnum.REMOVE_INTEREST.getValue());
     }
 
     @Transactional
@@ -121,9 +126,16 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILL_FIRST_LETTER);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_SKILL);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_SKILL);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_INTEREST);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_INTEREST);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ALL_INTERESTS);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ALL_INTERESTS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.INTEREST_BY_USER);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.INTEREST_BY_USER);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.INTEREST_FIRST_LETTER);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.INTEREST_FIRST_LETTER);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_INTEREST);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_INTEREST);
     }
-
-
-
-
+    
 }
