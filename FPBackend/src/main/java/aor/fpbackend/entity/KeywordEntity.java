@@ -9,6 +9,11 @@ import java.util.Set;
 
 @Entity
 @Table(name = "keyword")
+
+@NamedQuery(name = "Keyword.countKeywordByName", query = "SELECT COUNT(k) FROM KeywordEntity k WHERE k.name = :name")
+@NamedQuery(name = "Keyword.findKeywordByName", query = "SELECT k FROM KeywordEntity k WHERE k.name = :name")
+@NamedQuery(name = "Keyword.findKeywordById", query = "SELECT k FROM KeywordEntity k WHERE k.id = :keyId")
+
 public class KeywordEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -17,7 +22,7 @@ public class KeywordEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", unique = true, nullable = false, length = 30)
     private String name;
 
     @ManyToMany(mappedBy = "projectKeywords")
