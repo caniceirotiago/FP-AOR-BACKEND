@@ -7,8 +7,11 @@ import aor.fpbackend.dto.InterestDto;
 import aor.fpbackend.dto.SkillDto;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +32,7 @@ public class SkillBean implements Serializable {
 
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SkillBean.class);
 
+    @Transactional
     public void addSkill(SkillDto skillDto, @Context SecurityContext securityContext) {
         // Ensure the skill exists, creating it if necessary
         checkSkillExist(skillDto.getName());
@@ -58,7 +62,7 @@ public class SkillBean implements Serializable {
     }
 
     private void checkSkillExist(String name) {
-        if(!skillDao.checkSkillExist(name)) {
+        if (!skillDao.checkSkillExist(name)) {
             SkillEntity skill = new SkillEntity(name);
             skillDao.persist(skill);
         }
@@ -82,12 +86,41 @@ public class SkillBean implements Serializable {
         return convertSkillEntityListToSkillDtoList(skillDao.getSkillsByFirstLetter(firstLetter.charAt(0)));
     }
 
+    @Transactional
+    public void removeSkill(SkillDto skillDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+        // Get the authenticated user
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        if (userEntity == null) {
+            throw new UserNotFoundException("User not found");
+        }
+        // Find the skill by name
+        SkillEntity skillEntity = skillDao.findSkillById(skillDto.getId());
+        if (skillEntity == null) {
+            throw new EntityNotFoundException("Skill not found");
+        }
+        // Remove the skill from the user's skills
+        Set<SkillEntity> userSkills = userEntity.getUserSkills();
+        if (userSkills.contains(skillEntity)) {
+            userSkills.remove(skillEntity);
+            userEntity.setUserSkills(userSkills);
+
+            // Remove the user from the skill's users
+            Set<UserEntity> skillUsers = skillEntity.getUsers();
+            skillUsers.remove(userEntity);
+            skillEntity.setUsers(skillUsers);
+        } else {
+            throw new IllegalStateException("User does not have the specified skill");
+        }
+    }
+
     public SkillDto convertSkillEntitytoSkillDto(SkillEntity SkillEntity) {
         SkillDto skillDto = new SkillDto();
         skillDto.setId(SkillEntity.getId());
         skillDto.setName(SkillEntity.getName());
         return skillDto;
     }
+
     public List<SkillDto> convertSkillEntityListToSkillDtoList(List<SkillEntity> SkillEntities) {
         List<SkillDto> SkillDtos = new ArrayList<>();
         for (SkillEntity i : SkillEntities) {

@@ -5,7 +5,8 @@ public enum MethodEnum {
     ADD_SKILL(2L),
     ALL_SKILLS(3L),
     SKILL_BY_USER(4L),
-    SKILL_FIRST_LETTER(5L);
+    SKILL_FIRST_LETTER(5L),
+    REMOVE_SKILL(6L);
 
     private final long value;
 

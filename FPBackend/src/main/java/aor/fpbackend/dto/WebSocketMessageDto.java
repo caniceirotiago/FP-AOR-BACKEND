@@ -1,12 +1,12 @@
 package aor.fpbackend.dto;
 
-public class WebSocketMessage {
+public class WebSocketMessageDto {
     private String type;
     private Object data;
-    public WebSocketMessage() {
+    public WebSocketMessageDto() {
     }
 
-    public WebSocketMessage(String type, Object data) {
+    public WebSocketMessageDto(String type, Object data) {
         this.type = type;
         this.data = data;
     }
