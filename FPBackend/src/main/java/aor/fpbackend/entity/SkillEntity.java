@@ -11,6 +11,8 @@ import java.util.Set;
 
 @NamedQuery(name = "Skill.countSkillByName", query = "SELECT COUNT(s) FROM SkillEntity s WHERE s.name = :name")
 @NamedQuery(name = "Skill.findSkillByName", query = "SELECT s FROM SkillEntity s WHERE s.name = :name")
+@NamedQuery(name = "Skill.findSkillById", query = "SELECT s FROM SkillEntity s WHERE s.id = :skillId")
+
 
 public class SkillEntity implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -20,7 +22,7 @@ public class SkillEntity implements Serializable {
     @Column(name = "id", nullable = false)
     private long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 30)
     private String name;
 
     @ManyToMany(mappedBy = "userSkills")

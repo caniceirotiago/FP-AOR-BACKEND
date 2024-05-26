@@ -1,7 +1,7 @@
 // src/main/java/aor/fpbackend/websocket/GlobalWebSocket.java
 package aor.fpbackend.websocket;
 
-import aor.fpbackend.dto.WebSocketMessage;
+import aor.fpbackend.dto.WebSocketMessageDto;
 import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.utils.GsonSetup;
@@ -75,7 +75,7 @@ public class GlobalWebSocket {
         Session session = sessions.get(sessionEntity.getSessionToken());
         if (session != null && session.isOpen()) {
             try {
-                String jsonResponse = gson.toJson(new WebSocketMessage("forcedLogout", null));
+                String jsonResponse = gson.toJson(new WebSocketMessageDto("forcedLogout", null));
                 session.getBasicRemote().sendText(jsonResponse);
 
                 System.out.println("Logout message sent to session token: " + sessionEntity.getSessionToken());
