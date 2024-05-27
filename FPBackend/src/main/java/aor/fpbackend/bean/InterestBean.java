@@ -1,13 +1,10 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.InterestDao;
-import aor.fpbackend.dao.SkillDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.dto.InterestDto;
-import aor.fpbackend.dto.SkillDto;
 import aor.fpbackend.entity.InterestEntity;
-import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
