@@ -6,40 +6,27 @@ import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-
 @XmlRootElement
-public class KeywordDto {
+public class InterestAddDto {
 
-    @XmlElement
-    private Long id;
     @XmlElement
     @NotBlank
     @Size(min = 2, max = 25, message = "Last name must be between 2 and 25 characters")
     @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
     private String name;
 
-    public KeywordDto() {
+    public InterestAddDto() {
     }
 
-    public KeywordDto(String name, Long id) {
+    public InterestAddDto(String name) {
         this.name = name;
-        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 }
-

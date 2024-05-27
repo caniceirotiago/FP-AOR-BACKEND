@@ -1,7 +1,8 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.SkillBean;
-import aor.fpbackend.dto.SkillAddDto;
+import aor.fpbackend.dto.SkillAddProjectDto;
+import aor.fpbackend.dto.SkillAddUserDto;
 import aor.fpbackend.dto.SkillGetDto;
 import aor.fpbackend.dto.SkillRemoveDto;
 import aor.fpbackend.enums.MethodEnum;
@@ -22,12 +23,23 @@ public class SkillService {
 
     @EJB
     SkillBean skillBean;
+
+    // Add Skill to user's skills
     @POST
-    @Path("/create")
+    @Path("/add/to/user")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ADD_SKILL)
-    public void addSkill(@Valid SkillAddDto skillAddDto, @Context SecurityContext securityContext) {
-        skillBean.addSkill(skillAddDto, securityContext);
+    @RequiresPermission(MethodEnum.ADD_SKILL_USER)
+    public void addSkill(@Valid SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) {
+        skillBean.addSkillUser(skillAddUserDto, securityContext);
+    }
+
+    // Add Skill to project's skills
+    @POST
+    @Path("/add/to/project")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.ADD_SKILL_PROJECT)
+    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) {
+        skillBean.addSkillProject(skillAddProjectDto);
     }
 
     @GET

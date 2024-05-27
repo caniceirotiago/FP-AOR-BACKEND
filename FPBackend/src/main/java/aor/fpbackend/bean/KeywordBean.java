@@ -2,8 +2,9 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.KeywordDao;
 import aor.fpbackend.dao.ProjectDao;
-import aor.fpbackend.dao.UserDao;
-import aor.fpbackend.dto.KeywordDto;
+import aor.fpbackend.dto.KeywordAddDto;
+import aor.fpbackend.dto.KeywordGetDto;
+import aor.fpbackend.dto.KeywordRemoveDto;
 import aor.fpbackend.dto.ProjectDto;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
@@ -32,11 +33,11 @@ public class KeywordBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(KeywordBean.class);
 
     @Transactional
-    public void addKeyword(KeywordDto keywordDto, ProjectDto projectDto) {
+    public void addKeyword(KeywordAddDto keywordAddDto, ProjectDto projectDto) {
         // Ensure the keyword exists, creating it if necessary
-        checkKeywordExist(keywordDto.getName());
+        checkKeywordExist(keywordAddDto.getName());
         // Find the keyword by name
-        KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordDto.getName());
+        KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordAddDto.getName());
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(projectDto.getId());
         // Add the keyword to the project's keywords
@@ -66,15 +67,15 @@ public class KeywordBean implements Serializable {
         }
     }
 
-    public List<KeywordDto> getKeywords() {
+    public List<KeywordGetDto> getKeywords() {
         return convertKeywordEntityListToKeywordDtoList(keywordDao.getAllKeywords());
     }
 
-    public List<KeywordDto> getKeywordsByProject(ProjectDto projectDto) {
+    public List<KeywordGetDto> getKeywordsByProject(ProjectDto projectDto) {
         return convertKeywordEntityListToKeywordDtoList(keywordDao.getKeywordsByProjectId(projectDto.getId()));
     }
 
-    public List<KeywordDto> getKeywordsByFirstLetter(String firstLetter) {
+    public List<KeywordGetDto> getKeywordsByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
@@ -83,14 +84,14 @@ public class KeywordBean implements Serializable {
     }
 
     @Transactional
-    public void removeKeyword(KeywordDto keywordDto, ProjectDto projectDto) throws EntityNotFoundException {
+    public void removeKeyword(KeywordRemoveDto keywordRemoveDto, ProjectDto projectDto) throws EntityNotFoundException {
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(projectDto.getId());
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
         // Find the keyword by Id
-        KeywordEntity keywordEntity = keywordDao.findKeywordById(keywordDto.getId());
+        KeywordEntity keywordEntity = keywordDao.findKeywordById(keywordRemoveDto.getId());
         if (keywordEntity == null) {
             throw new EntityNotFoundException("Keyword not found");
         }
@@ -109,19 +110,19 @@ public class KeywordBean implements Serializable {
         }
     }
 
-    public KeywordDto convertKeywordEntityToKeywordDto(KeywordEntity keywordEntity) {
-        KeywordDto keywordDto = new KeywordDto();
-        keywordDto.setId(keywordEntity.getId());
-        keywordDto.setName(keywordEntity.getName());
-        return keywordDto;
+    public KeywordGetDto convertKeywordEntityToKeywordDto(KeywordEntity keywordEntity) {
+        KeywordGetDto keywordGetDto = new KeywordGetDto();
+        keywordGetDto.setId(keywordEntity.getId());
+        keywordGetDto.setName(keywordEntity.getName());
+        return keywordGetDto;
     }
 
-    public List<KeywordDto> convertKeywordEntityListToKeywordDtoList(List<KeywordEntity> keywordEntities) {
-        List<KeywordDto> keywordDtos = new ArrayList<>();
+    public List<KeywordGetDto> convertKeywordEntityListToKeywordDtoList(List<KeywordEntity> keywordEntities) {
+        List<KeywordGetDto> keywordGetDtos = new ArrayList<>();
         for (KeywordEntity k : keywordEntities) {
-            KeywordDto keywordDto = convertKeywordEntityToKeywordDto(k);
-            keywordDtos.add(keywordDto);
+            KeywordGetDto keywordGetDto = convertKeywordEntityToKeywordDto(k);
+            keywordGetDtos.add(keywordGetDto);
         }
-        return keywordDtos;
+        return keywordGetDtos;
     }
 }

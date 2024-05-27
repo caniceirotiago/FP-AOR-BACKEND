@@ -1,7 +1,9 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.InterestBean;
-import aor.fpbackend.dto.InterestDto;
+import aor.fpbackend.dto.InterestAddDto;
+import aor.fpbackend.dto.InterestGetDto;
+import aor.fpbackend.dto.InterestRemoveDto;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
@@ -24,15 +26,15 @@ public class InterestService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_INTEREST)
-    public void addInterest(@Valid InterestDto interestDto, @Context SecurityContext securityContext) {
-        interestBean.addInterest(interestDto, securityContext);
+    public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) {
+        interestBean.addInterest(interestAddDto, securityContext);
     }
 
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ALL_INTERESTS)
-    public List<InterestDto> getAllInterests() {
+    public List<InterestGetDto> getAllInterests() {
         return interestBean.getInterests();
     }
 
@@ -40,7 +42,7 @@ public class InterestService {
     @Path("/user")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.INTEREST_BY_USER)
-    public List<InterestDto> getAllInterestsByUser(@Context SecurityContext securityContext) {
+    public List<InterestGetDto> getAllInterestsByUser(@Context SecurityContext securityContext) {
         return interestBean.getInterestsByUser(securityContext);
     }
 
@@ -48,7 +50,7 @@ public class InterestService {
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.INTEREST_FIRST_LETTER)
-    public List<InterestDto> getAllInterestsByFirstLetter(@QueryParam("value") String firstLetter) {
+    public List<InterestGetDto> getAllInterestsByFirstLetter(@QueryParam("value") String firstLetter) {
         return interestBean.getInterestsByFirstLetter(firstLetter);
     }
 
@@ -56,7 +58,7 @@ public class InterestService {
     @Path("/remove")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_INTEREST)
-    public void removeInterest(@Valid InterestDto interestDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
-        interestBean.removeInterest(interestDto, securityContext);
+    public void removeInterest(@Valid InterestRemoveDto interestRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+        interestBean.removeInterest(interestRemoveDto, securityContext);
     }
 }

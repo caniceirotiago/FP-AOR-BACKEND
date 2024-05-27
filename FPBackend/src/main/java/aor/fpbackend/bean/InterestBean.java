@@ -3,7 +3,9 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.InterestDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
-import aor.fpbackend.dto.InterestDto;
+import aor.fpbackend.dto.InterestAddDto;
+import aor.fpbackend.dto.InterestGetDto;
+import aor.fpbackend.dto.InterestRemoveDto;
 import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.exception.EntityNotFoundException;
@@ -32,11 +34,11 @@ public class InterestBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(InterestBean.class);
 
     @Transactional
-    public void addInterest(InterestDto interestDto, @Context SecurityContext securityContext) {
+    public void addInterest(InterestAddDto interestAddDto, @Context SecurityContext securityContext) {
         // Ensure the interest exists, creating it if necessary
-        checkInterestExist(interestDto.getName());
+        checkInterestExist(interestAddDto.getName());
         // Find the interest by name
-        InterestEntity interestEntity = interestDao.findInterestByName(interestDto.getName());
+        InterestEntity interestEntity = interestDao.findInterestByName(interestAddDto.getName());
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -67,16 +69,16 @@ public class InterestBean implements Serializable {
         }
     }
 
-    public List<InterestDto> getInterests() {
+    public List<InterestGetDto> getInterests() {
         return convertInterestEntityListToInterestDtoList(interestDao.getAllInterests());
     }
 
-    public List<InterestDto> getInterestsByUser(@Context SecurityContext securityContext) {
+    public List<InterestGetDto> getInterestsByUser(@Context SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         return convertInterestEntityListToInterestDtoList(interestDao.getInterestsByUserId(authUserDto.getUserId()));
     }
 
-    public List<InterestDto> getInterestsByFirstLetter(String firstLetter) {
+    public List<InterestGetDto> getInterestsByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
@@ -85,7 +87,7 @@ public class InterestBean implements Serializable {
     }
 
     @Transactional
-    public void removeInterest(InterestDto interestDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+    public void removeInterest(InterestRemoveDto interestRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -93,7 +95,7 @@ public class InterestBean implements Serializable {
             throw new UserNotFoundException("User not found");
         }
         // Find the interest by name
-        InterestEntity interestEntity = interestDao.findInterestById(interestDto.getId());
+        InterestEntity interestEntity = interestDao.findInterestById(interestRemoveDto.getId());
         if (interestEntity == null) {
             throw new EntityNotFoundException("Interest not found");
         }
@@ -112,19 +114,19 @@ public class InterestBean implements Serializable {
         }
     }
 
-    public InterestDto convertInterestEntitytoInterestDto(InterestEntity interestEntity) {
-        InterestDto interestDto = new InterestDto();
-        interestDto.setId(interestEntity.getId());
-        interestDto.setName(interestEntity.getName());
-        return interestDto;
+    public InterestGetDto convertInterestEntitytoInterestDto(InterestEntity interestEntity) {
+        InterestGetDto interestGetDto = new InterestGetDto();
+        interestGetDto.setId(interestEntity.getId());
+        interestGetDto.setName(interestEntity.getName());
+        return interestGetDto;
     }
 
-    public List<InterestDto> convertInterestEntityListToInterestDtoList(List<InterestEntity> interestEntities) {
-        List<InterestDto> interestDtos = new ArrayList<>();
+    public List<InterestGetDto> convertInterestEntityListToInterestDtoList(List<InterestEntity> interestEntities) {
+        List<InterestGetDto> interestGetDtos = new ArrayList<>();
         for (InterestEntity i : interestEntities) {
-            InterestDto interestDto = convertInterestEntitytoInterestDto(i);
-            interestDtos.add(interestDto);
+            InterestGetDto interestGetDto = convertInterestEntitytoInterestDto(i);
+            interestGetDtos.add(interestGetDto);
         }
-        return interestDtos;
+        return interestGetDtos;
     }
 }
