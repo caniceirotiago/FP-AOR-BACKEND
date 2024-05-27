@@ -97,9 +97,7 @@ public class UserDao extends AbstractDao<UserEntity> {
         try {
             return (UserEntity) em.createNamedQuery("User.findUserByUsername").setParameter("username", username)
                     .getSingleResult();
-
         } catch (NoResultException e) {
-            System.out.println("User not found");
             return null;
         }
     }
@@ -112,11 +110,12 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-    public List<UserEntity> getUsersByFirstLetter(char firstLetter) {
-        TypedQuery<UserEntity> query = em.createQuery(
-                "SELECT u FROM UserEntity u WHERE u.username LIKE :pattern", UserEntity.class);
-        query.setParameter("pattern", firstLetter + "%");
-        return query.getResultList();
-    }
+
+        public List<UserEntity> getUsersByFirstLetter(char firstLetter) {
+            TypedQuery<UserEntity> query = em.createQuery(
+                    "SELECT u FROM UserEntity u WHERE u.username LIKE :pattern", UserEntity.class);
+            query.setParameter("pattern", firstLetter + "%");
+            return query.getResultList();
+        }
 
 }
