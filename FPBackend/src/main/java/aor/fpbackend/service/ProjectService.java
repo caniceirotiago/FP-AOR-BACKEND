@@ -1,8 +1,10 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.ProjectBean;
+import aor.fpbackend.dto.ProjectCreateDto;
 import aor.fpbackend.dto.ProjectGetDto;
 import jakarta.ejb.EJB;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
@@ -18,8 +20,8 @@ public class ProjectService {
     @POST
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void createProject(ProjectGetDto projectGetDto) {
-        projectBean.createProject(projectGetDto);
+    public void createProject(@Valid ProjectCreateDto projectCreateDto) {
+        projectBean.createProject(projectCreateDto);
     }
 
 
