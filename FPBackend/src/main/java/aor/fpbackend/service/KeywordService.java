@@ -4,7 +4,7 @@ import aor.fpbackend.bean.KeywordBean;
 import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.dto.KeywordGetDto;
 import aor.fpbackend.dto.KeywordRemoveDto;
-import aor.fpbackend.dto.ProjectDto;
+import aor.fpbackend.dto.ProjectGetDto;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -23,11 +23,11 @@ public class KeywordService {
     KeywordBean keywordBean;
 
     @POST
-    @Path("/create")
+    @Path("/add/to/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_KEYWORD)
-    public void addKeyword(@Valid KeywordAddDto keywordAddDto, ProjectDto projectDto) {
-        keywordBean.addKeyword(keywordAddDto, projectDto);
+    public void addKeyword(@Valid KeywordAddDto keywordAddDto, ProjectGetDto projectGetDto) {
+        keywordBean.addKeyword(keywordAddDto, projectGetDto);
     }
 
     @GET
@@ -42,8 +42,8 @@ public class KeywordService {
     @Path("/project")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.KEYWORD_BY_PROJECT)
-    public List<KeywordGetDto> getAllKeywordsByProject(ProjectDto projectDto) {
-        return keywordBean.getKeywordsByProject(projectDto);
+    public List<KeywordGetDto> getAllKeywordsByProject(ProjectGetDto projectGetDto) {
+        return keywordBean.getKeywordsByProject(projectGetDto);
     }
 
     @GET
@@ -58,8 +58,8 @@ public class KeywordService {
     @Path("/remove")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_KEYWORD)
-    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto, ProjectDto projectDto) throws EntityNotFoundException {
-        keywordBean.removeKeyword(keywordRemoveDto, projectDto);
+    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto, ProjectGetDto projectGetDto) throws EntityNotFoundException {
+        keywordBean.removeKeyword(keywordRemoveDto, projectGetDto);
     }
 
 }

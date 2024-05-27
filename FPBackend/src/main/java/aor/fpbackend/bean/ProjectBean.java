@@ -1,7 +1,7 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.ProjectDao;
-import aor.fpbackend.dto.ProjectDto;
+import aor.fpbackend.dto.ProjectGetDto;
 import aor.fpbackend.entity.ProjectEntity;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -18,16 +18,14 @@ import java.util.ArrayList;
         ProjectDao projectDao;
 
 
-        //TODO
-        // Criação de projecto sem definir Laboratório, Membros, Skills...
-    public boolean createProject(ProjectDto projectDto) {
-        ProjectEntity projectEntity = convertProjectDtotoProjectEntity(projectDto);
+    public boolean createProject(ProjectGetDto projectGetDto) {
+        ProjectEntity projectEntity = convertProjectDtotoProjectEntity(projectGetDto);
         projectDao.persist(projectEntity);
         return true;
     }
 
 
-    public ArrayList<ProjectDto> getAllProjects() {
+    public ArrayList<ProjectGetDto> getAllProjects() {
         ArrayList<ProjectEntity> projects = projectDao.findAllProjects();
         if (projects != null && !projects.isEmpty()) {
             return convertProjectEntityListToProjectDtoList(projects);
@@ -37,39 +35,39 @@ import java.util.ArrayList;
     }
 
 
-    private ProjectEntity convertProjectDtotoProjectEntity(ProjectDto projectDto) {
+    private ProjectEntity convertProjectDtotoProjectEntity(ProjectGetDto projectGetDto) {
         ProjectEntity projectEntity = new ProjectEntity();
-        projectEntity.setName(projectDto.getName());
-        projectEntity.setDescription(projectDto.getDescription());
-        projectEntity.setMotivation(projectDto.getMotivation());
-        projectEntity.setState(projectDto.getState());
-        projectEntity.setCreationDate(projectDto.getCreationDate());
-        projectEntity.setInitialDate(projectDto.getInitialDate());
-        projectEntity.setFinalDate(projectDto.getFinalDate());
-        projectEntity.setConclusionDate(projectDto.getConclusionDate());
+        projectEntity.setName(projectGetDto.getName());
+        projectEntity.setDescription(projectGetDto.getDescription());
+        projectEntity.setMotivation(projectGetDto.getMotivation());
+        projectEntity.setState(projectGetDto.getState());
+        projectEntity.setCreationDate(projectGetDto.getCreationDate());
+        projectEntity.setInitialDate(projectGetDto.getInitialDate());
+        projectEntity.setFinalDate(projectGetDto.getFinalDate());
+        projectEntity.setConclusionDate(projectGetDto.getConclusionDate());
         return projectEntity;
     }
 
-    private ProjectDto convertProjectEntityToProjectDto(ProjectEntity projectEntity) {
-        ProjectDto projectDto = new ProjectDto();
-        projectDto.setId(projectEntity.getId());
-        projectDto.setName(projectEntity.getName());
-        projectDto.setDescription(projectEntity.getDescription());
-        projectDto.setMotivation(projectEntity.getMotivation());
-        projectDto.setState(projectEntity.getState());
-        projectDto.setCreationDate(projectEntity.getCreationDate());
-        projectDto.setInitialDate(projectEntity.getInitialDate());
-        projectDto.setFinalDate(projectEntity.getFinalDate());
-        projectDto.setConclusionDate(projectEntity.getConclusionDate());
-        return projectDto;
+    private ProjectGetDto convertProjectEntityToProjectDto(ProjectEntity projectEntity) {
+        ProjectGetDto projectGetDto = new ProjectGetDto();
+        projectGetDto.setId(projectEntity.getId());
+        projectGetDto.setName(projectEntity.getName());
+        projectGetDto.setDescription(projectEntity.getDescription());
+        projectGetDto.setMotivation(projectEntity.getMotivation());
+        projectGetDto.setState(projectEntity.getState());
+        projectGetDto.setCreationDate(projectEntity.getCreationDate());
+        projectGetDto.setInitialDate(projectEntity.getInitialDate());
+        projectGetDto.setFinalDate(projectEntity.getFinalDate());
+        projectGetDto.setConclusionDate(projectEntity.getConclusionDate());
+        return projectGetDto;
     }
 
-    private ArrayList<ProjectDto> convertProjectEntityListToProjectDtoList(ArrayList<ProjectEntity> projectEntities) {
-        ArrayList<ProjectDto> projectDtos = new ArrayList<>();
+    private ArrayList<ProjectGetDto> convertProjectEntityListToProjectDtoList(ArrayList<ProjectEntity> projectEntities) {
+        ArrayList<ProjectGetDto> projectGetDtos = new ArrayList<>();
         for (ProjectEntity p : projectEntities) {
-            ProjectDto projectDto = convertProjectEntityToProjectDto(p);
-            projectDtos.add(projectDto);
+            ProjectGetDto projectGetDto = convertProjectEntityToProjectDto(p);
+            projectGetDtos.add(projectGetDto);
         }
-        return projectDtos;
+        return projectGetDtos;
     }
 }

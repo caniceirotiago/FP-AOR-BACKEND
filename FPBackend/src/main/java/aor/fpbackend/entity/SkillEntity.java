@@ -19,7 +19,7 @@ public class SkillEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", updatable = false)
     private long id;
 
     @Column(name = "name", unique = true, nullable = false, length = 30)

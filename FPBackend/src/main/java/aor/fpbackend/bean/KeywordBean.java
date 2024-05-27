@@ -5,7 +5,7 @@ import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.dto.KeywordGetDto;
 import aor.fpbackend.dto.KeywordRemoveDto;
-import aor.fpbackend.dto.ProjectDto;
+import aor.fpbackend.dto.ProjectGetDto;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.exception.EntityNotFoundException;
@@ -33,13 +33,13 @@ public class KeywordBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(KeywordBean.class);
 
     @Transactional
-    public void addKeyword(KeywordAddDto keywordAddDto, ProjectDto projectDto) {
+    public void addKeyword(KeywordAddDto keywordAddDto, ProjectGetDto projectGetDto) {
         // Ensure the keyword exists, creating it if necessary
         checkKeywordExist(keywordAddDto.getName());
         // Find the keyword by name
         KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordAddDto.getName());
         // Find the project by id
-        ProjectEntity projectEntity = projectDao.findProjectById(projectDto.getId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectGetDto.getId());
         // Add the keyword to the project's keywords
         Set<KeywordEntity> projectKeywords = projectEntity.getProjectKeywords();
         if (projectKeywords == null) {
@@ -71,8 +71,8 @@ public class KeywordBean implements Serializable {
         return convertKeywordEntityListToKeywordDtoList(keywordDao.getAllKeywords());
     }
 
-    public List<KeywordGetDto> getKeywordsByProject(ProjectDto projectDto) {
-        return convertKeywordEntityListToKeywordDtoList(keywordDao.getKeywordsByProjectId(projectDto.getId()));
+    public List<KeywordGetDto> getKeywordsByProject(ProjectGetDto projectGetDto) {
+        return convertKeywordEntityListToKeywordDtoList(keywordDao.getKeywordsByProjectId(projectGetDto.getId()));
     }
 
     public List<KeywordGetDto> getKeywordsByFirstLetter(String firstLetter) {
@@ -84,9 +84,9 @@ public class KeywordBean implements Serializable {
     }
 
     @Transactional
-    public void removeKeyword(KeywordRemoveDto keywordRemoveDto, ProjectDto projectDto) throws EntityNotFoundException {
+    public void removeKeyword(KeywordRemoveDto keywordRemoveDto, ProjectGetDto projectGetDto) throws EntityNotFoundException {
         // Find the project by id
-        ProjectEntity projectEntity = projectDao.findProjectById(projectDto.getId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectGetDto.getId());
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }

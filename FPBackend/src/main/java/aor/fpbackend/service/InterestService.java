@@ -23,7 +23,7 @@ public class InterestService {
     InterestBean interestBean;
 
     @POST
-    @Path("/create")
+    @Path("/add/to/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_INTEREST)
     public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) {
