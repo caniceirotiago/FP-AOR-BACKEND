@@ -13,8 +13,6 @@ import java.util.List;
 
 import aor.fpbackend.filters.RequiresPermission;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.SecurityContext;
 import aor.fpbackend.enums.MethodEnum;
 
 @Path("/keywords")

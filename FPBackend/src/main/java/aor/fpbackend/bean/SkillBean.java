@@ -3,7 +3,9 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.SkillDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
-import aor.fpbackend.dto.SkillDto;
+import aor.fpbackend.dto.SkillAddDto;
+import aor.fpbackend.dto.SkillGetDto;
+import aor.fpbackend.dto.SkillRemoveDto;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.exception.EntityNotFoundException;
@@ -32,11 +34,11 @@ public class SkillBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SkillBean.class);
 
     @Transactional
-    public void addSkill(SkillDto skillDto, @Context SecurityContext securityContext) {
+    public void addSkill(SkillAddDto skillAddDto, @Context SecurityContext securityContext) {
         // Ensure the skill exists, creating it if necessary
-        checkSkillExist(skillDto.getName());
+        checkSkillExist(skillAddDto.getName());
         // Find the skill by name
-        SkillEntity skillEntity = skillDao.findSkillByName(skillDto.getName());
+        SkillEntity skillEntity = skillDao.findSkillByName(skillAddDto.getName());
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -68,16 +70,16 @@ public class SkillBean implements Serializable {
     }
 
 
-    public List<SkillDto> getSkills() {
+    public List<SkillGetDto> getSkills() {
         return convertSkillEntityListToSkillDtoList(skillDao.getAllSkills());
     }
 
-    public List<SkillDto> getSkillsByUser(@Context SecurityContext securityContext) {
+    public List<SkillGetDto> getSkillsByUser(@Context SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         return convertSkillEntityListToSkillDtoList(skillDao.getSkillsByUserId(authUserDto.getUserId()));
     }
 
-    public List<SkillDto> getSkillsByFirstLetter(String firstLetter) {
+    public List<SkillGetDto> getSkillsByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
@@ -86,7 +88,7 @@ public class SkillBean implements Serializable {
     }
 
     @Transactional
-    public void removeSkill(SkillDto skillDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+    public void removeSkill(SkillRemoveDto skillRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -94,7 +96,7 @@ public class SkillBean implements Serializable {
             throw new UserNotFoundException("User not found");
         }
         // Find the skill by Id
-        SkillEntity skillEntity = skillDao.findSkillById(skillDto.getId());
+        SkillEntity skillEntity = skillDao.findSkillById(skillRemoveDto.getId());
         if (skillEntity == null) {
             throw new EntityNotFoundException("Skill not found");
         }
@@ -113,19 +115,19 @@ public class SkillBean implements Serializable {
         }
     }
 
-    public SkillDto convertSkillEntitytoSkillDto(SkillEntity SkillEntity) {
-        SkillDto skillDto = new SkillDto();
-        skillDto.setId(SkillEntity.getId());
-        skillDto.setName(SkillEntity.getName());
-        return skillDto;
+    public SkillGetDto convertSkillEntitytoSkillDto(SkillEntity SkillEntity) {
+        SkillGetDto skillGetDto = new SkillGetDto();
+        skillGetDto.setId(SkillEntity.getId());
+        skillGetDto.setName(SkillEntity.getName());
+        return skillGetDto;
     }
 
-    public List<SkillDto> convertSkillEntityListToSkillDtoList(List<SkillEntity> SkillEntities) {
-        List<SkillDto> SkillDtos = new ArrayList<>();
+    public List<SkillGetDto> convertSkillEntityListToSkillDtoList(List<SkillEntity> SkillEntities) {
+        List<SkillGetDto> skillGetDtos = new ArrayList<>();
         for (SkillEntity i : SkillEntities) {
-            SkillDto skillDto = convertSkillEntitytoSkillDto(i);
-            SkillDtos.add(skillDto);
+            SkillGetDto skillGetDto = convertSkillEntitytoSkillDto(i);
+            skillGetDtos.add(skillGetDto);
         }
-        return SkillDtos;
+        return skillGetDtos;
     }
 }
