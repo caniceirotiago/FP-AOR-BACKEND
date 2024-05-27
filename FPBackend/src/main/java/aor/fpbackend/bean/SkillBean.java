@@ -112,7 +112,8 @@ public class SkillBean implements Serializable {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
         }
-        return convertSkillEntityListToSkillDtoList(skillDao.getSkillsByFirstLetter(firstLetter.charAt(0)));
+        List<SkillEntity> skillEntities = skillDao.getSkillsByFirstLetter(firstLetter.charAt(0));
+        return convertSkillEntityListToSkillDtoList(skillEntities);
     }
 
     @Transactional

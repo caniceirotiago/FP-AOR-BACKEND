@@ -1,25 +1,35 @@
 package aor.fpbackend.bean;
 
+import aor.fpbackend.dao.LaboratoryDao;
 import aor.fpbackend.dao.ProjectDao;
+import aor.fpbackend.dto.ProjectCreateDto;
 import aor.fpbackend.dto.ProjectGetDto;
+import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.ProjectEntity;
+import aor.fpbackend.enums.ProjectStateEnum;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 
 
 @Stateless
-    public class ProjectBean implements Serializable {
-        private static final long serialVersionUID = 1L;
+public class ProjectBean implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-        @EJB
-        ProjectDao projectDao;
+    @EJB
+    ProjectDao projectDao;
+
+    @EJB
+    LaboratoryDao labDao;
 
 
-    public boolean createProject(ProjectGetDto projectGetDto) {
-        ProjectEntity projectEntity = convertProjectDtotoProjectEntity(projectGetDto);
+    public boolean createProject(ProjectCreateDto projectCreateDto) {
+        ProjectEntity projectEntity = convertProjectDtotoProjectEntity(projectCreateDto);
+        projectEntity.setState(ProjectStateEnum.PLANNING);
+        projectEntity.setCreationDate(Instant.now());
         projectDao.persist(projectEntity);
         return true;
     }
@@ -35,16 +45,14 @@ import java.util.ArrayList;
     }
 
 
-    private ProjectEntity convertProjectDtotoProjectEntity(ProjectGetDto projectGetDto) {
+    private ProjectEntity convertProjectDtotoProjectEntity(ProjectCreateDto projectCreateDto) {
         ProjectEntity projectEntity = new ProjectEntity();
-        projectEntity.setName(projectGetDto.getName());
-        projectEntity.setDescription(projectGetDto.getDescription());
-        projectEntity.setMotivation(projectGetDto.getMotivation());
-        projectEntity.setState(projectGetDto.getState());
-        projectEntity.setCreationDate(projectGetDto.getCreationDate());
-        projectEntity.setInitialDate(projectGetDto.getInitialDate());
-        projectEntity.setFinalDate(projectGetDto.getFinalDate());
-        projectEntity.setConclusionDate(projectGetDto.getConclusionDate());
+        projectEntity.setName(projectCreateDto.getName());
+        projectEntity.setDescription(projectCreateDto.getDescription());
+        projectEntity.setMotivation(projectCreateDto.getMotivation());
+        projectEntity.setConclusionDate(projectCreateDto.getConclusionDate());
+        LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectCreateDto.getLaboratoryId());
+        projectEntity.setLaboratory(laboratoryEntity);
         return projectEntity;
     }
 
@@ -59,6 +67,7 @@ import java.util.ArrayList;
         projectGetDto.setInitialDate(projectEntity.getInitialDate());
         projectGetDto.setFinalDate(projectEntity.getFinalDate());
         projectGetDto.setConclusionDate(projectEntity.getConclusionDate());
+        projectGetDto.setLaboratoryId(projectEntity.getLaboratory().getId());
         return projectGetDto;
     }
 

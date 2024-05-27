@@ -83,6 +83,13 @@ public class UserService {
         return userBean.getUserBasicInfo(securityContext);
     }
 
+    @GET
+    @Path("/basic/info/first/letter")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<UserBasicInfoDto> getBasicInfoByFirstLetter(@QueryParam("value") String firstLetter) {
+        return userBean.getUsersBasicInfoByFirstLetter(firstLetter);
+    }
+
     /**
      * Retrieves user information for the given username.
      * If the username or password is missing in the request headers, returns a status code 401 (Unauthorized)

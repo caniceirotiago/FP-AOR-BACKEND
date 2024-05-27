@@ -39,10 +39,13 @@ public class ProjectGetDto implements Serializable {
     @XmlElement
     private Instant conclusionDate;
 
+    @XmlElement
+    private long laboratoryId;
+
     public ProjectGetDto() {
     }
 
-    public ProjectGetDto(long id, String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate) {
+    public ProjectGetDto(long id, String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, long laboratoryId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -52,6 +55,7 @@ public class ProjectGetDto implements Serializable {
         this.initialDate = initialDate;
         this.finalDate = finalDate;
         this.conclusionDate = conclusionDate;
+        this.laboratoryId = laboratoryId;
     }
 
     public long getId() {
@@ -124,5 +128,13 @@ public class ProjectGetDto implements Serializable {
 
     public void setConclusionDate(Instant conclusionDate) {
         this.conclusionDate = conclusionDate;
+    }
+
+    public long getLaboratoryId() {
+        return laboratoryId;
+    }
+
+    public void setLaboratoryId(long laboratoryId) {
+        this.laboratoryId = laboratoryId;
     }
 }
