@@ -1,5 +1,6 @@
 package aor.fpbackend.entity;
 
+import aor.fpbackend.enums.AssetTypeEnum;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -7,6 +8,11 @@ import java.util.Set;
 
 @Entity
 @Table(name = "asset")
+
+@NamedQuery(name = "Asset.countAssetByName", query = "SELECT COUNT(a) FROM AssetEntity a WHERE a.name = :name")
+@NamedQuery(name = "Asset.findAssetByName", query = "SELECT a FROM AssetEntity a WHERE a.name = :name")
+@NamedQuery(name = "Asset.findAssetById", query = "SELECT a FROM AssetEntity a WHERE a.id = :assetId")
+
 public class AssetEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -18,17 +24,15 @@ public class AssetEntity implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Enumerated
     @Column(name = "type", nullable = false)
-    private String type;  // Could be "Component" or "Resource"
+    private AssetTypeEnum type;
 
     @Column(name = "description", nullable = false, length = 2048)
     private String description;
 
-    @Column(name = "total_quantity", nullable = false)
-    private Integer totalQuantity;
-
-    @Column(name = "available_quantity", nullable = false)
-    private Integer availableQuantity;
+    @Column(name = "quantity", nullable = false)
+    private int quantity;
 
     @Column(name = "part_number", nullable = false)
     private String partNumber;
@@ -47,11 +51,11 @@ public class AssetEntity implements Serializable {
 
     public AssetEntity() {}
 
-    public AssetEntity(String name, String type, String description, Integer totalQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
+    public AssetEntity(String name, AssetTypeEnum type, String description, int quantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
         this.name = name;
         this.type = type;
         this.description = description;
-        this.totalQuantity = totalQuantity;
+        this.quantity = quantity;
         this.partNumber = partNumber;
         this.manufacturer = manufacturer;
         this.manufacturerPhone = manufacturerPhone;
@@ -76,11 +80,11 @@ public class AssetEntity implements Serializable {
         this.name = name;
     }
 
-    public String getType() {
+    public AssetTypeEnum getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(AssetTypeEnum type) {
         this.type = type;
     }
 
@@ -92,20 +96,12 @@ public class AssetEntity implements Serializable {
         this.description = description;
     }
 
-    public Integer getTotalQuantity() {
-        return totalQuantity;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setTotalQuantity(Integer totalQuantity) {
-        this.totalQuantity = totalQuantity;
-    }
-
-    public Integer getAvailableQuantity() {
-        return availableQuantity;
-    }
-
-    public void setAvailableQuantity(Integer availableQuantity) {
-        this.availableQuantity = availableQuantity;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getPartNumber() {
@@ -158,8 +154,7 @@ public class AssetEntity implements Serializable {
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", description='" + description + '\'' +
-                ", totalQuantity=" + totalQuantity +
-                ", availableQuantity=" + availableQuantity +
+                ", quantity=" + quantity +
                 ", partNumber='" + partNumber + '\'' +
                 ", manufacturer='" + manufacturer + '\'' +
                 ", manufacturerPhone='" + manufacturerPhone + '\'' +

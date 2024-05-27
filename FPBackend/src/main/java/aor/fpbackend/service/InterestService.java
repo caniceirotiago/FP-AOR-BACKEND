@@ -23,7 +23,7 @@ public class InterestService {
     InterestBean interestBean;
 
     @POST
-    @Path("/add/to/user")
+    @Path("/add/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_INTEREST)
     public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) {
@@ -55,7 +55,7 @@ public class InterestService {
     }
 
     @PUT
-    @Path("/remove")
+    @Path("/remove/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_INTEREST)
     public void removeInterest(@Valid InterestRemoveDto interestRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {

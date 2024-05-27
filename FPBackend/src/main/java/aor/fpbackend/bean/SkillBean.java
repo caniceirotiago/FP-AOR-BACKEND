@@ -144,6 +144,33 @@ public class SkillBean implements Serializable {
         }
     }
 
+    @Transactional
+    public void removeSkillProject(SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException {
+        // Find the project by id
+        ProjectEntity projectEntity = projectDao.findProjectById(skillRemoveProjectDto.getProjectId());
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found");
+        }
+        // Find the skill by Id
+        SkillEntity skillEntity = skillDao.findSkillById(skillRemoveProjectDto.getId());
+        if (skillEntity == null) {
+            throw new EntityNotFoundException("Skill not found");
+        }
+        // Remove the skill from the project's skills
+        Set<SkillEntity> projectSkills = projectEntity.getProjectSkills();
+        if (projectSkills.contains(skillEntity)) {
+            projectSkills.remove(skillEntity);
+            projectEntity.setProjectSkills(projectSkills);
+
+            // Remove the project from the skill's projects
+            Set<ProjectEntity> skillProjects = skillEntity.getProjects();
+            skillProjects.remove(projectEntity);
+            skillEntity.setProjects(skillProjects);
+        } else {
+            throw new IllegalStateException("Project does not have the specified skill");
+        }
+    }
+
     public SkillGetDto convertSkillEntitytoSkillDto(SkillEntity SkillEntity) {
         SkillGetDto skillGetDto = new SkillGetDto();
         skillGetDto.setId(SkillEntity.getId());

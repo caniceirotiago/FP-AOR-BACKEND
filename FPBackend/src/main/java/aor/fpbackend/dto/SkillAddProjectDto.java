@@ -7,8 +7,10 @@ import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
+
 @XmlRootElement
-public class SkillAddProjectDto {
+public class SkillAddProjectDto implements Serializable {
 
     @XmlElement
     @NotBlank
@@ -17,7 +19,6 @@ public class SkillAddProjectDto {
     private String name;
 
     @XmlElement
-    @NotNull
     private long projectId;
 
     public SkillAddProjectDto() {
