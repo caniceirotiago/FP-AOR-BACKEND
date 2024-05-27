@@ -23,7 +23,7 @@ public class KeywordService {
     KeywordBean keywordBean;
 
     @POST
-    @Path("/add/to/project")
+    @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_KEYWORD)
     public void addKeyword(@Valid KeywordAddDto keywordAddDto) {
@@ -42,8 +42,8 @@ public class KeywordService {
     @Path("/project")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.KEYWORD_BY_PROJECT)
-    public List<KeywordGetDto> getAllKeywordsByProject(ProjectGetDto projectGetDto) {
-        return keywordBean.getKeywordsByProject(projectGetDto);
+    public List<KeywordGetDto> getAllKeywordsByProject(KeywordRemoveDto keywordRemoveDto) {
+        return keywordBean.getKeywordsByProject(keywordRemoveDto);
     }
 
     @GET
@@ -55,7 +55,7 @@ public class KeywordService {
     }
 
     @PUT
-    @Path("/remove")
+    @Path("/remove/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_KEYWORD)
     public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {

@@ -23,7 +23,7 @@ public class SkillService {
 
     // Add Skill to user's skills
     @POST
-    @Path("/add/to/user")
+    @Path("/add/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_SKILL_USER)
     public void addSkill(@Valid SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) {
@@ -32,7 +32,7 @@ public class SkillService {
 
     // Add Skill to project's skills
     @POST
-    @Path("/add/to/project")
+    @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_SKILL_PROJECT)
     public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) {
@@ -55,6 +55,14 @@ public class SkillService {
         return skillBean.getSkillsByUser(securityContext);
     }
 
+//    @GET
+//    @Path("/project")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @RequiresPermission(MethodEnum.SKILL_BY_USER)
+//    public List<SkillGetDto> getAllSkillsByUser(@Context SecurityContext securityContext) {
+//        return skillBean.getSkillsByUser(securityContext);
+//    }
+
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
@@ -64,21 +72,19 @@ public class SkillService {
     }
 
     @PUT
-    @Path("/remove/from/user")
+    @Path("/remove/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_SKILL_USER)
     public void removeSkillFromUser(@Valid SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         skillBean.removeSkillUser(skillRemoveUserDto, securityContext);
     }
 
-//    @PUT
-//    @Path("/remove/from/project")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @RequiresPermission(MethodEnum.REMOVE_SKILL_PROJECT)
-//    public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws UserNotFoundException, EntityNotFoundException {
-//        skillBean.removeSkillProject(skillRemoveProjectDto);
-//    }
-
-
+    @PUT
+    @Path("/remove/project")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.REMOVE_SKILL_PROJECT)
+    public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws UserNotFoundException, EntityNotFoundException {
+        skillBean.removeSkillProject(skillRemoveProjectDto);
+    }
 
 }

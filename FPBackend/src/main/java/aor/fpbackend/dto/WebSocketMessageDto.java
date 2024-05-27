@@ -1,8 +1,18 @@
 package aor.fpbackend.dto;
 
-public class WebSocketMessageDto {
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+import java.io.Serializable;
+
+@XmlRootElement
+public class WebSocketMessageDto implements Serializable {
+    @XmlElement
     private String type;
+
+    @XmlElement
     private Object data;
+
     public WebSocketMessageDto() {
     }
 

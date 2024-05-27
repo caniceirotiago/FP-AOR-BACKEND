@@ -92,8 +92,8 @@ public class StartupBean implements Serializable {
         userBean.createDefaultUserIfNotExistent("standardUser", "https://i.pinimg.com/474x/0a/a8/58/0aa8581c2cb0aa948d63ce3ddad90c81.jpg",2, 2);
         userBean.createDefaultUserIfNotExistent("BrunoAleixo", "https://cdn.pixabay.com/photo/2013/07/12/14/36/man-148582_640.png",2, 3);
         userBean.createDefaultUserIfNotExistent("MasterJohn", "https://cdn.pixabay.com/photo/2015/03/04/22/35/avatar-659651_640.png", 2, 4);
-        userBean.createDefaultUserIfNotExistent("QuimB", "https://img.freepik.com/premium-vector/user-woman-avatar-female-profile-icon-woman-character-portrait-with-smile-vector_555028-184.jpg", 2, 5);
-        userBean.createDefaultUserIfNotExistent("Toy", "https://i.pinimg.com/originals/54/8a/65/548a659c2b06a877516d3c998f5b0939.png", 2, 5);
+        userBean.createDefaultUserIfNotExistent("BQuim", "https://img.freepik.com/premium-vector/user-woman-avatar-female-profile-icon-woman-character-portrait-with-smile-vector_555028-184.jpg", 2, 5);
+        userBean.createDefaultUserIfNotExistent("SuperToy", "https://i.pinimg.com/originals/54/8a/65/548a659c2b06a877516d3c998f5b0939.png", 2, 5);
     }
 
     @Transactional

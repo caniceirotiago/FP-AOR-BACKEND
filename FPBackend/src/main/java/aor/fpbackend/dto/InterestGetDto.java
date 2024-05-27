@@ -6,8 +6,10 @@ import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
+
 @XmlRootElement
-public class InterestGetDto {
+public class InterestGetDto implements Serializable {
     @XmlElement
     private long id;
     @XmlElement
