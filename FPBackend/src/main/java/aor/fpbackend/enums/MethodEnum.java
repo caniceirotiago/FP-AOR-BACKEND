@@ -7,7 +7,7 @@ public enum MethodEnum {
     ALL_SKILLS(4L),
     SKILL_BY_USER(5L),
     SKILL_FIRST_LETTER(6L),
-    REMOVE_SKILL(7L),
+    REMOVE_SKILL_USER(7L),
     ADD_INTEREST(8L),
     ALL_INTERESTS(9L),
     INTEREST_BY_USER(10L),
@@ -17,7 +17,8 @@ public enum MethodEnum {
     ALL_KEYWORDS(14L),
     KEYWORD_BY_PROJECT(15L),
     KEYWORD_FIRST_LETTER(16L),
-    REMOVE_KEYWORD(17L);
+    REMOVE_KEYWORD(17L),
+    REMOVE_SKILL_PROJECT(18L);
 
     private final long value;
 

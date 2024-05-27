@@ -6,15 +6,15 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 
 @XmlRootElement
-public class SkillRemoveDto {
+public class SkillRemoveUserDto {
     @XmlElement
     @NotNull
     private long id;
 
-    public SkillRemoveDto() {
+    public SkillRemoveUserDto() {
     }
 
-    public SkillRemoveDto(long id) {
+    public SkillRemoveUserDto(long id) {
         this.id = id;
     }
 

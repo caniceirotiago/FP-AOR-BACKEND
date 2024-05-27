@@ -1,10 +1,7 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.SkillBean;
-import aor.fpbackend.dto.SkillAddProjectDto;
-import aor.fpbackend.dto.SkillAddUserDto;
-import aor.fpbackend.dto.SkillGetDto;
-import aor.fpbackend.dto.SkillRemoveDto;
+import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -67,11 +64,21 @@ public class SkillService {
     }
 
     @PUT
-    @Path("/remove")
+    @Path("/remove/from/user")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.REMOVE_SKILL)
-    public void removeSkill(@Valid SkillRemoveDto skillRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
-        skillBean.removeSkill(skillRemoveDto, securityContext);
+    @RequiresPermission(MethodEnum.REMOVE_SKILL_USER)
+    public void removeSkillFromUser(@Valid SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+        skillBean.removeSkillUser(skillRemoveUserDto, securityContext);
     }
+
+//    @PUT
+//    @Path("/remove/from/project")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @RequiresPermission(MethodEnum.REMOVE_SKILL_PROJECT)
+//    public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws UserNotFoundException, EntityNotFoundException {
+//        skillBean.removeSkillProject(skillRemoveProjectDto);
+//    }
+
+
 
 }

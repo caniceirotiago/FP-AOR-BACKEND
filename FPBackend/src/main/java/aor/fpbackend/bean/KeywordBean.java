@@ -33,13 +33,13 @@ public class KeywordBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(KeywordBean.class);
 
     @Transactional
-    public void addKeyword(KeywordAddDto keywordAddDto, ProjectGetDto projectGetDto) {
+    public void addKeyword(KeywordAddDto keywordAddDto) {
         // Ensure the keyword exists, creating it if necessary
         checkKeywordExist(keywordAddDto.getName());
         // Find the keyword by name
         KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordAddDto.getName());
         // Find the project by id
-        ProjectEntity projectEntity = projectDao.findProjectById(projectGetDto.getId());
+        ProjectEntity projectEntity = projectDao.findProjectById(keywordAddDto.getProjectId());
         // Add the keyword to the project's keywords
         Set<KeywordEntity> projectKeywords = projectEntity.getProjectKeywords();
         if (projectKeywords == null) {
@@ -84,9 +84,9 @@ public class KeywordBean implements Serializable {
     }
 
     @Transactional
-    public void removeKeyword(KeywordRemoveDto keywordRemoveDto, ProjectGetDto projectGetDto) throws EntityNotFoundException {
+    public void removeKeyword(KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {
         // Find the project by id
-        ProjectEntity projectEntity = projectDao.findProjectById(projectGetDto.getId());
+        ProjectEntity projectEntity = projectDao.findProjectById(keywordRemoveDto.getProjectId());
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }

@@ -26,8 +26,8 @@ public class KeywordService {
     @Path("/add/to/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_KEYWORD)
-    public void addKeyword(@Valid KeywordAddDto keywordAddDto, ProjectGetDto projectGetDto) {
-        keywordBean.addKeyword(keywordAddDto, projectGetDto);
+    public void addKeyword(@Valid KeywordAddDto keywordAddDto) {
+        keywordBean.addKeyword(keywordAddDto);
     }
 
     @GET
@@ -58,8 +58,8 @@ public class KeywordService {
     @Path("/remove")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_KEYWORD)
-    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto, ProjectGetDto projectGetDto) throws EntityNotFoundException {
-        keywordBean.removeKeyword(keywordRemoveDto, projectGetDto);
+    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {
+        keywordBean.removeKeyword(keywordRemoveDto);
     }
 
 }

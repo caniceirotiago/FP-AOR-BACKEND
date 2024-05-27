@@ -117,7 +117,7 @@ public class SkillBean implements Serializable {
     }
 
     @Transactional
-    public void removeSkill(SkillRemoveDto skillRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+    public void removeSkillUser(SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -125,7 +125,7 @@ public class SkillBean implements Serializable {
             throw new UserNotFoundException("User not found");
         }
         // Find the skill by Id
-        SkillEntity skillEntity = skillDao.findSkillById(skillRemoveDto.getId());
+        SkillEntity skillEntity = skillDao.findSkillById(skillRemoveUserDto.getId());
         if (skillEntity == null) {
             throw new EntityNotFoundException("Skill not found");
         }

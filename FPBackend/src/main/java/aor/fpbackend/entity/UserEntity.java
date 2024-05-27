@@ -120,12 +120,13 @@ public class UserEntity implements Serializable {
 
     public UserEntity() {}
 
-    public UserEntity(String email, String password, String username, String firstName, String lastName, boolean isPrivate, boolean isDeleted, boolean isConfirmed, LaboratoryEntity laboratory, RoleEntity role, Instant lastSentEmailTimestamp) {
+    public UserEntity(String email, String password, String username, String firstName, String lastName, String photo, boolean isPrivate, boolean isDeleted, boolean isConfirmed, LaboratoryEntity laboratory, RoleEntity role, Instant lastSentEmailTimestamp) {
         this.email = email;
         this.password = password;
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.photo = photo;
         this.isPrivate = isPrivate;
         this.isDeleted = isDeleted;
         this.isConfirmed = isConfirmed;

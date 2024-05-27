@@ -6,8 +6,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 
 @XmlRootElement
-public class KeywordRemoveDto {
-
+public class SkillRemoveProjectDto {
     @XmlElement
     @NotNull
     private long id;
@@ -16,10 +15,10 @@ public class KeywordRemoveDto {
     @NotNull
     private long projectId;
 
-    public KeywordRemoveDto() {
+    public SkillRemoveProjectDto() {
     }
 
-    public KeywordRemoveDto(long id, long projectId) {
+    public SkillRemoveProjectDto(long id, long projectId) {
         this.id = id;
         this.projectId = projectId;
     }
@@ -39,5 +38,4 @@ public class KeywordRemoveDto {
     public void setProjectId(long projectId) {
         this.projectId = projectId;
     }
-
 }

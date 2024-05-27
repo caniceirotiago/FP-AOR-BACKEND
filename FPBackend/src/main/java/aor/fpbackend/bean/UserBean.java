@@ -54,7 +54,7 @@ public class UserBean implements Serializable {
     ConfigurationBean configurationBean;
 
 
-    public void createDefaultUserIfNotExistent(String username, long roleId, long labId) throws DatabaseOperationException {
+    public void createDefaultUserIfNotExistent(String username, String photo, long roleId, long labId) throws DatabaseOperationException {
         if (!userDao.checkUsernameExist(username)) {
             String email = username + "@" + username + ".com";
             String encryptedPassword = passEncoder.encode(username);
@@ -66,7 +66,7 @@ public class UserBean implements Serializable {
             if (role == null) {
                 throw new IllegalStateException("Role not found.");
             }
-            UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, true, false, true, laboratory, role, Instant.now());
+            UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, photo, true, false, true, laboratory, role, Instant.now());
             userDao.persist(userEntity);
         }
     }

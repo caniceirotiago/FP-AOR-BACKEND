@@ -88,8 +88,12 @@ public class StartupBean implements Serializable {
 
     @Transactional
     private void createUsers() throws DatabaseOperationException {
-        userBean.createDefaultUserIfNotExistent("admin", 1, 2);
-        userBean.createDefaultUserIfNotExistent("standardUser", 2, 2);
+        userBean.createDefaultUserIfNotExistent("admin", "https://i.pinimg.com/474x/7e/71/9b/7e719be79d55353a3ce6551d704e43ca.jpg",1, 2);
+        userBean.createDefaultUserIfNotExistent("standardUser", "https://i.pinimg.com/474x/0a/a8/58/0aa8581c2cb0aa948d63ce3ddad90c81.jpg",2, 2);
+        userBean.createDefaultUserIfNotExistent("BrunoAleixo", "https://cdn.pixabay.com/photo/2013/07/12/14/36/man-148582_640.png",2, 3);
+        userBean.createDefaultUserIfNotExistent("MasterJohn", "https://cdn.pixabay.com/photo/2015/03/04/22/35/avatar-659651_640.png", 2, 4);
+        userBean.createDefaultUserIfNotExistent("QuimB", "https://img.freepik.com/premium-vector/user-woman-avatar-female-profile-icon-woman-character-portrait-with-smile-vector_555028-184.jpg", 2, 5);
+        userBean.createDefaultUserIfNotExistent("Toy", "https://i.pinimg.com/originals/54/8a/65/548a659c2b06a877516d3c998f5b0939.png", 2, 5);
     }
 
     @Transactional
@@ -106,7 +110,8 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_SKILLS, "retrieves all persisted skills", MethodEnum.ALL_SKILLS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.SKILL_BY_USER, "all skills by userId", MethodEnum.SKILL_BY_USER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.SKILL_FIRST_LETTER, "all skills by first letter", MethodEnum.SKILL_FIRST_LETTER.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_SKILL, "remove skill from user's list", MethodEnum.REMOVE_SKILL.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_SKILL_USER, "remove skill from user's list", MethodEnum.REMOVE_SKILL_USER.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_SKILL_PROJECT, "remove skill from project's list", MethodEnum.REMOVE_SKILL_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ADD_INTEREST, "add interest to user's list", MethodEnum.ADD_INTEREST.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_INTERESTS, "retrieves all persisted interests", MethodEnum.ALL_INTERESTS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.INTEREST_BY_USER, "all interests by userId", MethodEnum.INTEREST_BY_USER.getValue());
@@ -132,8 +137,10 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILL_BY_USER);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.SKILL_FIRST_LETTER);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILL_FIRST_LETTER);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_SKILL);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_SKILL);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_SKILL_USER);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_SKILL_USER);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_SKILL_PROJECT);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_SKILL_PROJECT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_INTEREST);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_INTEREST);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ALL_INTERESTS);
