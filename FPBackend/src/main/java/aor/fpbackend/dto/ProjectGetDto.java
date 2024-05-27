@@ -7,52 +7,42 @@ import aor.fpbackend.enums.ProjectStateEnum;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Set;
 
 @XmlRootElement
-public class ProjectDto implements Serializable {
+public class ProjectGetDto implements Serializable {
 
     @XmlElement
-    @NotNull
     private long id;
 
     @XmlElement
-    @NotNull
     private String name;
 
     @XmlElement
-    @NotNull
     private String description;
 
     @XmlElement
-    @NotNull
     private String motivation;
 
     @XmlElement
-    @NotNull
     private ProjectStateEnum state;
 
     @XmlElement
-    @NotNull
     private Instant creationDate;
 
     @XmlElement
     private Instant initialDate;
 
     @XmlElement
-    @NotNull
     private Instant finalDate;
 
     @XmlElement
     private Instant conclusionDate;
 
-    @XmlElement
-    @NotNull
-    private int openVacancies;
-
-    public ProjectDto() {
+    public ProjectGetDto() {
     }
 
-    public ProjectDto(long id, String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, int openVacancies) {
+    public ProjectGetDto(long id, String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -62,7 +52,6 @@ public class ProjectDto implements Serializable {
         this.initialDate = initialDate;
         this.finalDate = finalDate;
         this.conclusionDate = conclusionDate;
-        this.openVacancies = openVacancies;
     }
 
     public long getId() {
@@ -135,13 +124,5 @@ public class ProjectDto implements Serializable {
 
     public void setConclusionDate(Instant conclusionDate) {
         this.conclusionDate = conclusionDate;
-    }
-
-    public int getOpenVacancies() {
-        return openVacancies;
-    }
-
-    public void setOpenVacancies(int openVacancies) {
-        this.openVacancies = openVacancies;
     }
 }

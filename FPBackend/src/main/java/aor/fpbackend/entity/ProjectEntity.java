@@ -47,8 +47,9 @@ public class ProjectEntity implements Serializable {
     @Column(name = "conclusion_date", nullable = true)
     private Instant conclusionDate;
 
-    @OneToMany(mappedBy = "project")
-    private Set<ProjectMembershipEntity> members = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "laboratory_id")
+    private LaboratoryEntity laboratory;
 
     @OneToMany(mappedBy = "project")
     private Set<TaskEntity> tasks = new HashSet<>();
@@ -69,9 +70,11 @@ public class ProjectEntity implements Serializable {
     )
     private Set<KeywordEntity> projectKeywords = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "laboratory_id")
-    private LaboratoryEntity laboratory;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectAssetEntity> projectAssets = new HashSet<>();
+
+    @OneToMany(mappedBy = "project")
+    private Set<ProjectMembershipEntity> members = new HashSet<>();
 
     @OneToMany(mappedBy = "group")
     private Set<GroupMessageEntity> groupMessages = new HashSet<>();
@@ -79,22 +82,22 @@ public class ProjectEntity implements Serializable {
     @OneToMany(mappedBy = "project")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProjectAssetEntity> projectAssets = new HashSet<>();
+    public ProjectEntity() {
+    }
 
-
-    public ProjectEntity() {}
-
-    public ProjectEntity(String name, String description, String motivation, Instant creationDate, Instant finalDate, LaboratoryEntity laboratory) {
+    public ProjectEntity(String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate) {
         this.name = name;
         this.description = description;
         this.motivation = motivation;
+        this.state = state;
         this.creationDate = creationDate;
+        this.initialDate = initialDate;
         this.finalDate = finalDate;
-        this.laboratory = laboratory;
+        this.conclusionDate = conclusionDate;
     }
 
     // Getters and setters
+
 
     public long getId() {
         return id;
@@ -168,12 +171,12 @@ public class ProjectEntity implements Serializable {
         this.conclusionDate = conclusionDate;
     }
 
-    public Set<ProjectMembershipEntity> getMembers() {
-        return members;
+    public LaboratoryEntity getLaboratory() {
+        return laboratory;
     }
 
-    public void setMembers(Set<ProjectMembershipEntity> members) {
-        this.members = members;
+    public void setLaboratory(LaboratoryEntity laboratory) {
+        this.laboratory = laboratory;
     }
 
     public Set<TaskEntity> getTasks() {
@@ -200,12 +203,20 @@ public class ProjectEntity implements Serializable {
         this.projectKeywords = projectKeywords;
     }
 
-    public LaboratoryEntity getLaboratory() {
-        return laboratory;
+    public Set<ProjectAssetEntity> getProjectAssets() {
+        return projectAssets;
     }
 
-    public void setLaboratory(LaboratoryEntity laboratory) {
-        this.laboratory = laboratory;
+    public void setProjectAssets(Set<ProjectAssetEntity> projectAssets) {
+        this.projectAssets = projectAssets;
+    }
+
+    public Set<ProjectMembershipEntity> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Set<ProjectMembershipEntity> members) {
+        this.members = members;
     }
 
     public Set<GroupMessageEntity> getGroupMessages() {
@@ -224,14 +235,6 @@ public class ProjectEntity implements Serializable {
         this.projectLogs = projectLogs;
     }
 
-    public Set<ProjectAssetEntity> getProjectAssets() {
-        return projectAssets;
-    }
-
-    public void setProjectAssets(Set<ProjectAssetEntity> projectAssets) {
-        this.projectAssets = projectAssets;
-    }
-
     @Override
     public String toString() {
         return "ProjectEntity{" +
@@ -239,13 +242,12 @@ public class ProjectEntity implements Serializable {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", motivation='" + motivation + '\'' +
-                ", state='" + state + '\'' +
+                ", state=" + state +
                 ", creationDate=" + creationDate +
                 ", initialDate=" + initialDate +
                 ", finalDate=" + finalDate +
                 ", conclusionDate=" + conclusionDate +
+                ", laboratory=" + laboratory +
                 '}';
     }
-
-
 }
