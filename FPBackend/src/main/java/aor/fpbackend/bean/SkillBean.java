@@ -1,11 +1,10 @@
 package aor.fpbackend.bean;
 
+import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dao.SkillDao;
 import aor.fpbackend.dao.UserDao;
-import aor.fpbackend.dto.AuthUserDto;
-import aor.fpbackend.dto.SkillAddDto;
-import aor.fpbackend.dto.SkillGetDto;
-import aor.fpbackend.dto.SkillRemoveDto;
+import aor.fpbackend.dto.*;
+import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.exception.EntityNotFoundException;
@@ -28,17 +27,19 @@ public class SkillBean implements Serializable {
     @EJB
     SkillDao skillDao;
     @EJB
+    ProjectDao projectDao;
+    @EJB
     UserDao userDao;
     private static final long serialVersionUID = 1L;
 
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SkillBean.class);
 
     @Transactional
-    public void addSkill(SkillAddDto skillAddDto, @Context SecurityContext securityContext) {
+    public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) {
         // Ensure the skill exists, creating it if necessary
-        checkSkillExist(skillAddDto.getName());
+        checkSkillExist(skillAddUserDto.getName());
         // Find the skill by name
-        SkillEntity skillEntity = skillDao.findSkillByName(skillAddDto.getName());
+        SkillEntity skillEntity = skillDao.findSkillByName(skillAddUserDto.getName());
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -69,6 +70,33 @@ public class SkillBean implements Serializable {
         }
     }
 
+    @Transactional
+    public void addSkillProject(SkillAddProjectDto skillAddProjectDto) {
+        // Ensure the skill exists, creating it if necessary
+        checkSkillExist(skillAddProjectDto.getName());
+        // Find the skill by name
+        SkillEntity skillEntity = skillDao.findSkillByName(skillAddProjectDto.getName());
+        // Find the project by id
+        ProjectEntity projectEntity = projectDao.findProjectById(skillAddProjectDto.getProjectId());
+        // Add the skill to the project's skills
+        Set<SkillEntity> projectSkills = projectEntity.getProjectSkills();
+        if (projectSkills == null) {
+            projectSkills = new HashSet<>();
+        }
+        if (!projectSkills.contains(skillEntity)) {
+            projectSkills.add(skillEntity);
+            projectEntity.setProjectSkills(projectSkills);
+        }
+        // Add the project to the skill's projects
+        Set<ProjectEntity> skillProjects = skillEntity.getProjects();
+        if (skillProjects == null) {
+            skillProjects = new HashSet<>();
+        }
+        if (!skillProjects.contains(projectEntity)) {
+            skillProjects.add(projectEntity);
+            skillEntity.setProjects(skillProjects);
+        }
+    }
 
     public List<SkillGetDto> getSkills() {
         return convertSkillEntityListToSkillDtoList(skillDao.getAllSkills());

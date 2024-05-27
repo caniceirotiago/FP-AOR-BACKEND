@@ -101,7 +101,8 @@ public class StartupBean implements Serializable {
     @Transactional
     private void createMethods() throws DatabaseOperationException {
         methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_ROLE, "updates user role",MethodEnum.UPDATE_ROLE.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.ADD_SKILL, "add skill to user's list", MethodEnum.ADD_SKILL.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ADD_SKILL_USER, "add skill to user's list", MethodEnum.ADD_SKILL_USER.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ADD_SKILL_PROJECT, "add skill to project's list", MethodEnum.ADD_SKILL_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_SKILLS, "retrieves all persisted skills", MethodEnum.ALL_SKILLS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.SKILL_BY_USER, "all skills by userId", MethodEnum.SKILL_BY_USER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.SKILL_FIRST_LETTER, "all skills by first letter", MethodEnum.SKILL_FIRST_LETTER.getValue());
@@ -121,8 +122,10 @@ public class StartupBean implements Serializable {
     @Transactional
     private void addPermissions() throws DatabaseOperationException {
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.UPDATE_ROLE);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_SKILL);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_SKILL);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_SKILL_USER);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_SKILL_USER);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_SKILL_PROJECT);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_SKILL_PROJECT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ALL_SKILLS);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ALL_SKILLS);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.SKILL_BY_USER);

@@ -7,7 +7,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class SkillAddDto {
+public class SkillAddUserDto {
 
     @XmlElement
     @NotBlank
@@ -15,10 +15,10 @@ public class SkillAddDto {
     @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
     private String name;
 
-    public SkillAddDto() {
+    public SkillAddUserDto() {
     }
 
-    public SkillAddDto(String name) {
+    public SkillAddUserDto(String name) {
         this.name = name;
     }
 

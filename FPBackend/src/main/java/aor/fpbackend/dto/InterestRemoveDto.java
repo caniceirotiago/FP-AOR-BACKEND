@@ -4,20 +4,18 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-
 @XmlRootElement
-public class SkillRemoveDto {
+public class InterestRemoveDto {
     @XmlElement
     @NotNull
     private long id;
 
-    public SkillRemoveDto() {
+    public InterestRemoveDto() {
     }
 
-    public SkillRemoveDto(long id) {
+    public InterestRemoveDto(long id) {
         this.id = id;
     }
-
 
     public long getId() {
         return id;
