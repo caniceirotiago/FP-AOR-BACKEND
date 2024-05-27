@@ -3,13 +3,11 @@ package aor.fpbackend.dao;
 import aor.fpbackend.bean.PassEncoder;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
+import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +110,13 @@ public class UserDao extends AbstractDao<UserEntity> {
         } catch (NoResultException e) {
             return null;
         }
+    }
+
+    public List<UserEntity> getUsersByFirstLetter(char firstLetter) {
+        TypedQuery<UserEntity> query = em.createQuery(
+                "SELECT u FROM UserEntity u WHERE u.username LIKE :pattern", UserEntity.class);
+        query.setParameter("pattern", firstLetter + "%");
+        return query.getResultList();
     }
 
 }

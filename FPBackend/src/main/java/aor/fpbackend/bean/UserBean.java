@@ -367,12 +367,16 @@ public class UserBean implements Serializable {
     public UserBasicInfoDto getUserBasicInfo(@Context SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-        UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
-        userBasicInfo.setUsername(userEntity.getUsername());
-        userBasicInfo.setRole(userEntity.getRole().getId());
-        userBasicInfo.setPhoto(userEntity.getPhoto());
-        userBasicInfo.setId(userEntity.getId());
-        return userBasicInfo;
+        return convertUserEntitytoUserBasicInfoDto(userEntity);
+    }
+
+    public List<UserBasicInfoDto> getUsersBasicInfoByFirstLetter(String firstLetter) {
+        if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
+            LOGGER.error("Invalid first letter: " + firstLetter);
+            return new ArrayList<>();
+        }
+        List<UserEntity> userEntities = userDao.getUsersByFirstLetter(firstLetter.charAt(0));
+        return convertUserEntityListToUserBasicInfoDtoList(userEntities);
     }
 
     public ProfileDto getProfileDto(String username, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
@@ -459,13 +463,22 @@ public class UserBean implements Serializable {
         return userRegisterDto;
     }
 
-    private ArrayList<UserRegisterDto> convertUserRegisterEntityListToUserDtoList(ArrayList<UserEntity> userEntities) {
-        ArrayList<UserRegisterDto> userRegisterDtos = new ArrayList<>();
+    private UserBasicInfoDto convertUserEntitytoUserBasicInfoDto(UserEntity userEntity) {
+        UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
+        userBasicInfo.setUsername(userEntity.getUsername());
+        userBasicInfo.setRole(userEntity.getRole().getId());
+        userBasicInfo.setPhoto(userEntity.getPhoto());
+        userBasicInfo.setId(userEntity.getId());
+        return userBasicInfo;
+    }
+
+    private List<UserBasicInfoDto> convertUserEntityListToUserBasicInfoDtoList(List<UserEntity> userEntities) {
+        ArrayList<UserBasicInfoDto> userBasicInfoDtos = new ArrayList<>();
         for (UserEntity u : userEntities) {
-            UserRegisterDto userRegisterDto = convertUserEntitytoUserRegisterDto(u);
-            userRegisterDtos.add(userRegisterDto);
+            UserBasicInfoDto userBasicInfoDto = convertUserEntitytoUserBasicInfoDto(u);
+            userBasicInfoDtos.add(userBasicInfoDto);
         }
-        return userRegisterDtos;
+        return userBasicInfoDtos;
     }
 
 }
