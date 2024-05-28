@@ -7,6 +7,9 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "project_membership")
+
+@NamedQuery(name = "ProjectMembership.findProjectMembershipId", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.id = :id")
+
 public class ProjectMembershipEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

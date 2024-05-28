@@ -18,7 +18,7 @@ public class AssetService {
 
 
     @POST
-    @Path("/add/asset")
+    @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_ASSET)
     public void createAsset(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException {
@@ -56,6 +56,4 @@ public class AssetService {
     public void removeAsset(@Valid AssetRemoveDto AssetRemoveDto) throws EntityNotFoundException {
         assetBean.removeAsset(AssetRemoveDto);
     }
-
-
 }

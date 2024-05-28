@@ -9,6 +9,7 @@ import aor.fpbackend.dto.ProjectGetDto;
 import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
+import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -34,13 +35,16 @@ public class KeywordBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(KeywordBean.class);
 
     @Transactional
-    public void addKeyword(String keywordName, long projectId) {
+    public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException, AttributeAlreadyExistsException {
         // Ensure the keyword exists, creating it if necessary
         checkKeywordExist(keywordName);
         // Find the keyword by name
         KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordName);
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if(projectEntity == null) {
+            throw new EntityNotFoundException("Project not found");
+        }
         // Add the keyword to the project's keywords
         Set<KeywordEntity> projectKeywords = projectEntity.getProjectKeywords();
         if (projectKeywords == null) {
@@ -61,10 +65,12 @@ public class KeywordBean implements Serializable {
         }
     }
 
-    private void checkKeywordExist(String name) {
+    private void checkKeywordExist(String name) throws AttributeAlreadyExistsException {
         if (!keywordDao.checkKeywordExist(name)) {
             KeywordEntity keyword = new KeywordEntity(name);
             keywordDao.persist(keyword);
+        }else{
+            throw new AttributeAlreadyExistsException("Keyword already exists");
         }
     }
 

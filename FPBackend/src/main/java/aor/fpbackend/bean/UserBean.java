@@ -57,6 +57,8 @@ public class UserBean implements Serializable {
     ConfigurationBean configurationBean;
     @EJB
     ProjectDao projectDao;
+    @EJB
+    ProjectMembershipDao projectMemberDao;
 
 
     public void createDefaultUserIfNotExistent(String username, String photo, long roleId, long labId) throws DatabaseOperationException {
@@ -476,6 +478,7 @@ public class UserBean implements Serializable {
         membershipEntity.setProject(projectEntity);
         membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
         membershipEntity.setAccepted(true); // User is immediately accepted
+        projectMemberDao.persist(membershipEntity);
         // Add the membership to the user's projects
         userEntity.getProjects().add(membershipEntity);
         // Add the user to the project's users

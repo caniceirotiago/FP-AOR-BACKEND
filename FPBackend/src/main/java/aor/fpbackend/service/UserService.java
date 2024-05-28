@@ -155,7 +155,7 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public void checkSession() {}
 
-    @PUT
+    @POST
     @Path("/add/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_USER)
