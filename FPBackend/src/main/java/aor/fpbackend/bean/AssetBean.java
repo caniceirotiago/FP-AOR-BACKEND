@@ -32,20 +32,20 @@ public class AssetBean implements Serializable {
 
     private static final Logger LOGGER = LogManager.getLogger(aor.fpbackend.bean.KeywordBean.class);
 
-//    @Transactional
-//    public void addAsset(AssetAddDto assetAddDto) {
-//        // Ensure the asset exists, creating it if necessary
-//        if (!assetDao.checkAssetExist(assetAddDto.getName())) {
-//            AssetEntity asset = new AssetEntity(assetAddDto.getName(), assetAddDto.getType(),
-//                    assetAddDto.getDescription(), assetAddDto.getQuantity(), assetAddDto.getPartNumber(), assetAddDto.getManufacturer(),
-//                    assetAddDto.getManufacturerPhone(), assetAddDto.getObservations());
-//            assetDao.persist(asset);
-//        }
-//        // Find the asset by name
-//        AssetEntity assetEntity = assetDao.findAssetByName(assetAddDto.getName());
-//        // Find the project by id
-//        ProjectEntity projectEntity = projectDao.findProjectById(assetAddDto.getProjectId());
-//        // Add the asset to the project's asset
+    @Transactional
+    public void addAsset(AssetAddDto assetAddDto) {
+        // Ensure the asset exists, creating it if necessary
+        if (!assetDao.checkAssetExist(assetAddDto.getName())) {
+            AssetEntity asset = new AssetEntity(assetAddDto.getName(), assetAddDto.getType(),
+                    assetAddDto.getDescription(), assetAddDto.getQuantity(), assetAddDto.getPartNumber(), assetAddDto.getManufacturer(),
+                    assetAddDto.getManufacturerPhone(), assetAddDto.getObservations());
+            assetDao.persist(asset);
+        }
+        // Find the asset by name
+        AssetEntity assetEntity = assetDao.findAssetByName(assetAddDto.getName());
+        // Find the project by id
+        ProjectEntity projectEntity = projectDao.findProjectById(assetAddDto.getProjectId());
+        // Add the asset to the project's asset
 //        Set<ProjectAssetEntity> projectAssets = projectEntity.getProjectAssets();
 //        if (projectAssets == null) {
 //            projectAssets = new HashSet<>();
@@ -63,7 +63,7 @@ public class AssetBean implements Serializable {
 //            assetProjects.add(projectEntity);
 //            assetEntity.setProjects(assetProjects);
 //        }
-//    }
+    }
 
 //    public List<AssetGetDto> getAssets() {
 //        return convertKeywordEntityListToKeywordDtoList(keywordDao.getAllKeywords());

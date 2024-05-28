@@ -55,13 +55,13 @@ public class SkillService {
         return skillBean.getSkillsByUser(securityContext);
     }
 
-//    @GET
-//    @Path("/project")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @RequiresPermission(MethodEnum.SKILL_BY_USER)
-//    public List<SkillGetDto> getAllSkillsByUser(@Context SecurityContext securityContext) {
-//        return skillBean.getSkillsByUser(securityContext);
-//    }
+    @GET
+    @Path("/project")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.SKILL_BY_PROJECT)
+    public List<SkillGetDto> getAllSkillsByProject(SkillRemoveProjectDto skillRemoveProjectDto) {
+        return skillBean.getSkillsByProject(skillRemoveProjectDto);
+    }
 
     @GET
     @Path("/first/letter")
@@ -83,7 +83,7 @@ public class SkillService {
     @Path("/remove/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_SKILL_PROJECT)
-    public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws UserNotFoundException, EntityNotFoundException {
+    public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException {
         skillBean.removeSkillProject(skillRemoveProjectDto);
     }
 

@@ -7,6 +7,7 @@ import aor.fpbackend.dto.ProjectGetDto;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
@@ -27,6 +28,15 @@ public class ProjectBean implements Serializable {
 
 
     public boolean createProject(ProjectCreateDto projectCreateDto) {
+        if (projectCreateDto.getLaboratoryId() <= 0) {
+            throw new IllegalArgumentException("Laboratory ID must be a positive number");
+        }
+        if (projectCreateDto.getMotivation() != null && projectCreateDto.getMotivation().isEmpty()) {
+            throw new IllegalArgumentException("Motivation, if provided, cannot be empty");
+        }
+        if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
+            throw new IllegalArgumentException("Conclusion date cannot be in the past");
+        }
         ProjectEntity projectEntity = convertProjectDtotoProjectEntity(projectCreateDto);
         projectEntity.setState(ProjectStateEnum.PLANNING);
         projectEntity.setCreationDate(Instant.now());
@@ -43,6 +53,20 @@ public class ProjectBean implements Serializable {
             return new ArrayList<>();
         }
     }
+
+    public ProjectGetDto getProjectDetailsById(long projectId) throws EntityNotFoundException {
+        try {
+            ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+            if (projectEntity != null) {
+                return convertProjectEntityToProjectDto(projectEntity);
+            } else {
+                throw new EntityNotFoundException("Project not found");
+            }
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("Project not found");
+        }
+    }
+
 
 
     private ProjectEntity convertProjectDtotoProjectEntity(ProjectCreateDto projectCreateDto) {

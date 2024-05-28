@@ -1,6 +1,7 @@
 package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.ProjectStateEnum;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -13,11 +14,11 @@ import java.time.Instant;
 public class ProjectCreateDto implements Serializable {
 
     @XmlElement
-    @NotNull
+    @NotBlank
     private String name;
 
     @XmlElement
-    @NotNull
+    @NotBlank
     private String description;
 
     @XmlElement

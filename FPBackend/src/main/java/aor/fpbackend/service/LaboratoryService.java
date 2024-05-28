@@ -15,13 +15,6 @@ public class LaboratoryService {
     @EJB
     LaboratoryBean labBean;
 
-    @POST
-    @Path("/create")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void registerUser(LocationEnum location) throws DatabaseOperationException {
-        labBean.createLaboratoryIfNotExists(location);
-    }
-
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
