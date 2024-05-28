@@ -2,11 +2,9 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.InterestDao;
 import aor.fpbackend.dao.UserDao;
-import aor.fpbackend.dto.AuthUserDto;
-import aor.fpbackend.dto.InterestAddDto;
-import aor.fpbackend.dto.InterestGetDto;
-import aor.fpbackend.dto.InterestRemoveDto;
+import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.InterestEntity;
+import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -73,9 +71,9 @@ public class InterestBean implements Serializable {
         return convertInterestEntityListToInterestDtoList(interestDao.getAllInterests());
     }
 
-    public List<InterestGetDto> getInterestsByUser(@Context SecurityContext securityContext) {
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        return convertInterestEntityListToInterestDtoList(interestDao.getInterestsByUserId(authUserDto.getUserId()));
+    public List<InterestGetDto> getInterestsByUser(long userId) {
+        List<InterestEntity> interestEntities = interestDao.getInterestsByUserId(userId);
+        return convertInterestEntityListToInterestDtoList(interestEntities);
     }
 
     public List<InterestGetDto> getInterestsByFirstLetter(String firstLetter) {

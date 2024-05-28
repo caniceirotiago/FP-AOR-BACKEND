@@ -48,15 +48,15 @@ public class SkillService {
     }
 
     @GET
-    @Path("/user")
+    @Path("/user/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.SKILL_BY_USER)
-    public List<SkillGetDto> getAllSkillsByUser(@Context SecurityContext securityContext) {
-        return skillBean.getSkillsByUser(securityContext);
+    public List<SkillGetDto> getAllSkillsByUser(@PathParam("userId") long userId){
+        return skillBean.getSkillsByUser(userId);
     }
 
     @GET
-    @Path("/{projectId}")
+    @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.SKILL_BY_PROJECT)
     public List<SkillGetDto> getAllSkillsByProject(@PathParam("projectId") long projectId) {

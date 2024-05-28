@@ -34,7 +34,7 @@ public class AssetService {
     }
 
     @GET
-    @Path("/{projectId}")
+    @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ASSET_BY_PROJECT)
     public List<AssetGetDto> getAssetsByProject(@PathParam("projectId") long projectId) {
