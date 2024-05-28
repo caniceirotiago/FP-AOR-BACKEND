@@ -3,6 +3,7 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.InterestDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.*;
+import aor.fpbackend.entity.AssetEntity;
 import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
@@ -87,7 +88,9 @@ public class InterestBean implements Serializable {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
         }
-        return convertInterestEntityListToInterestDtoList(interestDao.getInterestsByFirstLetter(firstLetter.charAt(0)));
+        String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
+        List<InterestEntity> interestEntities = interestDao.getInterestsByFirstLetter(lowerCaseFirstLetter);
+        return convertInterestEntityListToInterestDtoList(interestEntities);
     }
 
     @Transactional

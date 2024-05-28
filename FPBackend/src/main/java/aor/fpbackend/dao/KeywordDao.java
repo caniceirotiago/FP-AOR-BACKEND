@@ -63,9 +63,9 @@ public class KeywordDao extends AbstractDao<KeywordEntity> {
         return query.getResultList();
     }
 
-    public List<KeywordEntity> getKeywordsByFirstLetter(char firstLetter) {
+    public List<KeywordEntity> getKeywordsByFirstLetter(String firstLetter) {
         TypedQuery<KeywordEntity> query = em.createQuery(
-                "SELECT k FROM KeywordEntity k WHERE k.name LIKE :pattern", KeywordEntity.class);
+                "SELECT k FROM KeywordEntity k WHERE LOWER(k.name) LIKE :pattern", KeywordEntity.class);
         query.setParameter("pattern", firstLetter + "%");
         return query.getResultList();
     }

@@ -6,6 +6,7 @@ import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.dto.KeywordGetDto;
 import aor.fpbackend.dto.KeywordRemoveDto;
 import aor.fpbackend.dto.ProjectGetDto;
+import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.exception.EntityNotFoundException;
@@ -80,7 +81,9 @@ public class KeywordBean implements Serializable {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
         }
-        return convertKeywordEntityListToKeywordDtoList(keywordDao.getKeywordsByFirstLetter(firstLetter.charAt(0)));
+        String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
+        List<KeywordEntity> keywordEntities = keywordDao.getKeywordsByFirstLetter(lowerCaseFirstLetter);
+        return convertKeywordEntityListToKeywordDtoList(keywordEntities);
     }
 
     @Transactional

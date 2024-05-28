@@ -110,12 +110,10 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-
-        public List<UserEntity> getUsersByFirstLetter(char firstLetter) {
-            TypedQuery<UserEntity> query = em.createQuery(
-                    "SELECT u FROM UserEntity u WHERE u.username LIKE :pattern", UserEntity.class);
-            query.setParameter("pattern", firstLetter + "%");
-            return query.getResultList();
-        }
-
+    public List<UserEntity> getUsersByFirstLetter(String firstLetter) {
+        TypedQuery<UserEntity> query = em.createQuery(
+                "SELECT u FROM UserEntity u WHERE LOWER(u.username) LIKE :pattern", UserEntity.class);
+        query.setParameter("pattern", firstLetter + "%");
+        return query.getResultList();
+    }
 }

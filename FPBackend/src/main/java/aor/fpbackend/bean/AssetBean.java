@@ -6,6 +6,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.AssetEntity;
 import aor.fpbackend.entity.ProjectAssetEntity;
 import aor.fpbackend.entity.ProjectEntity;
+import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -85,7 +86,9 @@ public class AssetBean implements Serializable {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
         }
-        return convertAssetEntityListToAssetDtoList(assetDao.getAssetsByFirstLetter(firstLetter.charAt(0)));
+        String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
+        List<AssetEntity> assetEntities = assetDao.getAssetsByFirstLetter(lowerCaseFirstLetter);
+        return convertAssetEntityListToAssetDtoList(assetEntities);
     }
 
     @Transactional

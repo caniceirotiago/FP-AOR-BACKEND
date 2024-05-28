@@ -70,9 +70,9 @@ public class InterestDao extends AbstractDao<InterestEntity> {
         return query.getResultList();
     }
 
-    public List<InterestEntity> getInterestsByFirstLetter(char firstLetter) {
+    public List<InterestEntity> getInterestsByFirstLetter(String firstLetter) {
         TypedQuery<InterestEntity> query = em.createQuery(
-                "SELECT i FROM InterestEntity i WHERE i.name LIKE :pattern", InterestEntity.class);
+                "SELECT i FROM InterestEntity i WHERE LOWER(i.name) LIKE :pattern", InterestEntity.class);
         query.setParameter("pattern", firstLetter + "%");
         return query.getResultList();
     }

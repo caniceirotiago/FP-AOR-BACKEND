@@ -63,9 +63,9 @@ import java.util.List;
             return query.getResultList();
         }
 
-        public List<AssetEntity> getAssetsByFirstLetter(char firstLetter) {
+        public List<AssetEntity> getAssetsByFirstLetter(String firstLetter) {
             TypedQuery<AssetEntity> query = em.createQuery(
-                    "SELECT a FROM AssetEntity a WHERE a.name LIKE :pattern", AssetEntity.class);
+                    "SELECT a FROM AssetEntity a WHERE LOWER(a.name) LIKE :pattern", AssetEntity.class);
             query.setParameter("pattern", firstLetter + "%");
             return query.getResultList();
         }

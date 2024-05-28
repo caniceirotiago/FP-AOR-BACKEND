@@ -382,7 +382,8 @@ public class UserBean implements Serializable {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
         }
-        List<UserEntity> userEntities = userDao.getUsersByFirstLetter(firstLetter.charAt(0));
+        String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
+        List<UserEntity> userEntities = userDao.getUsersByFirstLetter(lowerCaseFirstLetter);
         return convertUserEntityListToUserBasicInfoDtoList(userEntities);
     }
 
