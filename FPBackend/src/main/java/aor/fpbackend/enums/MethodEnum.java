@@ -22,7 +22,9 @@ public enum MethodEnum {
     SKILL_BY_PROJECT(19L),
     ADD_PROJECT(20L),
     ALL_PROJECTS(21L),
-    PROJECT_BY_ID(22L);
+    PROJECT_BY_ID(22L),
+    ADD_ASSET(23L),
+    REMOVE_ASSET(24L);
 
     private final long value;
 

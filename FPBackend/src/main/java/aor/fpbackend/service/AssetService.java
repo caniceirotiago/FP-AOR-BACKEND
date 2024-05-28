@@ -2,8 +2,11 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.AssetBean;
 import aor.fpbackend.dto.AssetAddDto;
+import aor.fpbackend.dto.AssetRemoveDto;
+import aor.fpbackend.dto.KeywordRemoveDto;
 import aor.fpbackend.dto.ProjectCreateDto;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.filters.RequiresPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
@@ -17,9 +20,9 @@ public class AssetService {
 
 
     @POST
-    @Path("/add/project")
+    @Path("/add/asset")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ADD_PROJECT)
+    @RequiresPermission(MethodEnum.ADD_ASSET)
     public void createAsset(@Valid AssetAddDto assetAddDto) {
         assetBean.addAsset(assetAddDto);
     }
@@ -39,6 +42,14 @@ public class AssetService {
 //    public List<SkillGetDto> getAllSkillsByFirstLetter(@QueryParam("value") String firstLetter) {
 //        return assetBean.getSkillsByFirstLetter(firstLetter);
 //    }
+
+    @PUT
+    @Path("/remove/project")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.REMOVE_ASSET)
+    public void removeAsset(@Valid AssetRemoveDto AssetRemoveDto) throws EntityNotFoundException {
+        assetBean.removeAsset(AssetRemoveDto);
+    }
 
 
 }

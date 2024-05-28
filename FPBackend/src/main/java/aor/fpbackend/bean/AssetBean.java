@@ -30,39 +30,40 @@ public class AssetBean implements Serializable {
     ProjectDao projectDao;
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LogManager.getLogger(aor.fpbackend.bean.KeywordBean.class);
+    private static final Logger LOGGER = LogManager.getLogger(AssetBean.class);
 
     @Transactional
     public void addAsset(AssetAddDto assetAddDto) {
-        // Ensure the asset exists, creating it if necessary
+        // Check if the asset already exists, creating it if necessary
+        AssetEntity assetEntity;
         if (!assetDao.checkAssetExist(assetAddDto.getName())) {
-            AssetEntity asset = new AssetEntity(assetAddDto.getName(), assetAddDto.getType(),
-                    assetAddDto.getDescription(), assetAddDto.getQuantity(), assetAddDto.getPartNumber(), assetAddDto.getManufacturer(),
+            assetEntity = new AssetEntity(assetAddDto.getName(), assetAddDto.getType(),
+                    assetAddDto.getDescription(), assetAddDto.getQuantity(),
+                    assetAddDto.getPartNumber(), assetAddDto.getManufacturer(),
                     assetAddDto.getManufacturerPhone(), assetAddDto.getObservations());
-            assetDao.persist(asset);
+            assetDao.persist(assetEntity);
+        } else {
+            assetEntity = assetDao.findAssetByName(assetAddDto.getName());
         }
-        // Find the asset by name
-        AssetEntity assetEntity = assetDao.findAssetByName(assetAddDto.getName());
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(assetAddDto.getProjectId());
-        // Add the asset to the project's asset
-//        Set<ProjectAssetEntity> projectAssets = projectEntity.getProjectAssets();
-//        if (projectAssets == null) {
-//            projectAssets = new HashSet<>();
-//        }
-//        if (!projectAssets.contains(assetEntity)) {
-//            projectAssets.add(assetEntity);
-//            projectEntity.setProjectKeywords(projectAssets);
-//        }
-//        // Add the project to the asset's projects
-//        Set<ProjectEntity> assetProjects = assetEntity.getProjectAssets();
-//        if (assetProjects == null) {
-//            assetProjects = new HashSet<>();
-//        }
-//        if (!assetProjects.contains(projectEntity)) {
-//            assetProjects.add(projectEntity);
-//            assetEntity.setProjects(assetProjects);
-//        }
+        // Ensure the projectAssets set is initialized for the assetEntity
+        if (assetEntity.getProjectAssets() == null) {
+            assetEntity.setProjectAssets(new HashSet<>());
+        }
+        // Ensure the projectAssets set is initialized
+        if (projectEntity.getProjectAssets() == null) {
+            projectEntity.setProjectAssets(new HashSet<>());
+        }
+        // Create a new ProjectAssetEntity
+        ProjectAssetEntity projectAssetEntity = new ProjectAssetEntity();
+        projectAssetEntity.setAsset(assetEntity);
+        projectAssetEntity.setProject(projectEntity);
+        projectAssetEntity.setUsedQuantity(assetAddDto.getQuantity());
+        // Add the ProjectAssetEntity to the project's projectAssets set
+        projectEntity.getProjectAssets().add(projectAssetEntity);
+        // Add the ProjectAssetEntity to the asset's projectAssets set
+        assetEntity.getProjectAssets().add(projectAssetEntity);
     }
 
 //    public List<AssetGetDto> getAssets() {
@@ -81,32 +82,24 @@ public class AssetBean implements Serializable {
 //        return convertKeywordEntityListToKeywordDtoList(keywordDao.getKeywordsByFirstLetter(firstLetter.charAt(0)));
 //    }
 
-//    @Transactional
-//    public void removeKeyword(KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {
-//        // Find the project by id
-//        ProjectEntity projectEntity = projectDao.findProjectById(keywordRemoveDto.getProjectId());
-//        if (projectEntity == null) {
-//            throw new EntityNotFoundException("Project not found");
-//        }
-//        // Find the keyword by Id
-//        KeywordEntity keywordEntity = keywordDao.findKeywordById(keywordRemoveDto.getId());
-//        if (keywordEntity == null) {
-//            throw new EntityNotFoundException("Keyword not found");
-//        }
-//        // Remove the keyword from the project's keywords
-//        Set<KeywordEntity> projectKeywords = projectEntity.getProjectKeywords();
-//        if (projectKeywords.contains(keywordEntity)) {
-//            projectKeywords.remove(keywordEntity);
-//            projectEntity.setProjectKeywords(projectKeywords);
-//
-//            // Remove the project from the keyword's projects
-//            Set<ProjectEntity> keywordProjects = keywordEntity.getProjects();
-//            keywordProjects.remove(projectEntity);
-//            keywordEntity.setProjects(keywordProjects);
-//        } else {
-//            throw new IllegalStateException("Project does not have the specified keyword");
-//        }
-//    }
+    @Transactional
+    public void removeAsset(AssetRemoveDto assetRemoveDto) throws EntityNotFoundException {
+        // Find the project by Id
+        ProjectEntity projectEntity = projectDao.findProjectById(assetRemoveDto.getProjectId());
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found");
+        }
+        // Find the asset by Id
+        AssetEntity assetEntity = assetDao.findAssetById(assetRemoveDto.getId());
+        if (assetEntity == null) {
+            throw new EntityNotFoundException("Asset not found");
+        }
+        // Remove the asset from the project's projectAssets
+        projectEntity.getProjectAssets().remove(assetEntity);
+        // Remove the project from the asset's projectAssets
+        assetEntity.getProjectAssets().remove(projectEntity);
+    }
+
 
 //    public KeywordGetDto convertKeywordEntityToKeywordDto(KeywordEntity keywordEntity) {
 //        KeywordGetDto keywordGetDto = new KeywordGetDto();
