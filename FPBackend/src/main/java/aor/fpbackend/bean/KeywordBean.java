@@ -71,8 +71,8 @@ public class KeywordBean implements Serializable {
         return convertKeywordEntityListToKeywordDtoList(keywordDao.getAllKeywords());
     }
 
-    public List<KeywordGetDto> getKeywordsByProject(KeywordRemoveDto keywordRemoveDto) {
-        return convertKeywordEntityListToKeywordDtoList(keywordDao.getKeywordsByProjectId(keywordRemoveDto.getProjectId()));
+    public List<KeywordGetDto> getKeywordsByProject(long projectId) {
+        return convertKeywordEntityListToKeywordDtoList(keywordDao.getKeywordsByProjectId(projectId));
     }
 
     public List<KeywordGetDto> getKeywordsByFirstLetter(String firstLetter) {

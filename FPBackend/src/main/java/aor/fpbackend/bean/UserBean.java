@@ -4,6 +4,7 @@ import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
@@ -12,6 +13,7 @@ import io.jsonwebtoken.*;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.*;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +54,8 @@ public class UserBean implements Serializable {
     EmailService emailService;
     @EJB
     ConfigurationBean configurationBean;
+    @EJB
+    ProjectDao projectDao;
 
 
     public void createDefaultUserIfNotExistent(String username, String photo, long roleId, long labId) throws DatabaseOperationException {
@@ -151,21 +155,22 @@ public class UserBean implements Serializable {
             throw new RuntimeException("Unable to retrieve host address", e);
         }
     }
+
     public void requestNewConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException {
         UserEntity user = userDao.findUserByEmail(email.getEmail());
-        if(user == null){
+        if (user == null) {
             LOGGER.warn("Attempt to request new confirmation email at - User not foud: " + email.getEmail());
             throw new InvalidRequestOnRegistConfirmationException("Not found user with this email");
         }
-        if(user.isConfirmed()){
+        if (user.isConfirmed()) {
             LOGGER.warn("Attempt to request new confirmation email at - User already confirmed: " + email.getEmail());
             throw new InvalidRequestOnRegistConfirmationException("Not possible to request confirmation email please contact the administrator");
         }
-        if(user.getLastSentEmailTimestamp() != null){
+        if (user.getLastSentEmailTimestamp() != null) {
             Instant now = Instant.now();
             Instant lastSentEmail = user.getLastSentEmailTimestamp();
             long timeDifference = ChronoUnit.MINUTES.between(lastSentEmail, now);
-            if(timeDifference < 1){
+            if (timeDifference < 1) {
                 LOGGER.warn("Attempt to request new confirmation email at - Time difference less than 1 minute" +
                         LocalDateTime.now() + ": " + email.getEmail());
                 throw new InvalidRequestOnRegistConfirmationException("You can't request a new confirmation email now, please wait 1 minute");
@@ -217,6 +222,7 @@ public class UserBean implements Serializable {
         sessionDao.persist(new SessionEntity(authToken, sessionToken, expirationInstant, userEntity));
         return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
     }
+
     public String generateJwtToken(UserEntity user, long expirationTime, String tokenType) {
         Key secretKey = JwtKeyProvider.getKey();
 
@@ -235,7 +241,6 @@ public class UserBean implements Serializable {
 
         return builder.compact();
     }
-
 
 
     public String generateNewToken() {
@@ -283,6 +288,7 @@ public class UserBean implements Serializable {
             throw new InvalidCredentialsException("Error processing token: " + e.getMessage());
         }
     }
+
     public void createNewSessionAndInvaladateOld(AuthUserDto authUserDto, ContainerRequestContext requestContext, long definedTimeout, String oldToken) throws UnknownHostException {
         UserEntity user = userDao.findUserById(authUserDto.getUserId());
         String newAuthToken = generateJwtToken(user, definedTimeout, "auth");
@@ -295,7 +301,7 @@ public class UserBean implements Serializable {
         sessionDao.inativateSessionbyAuthToken(oldToken);
     }
 
-    public void createInvalidSession(AuthUserDto authUserDto ,ContainerRequestContext requestContext) throws UnknownHostException {
+    public void createInvalidSession(AuthUserDto authUserDto, ContainerRequestContext requestContext) throws UnknownHostException {
         sessionDao.inativateSessionbyAuthToken(authUserDto.getToken());
         // Gera tokens inválidos (valor "null")
         String invalidToken = "null";
@@ -304,7 +310,7 @@ public class UserBean implements Serializable {
         requestContext.setProperty("newSessionToken", invalidToken);
     }
 
-    public void logout(SecurityContext securityContext ) throws InvalidCredentialsException, UnknownHostException {
+    public void logout(SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
         // Invalida a sessão antiga
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         sessionDao.inativateSessionbyAuthToken(authUserDto.getToken());
@@ -434,14 +440,74 @@ public class UserBean implements Serializable {
         u.setRole(newRole);
     }
 
-    public boolean isMethodAssociatedWithRole(long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
-        // Check if user's role has permission to the method
-        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, method);
-        if (!isMethodAssociated) {
-            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt");
-            throw new InvalidCredentialsException("Unauthorized access");
+    //TODO Não está a ser usado!!
+
+//    public boolean isMethodAssociatedWithRole(long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
+//        // Check if user's role has permission to the method
+//        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, method);
+//        if (!isMethodAssociated) {
+//            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt");
+//            throw new InvalidCredentialsException("Unauthorized access");
+//        }
+//        return true;
+//    }
+
+    @Transactional
+    public void addUserToProject(long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException {
+        // Find the project by Id
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found");
         }
-        return true;
+        // Get the authenticated user
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        if (userEntity == null) {
+            throw new EntityNotFoundException("User not found");
+        }
+        // Check if the user is already a member of the project
+        for (ProjectMembershipEntity membership : projectEntity.getMembers()) {
+            if (membership.getUser().equals(userEntity)) {
+                throw new IllegalStateException("User is already a member of the project");
+            }
+        }
+        // Create a new ProjectMembershipEntity with the default role NORMAL_USER
+        ProjectMembershipEntity membershipEntity = new ProjectMembershipEntity();
+        membershipEntity.setUser(userEntity);
+        membershipEntity.setProject(projectEntity);
+        membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
+        membershipEntity.setAccepted(true); // User is immediately accepted
+        // Add the membership to the user's projects
+        userEntity.getProjects().add(membershipEntity);
+        // Add the user to the project's users
+        projectEntity.getMembers().add(membershipEntity);
+    }
+
+    @Transactional
+    public void removeUserFromProject(long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException {
+        // Find the project by Id
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found");
+        }
+        // Get the authenticated user
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        if (userEntity == null) {
+            throw new EntityNotFoundException("User not found");
+        }
+        ProjectMembershipEntity userMembership = null;
+        // Check if the user is a member of the project
+        for (ProjectMembershipEntity membership : projectEntity.getMembers()) {
+            if (membership.getUser().equals(userEntity)) {
+                userMembership = membership;
+                break;
+            }
+        }
+        // Remove the membership from the user's projects
+        userEntity.getProjects().remove(userMembership);
+        // Remove the user from the project's users
+        projectEntity.getMembers().remove(userMembership);
     }
 
     private UserEntity convertUserRegisterDtotoUserEntity(UserRegisterDto user) {

@@ -39,11 +39,11 @@ public class InterestService {
     }
 
     @GET
-    @Path("/user")
+    @Path("/user/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.INTEREST_BY_USER)
-    public List<InterestGetDto> getAllInterestsByUser(@Context SecurityContext securityContext) {
-        return interestBean.getInterestsByUser(securityContext);
+    public List<InterestGetDto> getAllInterestsByUser(@PathParam("userId") long userId) {
+        return interestBean.getInterestsByUser(userId);
     }
 
     @GET

@@ -71,7 +71,7 @@ public class ProjectEntity implements Serializable {
     private Set<KeywordEntity> projectKeywords = new HashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProjectAssetEntity> projectAssets = new HashSet<>();
+    private Set<ProjectAssetEntity> projectAssetsForProject = new HashSet<>();
 
     @OneToMany(mappedBy = "project")
     private Set<ProjectMembershipEntity> members = new HashSet<>();
@@ -203,12 +203,12 @@ public class ProjectEntity implements Serializable {
         this.projectKeywords = projectKeywords;
     }
 
-    public Set<ProjectAssetEntity> getProjectAssets() {
-        return projectAssets;
+    public Set<ProjectAssetEntity> getProjectAssetsForProject() {
+        return projectAssetsForProject;
     }
 
-    public void setProjectAssets(Set<ProjectAssetEntity> projectAssets) {
-        this.projectAssets = projectAssets;
+    public void setProjectAssetsForProject(Set<ProjectAssetEntity> projectAssets) {
+        this.projectAssetsForProject = projectAssets;
     }
 
     public Set<ProjectMembershipEntity> getMembers() {

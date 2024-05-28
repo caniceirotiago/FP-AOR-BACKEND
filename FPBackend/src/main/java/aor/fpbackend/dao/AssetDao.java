@@ -41,7 +41,7 @@ import java.util.List;
             }
         }
 
-        public AssetEntity findKeywordById(long assetId) {
+        public AssetEntity findAssetById(long assetId) {
             try {
                 return (AssetEntity) em.createNamedQuery("Asset.findAssetById")
                         .setParameter("assetId", assetId)

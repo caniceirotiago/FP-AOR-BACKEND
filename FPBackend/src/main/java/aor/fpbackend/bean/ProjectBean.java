@@ -10,6 +10,8 @@ import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -19,6 +21,8 @@ import java.util.ArrayList;
 @Stateless
 public class ProjectBean implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = LogManager.getLogger(ProjectBean.class);
 
     @EJB
     ProjectDao projectDao;

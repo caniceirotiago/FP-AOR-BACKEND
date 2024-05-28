@@ -39,11 +39,11 @@ public class KeywordService {
     }
 
     @GET
-    @Path("/project")
+    @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.KEYWORD_BY_PROJECT)
-    public List<KeywordGetDto> getAllKeywordsByProject(KeywordRemoveDto keywordRemoveDto) {
-        return keywordBean.getKeywordsByProject(keywordRemoveDto);
+    public List<KeywordGetDto> getAllKeywordsByProject(@PathParam("projectId") long projectId) {
+        return keywordBean.getKeywordsByProject(projectId);
     }
 
     @GET

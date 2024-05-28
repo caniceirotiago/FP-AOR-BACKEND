@@ -155,4 +155,20 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public void checkSession() {}
 
+    @PUT
+    @Path("/add/{projectId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.ADD_USER)
+    public void addUserToProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException {
+        userBean.addUserToProject(projectId, securityContext);
+    }
+
+    @PUT
+    @Path("/remove/{projectId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.REMOVE_USER)
+    public void removeUserFromProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException {
+        userBean.removeUserFromProject(projectId, securityContext);
+    }
+
 }
