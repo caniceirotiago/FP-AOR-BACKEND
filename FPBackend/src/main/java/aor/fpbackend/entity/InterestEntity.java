@@ -9,8 +9,8 @@ import java.util.Set;
 @Entity
 @Table(name = "interest")
 
-@NamedQuery(name = "Interest.countInterestByName", query = "SELECT COUNT(i) FROM InterestEntity i WHERE i.name = :name")
-@NamedQuery(name = "Interest.findInterestByName", query = "SELECT i FROM InterestEntity i WHERE i.name = :name")
+@NamedQuery(name = "Interest.countInterestByName", query = "SELECT COUNT(i) FROM InterestEntity i WHERE LOWER(i.name) = LOWER(:name)")
+@NamedQuery(name = "Interest.findInterestByName", query = "SELECT i FROM InterestEntity i WHERE LOWER(i.name) = LOWER(:name)")
 @NamedQuery(name = "Interest.findInterestById", query = "SELECT i FROM InterestEntity i WHERE i.id = :interestId")
 
 public class InterestEntity implements Serializable {

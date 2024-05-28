@@ -33,13 +33,13 @@ public class KeywordBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(KeywordBean.class);
 
     @Transactional
-    public void addKeyword(KeywordAddDto keywordAddDto) {
+    public void addKeyword(String keywordName, long projectId) {
         // Ensure the keyword exists, creating it if necessary
-        checkKeywordExist(keywordAddDto.getName());
+        checkKeywordExist(keywordName);
         // Find the keyword by name
-        KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordAddDto.getName());
+        KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordName);
         // Find the project by id
-        ProjectEntity projectEntity = projectDao.findProjectById(keywordAddDto.getProjectId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         // Add the keyword to the project's keywords
         Set<KeywordEntity> projectKeywords = projectEntity.getProjectKeywords();
         if (projectKeywords == null) {

@@ -9,10 +9,9 @@ import java.util.Set;
 @Entity
 @Table(name = "skill")
 
-@NamedQuery(name = "Skill.countSkillByName", query = "SELECT COUNT(s) FROM SkillEntity s WHERE s.name = :name")
-@NamedQuery(name = "Skill.findSkillByName", query = "SELECT s FROM SkillEntity s WHERE s.name = :name")
+@NamedQuery(name = "Skill.countSkillByName", query = "SELECT COUNT(s) FROM SkillEntity s WHERE LOWER(s.name) = LOWER(:name)")
+@NamedQuery(name = "Skill.findSkillByName", query = "SELECT s FROM SkillEntity s WHERE LOWER(s.name) = LOWER(:name)")
 @NamedQuery(name = "Skill.findSkillById", query = "SELECT s FROM SkillEntity s WHERE s.id = :skillId")
-
 
 public class SkillEntity implements Serializable {
     private static final long serialVersionUID = 1L;

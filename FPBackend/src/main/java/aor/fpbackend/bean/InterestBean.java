@@ -61,7 +61,7 @@ public class InterestBean implements Serializable {
             interestUsers.add(userEntity);
             interestEntity.setUsers(interestUsers);
         } else {
-            throw new AttributeAlreadyExistsException("Interesr already has the specified user");
+            throw new AttributeAlreadyExistsException("Interest already has the specified user");
         }
     }
 

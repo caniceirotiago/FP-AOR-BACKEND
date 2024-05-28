@@ -4,7 +4,6 @@ import aor.fpbackend.bean.KeywordBean;
 import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.dto.KeywordGetDto;
 import aor.fpbackend.dto.KeywordRemoveDto;
-import aor.fpbackend.dto.ProjectGetDto;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -27,7 +26,7 @@ public class KeywordService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_KEYWORD)
     public void addKeyword(@Valid KeywordAddDto keywordAddDto) {
-        keywordBean.addKeyword(keywordAddDto);
+        keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
     }
 
     @GET

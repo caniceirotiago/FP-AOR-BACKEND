@@ -5,6 +5,7 @@ import aor.fpbackend.dto.ProfileDto;
 import aor.fpbackend.dto.ProjectCreateDto;
 import aor.fpbackend.dto.ProjectGetDto;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UnauthorizedAccessException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -29,7 +30,7 @@ public class ProjectService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_PROJECT)
-    public void createProject(@Valid ProjectCreateDto projectCreateDto) {
+    public void createProject(@Valid ProjectCreateDto projectCreateDto) throws EntityNotFoundException, AttributeAlreadyExistsException {
         projectBean.createProject(projectCreateDto);
     }
 

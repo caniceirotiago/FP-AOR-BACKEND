@@ -12,6 +12,7 @@ import java.util.Set;
 @Table(name = "project")
 
 @NamedQuery(name = "Project.findProjectById", query = "SELECT p FROM ProjectEntity p WHERE p.id = :projectId")
+@NamedQuery(name = "Project.findProjectByName", query = "SELECT p FROM ProjectEntity p WHERE LOWER(p.name) = LOWER(:name)")
 @NamedQuery(name = "Project.findAllProjects", query = "SELECT p FROM ProjectEntity p")
 
 public class ProjectEntity implements Serializable {
@@ -56,7 +57,7 @@ public class ProjectEntity implements Serializable {
 
     @ManyToMany
     @JoinTable(
-            name = "project_skills",
+            name = "project_skill",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )

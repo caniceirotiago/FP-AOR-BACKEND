@@ -78,9 +78,9 @@ public class SkillDao extends AbstractDao<SkillEntity> {
         return query.getResultList();
     }
 
-    public List<SkillEntity> getSkillsByFirstLetter(char firstLetter) {
+    public List<SkillEntity> getSkillsByFirstLetter(String firstLetter) {
         TypedQuery<SkillEntity> query = em.createQuery(
-                "SELECT s FROM SkillEntity s WHERE s.name LIKE :pattern", SkillEntity.class);
+                "SELECT s FROM SkillEntity s WHERE LOWER(s.name) LIKE :pattern", SkillEntity.class);
         query.setParameter("pattern", firstLetter + "%");
         return query.getResultList();
     }
