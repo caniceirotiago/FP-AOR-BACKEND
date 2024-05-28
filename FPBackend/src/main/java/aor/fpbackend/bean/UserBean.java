@@ -385,14 +385,14 @@ public class UserBean implements Serializable {
         return convertUserEntityListToUserBasicInfoDtoList(userEntities);
     }
 
-    public ProfileDto getProfileDto(String username, @Context SecurityContext securityContext) throws UserNotFoundException, ForbiddenAccessException {
+    public ProfileDto getProfileDto(String username, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
             throw new UserNotFoundException("No user found for this username");
         }
         if (userEntity.isPrivate() && !authUserDto.getUserId().equals(userEntity.getId())) {
-            throw new ForbiddenAccessException("User is private");
+            throw new UnauthorizedAccessException("User is private");
         }
         ProfileDto profileDto = new ProfileDto();
         profileDto.setId(userEntity.getId());
