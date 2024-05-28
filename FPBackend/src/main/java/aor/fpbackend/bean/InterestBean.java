@@ -6,6 +6,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
@@ -32,7 +33,7 @@ public class InterestBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(InterestBean.class);
 
     @Transactional
-    public void addInterest(InterestAddDto interestAddDto, @Context SecurityContext securityContext) {
+    public void addInterest(InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException {
         // Ensure the interest exists, creating it if necessary
         checkInterestExist(interestAddDto.getName());
         // Find the interest by name
@@ -48,6 +49,8 @@ public class InterestBean implements Serializable {
         if (!userInterests.contains(interestEntity)) {
             userInterests.add(interestEntity);
             userEntity.setUserInterests(userInterests);
+        } else {
+            throw new AttributeAlreadyExistsException("User already has the specified interest");
         }
         // Add the user to the interest's users
         Set<UserEntity> interestUsers = interestEntity.getUsers();
@@ -57,8 +60,11 @@ public class InterestBean implements Serializable {
         if (!interestUsers.contains(userEntity)) {
             interestUsers.add(userEntity);
             interestEntity.setUsers(interestUsers);
+        } else {
+            throw new AttributeAlreadyExistsException("Interesr already has the specified user");
         }
     }
+
 
     private void checkInterestExist(String name) {
         if (!interestDao.checkInterestExist(name)) {
@@ -71,8 +77,8 @@ public class InterestBean implements Serializable {
         return convertInterestEntityListToInterestDtoList(interestDao.getAllInterests());
     }
 
-    public List<InterestGetDto> getInterestsByUser(long userId) {
-        List<InterestEntity> interestEntities = interestDao.getInterestsByUserId(userId);
+    public List<InterestGetDto> getInterestsByUser(String username) {
+        List<InterestEntity> interestEntities = interestDao.getInterestsByUsername(username);
         return convertInterestEntityListToInterestDtoList(interestEntities);
     }
 
