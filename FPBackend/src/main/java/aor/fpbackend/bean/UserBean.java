@@ -14,6 +14,7 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.*;
 import org.apache.logging.log4j.LogManager;
@@ -453,23 +454,20 @@ public class UserBean implements Serializable {
 //    }
 
     @Transactional
-    public void addUserToProject(long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException {
+    public void addUserToProject(String username, long projectId) throws EntityNotFoundException {
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
-        // Get the authenticated user
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        // Find user by username
+        UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
         }
         // Check if the user is already a member of the project
-        for (ProjectMembershipEntity membership : projectEntity.getMembers()) {
-            if (membership.getUser().equals(userEntity)) {
-                throw new IllegalStateException("User is already a member of the project");
-            }
+        if (projectDao.isProjectMember(projectId, userEntity.getId())) {
+            throw new IllegalStateException("User is already a member of the project");
         }
         // Create a new ProjectMembershipEntity with the default role NORMAL_USER
         ProjectMembershipEntity membershipEntity = new ProjectMembershipEntity();
@@ -484,15 +482,14 @@ public class UserBean implements Serializable {
     }
 
     @Transactional
-    public void removeUserFromProject(long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException {
+    public void removeUserFromProject(String username, long projectId) throws EntityNotFoundException {
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
-        // Get the authenticated user
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        // Find user by username
+        UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
         }

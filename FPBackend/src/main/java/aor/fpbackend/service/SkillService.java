@@ -37,7 +37,7 @@ public class SkillService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_SKILL_PROJECT)
     public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws AttributeAlreadyExistsException {
-        skillBean.addSkillProject(skillAddProjectDto);
+        skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getProjectId());
     }
 
     @GET
@@ -52,7 +52,7 @@ public class SkillService {
     @Path("/user/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.SKILL_BY_USER)
-    public List<SkillGetDto> getAllSkillsByUser(@PathParam("username") String username){
+    public List<SkillGetDto> getAllSkillsByUser(@PathParam("username") String username) throws EntityNotFoundException {
         return skillBean.getSkillsByUser(username);
     }
 

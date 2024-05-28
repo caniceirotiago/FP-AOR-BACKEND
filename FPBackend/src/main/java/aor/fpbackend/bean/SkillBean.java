@@ -76,13 +76,13 @@ public class SkillBean implements Serializable {
     }
 
     @Transactional
-    public void addSkillProject(SkillAddProjectDto skillAddProjectDto) throws AttributeAlreadyExistsException {
+    public void addSkillProject(String skillName, long projectId) throws AttributeAlreadyExistsException {
         // Ensure the skill exists, creating it if necessary
-        checkSkillExist(skillAddProjectDto.getName());
+        checkSkillExist(skillName);
         // Find the skill by name
-        SkillEntity skillEntity = skillDao.findSkillByName(skillAddProjectDto.getName());
+        SkillEntity skillEntity = skillDao.findSkillByName(skillName);
         // Find the project by id
-        ProjectEntity projectEntity = projectDao.findProjectById(skillAddProjectDto.getProjectId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         // Add the skill to the project's skills
         Set<SkillEntity> projectSkills = projectEntity.getProjectSkills();
         if (projectSkills == null) {
@@ -111,8 +111,11 @@ public class SkillBean implements Serializable {
         return convertSkillEntityListToSkillDtoList(skillDao.getAllSkills());
     }
 
-    public List<SkillGetDto> getSkillsByUser(String username) {
+    public List<SkillGetDto> getSkillsByUser(String username) throws EntityNotFoundException {
         List<SkillEntity> skillEntities = skillDao.getSkillsByUsername(username);
+        if (skillEntities == null) {
+            throw new EntityNotFoundException("No skills associated with this user");
+        }
         return convertSkillEntityListToSkillDtoList(skillEntities);
     }
 
@@ -121,7 +124,8 @@ public class SkillBean implements Serializable {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
         }
-        List<SkillEntity> skillEntities = skillDao.getSkillsByFirstLetter(firstLetter.charAt(0));
+        String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
+        List<SkillEntity> skillEntities = skillDao.getSkillsByFirstLetter(lowerCaseFirstLetter);
         return convertSkillEntityListToSkillDtoList(skillEntities);
     }
 

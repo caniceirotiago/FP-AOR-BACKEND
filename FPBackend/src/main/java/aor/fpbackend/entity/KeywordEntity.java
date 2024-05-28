@@ -10,8 +10,8 @@ import java.util.Set;
 @Entity
 @Table(name = "keyword")
 
-@NamedQuery(name = "Keyword.countKeywordByName", query = "SELECT COUNT(k) FROM KeywordEntity k WHERE k.name = :name")
-@NamedQuery(name = "Keyword.findKeywordByName", query = "SELECT k FROM KeywordEntity k WHERE k.name = :name")
+@NamedQuery(name = "Keyword.countKeywordByName", query = "SELECT COUNT(k) FROM KeywordEntity k WHERE LOWER(k.name) = LOWER(:name)")
+@NamedQuery(name = "Keyword.findKeywordByName", query = "SELECT k FROM KeywordEntity k WHERE LOWER(k.name) = LOWER(:name)")
 @NamedQuery(name = "Keyword.findKeywordById", query = "SELECT k FROM KeywordEntity k WHERE k.id = :keyId")
 
 public class KeywordEntity implements Serializable {

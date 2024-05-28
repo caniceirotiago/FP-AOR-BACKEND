@@ -4,18 +4,25 @@ import aor.fpbackend.dao.LaboratoryDao;
 import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dto.ProjectCreateDto;
 import aor.fpbackend.dto.ProjectGetDto;
+import aor.fpbackend.dto.SkillAddProjectDto;
+import aor.fpbackend.dto.UsernameDto;
+import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Stateless
@@ -29,9 +36,16 @@ public class ProjectBean implements Serializable {
 
     @EJB
     LaboratoryDao labDao;
+    @EJB
+    UserBean userBean;
+    @EJB
+    SkillBean skillBean;
+    @EJB
+    KeywordBean keywordBean;
 
 
-    public boolean createProject(ProjectCreateDto projectCreateDto) {
+    @Transactional
+    public boolean createProject(ProjectCreateDto projectCreateDto) throws EntityNotFoundException, AttributeAlreadyExistsException {
         if (projectCreateDto.getLaboratoryId() <= 0) {
             throw new IllegalArgumentException("Laboratory ID must be a positive number");
         }
@@ -45,9 +59,34 @@ public class ProjectBean implements Serializable {
         projectEntity.setState(ProjectStateEnum.PLANNING);
         projectEntity.setCreationDate(Instant.now());
         projectDao.persist(projectEntity);
+
+        ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
+        addRelationsToProject(projectCreateDto, persistedProject);
         return true;
     }
 
+    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity) throws EntityNotFoundException, AttributeAlreadyExistsException {
+        if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
+            Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
+            for (String username : usernames) {
+                userBean.addUserToProject(username, projectEntity.getId());
+            }
+        }
+
+        if (projectCreateDto.getSkills() != null && !projectCreateDto.getSkills().isEmpty()) {
+            Set<String> skillNames = projectCreateDto.getSkills().stream().map(SkillAddProjectDto::getName).collect(Collectors.toSet());
+            for (String skillName : skillNames) {
+                skillBean.addSkillProject(skillName, projectEntity.getId());
+            }
+        }
+
+        if (projectCreateDto.getKeywords() != null && !projectCreateDto.getKeywords().isEmpty()) {
+            Set<String> keywordNames = projectCreateDto.getKeywords().stream().map(KeywordAddDto::getName).collect(Collectors.toSet());
+            for (String keywordName : keywordNames) {
+                keywordBean.addKeyword(keywordName, projectEntity.getId());
+            }
+        }
+    }
 
     public ArrayList<ProjectGetDto> getAllProjects() {
         ArrayList<ProjectEntity> projects = projectDao.findAllProjects();
