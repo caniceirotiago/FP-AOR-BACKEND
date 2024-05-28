@@ -7,6 +7,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
@@ -35,7 +36,7 @@ public class SkillBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SkillBean.class);
 
     @Transactional
-    public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) {
+    public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException {
         // Ensure the skill exists, creating it if necessary
         checkSkillExist(skillAddUserDto.getName());
         // Find the skill by name
@@ -51,6 +52,8 @@ public class SkillBean implements Serializable {
         if (!userSkills.contains(skillEntity)) {
             userSkills.add(skillEntity);
             userEntity.setUserSkills(userSkills);
+        }else {
+            throw new AttributeAlreadyExistsException("User already has the specified skill");
         }
         // Add the user to the skill's users
         Set<UserEntity> skillUsers = skillEntity.getUsers();
@@ -60,6 +63,8 @@ public class SkillBean implements Serializable {
         if (!skillUsers.contains(userEntity)) {
             skillUsers.add(userEntity);
             skillEntity.setUsers(skillUsers);
+        }else {
+            throw new AttributeAlreadyExistsException("Skill already has the specified user");
         }
     }
 
@@ -71,7 +76,7 @@ public class SkillBean implements Serializable {
     }
 
     @Transactional
-    public void addSkillProject(SkillAddProjectDto skillAddProjectDto) {
+    public void addSkillProject(SkillAddProjectDto skillAddProjectDto) throws AttributeAlreadyExistsException {
         // Ensure the skill exists, creating it if necessary
         checkSkillExist(skillAddProjectDto.getName());
         // Find the skill by name
@@ -86,6 +91,8 @@ public class SkillBean implements Serializable {
         if (!projectSkills.contains(skillEntity)) {
             projectSkills.add(skillEntity);
             projectEntity.setProjectSkills(projectSkills);
+        }else {
+            throw new AttributeAlreadyExistsException("Project already has the specified skill");
         }
         // Add the project to the skill's projects
         Set<ProjectEntity> skillProjects = skillEntity.getProjects();
@@ -95,6 +102,8 @@ public class SkillBean implements Serializable {
         if (!skillProjects.contains(projectEntity)) {
             skillProjects.add(projectEntity);
             skillEntity.setProjects(skillProjects);
+        }else {
+            throw new AttributeAlreadyExistsException("Skill already has the specified project");
         }
     }
 
