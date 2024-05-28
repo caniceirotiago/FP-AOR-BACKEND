@@ -122,6 +122,11 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.KEYWORD_BY_PROJECT, "all keywords by userId", MethodEnum.KEYWORD_BY_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.KEYWORD_FIRST_LETTER, "all keywords by first letter", MethodEnum.KEYWORD_FIRST_LETTER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_KEYWORD, "remove keyword from user's list", MethodEnum.REMOVE_KEYWORD.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.SKILL_BY_PROJECT, "all skills by projectId", MethodEnum.SKILL_BY_PROJECT.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ADD_PROJECT, "create a new project", MethodEnum.ADD_PROJECT.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ALL_PROJECTS, "get all projects", MethodEnum.ALL_PROJECTS.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_BY_ID, "get project by projectId", MethodEnum.PROJECT_BY_ID.getValue());
+
     }
 
     @Transactional
@@ -161,6 +166,14 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.KEYWORD_FIRST_LETTER);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_KEYWORD);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_KEYWORD);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.SKILL_BY_PROJECT);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILL_BY_PROJECT);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_PROJECT);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_PROJECT);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ALL_PROJECTS);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ALL_PROJECTS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_BY_ID);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.PROJECT_BY_ID);
     }
 
 }

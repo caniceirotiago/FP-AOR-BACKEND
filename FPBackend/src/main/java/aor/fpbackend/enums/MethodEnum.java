@@ -18,7 +18,11 @@ public enum MethodEnum {
     KEYWORD_BY_PROJECT(15L),
     KEYWORD_FIRST_LETTER(16L),
     REMOVE_KEYWORD(17L),
-    REMOVE_SKILL_PROJECT(18L);
+    REMOVE_SKILL_PROJECT(18L),
+    SKILL_BY_PROJECT(19L),
+    ADD_PROJECT(20L),
+    ALL_PROJECTS(21L),
+    PROJECT_BY_ID(22L);
 
     private final long value;
 

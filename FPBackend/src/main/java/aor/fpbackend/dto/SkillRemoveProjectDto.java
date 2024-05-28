@@ -10,7 +10,6 @@ import java.io.Serializable;
 @XmlRootElement
 public class SkillRemoveProjectDto implements Serializable {
     @XmlElement
-    @NotNull
     private long id;
 
     @XmlElement

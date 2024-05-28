@@ -1,7 +1,6 @@
 package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.LocationEnum;
-import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -12,10 +11,8 @@ import java.io.Serializable;
 public class LaboratoryDto implements Serializable {
 
     @XmlElement
-    @NotNull
     long id;
     @XmlElement
-    @NotNull
     LocationEnum location;
 
     public LaboratoryDto() {
