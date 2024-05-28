@@ -12,12 +12,12 @@ import org.apache.logging.log4j.Logger;
 
     @Provider
     public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotFoundException> {
-        private static final Logger LOGGER = LogManager.getLogger(aor.fpbackend.exception.mapper.UserNotFoundExceptionMapper.class);
+        private static final Logger LOGGER = LogManager.getLogger(EntityNotFoundExceptionMapper.class);
 
         @Override
         public Response toResponse(EntityNotFoundException e) {
             Error error = new Error(e.getMessage());
-            LOGGER.warn("User not found: " + error.getErrorMessage());
+            LOGGER.warn("Entity not found: " + error.getErrorMessage());
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(error)

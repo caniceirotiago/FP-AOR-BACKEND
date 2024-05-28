@@ -59,6 +59,12 @@ public class InterestDao extends AbstractDao<InterestEntity> {
         return query.getResultList();
     }
 
+    public List<InterestEntity> getInterestsByUsername(String username) {
+        TypedQuery<InterestEntity> query = em.createQuery("SELECT i FROM InterestEntity i JOIN i.users u WHERE u.username = :username ORDER BY i.name", InterestEntity.class);
+        query.setParameter("username", username);
+        return query.getResultList();
+    }
+
     public List<InterestEntity> getAllInterests() {
         TypedQuery<InterestEntity> query = em.createQuery("SELECT i FROM InterestEntity i", InterestEntity.class);
         return query.getResultList();

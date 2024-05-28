@@ -48,11 +48,11 @@ public class SkillService {
     }
 
     @GET
-    @Path("/user/{userId}")
+    @Path("/user/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.SKILL_BY_USER)
-    public List<SkillGetDto> getAllSkillsByUser(@PathParam("userId") long userId){
-        return skillBean.getSkillsByUser(userId);
+    public List<SkillGetDto> getAllSkillsByUser(@PathParam("username") String username){
+        return skillBean.getSkillsByUser(username);
     }
 
     @GET
