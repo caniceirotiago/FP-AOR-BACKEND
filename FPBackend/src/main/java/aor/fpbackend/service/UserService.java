@@ -97,7 +97,7 @@ public class UserService {
     @GET
     @Path("info/{usernameProfile}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException {
+    public ProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException, ForbiddenAccessException {
         return userBean.getProfileDto(usernameProfile, securityContext);
     }
 
