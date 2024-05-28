@@ -56,11 +56,11 @@ public class SkillService {
     }
 
     @GET
-    @Path("/project")
+    @Path("/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.SKILL_BY_PROJECT)
-    public List<SkillGetDto> getAllSkillsByProject(SkillRemoveProjectDto skillRemoveProjectDto) {
-        return skillBean.getSkillsByProject(skillRemoveProjectDto);
+    public List<SkillGetDto> getAllSkillsByProject(@PathParam("projectId") long projectId) {
+        return skillBean.getSkillsByProject(projectId);
     }
 
     @GET

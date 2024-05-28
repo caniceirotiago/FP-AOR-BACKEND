@@ -11,6 +11,7 @@ import java.io.Serializable;
 public class KeywordRemoveDto implements Serializable {
 
     @XmlElement
+    @NotNull
     private long id;
 
     @XmlElement

@@ -117,9 +117,9 @@ public class SkillBean implements Serializable {
         return convertSkillEntityListToSkillDtoList(skillEntities);
     }
 
-    public List<SkillGetDto> getSkillsByProject(SkillRemoveProjectDto skillRemoveProjectDto) {
+    public List<SkillGetDto> getSkillsByProject(long projectId) {
 
-        List<SkillEntity> skillEntities = skillDao.getSkillsByProjectId(skillRemoveProjectDto.getProjectId());
+        List<SkillEntity> skillEntities = skillDao.getSkillsByProjectId(projectId);
         return convertSkillEntityListToSkillDtoList(skillEntities);
     }
 
