@@ -24,7 +24,7 @@ public class AssetEntity implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private AssetTypeEnum type;
 

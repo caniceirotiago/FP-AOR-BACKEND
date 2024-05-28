@@ -4,6 +4,7 @@ import aor.fpbackend.bean.KeywordBean;
 import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.dto.KeywordGetDto;
 import aor.fpbackend.dto.KeywordRemoveDto;
+import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -25,7 +26,7 @@ public class KeywordService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_KEYWORD)
-    public void addKeyword(@Valid KeywordAddDto keywordAddDto) {
+    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, AttributeAlreadyExistsException {
         keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
     }
 

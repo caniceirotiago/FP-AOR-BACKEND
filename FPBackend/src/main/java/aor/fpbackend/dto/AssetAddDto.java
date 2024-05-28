@@ -1,6 +1,7 @@
 package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.AssetTypeEnum;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -21,7 +22,7 @@ public class AssetAddDto implements Serializable {
     private String name;
 
     @XmlElement
-    @NotNull
+    @Enumerated
     private AssetTypeEnum type;
 
     @XmlElement
