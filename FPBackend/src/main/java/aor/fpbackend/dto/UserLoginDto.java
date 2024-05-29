@@ -7,7 +7,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 @XmlRootElement
-public class LoginDto implements Serializable {
+public class UserLoginDto implements Serializable {
 
     @XmlElement
     @NotNull
@@ -16,10 +16,10 @@ public class LoginDto implements Serializable {
     @NotNull
     String password;
 
-    public LoginDto() {
+    public UserLoginDto() {
     }
 
-    public LoginDto(String email, String password) {
+    public UserLoginDto(String email, String password) {
         this.email = email;
         this.password = password;
     }

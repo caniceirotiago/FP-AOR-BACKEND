@@ -14,6 +14,7 @@ import java.util.Set;
 @NamedQuery(name = "Task.findAll", query = "SELECT t FROM TaskEntity t")
 @NamedQuery(name = "Task.findTaskByTitle", query = "SELECT t FROM TaskEntity t WHERE LOWER(t.title) = LOWER(:title)")
 @NamedQuery(name = "Task.findTaskById", query = "SELECT t FROM TaskEntity t WHERE t.id = :taskId")
+@NamedQuery(name = "Task.countTaskByTitle", query = "SELECT COUNT(t) FROM TaskEntity t WHERE LOWER(t.title) = LOWER(:title)")
 
 public class TaskEntity implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -23,7 +24,7 @@ public class TaskEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, updatable = false)
     private String title;
 
     @Column(name = "description", nullable = true, length = 2048)
@@ -38,8 +39,8 @@ public class TaskEntity implements Serializable {
     @Column(name = "planned_end_date", nullable = true)
     private Instant plannedEndDate;
 
-    @Column(name = "conclusion_date", nullable = true)
-    private Instant conclusionDate;
+    @Column(name = "duration", nullable = true)
+    private int duration; // Counting in days
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
@@ -47,7 +48,7 @@ public class TaskEntity implements Serializable {
 
     // Relationships
     @ManyToOne
-    @JoinColumn(name = "responsible_user_id", nullable = false)
+    @JoinColumn(name = "responsible_user_id")
     private UserEntity responsibleUser;
 
     @ManyToMany
@@ -77,12 +78,12 @@ public class TaskEntity implements Serializable {
 
     public TaskEntity() {}
 
-    public TaskEntity(String title, String description, Instant creationDate, Instant plannedStartDate, Instant plannedEndDate) {
+    public TaskEntity(String title, Instant creationDate, int duration, TaskStateEnum state, ProjectEntity project) {
         this.title = title;
-        this.description = description;
         this.creationDate = creationDate;
-        this.plannedStartDate = plannedStartDate;
-        this.plannedEndDate = plannedEndDate;
+        this.duration = duration;
+        this.state = state;
+        this.project = project;
     }
 
     public long getId() {
@@ -133,12 +134,12 @@ public class TaskEntity implements Serializable {
         this.plannedEndDate = plannedEndDate;
     }
 
-    public Instant getConclusionDate() {
-        return conclusionDate;
+    public int getDuration() {
+        return duration;
     }
 
-    public void setConclusionDate(Instant conclusionDate) {
-        this.conclusionDate = conclusionDate;
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
     public TaskStateEnum getState() {
@@ -198,7 +199,7 @@ public class TaskEntity implements Serializable {
                 ", creationDate=" + creationDate +
                 ", plannedStartDate=" + plannedStartDate +
                 ", plannedEndDate=" + plannedEndDate +
-                ", conclusionDate=" + conclusionDate +
+                ", duration=" + duration +
                 ", state='" + state + '\'' +
                 ", responsibleUser=" + responsibleUser +
                 ", additionalExecuters=" + additionalExecuters +

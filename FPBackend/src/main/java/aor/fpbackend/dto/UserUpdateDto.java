@@ -2,16 +2,14 @@ package aor.fpbackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
-import java.security.Principal;
 
 @XmlRootElement
-public class UpdateUserDto implements Serializable {
+public class UserUpdateDto implements Serializable {
 
     @XmlElement
     private long id;
@@ -43,10 +41,10 @@ public class UpdateUserDto implements Serializable {
     private boolean isPrivate;
 
 
-    public UpdateUserDto() {
+    public UserUpdateDto() {
     }
 
-    public UpdateUserDto(long id, String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
+    public UserUpdateDto(long id, String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;

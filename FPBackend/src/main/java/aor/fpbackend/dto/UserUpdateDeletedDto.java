@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class UpdateDeletedDto implements Serializable {
+public class UserUpdateDeletedDto implements Serializable {
 
     @XmlElement
     private long id;
@@ -20,10 +20,10 @@ public class UpdateDeletedDto implements Serializable {
     @JsonProperty("isDeleted")
     private boolean isDeleted;
 
-    public UpdateDeletedDto() {
+    public UserUpdateDeletedDto() {
     }
 
-    public UpdateDeletedDto(long id, String username, boolean isDeleted) {
+    public UserUpdateDeletedDto(long id, String username, boolean isDeleted) {
         this.id = id;
         this.username = username;
         this.isDeleted = isDeleted;

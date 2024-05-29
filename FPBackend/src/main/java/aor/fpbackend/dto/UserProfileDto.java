@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class ProfileDto implements Serializable {
+public class UserProfileDto implements Serializable {
 
     @XmlElement
     @NotNull
@@ -50,10 +50,10 @@ public class ProfileDto implements Serializable {
     @NotNull
     private boolean isPrivate;
 
-    public ProfileDto() {
+    public UserProfileDto() {
     }
 
-    public ProfileDto(long id, String email, String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
+    public UserProfileDto(long id, String email, String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
         this.id = id;
         this.email = email;
         this.username = username;
