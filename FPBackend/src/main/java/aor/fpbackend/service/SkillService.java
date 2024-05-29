@@ -5,6 +5,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresPermission;
 import jakarta.ejb.EJB;
@@ -27,7 +28,7 @@ public class SkillService {
     @Path("/add/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_SKILL_USER)
-    public void addSkill(@Valid SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException {
+    public void addSkill(@Valid SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException, InputValidationException {
         skillBean.addSkillUser(skillAddUserDto, securityContext);
     }
 
@@ -36,8 +37,12 @@ public class SkillService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_SKILL_PROJECT)
-    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws AttributeAlreadyExistsException {
-        skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getProjectId());
+    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws AttributeAlreadyExistsException, InputValidationException {
+        if (skillAddProjectDto != null) {
+            skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), skillAddProjectDto.getProjectId());
+        } else{
+            throw new InputValidationException("Invalid Dto");
+        }
     }
 
     @GET
@@ -45,7 +50,7 @@ public class SkillService {
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ALL_SKILLS)
     public List<SkillGetDto> getAllSkills() {
-          return skillBean.getSkills();
+        return skillBean.getSkills();
     }
 
     @GET
@@ -76,15 +81,16 @@ public class SkillService {
     @Path("/remove/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_SKILL_USER)
-    public void removeSkillFromUser(@Valid SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+    public void removeSkillFromUser(@Valid SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException, InputValidationException {
         skillBean.removeSkillUser(skillRemoveUserDto, securityContext);
+
     }
 
     @PUT
     @Path("/remove/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_SKILL_PROJECT)
-    public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException {
+    public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException, InputValidationException {
         skillBean.removeSkillProject(skillRemoveProjectDto);
     }
 

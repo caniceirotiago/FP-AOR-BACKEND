@@ -1,5 +1,7 @@
 package aor.fpbackend.dto;
 
+import aor.fpbackend.enums.SkillTypeEnum;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -19,13 +21,18 @@ public class SkillAddProjectDto implements Serializable {
     private String name;
 
     @XmlElement
+    @Enumerated
+    private SkillTypeEnum type;
+
+    @XmlElement
     private long projectId;
 
     public SkillAddProjectDto() {
     }
 
-    public SkillAddProjectDto(String name, long projectId) {
+    public SkillAddProjectDto(String name, SkillTypeEnum type, long projectId) {
         this.name = name;
+        this.type = type;
         this.projectId = projectId;
     }
 
@@ -35,6 +42,14 @@ public class SkillAddProjectDto implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public SkillTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(SkillTypeEnum type) {
+        this.type = type;
     }
 
     public long getProjectId() {

@@ -32,20 +32,15 @@ public class ProjectLogEntity implements Serializable {
     @JoinColumn(name = "project_id", nullable = false)
     private ProjectEntity project;
 
-    @ManyToOne
-    @JoinColumn(name = "task_id")
-    private TaskEntity task;  // This can be null if the log is not directly related to a specific task.
-
     // Constructors
     public ProjectLogEntity() {}
 
-    public ProjectLogEntity(Instant creationDate, String type, String content, UserEntity user, ProjectEntity project, TaskEntity task) {
+    public ProjectLogEntity(Instant creationDate, String type, String content, UserEntity user, ProjectEntity project) {
         this.creationDate = creationDate;
         this.type = type;
         this.content = content;
         this.user = user;
         this.project = project;
-        this.task = task;
     }
 
     // Getters and setters
@@ -97,11 +92,15 @@ public class ProjectLogEntity implements Serializable {
         this.project = project;
     }
 
-    public TaskEntity getTask() {
-        return task;
-    }
-
-    public void setTask(TaskEntity task) {
-        this.task = task;
+    @Override
+    public String toString() {
+        return "ProjectLogEntity{" +
+                "id=" + id +
+                ", creationDate=" + creationDate +
+                ", type='" + type + '\'' +
+                ", content='" + content + '\'' +
+                ", user=" + user +
+                ", project=" + project +
+                '}';
     }
 }

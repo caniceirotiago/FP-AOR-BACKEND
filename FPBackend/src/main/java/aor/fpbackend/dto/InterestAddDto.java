@@ -1,5 +1,8 @@
 package aor.fpbackend.dto;
 
+import aor.fpbackend.enums.IntKeyTypeEnum;
+import aor.fpbackend.enums.SkillTypeEnum;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -17,11 +20,16 @@ public class InterestAddDto implements Serializable {
     @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
     private String name;
 
+    @XmlElement
+    @Enumerated
+    private IntKeyTypeEnum type;
+
     public InterestAddDto() {
     }
 
-    public InterestAddDto(String name) {
+    public InterestAddDto(String name, IntKeyTypeEnum type) {
         this.name = name;
+        this.type = type;
     }
 
     public String getName() {
@@ -30,5 +38,13 @@ public class InterestAddDto implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public IntKeyTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(IntKeyTypeEnum type) {
+        this.type = type;
     }
 }

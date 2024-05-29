@@ -9,6 +9,7 @@ import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+
 import java.util.List;
 
 @Path("/assets")
@@ -23,6 +24,7 @@ public class AssetService {
     @RequiresPermission(MethodEnum.ADD_ASSET)
     public void createAsset(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException {
         assetBean.addAsset(assetAddDto);
+
     }
 
     @GET
@@ -53,7 +55,7 @@ public class AssetService {
     @Path("/remove/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_ASSET)
-    public void removeAsset(@Valid AssetRemoveDto AssetRemoveDto) throws EntityNotFoundException {
-        assetBean.removeAsset(AssetRemoveDto);
+    public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException {
+        assetBean.removeAsset(assetRemoveDto);
     }
 }

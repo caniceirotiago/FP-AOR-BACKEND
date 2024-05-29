@@ -1,0 +1,58 @@
+package aor.fpbackend.dao;
+
+import aor.fpbackend.entity.TaskEntity;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+
+import java.util.List;
+
+@Stateless
+public class TaskDao extends AbstractDao<TaskEntity> {
+    private static final long serialVersionUID = 1L;
+
+    @PersistenceContext
+    private EntityManager em;
+
+    public TaskDao() {
+        super(TaskEntity.class);
+    }
+
+
+    public TaskEntity findTaskByTitle(String title) {
+        try {
+            return (TaskEntity) em.createNamedQuery("Task.findTaskByTitle")
+                    .setParameter("title", title)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public TaskEntity findTaskById(long taskId) {
+        try {
+            return (TaskEntity) em.createNamedQuery("Task.findTaskById")
+                    .setParameter("taskId", taskId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public TaskEntity findAllTasks() {
+        try {
+            return (TaskEntity) em.createNamedQuery("Task.findAll")
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public List<TaskEntity> getTasksByProjectId(long projectId) {
+        TypedQuery<TaskEntity> query = em.createQuery("SELECT t FROM TaskEntity t JOIN t.project p WHERE p.id = :projectId ORDER BY t.creationDate", TaskEntity.class);
+        query.setParameter("projectId", projectId);
+        return query.getResultList();
+    }
+}

@@ -7,8 +7,10 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -36,9 +38,12 @@ public class SkillBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SkillBean.class);
 
     @Transactional
-    public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException {
+    public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException, InputValidationException {
+        if(skillAddUserDto==null){
+            throw new InputValidationException("Invalid Dto");
+        }
         // Ensure the skill exists, creating it if necessary
-        checkSkillExist(skillAddUserDto.getName());
+        checkSkillExist(skillAddUserDto.getName(), skillAddUserDto.getType());
         // Find the skill by name
         SkillEntity skillEntity = skillDao.findSkillByName(skillAddUserDto.getName());
         // Get the authenticated user
@@ -68,17 +73,17 @@ public class SkillBean implements Serializable {
         }
     }
 
-    private void checkSkillExist(String name) {
+    private void checkSkillExist(String name, SkillTypeEnum type) {
         if (!skillDao.checkSkillExist(name)) {
-            SkillEntity skill = new SkillEntity(name);
+            SkillEntity skill = new SkillEntity(name, type);
             skillDao.persist(skill);
         }
     }
 
     @Transactional
-    public void addSkillProject(String skillName, long projectId) throws AttributeAlreadyExistsException {
+    public void addSkillProject(String skillName, SkillTypeEnum type, long projectId) throws AttributeAlreadyExistsException {
         // Ensure the skill exists, creating it if necessary
-        checkSkillExist(skillName);
+        checkSkillExist(skillName, type);
         // Find the skill by name
         SkillEntity skillEntity = skillDao.findSkillByName(skillName);
         // Find the project by id
@@ -136,7 +141,10 @@ public class SkillBean implements Serializable {
     }
 
     @Transactional
-    public void removeSkillUser(SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+    public void removeSkillUser(SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException, InputValidationException {
+        if(skillRemoveUserDto==null){
+            throw new InputValidationException("Invalid Dto");
+        }
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -164,7 +172,10 @@ public class SkillBean implements Serializable {
     }
 
     @Transactional
-    public void removeSkillProject(SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException {
+    public void removeSkillProject(SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException, InputValidationException {
+        if(skillRemoveProjectDto==null){
+            throw new InputValidationException("Invalid Dto");
+        }
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(skillRemoveProjectDto.getProjectId());
         if (projectEntity == null) {
@@ -194,16 +205,17 @@ public class SkillBean implements Serializable {
         }
     }
 
-    public SkillGetDto convertSkillEntitytoSkillDto(SkillEntity SkillEntity) {
+    public SkillGetDto convertSkillEntitytoSkillDto(SkillEntity skillEntity) {
         SkillGetDto skillGetDto = new SkillGetDto();
-        skillGetDto.setId(SkillEntity.getId());
-        skillGetDto.setName(SkillEntity.getName());
+        skillGetDto.setId(skillEntity.getId());
+        skillGetDto.setName(skillEntity.getName());
+        skillGetDto.setType(skillEntity.getType());
         return skillGetDto;
     }
 
-    public List<SkillGetDto> convertSkillEntityListToSkillDtoList(List<SkillEntity> SkillEntities) {
+    public List<SkillGetDto> convertSkillEntityListToSkillDtoList(List<SkillEntity> skillEntities) {
         List<SkillGetDto> skillGetDtos = new ArrayList<>();
-        for (SkillEntity i : SkillEntities) {
+        for (SkillEntity i : skillEntities) {
             SkillGetDto skillGetDto = convertSkillEntitytoSkillDto(i);
             skillGetDtos.add(skillGetDto);
         }

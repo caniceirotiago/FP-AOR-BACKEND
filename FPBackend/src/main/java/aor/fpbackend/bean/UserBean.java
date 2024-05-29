@@ -213,7 +213,7 @@ public class UserBean implements Serializable {
             LOGGER.warn("Failed login attempt for email: " + userLogin.getEmail());
             throw new InvalidCredentialsException("Invalid credentials");
         }
-        long definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
+        int definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
         Instant now = Instant.now();
         // Calcular o Instant de expiração adicionando o tempo de expiração em milissegundos
         Instant expirationInstant = now.plus(Duration.ofMillis(definedTimeOut));
@@ -446,15 +446,15 @@ public class UserBean implements Serializable {
 
     //TODO Não está a ser usado!!
 
-//    public boolean isMethodAssociatedWithRole(long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
-//        // Check if user's role has permission to the method
-//        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, method);
-//        if (!isMethodAssociated) {
-//            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt");
-//            throw new InvalidCredentialsException("Unauthorized access");
-//        }
-//        return true;
-//    }
+    //    public boolean isMethodAssociatedWithRole(long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
+    //        // Check if user's role has permission to the method
+    //        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, method);
+    //        if (!isMethodAssociated) {
+    //            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt");
+    //            throw new InvalidCredentialsException("Unauthorized access");
+    //        }
+    //        return true;
+    //    }
 
     @Transactional
     public void addUserToProject(String username, long projectId) throws EntityNotFoundException {
@@ -467,6 +467,11 @@ public class UserBean implements Serializable {
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
+        }
+        // Check if the current number of project members has reached the maximum limit
+        int maxProjectElements = configurationBean.getConfigValueByKey("maxProjectMembers");
+        if (projectEntity.getMembers().size() >= maxProjectElements) {
+            throw new IllegalStateException("Project member's limit is reached");
         }
         // Check if the user is already a member of the project
         if (projectDao.isProjectMember(projectId, userEntity.getId())) {
@@ -506,8 +511,12 @@ public class UserBean implements Serializable {
             }
         }
         // Remove the membership from the user's projects
-        userEntity.getProjects().remove(userMembership);
-        // Remove the user from the project's users
+        if (userMembership != null) {
+            userEntity.getProjects().remove(userMembership);
+        } else {
+            throw new IllegalStateException("Project does not have the specified user");
+        }
+        // Remove the membership from the project's users
         projectEntity.getMembers().remove(userMembership);
     }
 

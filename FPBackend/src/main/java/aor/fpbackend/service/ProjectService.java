@@ -43,7 +43,7 @@ public class ProjectService {
     }
 
     @GET
-    @Path("info/{projectId}")
+    @Path("/info/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.PROJECT_BY_ID)
     public ProjectGetDto getProjectDetails(@PathParam("projectId") long projectId) throws EntityNotFoundException {
