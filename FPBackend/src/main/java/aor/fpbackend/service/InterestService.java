@@ -46,7 +46,7 @@ public class InterestService {
     @GET
     @Path("/user/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.INTEREST_BY_USER)
+    @RequiresPermission(MethodEnum.INTERESTS_BY_USER)
     public List<InterestGetDto> getAllInterestsByUser(@PathParam("username") String username) {
         return interestBean.getInterestsByUser(username);
     }
@@ -54,7 +54,7 @@ public class InterestService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.INTEREST_FIRST_LETTER)
+    @RequiresPermission(MethodEnum.INTERESTS_FIRST_LETTER)
     public List<InterestGetDto> getAllInterestsByFirstLetter(@QueryParam("value") String firstLetter) {
         return interestBean.getInterestsByFirstLetter(firstLetter);
     }
