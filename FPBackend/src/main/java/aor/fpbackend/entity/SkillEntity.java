@@ -1,5 +1,7 @@
 package aor.fpbackend.entity;
 
+import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.enums.SkillTypeEnum;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -24,6 +26,10 @@ public class SkillEntity implements Serializable {
     @Column(name = "name", unique = true, nullable = false, length = 30)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private SkillTypeEnum type;
+
     @ManyToMany(mappedBy = "userSkills")
     private Set<UserEntity> users = new HashSet<>();
 
@@ -34,8 +40,9 @@ public class SkillEntity implements Serializable {
     public SkillEntity() {
     }
 
-    public SkillEntity(String name) {
+    public SkillEntity(String name, SkillTypeEnum type) {
         this.name = name;
+        this.type = type;
     }
 
     // Getters and setters
@@ -53,6 +60,14 @@ public class SkillEntity implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public SkillTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(SkillTypeEnum type) {
+        this.type = type;
     }
 
     public Set<UserEntity> getUsers() {

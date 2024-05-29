@@ -10,6 +10,7 @@ import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
@@ -72,14 +73,14 @@ public class ProjectBean implements Serializable {
                 userBean.addUserToProject(username, projectEntity.getId());
             }
         }
-
         if (projectCreateDto.getSkills() != null && !projectCreateDto.getSkills().isEmpty()) {
-            Set<String> skillNames = projectCreateDto.getSkills().stream().map(SkillAddProjectDto::getName).collect(Collectors.toSet());
-            for (String skillName : skillNames) {
-                skillBean.addSkillProject(skillName, projectEntity.getId());
+            Set<SkillAddProjectDto> skills = projectCreateDto.getSkills().stream().collect(Collectors.toSet());
+            for (SkillAddProjectDto skill : skills) {
+                String skillName = skill.getName();
+                SkillTypeEnum skillType = skill.getType();
+                skillBean.addSkillProject(skillName, skillType, projectEntity.getId());
             }
         }
-
         if (projectCreateDto.getKeywords() != null && !projectCreateDto.getKeywords().isEmpty()) {
             Set<String> keywordNames = projectCreateDto.getKeywords().stream().map(KeywordAddDto::getName).collect(Collectors.toSet());
             for (String keywordName : keywordNames) {

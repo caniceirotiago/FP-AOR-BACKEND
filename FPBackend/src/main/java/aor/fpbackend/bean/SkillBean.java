@@ -7,6 +7,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -38,7 +39,7 @@ public class SkillBean implements Serializable {
     @Transactional
     public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException {
         // Ensure the skill exists, creating it if necessary
-        checkSkillExist(skillAddUserDto.getName());
+        checkSkillExist(skillAddUserDto.getName(), skillAddUserDto.getType());
         // Find the skill by name
         SkillEntity skillEntity = skillDao.findSkillByName(skillAddUserDto.getName());
         // Get the authenticated user
@@ -68,17 +69,17 @@ public class SkillBean implements Serializable {
         }
     }
 
-    private void checkSkillExist(String name) {
+    private void checkSkillExist(String name, SkillTypeEnum type) {
         if (!skillDao.checkSkillExist(name)) {
-            SkillEntity skill = new SkillEntity(name);
+            SkillEntity skill = new SkillEntity(name, type);
             skillDao.persist(skill);
         }
     }
 
     @Transactional
-    public void addSkillProject(String skillName, long projectId) throws AttributeAlreadyExistsException {
+    public void addSkillProject(String skillName, SkillTypeEnum type, long projectId) throws AttributeAlreadyExistsException {
         // Ensure the skill exists, creating it if necessary
-        checkSkillExist(skillName);
+        checkSkillExist(skillName, type);
         // Find the skill by name
         SkillEntity skillEntity = skillDao.findSkillByName(skillName);
         // Find the project by id

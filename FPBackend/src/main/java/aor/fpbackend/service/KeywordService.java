@@ -27,7 +27,9 @@ public class KeywordService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_KEYWORD)
     public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException {
-        keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
+        if (keywordAddDto != null) {
+            keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
+        }
     }
 
     @GET

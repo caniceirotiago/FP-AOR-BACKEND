@@ -10,7 +10,9 @@ import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+
 import java.util.List;
+
 import aor.fpbackend.filters.RequiresPermission;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.core.Context;
@@ -29,6 +31,7 @@ public class InterestService {
     @RequiresPermission(MethodEnum.ADD_INTEREST)
     public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException {
         interestBean.addInterest(interestAddDto, securityContext);
+
     }
 
     @GET

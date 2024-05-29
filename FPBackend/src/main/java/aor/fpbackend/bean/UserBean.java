@@ -446,15 +446,15 @@ public class UserBean implements Serializable {
 
     //TODO Não está a ser usado!!
 
-//    public boolean isMethodAssociatedWithRole(long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
-//        // Check if user's role has permission to the method
-//        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, method);
-//        if (!isMethodAssociated) {
-//            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt");
-//            throw new InvalidCredentialsException("Unauthorized access");
-//        }
-//        return true;
-//    }
+    //    public boolean isMethodAssociatedWithRole(long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
+    //        // Check if user's role has permission to the method
+    //        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, method);
+    //        if (!isMethodAssociated) {
+    //            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt");
+    //            throw new InvalidCredentialsException("Unauthorized access");
+    //        }
+    //        return true;
+    //    }
 
     @Transactional
     public void addUserToProject(String username, long projectId) throws EntityNotFoundException {
@@ -506,8 +506,12 @@ public class UserBean implements Serializable {
             }
         }
         // Remove the membership from the user's projects
-        userEntity.getProjects().remove(userMembership);
-        // Remove the user from the project's users
+        if (userMembership != null) {
+            userEntity.getProjects().remove(userMembership);
+        } else {
+            throw new IllegalStateException("Project does not have the specified user");
+        }
+        // Remove the membership from the project's users
         projectEntity.getMembers().remove(userMembership);
     }
 

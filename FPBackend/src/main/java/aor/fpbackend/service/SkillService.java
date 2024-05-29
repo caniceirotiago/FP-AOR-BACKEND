@@ -37,7 +37,9 @@ public class SkillService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_SKILL_PROJECT)
     public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws AttributeAlreadyExistsException {
-        skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getProjectId());
+        if (skillAddProjectDto != null) {
+            skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), skillAddProjectDto.getProjectId());
+        }
     }
 
     @GET
@@ -45,7 +47,7 @@ public class SkillService {
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ALL_SKILLS)
     public List<SkillGetDto> getAllSkills() {
-          return skillBean.getSkills();
+        return skillBean.getSkills();
     }
 
     @GET
@@ -78,6 +80,7 @@ public class SkillService {
     @RequiresPermission(MethodEnum.REMOVE_SKILL_USER)
     public void removeSkillFromUser(@Valid SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         skillBean.removeSkillUser(skillRemoveUserDto, securityContext);
+
     }
 
     @PUT
