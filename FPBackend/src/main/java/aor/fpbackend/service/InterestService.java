@@ -6,6 +6,7 @@ import aor.fpbackend.dto.InterestGetDto;
 import aor.fpbackend.dto.InterestRemoveDto;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -29,7 +30,7 @@ public class InterestService {
     @Path("/add/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_INTEREST)
-    public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException {
+    public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException, InputValidationException {
         interestBean.addInterest(interestAddDto, securityContext);
 
     }

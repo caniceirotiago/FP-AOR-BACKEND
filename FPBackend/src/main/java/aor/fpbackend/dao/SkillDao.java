@@ -1,9 +1,7 @@
 package aor.fpbackend.dao;
 
 
-import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.SkillEntity;
-import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;

@@ -6,6 +6,7 @@ import aor.fpbackend.dto.KeywordGetDto;
 import aor.fpbackend.dto.KeywordRemoveDto;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -26,9 +27,11 @@ public class KeywordService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_KEYWORD)
-    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException {
+    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, InputValidationException {
         if (keywordAddDto != null) {
-            keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
+            keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getType(), keywordAddDto.getProjectId());
+        } else {
+            throw new InputValidationException("Invalid Dto");
         }
     }
 

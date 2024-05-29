@@ -1,5 +1,6 @@
 package aor.fpbackend.entity;
 
+import aor.fpbackend.enums.IntKeyTypeEnum;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -25,6 +26,10 @@ public class KeywordEntity implements Serializable {
     @Column(name = "name", unique = true, nullable = false, length = 30)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private IntKeyTypeEnum type;
+
     @ManyToMany(mappedBy = "projectKeywords")
     private Set<ProjectEntity> projects = new HashSet<>();
 
@@ -32,8 +37,9 @@ public class KeywordEntity implements Serializable {
     public KeywordEntity() {
     }
 
-    public KeywordEntity(String name) {
+    public KeywordEntity(String name, IntKeyTypeEnum type) {
         this.name = name;
+        this.type = type;
     }
 
     // Getters and setters
@@ -51,6 +57,14 @@ public class KeywordEntity implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public IntKeyTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(IntKeyTypeEnum type) {
+        this.type = type;
     }
 
     public Set<ProjectEntity> getProjects() {

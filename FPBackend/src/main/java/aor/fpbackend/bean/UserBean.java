@@ -213,7 +213,7 @@ public class UserBean implements Serializable {
             LOGGER.warn("Failed login attempt for email: " + userLogin.getEmail());
             throw new InvalidCredentialsException("Invalid credentials");
         }
-        long definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
+        int definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
         Instant now = Instant.now();
         // Calcular o Instant de expiração adicionando o tempo de expiração em milissegundos
         Instant expirationInstant = now.plus(Duration.ofMillis(definedTimeOut));
@@ -467,6 +467,11 @@ public class UserBean implements Serializable {
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
+        }
+        // Check if the current number of project members has reached the maximum limit
+        int maxProjectElements = configurationBean.getConfigValueByKey("maxProjectMembers");
+        if (projectEntity.getMembers().size() >= maxProjectElements) {
+            throw new IllegalStateException("Project member's limit is reached");
         }
         // Check if the user is already a member of the project
         if (projectDao.isProjectMember(projectId, userEntity.getId())) {

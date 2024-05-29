@@ -10,6 +10,11 @@ import java.util.Set;
 
 @Entity
 @Table(name = "task")
+
+@NamedQuery(name = "Task.findAll", query = "SELECT t FROM TaskEntity t")
+@NamedQuery(name = "Task.findTaskByTitle", query = "SELECT t FROM TaskEntity t WHERE LOWER(t.title) = LOWER(:title)")
+@NamedQuery(name = "Task.findTaskById", query = "SELECT t FROM TaskEntity t WHERE t.id = :taskId")
+
 public class TaskEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -67,8 +72,6 @@ public class TaskEntity implements Serializable {
 
     @ManyToMany(mappedBy = "prerequisites")
     private Set<TaskEntity> dependentTasks = new HashSet<>();
-    @OneToMany(mappedBy = "task")
-    private Set<ProjectLogEntity> taskLogs = new HashSet<>();
 
     // Constructors, getters, and setters
 
@@ -184,14 +187,6 @@ public class TaskEntity implements Serializable {
 
     public void setDependentTasks(Set<TaskEntity> dependentTasks) {
         this.dependentTasks = dependentTasks;
-    }
-
-    public Set<ProjectLogEntity> getTaskLogs() {
-        return taskLogs;
-    }
-
-    public void setTaskLogs(Set<ProjectLogEntity> taskLogs) {
-        this.taskLogs = taskLogs;
     }
 
     @Override

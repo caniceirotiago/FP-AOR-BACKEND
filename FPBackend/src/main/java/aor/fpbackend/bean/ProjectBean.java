@@ -9,6 +9,7 @@ import aor.fpbackend.dto.UsernameDto;
 import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.ProjectEntity;
+import aor.fpbackend.enums.IntKeyTypeEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
@@ -82,9 +83,11 @@ public class ProjectBean implements Serializable {
             }
         }
         if (projectCreateDto.getKeywords() != null && !projectCreateDto.getKeywords().isEmpty()) {
-            Set<String> keywordNames = projectCreateDto.getKeywords().stream().map(KeywordAddDto::getName).collect(Collectors.toSet());
-            for (String keywordName : keywordNames) {
-                keywordBean.addKeyword(keywordName, projectEntity.getId());
+            Set<KeywordAddDto> keywords = projectCreateDto.getKeywords().stream().collect(Collectors.toSet());
+            for (KeywordAddDto keyword : keywords) {
+                String keywordName = keyword.getName();
+                IntKeyTypeEnum keywordType = keyword.getType();
+                keywordBean.addKeyword(keywordName, keywordType, projectEntity.getId());
             }
         }
     }

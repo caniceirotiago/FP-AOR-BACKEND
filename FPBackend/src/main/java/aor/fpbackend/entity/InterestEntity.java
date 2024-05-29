@@ -1,5 +1,7 @@
 package aor.fpbackend.entity;
 
+import aor.fpbackend.enums.IntKeyTypeEnum;
+import aor.fpbackend.enums.SkillTypeEnum;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -24,6 +26,10 @@ public class InterestEntity implements Serializable {
     @Column(name = "name", unique = true, nullable = false, length = 30)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private IntKeyTypeEnum type;
+
     @ManyToMany(mappedBy = "userInterests")
     private Set<UserEntity> users = new HashSet<>();
 
@@ -31,8 +37,9 @@ public class InterestEntity implements Serializable {
     public InterestEntity() {
     }
 
-    public InterestEntity(String name) {
+    public InterestEntity(String name, IntKeyTypeEnum type) {
         this.name = name;
+        this.type = type;
     }
 
     // Getters and setters
@@ -50,6 +57,14 @@ public class InterestEntity implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public IntKeyTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(IntKeyTypeEnum type) {
+        this.type = type;
     }
 
     public Set<UserEntity> getUsers() {

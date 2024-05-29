@@ -7,8 +7,10 @@ import aor.fpbackend.entity.AssetEntity;
 import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.IntKeyTypeEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -34,9 +36,12 @@ public class InterestBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(InterestBean.class);
 
     @Transactional
-    public void addInterest(InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException {
+    public void addInterest(InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException, InputValidationException {
+        if (interestAddDto==null){
+            throw new InputValidationException("Invalid Dto");
+        }
         // Ensure the interest exists, creating it if necessary
-        checkInterestExist(interestAddDto.getName());
+        checkInterestExist(interestAddDto.getName(), interestAddDto.getType());
         // Find the interest by name
         InterestEntity interestEntity = interestDao.findInterestByName(interestAddDto.getName());
         // Get the authenticated user
@@ -67,9 +72,9 @@ public class InterestBean implements Serializable {
     }
 
 
-    private void checkInterestExist(String name) {
+    private void checkInterestExist(String name, IntKeyTypeEnum type) {
         if (!interestDao.checkInterestExist(name)) {
-            InterestEntity interest = new InterestEntity(name);
+            InterestEntity interest = new InterestEntity(name, type);
             interestDao.persist(interest);
         }
     }

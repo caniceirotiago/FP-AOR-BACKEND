@@ -1,5 +1,7 @@
 package aor.fpbackend.dto;
 
+import aor.fpbackend.enums.SkillTypeEnum;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -15,13 +17,17 @@ public class SkillGetDto implements Serializable {
     private long id;
     @XmlElement
     private String name;
+    @XmlElement
+    @Enumerated
+    private SkillTypeEnum type;
 
     public SkillGetDto() {
     }
 
-    public SkillGetDto(String name, long id) {
-        this.name = name;
+    public SkillGetDto(long id, String name, SkillTypeEnum type) {
         this.id = id;
+        this.name = name;
+        this.type = type;
     }
 
     public long getId() {
@@ -38,5 +44,13 @@ public class SkillGetDto implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public SkillTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(SkillTypeEnum type) {
+        this.type = type;
     }
 }

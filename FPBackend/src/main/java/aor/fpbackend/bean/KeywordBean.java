@@ -9,6 +9,7 @@ import aor.fpbackend.dto.ProjectGetDto;
 import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
+import aor.fpbackend.enums.IntKeyTypeEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
@@ -35,9 +36,9 @@ public class KeywordBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(KeywordBean.class);
 
     @Transactional
-    public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException {
+    public void addKeyword(String keywordName, IntKeyTypeEnum type, long projectId) throws EntityNotFoundException {
         // Ensure the keyword exists, creating it if necessary
-        checkKeywordExist(keywordName);
+        checkKeywordExist(keywordName, type);
         // Find the keyword by name
         KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordName);
         // Find the project by id
@@ -65,9 +66,9 @@ public class KeywordBean implements Serializable {
         }
     }
 
-    private void checkKeywordExist(String name) {
+    private void checkKeywordExist(String name, IntKeyTypeEnum type) {
         if (!keywordDao.checkKeywordExist(name)) {
-            KeywordEntity keyword = new KeywordEntity(name);
+            KeywordEntity keyword = new KeywordEntity(name, type);
             keywordDao.persist(keyword);
         }
     }
