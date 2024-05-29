@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Stateless
@@ -103,12 +104,37 @@ public class AssetBean implements Serializable {
         if (assetEntity == null) {
             throw new EntityNotFoundException("Asset not found");
         }
-        // Remove the asset from the project's projectAssets
-        projectEntity.getProjectAssetsForProject().remove(assetEntity);
-        // Remove the project from the asset's projectAssets
-        assetEntity.getProjectAssets().remove(projectEntity);
+        // Remove the ProjectAssetEntity from the project's projectAssets set
+        Set<ProjectAssetEntity> projectAssets = projectEntity.getProjectAssetsForProject();
+        ProjectAssetEntity projectAssetToRemove = null;
+        for (ProjectAssetEntity projectAsset : projectAssets) {
+            if (projectAsset.getAsset().equals(assetEntity)) {
+                projectAssetToRemove = projectAsset;
+                break;
+            }
+        }
+        if (projectAssetToRemove != null) {
+            projectAssets.remove(projectAssetToRemove);
+            projectEntity.setProjectAssetsForProject(projectAssets);
+        } else {
+            throw new IllegalStateException("Project does not have the specified asset");
+        }
+        // Remove the ProjectAssetEntity from the asset's projectAssets set
+        Set<ProjectAssetEntity> assetProjects = assetEntity.getProjectAssets();
+        ProjectAssetEntity assetProjectToRemove = null;
+        for (ProjectAssetEntity assetProject : assetProjects) {
+            if (assetProject.getProject().equals(projectEntity)) {
+                assetProjectToRemove = assetProject;
+                break;
+            }
+        }
+        if (assetProjectToRemove != null) {
+            assetProjects.remove(assetProjectToRemove);
+            assetEntity.setProjectAssets(assetProjects);
+        } else {
+            throw new IllegalStateException("Asset does not have the specified project");
+        }
     }
-
 
     public AssetGetDto convertAssetEntityToAssetDto(AssetEntity assetEntity) {
         AssetGetDto assetGetDto = new AssetGetDto();

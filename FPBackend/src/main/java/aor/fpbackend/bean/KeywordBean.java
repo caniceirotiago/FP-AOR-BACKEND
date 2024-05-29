@@ -35,7 +35,7 @@ public class KeywordBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(KeywordBean.class);
 
     @Transactional
-    public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException, AttributeAlreadyExistsException {
+    public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException {
         // Ensure the keyword exists, creating it if necessary
         checkKeywordExist(keywordName);
         // Find the keyword by name
@@ -65,12 +65,10 @@ public class KeywordBean implements Serializable {
         }
     }
 
-    private void checkKeywordExist(String name) throws AttributeAlreadyExistsException {
+    private void checkKeywordExist(String name) {
         if (!keywordDao.checkKeywordExist(name)) {
             KeywordEntity keyword = new KeywordEntity(name);
             keywordDao.persist(keyword);
-        }else{
-            throw new AttributeAlreadyExistsException("Keyword already exists");
         }
     }
 
