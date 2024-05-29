@@ -180,9 +180,13 @@ public class SkillBean implements Serializable {
         if (projectSkills.contains(skillEntity)) {
             projectSkills.remove(skillEntity);
             projectEntity.setProjectSkills(projectSkills);
+        } else {
+            throw new IllegalStateException("Skill does not have the specified project");
+        }
 
             // Remove the project from the skill's projects
             Set<ProjectEntity> skillProjects = skillEntity.getProjects();
+        if(skillProjects.contains(projectEntity)){
             skillProjects.remove(projectEntity);
             skillEntity.setProjects(skillProjects);
         } else {

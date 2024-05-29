@@ -26,7 +26,7 @@ public class KeywordService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_KEYWORD)
-    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, AttributeAlreadyExistsException {
+    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException {
         keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
     }
 
