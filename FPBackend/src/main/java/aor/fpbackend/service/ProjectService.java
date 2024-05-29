@@ -3,10 +3,9 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.ProjectBean;
 import aor.fpbackend.dto.ProjectCreateDto;
 import aor.fpbackend.dto.ProjectGetDto;
+import aor.fpbackend.dto.ProjectInviteDto;
 import aor.fpbackend.enums.MethodEnum;
-import aor.fpbackend.exception.AttributeAlreadyExistsException;
-import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.InputValidationException;
+import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
@@ -44,6 +43,14 @@ public class ProjectService {
     @RequiresPermission(MethodEnum.PROJECT_BY_ID)
     public ProjectGetDto getProjectDetails(@PathParam("projectId") long projectId) throws EntityNotFoundException {
         return projectBean.getProjectDetailsById(projectId);
+    }
+
+    @PUT
+    @Path("/send/invite")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.INVITE_TO_PROJECT)
+    public void sendInvite(@Valid ProjectInviteDto projectInviteDto) throws UserNotFoundException, InputValidationException {
+        projectBean.sendInviteToUser(projectInviteDto);
     }
 
 

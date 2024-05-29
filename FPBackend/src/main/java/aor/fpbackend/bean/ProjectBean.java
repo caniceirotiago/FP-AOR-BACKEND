@@ -1,19 +1,11 @@
 package aor.fpbackend.bean;
 
-import aor.fpbackend.dao.LaboratoryDao;
-import aor.fpbackend.dao.ProjectDao;
-import aor.fpbackend.dao.TaskDao;
+import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.*;
-import aor.fpbackend.entity.LaboratoryEntity;
-import aor.fpbackend.entity.ProjectEntity;
-import aor.fpbackend.entity.TaskEntity;
-import aor.fpbackend.enums.IntKeyTypeEnum;
-import aor.fpbackend.enums.ProjectStateEnum;
-import aor.fpbackend.enums.SkillTypeEnum;
-import aor.fpbackend.enums.TaskStateEnum;
-import aor.fpbackend.exception.AttributeAlreadyExistsException;
-import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.InputValidationException;
+import aor.fpbackend.entity.*;
+import aor.fpbackend.enums.*;
+import aor.fpbackend.exception.*;
+import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -22,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,6 +41,12 @@ public class ProjectBean implements Serializable {
     KeywordBean keywordBean;
     @EJB
     TaskDao taskDao;
+    @EJB
+    EmailService emailService;
+    @EJB
+    UserDao userDao;
+    @EJB
+    ProjectMembershipDao projectMemberDao;
 
 
     @Transactional
@@ -102,7 +101,7 @@ public class ProjectBean implements Serializable {
             }
         }
         // Define default final Task
-        TaskEntity defaultTask = new TaskEntity("Final Presentation", Instant.now(),1,
+        TaskEntity defaultTask = new TaskEntity("Final Presentation", Instant.now(), 1,
                 TaskStateEnum.PLANNED, projectEntity);
         taskDao.persist(defaultTask);
         Set<TaskEntity> projectTasks = new HashSet<>();
@@ -132,6 +131,29 @@ public class ProjectBean implements Serializable {
         }
     }
 
+    public void sendInviteToUser(ProjectInviteDto projectInviteDto) throws UserNotFoundException, InputValidationException {
+        if (projectInviteDto == null) {
+            throw new InputValidationException("Invalid Dto");
+        }
+            UserEntity user = userDao.findUserByUsername(projectInviteDto.getUsername());
+            if (user == null) {
+                LOGGER.warn("Attempt to send invitation to project at - User not found: " + projectInviteDto.getUsername());
+                throw new UserNotFoundException("Not found user with this username");
+            }
+            ProjectEntity projectEntity = projectDao.findProjectById(projectInviteDto.getProjectId());
+        if (projectEntity == null) {
+            throw new InputValidationException("Project not found");
+        }
+            String acceptanceToken = userBean.generateNewToken();
+            ProjectMembershipEntity pendingInvite = new ProjectMembershipEntity();
+            pendingInvite.setAcceptanceToken(acceptanceToken);
+            pendingInvite.setProject(projectEntity);
+            pendingInvite.setUser(user);
+            pendingInvite.setRole(ProjectRoleEnum.NORMAL_USER);
+            pendingInvite.setAccepted(false);
+            projectMemberDao.persist(pendingInvite);
+            emailService.sendInvitationToProjectEmail(user.getEmail(), acceptanceToken, projectEntity.getName());
+    }
 
     private ProjectEntity convertProjectDtotoProjectEntity(ProjectCreateDto projectCreateDto) {
         ProjectEntity projectEntity = new ProjectEntity();

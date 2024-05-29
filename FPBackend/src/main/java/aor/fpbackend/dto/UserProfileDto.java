@@ -1,5 +1,6 @@
 package aor.fpbackend.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -44,6 +45,7 @@ public class UserProfileDto implements Serializable {
 
     @XmlElement
     @NotNull
+    @Min(value = 1, message = "Laboratory ID must be greater than 0")
     private long laboratoryId;
 
     @XmlElement
