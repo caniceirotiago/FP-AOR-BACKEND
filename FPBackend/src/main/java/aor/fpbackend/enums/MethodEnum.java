@@ -15,7 +15,7 @@ public enum MethodEnum {
     REMOVE_INTEREST(12L),
     ADD_KEYWORD(13L),
     ALL_KEYWORDS(14L),
-    KEYWORD_BY_PROJECT(15L),
+    KEYWORDS_BY_PROJECT(15L),
     KEYWORD_FIRST_LETTER(16L),
     REMOVE_KEYWORD(17L),
     REMOVE_SKILL_PROJECT(18L),
@@ -30,7 +30,9 @@ public enum MethodEnum {
     ASSET_BY_PROJECT(27L),
     ADD_USER(28L),
     REMOVE_USER(29L),
-    ADD_TASK(30L);
+    ADD_TASK(30L),
+    ALL_TASKS (31L),
+    TASKS_BY_PROJECT (32L);
 
     private final long value;
 

@@ -35,7 +35,7 @@ public class TaskGetDto implements Serializable {
     private Instant plannedStartDate;
 
     @XmlElement
-    private Instant conclusionDate;
+    private int duration;
 
     @XmlElement
     private Instant plannedEndDate;
@@ -60,14 +60,14 @@ public class TaskGetDto implements Serializable {
     }
 
     public TaskGetDto(long id, String title, String description, Instant creationDate, Instant plannedStartDate,
-                      Instant conclusionDate, Instant plannedEndDate, TaskStateEnum state, long responsibleId,
+                      int duration, Instant plannedEndDate, TaskStateEnum state, long responsibleId,
                       Set<UsernameDto> addExecuters, Set<Long> dependentTasks, long projectId) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.creationDate = creationDate;
         this.plannedStartDate = plannedStartDate;
-        this.conclusionDate = conclusionDate;
+        this.duration = duration;
         this.plannedEndDate = plannedEndDate;
         this.state = state;
         this.responsibleId = responsibleId;
@@ -116,12 +116,12 @@ public class TaskGetDto implements Serializable {
         this.plannedStartDate = plannedStartDate;
     }
 
-    public Instant getConclusionDate() {
-        return conclusionDate;
+    public int getDuration() {
+        return duration;
     }
 
-    public void setConclusionDate(Instant conclusionDate) {
-        this.conclusionDate = conclusionDate;
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
     public Instant getPlannedEndDate() {

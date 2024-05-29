@@ -101,7 +101,9 @@ public class TaskBean implements Serializable {
         taskGetDto.setId(taskEntity.getId());
         taskGetDto.setTitle(taskEntity.getTitle());
         taskGetDto.setDescription(taskEntity.getDescription());
+        taskGetDto.setCreationDate(taskEntity.getCreationDate());
         taskGetDto.setPlannedStartDate(taskEntity.getPlannedStartDate());
+        taskGetDto.setDuration(taskEntity.getDuration());
         taskGetDto.setPlannedEndDate(taskEntity.getPlannedEndDate());
         taskGetDto.setState(taskEntity.getState());
         taskGetDto.setResponsibleId(taskEntity.getResponsibleUser().getId());
