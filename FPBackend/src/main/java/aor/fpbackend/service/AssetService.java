@@ -38,7 +38,7 @@ public class AssetService {
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ASSET_BY_PROJECT)
+    @RequiresPermission(MethodEnum.ASSETS_BY_PROJECT)
     public List<AssetGetDto> getAssetsByProject(@PathParam("projectId") long projectId) {
         return assetBean.getAssetsByProject(projectId);
     }
@@ -46,7 +46,7 @@ public class AssetService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ASSET_FIRST_LETTER)
+    @RequiresPermission(MethodEnum.ASSETS_FIRST_LETTER)
     public List<AssetGetDto> getAssetsFirstLetter(@QueryParam("value") String firstLetter) {
         return assetBean.getAssetsByFirstLetter(firstLetter);
     }

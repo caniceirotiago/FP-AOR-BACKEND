@@ -4,7 +4,6 @@ import aor.fpbackend.bean.KeywordBean;
 import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.dto.KeywordGetDto;
 import aor.fpbackend.dto.KeywordRemoveDto;
-import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
@@ -54,7 +53,7 @@ public class KeywordService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.KEYWORD_FIRST_LETTER)
+    @RequiresPermission(MethodEnum.KEYWORDS_FIRST_LETTER)
     public List<KeywordGetDto> getAllKeywordsByFirstLetter(@QueryParam("value") String firstLetter) {
         return keywordBean.getKeywordsByFirstLetter(firstLetter);
     }

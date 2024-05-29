@@ -56,7 +56,7 @@ public class SkillService {
     @GET
     @Path("/user/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.SKILL_BY_USER)
+    @RequiresPermission(MethodEnum.SKILLS_BY_USER)
     public List<SkillGetDto> getAllSkillsByUser(@PathParam("username") String username) throws EntityNotFoundException {
         return skillBean.getSkillsByUser(username);
     }
@@ -64,7 +64,7 @@ public class SkillService {
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.SKILL_BY_PROJECT)
+    @RequiresPermission(MethodEnum.SKILLS_BY_PROJECT)
     public List<SkillGetDto> getAllSkillsByProject(@PathParam("projectId") long projectId) {
         return skillBean.getSkillsByProject(projectId);
     }
@@ -72,7 +72,7 @@ public class SkillService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.SKILL_FIRST_LETTER)
+    @RequiresPermission(MethodEnum.SKILLS_FIRST_LETTER)
     public List<SkillGetDto> getAllSkillsByFirstLetter(@QueryParam("value") String firstLetter) {
         return skillBean.getSkillsByFirstLetter(firstLetter);
     }
