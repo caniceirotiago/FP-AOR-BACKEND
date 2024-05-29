@@ -3,7 +3,6 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
-import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
@@ -14,7 +13,6 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.*;
 import org.apache.logging.log4j.LogManager;
@@ -139,9 +137,9 @@ public class UserBean implements Serializable {
         }
     }
 
-    public void requestPasswordReset(RequestResetPasswordDto requestResetPasswordDto) throws InvalidPasswordRequestException {
+    public void requestPasswordReset(PasswordRequestResetDto passwordRequestResetDto) throws InvalidPasswordRequestException {
         try {
-            UserEntity user = userDao.findUserByEmail(requestResetPasswordDto.getEmail());
+            UserEntity user = userDao.findUserByEmail(passwordRequestResetDto.getEmail());
             if (user == null) {
                 LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with invalid credentials!");
                 throw new InvalidPasswordRequestException("Invalid credentials");
@@ -187,9 +185,9 @@ public class UserBean implements Serializable {
         return user.getResetPasswordTimestamp() != null && user.getResetPasswordTimestamp().isAfter(Instant.now());
     }
 
-    public void resetPassword(ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
+    public void resetPassword(PasswordResetDto passwordResetDto) throws InvalidPasswordRequestException {
         try {
-            UserEntity user = userDao.findUserByResetPasswordToken(resetPasswordDto.getResetToken());
+            UserEntity user = userDao.findUserByResetPasswordToken(passwordResetDto.getResetToken());
             if (user == null) {
                 LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with invalid token at: " + LocalDate.now());
                 throw new InvalidPasswordRequestException("Invalid token");
@@ -198,7 +196,7 @@ public class UserBean implements Serializable {
                 LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with expired token at: " + LocalDate.now());
                 throw new InvalidPasswordRequestException("Token expired");
             }
-            String encryptedPassword = passEncoder.encode(resetPasswordDto.getNewPassword());
+            String encryptedPassword = passEncoder.encode(passwordResetDto.getNewPassword());
             user.setPassword(encryptedPassword);
             user.setResetPasswordToken(null);
             user.setResetPasswordTimestamp(null);
@@ -207,7 +205,7 @@ public class UserBean implements Serializable {
         }
     }
 
-    public Response login(LoginDto userLogin) throws InvalidCredentialsException {
+    public Response login(UserLoginDto userLogin) throws InvalidCredentialsException {
         UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
         if (userEntity == null || !passEncoder.matches(userLogin.getPassword(), userEntity.getPassword())) {
             LOGGER.warn("Failed login attempt for email: " + userLogin.getEmail());
@@ -341,7 +339,7 @@ public class UserBean implements Serializable {
         }
     }
 
-    public void updateUserProfile(@Context SecurityContext securityContext, UpdateUserDto updatedUser) throws UserNotFoundException, UnknownHostException {
+    public void updateUserProfile(@Context SecurityContext securityContext, UserUpdateDto updatedUser) throws UserNotFoundException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         if (userEntity == null) {
@@ -389,7 +387,7 @@ public class UserBean implements Serializable {
         return convertUserEntityListToUserBasicInfoDtoList(userEntities);
     }
 
-    public ProfileDto getProfileDto(String username, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException, ForbiddenAccessException {
+    public UserProfileDto getProfileDto(String username, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException, ForbiddenAccessException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
@@ -398,49 +396,49 @@ public class UserBean implements Serializable {
         if (userEntity.isPrivate() && !authUserDto.getUserId().equals(userEntity.getId())) {
             throw new ForbiddenAccessException("User is private");
         }
-        ProfileDto profileDto = new ProfileDto();
-        profileDto.setId(userEntity.getId());
-        profileDto.setEmail(userEntity.getEmail());
-        profileDto.setUsername(userEntity.getUsername());
-        profileDto.setFirstName(userEntity.getFirstName());
-        profileDto.setLastName(userEntity.getLastName());
-        profileDto.setPhoto(userEntity.getPhoto());
-        profileDto.setBiography(userEntity.getBiography());
-        profileDto.setLaboratoryId(userEntity.getLaboratory().getId());
-        profileDto.setPrivate(userEntity.isPrivate());
-        return profileDto;
+        UserProfileDto userProfileDto = new UserProfileDto();
+        userProfileDto.setId(userEntity.getId());
+        userProfileDto.setEmail(userEntity.getEmail());
+        userProfileDto.setUsername(userEntity.getUsername());
+        userProfileDto.setFirstName(userEntity.getFirstName());
+        userProfileDto.setLastName(userEntity.getLastName());
+        userProfileDto.setPhoto(userEntity.getPhoto());
+        userProfileDto.setBiography(userEntity.getBiography());
+        userProfileDto.setLaboratoryId(userEntity.getLaboratory().getId());
+        userProfileDto.setPrivate(userEntity.isPrivate());
+        return userProfileDto;
     }
 
-    public void updatePassword(UpdatePasswordDto updatePasswordDto, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
+    public void updatePassword(PasswordUpdateDto passwordUpdateDto, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         if (userEntity == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");
             throw new InvalidPasswordRequestException("User not found");
         }
-        if (!oldPasswordConfirmation(userEntity, updatePasswordDto)) {
+        if (!oldPasswordConfirmation(userEntity, passwordUpdateDto)) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + "Attempt to update password with invalid old password or password should not be the same at: " + LocalDate.now());
             throw new InvalidPasswordRequestException("Invalid old password or password should not be the same");
         }
-        String encryptedNewPassword = passEncoder.encode(updatePasswordDto.getNewPassword());
+        String encryptedNewPassword = passEncoder.encode(passwordUpdateDto.getNewPassword());
         userEntity.setPassword(encryptedNewPassword);
     }
 
-    public boolean oldPasswordConfirmation(UserEntity userEntity, UpdatePasswordDto updatePasswordDto) {
-        String oldPassword = updatePasswordDto.getOldPassword();
-        String newPassword = updatePasswordDto.getNewPassword();
+    public boolean oldPasswordConfirmation(UserEntity userEntity, PasswordUpdateDto passwordUpdateDto) {
+        String oldPassword = passwordUpdateDto.getOldPassword();
+        String newPassword = passwordUpdateDto.getNewPassword();
         String hashedPassword = userEntity.getPassword();
         // Checks that the old password provided matches the hashed password and that the new password is different from the one saved
         return passEncoder.matches(oldPassword, hashedPassword) && !passEncoder.matches(newPassword, hashedPassword);
     }
 
-    public void updateRole(UpdateRoleDto updateRoleDto) throws InvalidCredentialsException, UnknownHostException {
-        UserEntity u = userDao.findUserByUsername(updateRoleDto.getUsername());
+    public void updateRole(UserUpdateRoleDto userUpdateRoleDto) throws InvalidCredentialsException, UnknownHostException {
+        UserEntity u = userDao.findUserByUsername(userUpdateRoleDto.getUsername());
         if (u == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " User not found for this username");
             throw new InvalidCredentialsException("User not found with this username");
         }
-        RoleEntity newRole = roleDao.findRoleById(updateRoleDto.getRoleId());
+        RoleEntity newRole = roleDao.findRoleById(userUpdateRoleDto.getRoleId());
         u.setRole(newRole);
     }
 

@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class UpdateRoleDto implements Serializable {
+public class UserUpdateRoleDto implements Serializable {
 
     @XmlElement
     private long id;
@@ -18,10 +18,10 @@ public class UpdateRoleDto implements Serializable {
     @NotNull
     private long roleId;
 
-    public UpdateRoleDto() {
+    public UserUpdateRoleDto() {
     }
 
-    public UpdateRoleDto(long id, String username, long roleId) {
+    public UserUpdateRoleDto(long id, String username, long roleId) {
         this.id = id;
         this.username = username;
         this.roleId = roleId;

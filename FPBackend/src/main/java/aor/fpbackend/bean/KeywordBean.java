@@ -12,6 +12,7 @@ import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.enums.IntKeyTypeEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -92,7 +93,10 @@ public class KeywordBean implements Serializable {
     }
 
     @Transactional
-    public void removeKeyword(KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {
+    public void removeKeyword(KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException, InputValidationException {
+        if (keywordRemoveDto==null){
+            throw new InputValidationException("Invalid Dto");
+        }
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(keywordRemoveDto.getProjectId());
         if (projectEntity == null) {

@@ -1,7 +1,6 @@
 package aor.fpbackend.dto;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -9,16 +8,16 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class RequestResetPasswordDto implements Serializable {
+public class PasswordRequestResetDto implements Serializable {
 
     @XmlElement
     @NotNull
     private String email;
 
-    public RequestResetPasswordDto() {
+    public PasswordRequestResetDto() {
     }
 
-    public RequestResetPasswordDto(String email) {
+    public PasswordRequestResetDto(String email) {
         this.email = email;
 
     }

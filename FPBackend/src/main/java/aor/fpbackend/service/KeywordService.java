@@ -63,7 +63,7 @@ public class KeywordService {
     @Path("/remove/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.REMOVE_KEYWORD)
-    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {
+    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException, InputValidationException {
         keywordBean.removeKeyword(keywordRemoveDto);
     }
 

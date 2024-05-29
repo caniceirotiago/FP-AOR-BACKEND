@@ -1,37 +1,37 @@
 package aor.fpbackend.dto;
 
-import java.io.Serializable;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
+
 @XmlRootElement
-public class ResetPasswordDto implements Serializable {
+public class PasswordUpdateDto implements Serializable {
 
     @XmlElement
     @NotNull
-    private String resetToken;
+    private String oldPassword;
     @XmlElement
     @NotNull
     @Size(min = 4, message = "Password must be greater than 4 characters")
     private String newPassword;
 
-    public ResetPasswordDto() {
+    public PasswordUpdateDto() {
     }
 
-    public ResetPasswordDto(String resetToken, String newPassword) {
-        this.resetToken = resetToken;
+    public PasswordUpdateDto(String oldPassword, String newPassword) {
+        this.oldPassword = oldPassword;
         this.newPassword = newPassword;
     }
 
-    public String getResetToken() {
-        return resetToken;
+    public String getOldPassword() {
+        return oldPassword;
     }
 
-    public void setResetToken(String token) {
-        this.resetToken = token;
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
     }
 
     public String getNewPassword() {

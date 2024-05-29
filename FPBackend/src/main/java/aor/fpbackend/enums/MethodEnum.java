@@ -29,7 +29,8 @@ public enum MethodEnum {
     ASSET_FIRST_LETTER(26L),
     ASSET_BY_PROJECT(27L),
     ADD_USER(28L),
-    REMOVE_USER(29L);
+    REMOVE_USER(29L),
+    ADD_TASK(30L);
 
     private final long value;
 

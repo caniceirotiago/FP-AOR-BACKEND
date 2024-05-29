@@ -46,15 +46,15 @@ public class UserService {
     @PUT
     @Path("/request/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void requestPasswordReset(@Valid RequestResetPasswordDto requestResetPasswordDto) throws InvalidPasswordRequestException {
-        userBean.requestPasswordReset(requestResetPasswordDto);
+    public void requestPasswordReset(@Valid PasswordRequestResetDto passwordRequestResetDto) throws InvalidPasswordRequestException {
+        userBean.requestPasswordReset(passwordRequestResetDto);
     }
 
     @PUT
     @Path("/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws InvalidPasswordRequestException {
-        userBean.resetPassword(resetPasswordDto);
+    public void resetPassword(@Valid PasswordResetDto passwordResetDto) throws InvalidPasswordRequestException {
+        userBean.resetPassword(passwordResetDto);
     }
 
     /**
@@ -68,7 +68,7 @@ public class UserService {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response login(@Valid LoginDto userLogin) throws InvalidCredentialsException {
+    public Response login(@Valid UserLoginDto userLogin) throws InvalidCredentialsException {
         return userBean.login(userLogin);
     }
 
@@ -97,7 +97,7 @@ public class UserService {
     @GET
     @Path("info/{usernameProfile}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException, ForbiddenAccessException {
+    public UserProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException, ForbiddenAccessException {
         return userBean.getProfileDto(usernameProfile, securityContext);
     }
 
@@ -129,7 +129,7 @@ public class UserService {
     @Path("/profile")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void editUserData(@Valid UpdateUserDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, UnknownHostException {
+    public void editUserData(@Valid UserUpdateDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, UnknownHostException {
         userBean.updateUserProfile(securityContext, updatedUser);
     }
 
@@ -137,7 +137,7 @@ public class UserService {
     @Path("/password")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateUserPassword(@Valid UpdatePasswordDto updatedPassword, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
+    public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
         userBean.updatePassword(updatedPassword, securityContext);
 
     }
@@ -147,7 +147,7 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.UPDATE_ROLE)
-    public void updateUserRole(@Valid UpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
+    public void updateUserRole(@Valid UserUpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
         userBean.updateRole(updatedRole);
     }
     @GET

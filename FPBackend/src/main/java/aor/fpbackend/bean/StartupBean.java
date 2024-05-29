@@ -133,6 +133,7 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ASSET_BY_PROJECT, "get assets by project id", MethodEnum.ASSET_BY_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ADD_USER, "add an user to the project", MethodEnum.ADD_USER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_USER, "remove an user from the project", MethodEnum.REMOVE_USER.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ADD_TASK, "add a task to the project", MethodEnum.ADD_TASK.getValue());
     }
 
     @Transactional
@@ -194,5 +195,7 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_USER);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_USER);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_USER);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_TASK);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_TASK);
     }
 }

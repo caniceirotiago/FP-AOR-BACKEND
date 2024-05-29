@@ -41,10 +41,10 @@ public class TaskDao extends AbstractDao<TaskEntity> {
         }
     }
 
-    public TaskEntity findAllTasks() {
+    public List<TaskEntity> findAllTasks() {
         try {
-            return (TaskEntity) em.createNamedQuery("Task.findAll")
-                    .getSingleResult();
+            return (List<TaskEntity>) em.createNamedQuery("Task.findAll")
+                    .getResultList();
         } catch (NoResultException e) {
             return null;
         }
@@ -54,5 +54,16 @@ public class TaskDao extends AbstractDao<TaskEntity> {
         TypedQuery<TaskEntity> query = em.createQuery("SELECT t FROM TaskEntity t JOIN t.project p WHERE p.id = :projectId ORDER BY t.creationDate", TaskEntity.class);
         query.setParameter("projectId", projectId);
         return query.getResultList();
+    }
+
+    public boolean checkTitleExist(String title) {
+        try {
+            Long count = (Long) em.createNamedQuery("Task.countTaskByTitle")
+                    .setParameter("title", title)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 }

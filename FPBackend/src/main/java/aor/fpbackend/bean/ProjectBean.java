@@ -2,18 +2,18 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.LaboratoryDao;
 import aor.fpbackend.dao.ProjectDao;
-import aor.fpbackend.dto.ProjectCreateDto;
-import aor.fpbackend.dto.ProjectGetDto;
-import aor.fpbackend.dto.SkillAddProjectDto;
-import aor.fpbackend.dto.UsernameDto;
-import aor.fpbackend.dto.KeywordAddDto;
+import aor.fpbackend.dao.TaskDao;
+import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.ProjectEntity;
+import aor.fpbackend.entity.TaskEntity;
 import aor.fpbackend.enums.IntKeyTypeEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.SkillTypeEnum;
+import aor.fpbackend.enums.TaskStateEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -22,7 +22,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,10 +46,15 @@ public class ProjectBean implements Serializable {
     SkillBean skillBean;
     @EJB
     KeywordBean keywordBean;
+    @EJB
+    TaskDao taskDao;
 
 
     @Transactional
-    public boolean createProject(ProjectCreateDto projectCreateDto) throws EntityNotFoundException, AttributeAlreadyExistsException {
+    public boolean createProject(ProjectCreateDto projectCreateDto) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException {
+        if (projectCreateDto == null) {
+            throw new InputValidationException("Invalid Dto");
+        }
         if (projectCreateDto.getLaboratoryId() <= 0) {
             throw new IllegalArgumentException("Laboratory ID must be a positive number");
         }
@@ -64,16 +71,19 @@ public class ProjectBean implements Serializable {
 
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
         addRelationsToProject(projectCreateDto, persistedProject);
+
         return true;
     }
 
     private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity) throws EntityNotFoundException, AttributeAlreadyExistsException {
+        // Define relations for project members (Users)
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
             for (String username : usernames) {
                 userBean.addUserToProject(username, projectEntity.getId());
             }
         }
+        // Define relations for project Skills
         if (projectCreateDto.getSkills() != null && !projectCreateDto.getSkills().isEmpty()) {
             Set<SkillAddProjectDto> skills = projectCreateDto.getSkills().stream().collect(Collectors.toSet());
             for (SkillAddProjectDto skill : skills) {
@@ -82,6 +92,7 @@ public class ProjectBean implements Serializable {
                 skillBean.addSkillProject(skillName, skillType, projectEntity.getId());
             }
         }
+        // Define relations for project Keywords
         if (projectCreateDto.getKeywords() != null && !projectCreateDto.getKeywords().isEmpty()) {
             Set<KeywordAddDto> keywords = projectCreateDto.getKeywords().stream().collect(Collectors.toSet());
             for (KeywordAddDto keyword : keywords) {
@@ -90,6 +101,13 @@ public class ProjectBean implements Serializable {
                 keywordBean.addKeyword(keywordName, keywordType, projectEntity.getId());
             }
         }
+        // Define default final Task
+        TaskEntity defaultTask = new TaskEntity("Final Presentation", Instant.now(),1,
+                TaskStateEnum.PLANNED, projectEntity);
+        taskDao.persist(defaultTask);
+        Set<TaskEntity> projectTasks = new HashSet<>();
+        projectTasks.add(defaultTask);
+        projectEntity.setTasks(projectTasks);
     }
 
     public ArrayList<ProjectGetDto> getAllProjects() {
@@ -113,7 +131,6 @@ public class ProjectBean implements Serializable {
             throw new EntityNotFoundException("Project not found");
         }
     }
-
 
 
     private ProjectEntity convertProjectDtotoProjectEntity(ProjectCreateDto projectCreateDto) {
