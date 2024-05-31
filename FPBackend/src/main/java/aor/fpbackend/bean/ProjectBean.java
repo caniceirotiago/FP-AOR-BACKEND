@@ -129,18 +129,18 @@ public class ProjectBean implements Serializable {
         }
     }
 
-//    public ProjectGetDto getProjectDetailsById(long projectId) throws EntityNotFoundException {
-//        try {
-//            ProjectEntity projectEntity = projectDao.findProjectById(projectId);
-//            if (projectEntity != null) {
-//                return convertProjectEntityToProjectDto(projectEntity);
-//            } else {
-//                throw new EntityNotFoundException("Project not found");
-//            }
-//        } catch (EntityNotFoundException e) {
-//            throw new EntityNotFoundException("Project not found");
-//        }
-//    }
+    public ProjectGetDto getProjectDetailsById(long projectId) throws EntityNotFoundException {
+        try {
+            ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+            if (projectEntity != null) {
+                return convertProjectEntityToProjectDto(projectEntity);
+            } else {
+                throw new EntityNotFoundException("Project not found");
+            }
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("Project not found");
+        }
+    }
 
     public void sendInviteToUser(ProjectInviteDto projectInviteDto) throws UserNotFoundException, InputValidationException {
         if (projectInviteDto == null) {

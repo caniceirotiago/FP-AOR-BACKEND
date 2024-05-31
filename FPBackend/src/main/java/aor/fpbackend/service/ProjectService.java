@@ -52,13 +52,13 @@ public class ProjectService {
         return projectBean.getFilteredProjects(page, pageSize, uriInfo);
     }
 
-//    @GET
-//    @Path("/info/{projectId}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @RequiresPermission(MethodEnum.PROJECT_BY_ID)
-//    public ProjectGetDto getProjectDetails(@PathParam("projectId") long projectId) throws EntityNotFoundException {
-//        return projectBean.getProjectDetailsById(projectId);
-//    }
+    @GET
+    @Path("/info/{projectId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.PROJECT_BY_ID)
+    public ProjectGetDto getProjectDetails(@PathParam("projectId") long projectId) throws EntityNotFoundException {
+        return projectBean.getProjectDetailsById(projectId);
+    }
 
     @PUT
     @Path("/send/invite")
