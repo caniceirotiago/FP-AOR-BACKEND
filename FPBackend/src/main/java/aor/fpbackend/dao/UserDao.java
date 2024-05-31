@@ -116,4 +116,10 @@ public class UserDao extends AbstractDao<UserEntity> {
         query.setParameter("pattern", firstLetter + "%");
         return query.getResultList();
     }
+    public List<UserEntity> getUsersByProject(long projectId) {
+        TypedQuery<UserEntity> query = em.createQuery(
+                "SELECT u FROM UserEntity u JOIN u.projects p WHERE p.id = :projectId", UserEntity.class);
+        query.setParameter("projectId", projectId);
+        return query.getResultList();
+    }
 }

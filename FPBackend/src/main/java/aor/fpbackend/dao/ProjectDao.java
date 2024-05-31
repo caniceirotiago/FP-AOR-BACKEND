@@ -8,8 +8,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import jakarta.ws.rs.core.UriInfo;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Stateless
@@ -61,4 +65,50 @@ import java.util.ArrayList;
             return null;
         }
     }
+    public List<ProjectEntity> findFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
+        Map<String, List<String>> filters = uriInfo.getQueryParameters()
+                .entrySet()
+                .stream()
+                .filter(entry -> !entry.getKey().equals("page") && !entry.getKey().equals("pageSize"))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        StringBuilder queryString = new StringBuilder("SELECT p FROM ProjectEntity p WHERE 1=1");
+
+        filters.forEach((key, values) -> {
+            queryString.append(" AND p.").append(key).append(" IN :").append(key);
+        });
+
+        TypedQuery<ProjectEntity> query = em.createQuery(queryString.toString(), ProjectEntity.class);
+
+        filters.forEach((key, values) -> {
+            query.setParameter(key, values);
+        });
+
+        query.setFirstResult((page - 1) * pageSize);
+        query.setMaxResults(pageSize);
+
+        return query.getResultList();
+    }
+    public long countFilteredProjects(UriInfo uriInfo) {
+        Map<String, List<String>> filters = uriInfo.getQueryParameters()
+                .entrySet()
+                .stream()
+                .filter(entry -> !entry.getKey().equals("page") && !entry.getKey().equals("pageSize"))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        StringBuilder queryString = new StringBuilder("SELECT COUNT(p) FROM ProjectEntity p WHERE 1=1");
+
+        filters.forEach((key, values) -> {
+            queryString.append(" AND p.").append(key).append(" IN :").append(key);
+        });
+
+        TypedQuery<Long> query = em.createQuery(queryString.toString(), Long.class);
+
+        filters.forEach((key, values) -> {
+            query.setParameter(key, values);
+        });
+
+        return query.getSingleResult();
+    }
+
 }

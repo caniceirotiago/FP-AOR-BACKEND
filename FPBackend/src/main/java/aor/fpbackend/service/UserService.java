@@ -170,5 +170,12 @@ public class UserService {
     public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId) throws EntityNotFoundException {
         userBean.removeUserFromProject(username, projectId);
     }
+    @GET
+    @Path("/project/{projectId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.ASSETS_BY_PROJECT)
+    public List<UserBasicInfoDto> getUsersByProject(@PathParam("projectId") long projectId) {
+        return userBean.getUsersByProject(projectId);
+    }
 
 }

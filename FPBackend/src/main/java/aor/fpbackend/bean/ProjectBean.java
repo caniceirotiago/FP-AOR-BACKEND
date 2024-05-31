@@ -10,6 +10,7 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.core.UriInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,10 +18,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -131,18 +129,18 @@ public class ProjectBean implements Serializable {
         }
     }
 
-//    public ProjectGetDto getProjectDetailsById(long projectId) throws EntityNotFoundException {
-//        try {
-//            ProjectEntity projectEntity = projectDao.findProjectById(projectId);
-//            if (projectEntity != null) {
-//                return convertProjectEntityToProjectDto(projectEntity);
-//            } else {
-//                throw new EntityNotFoundException("Project not found");
-//            }
-//        } catch (EntityNotFoundException e) {
-//            throw new EntityNotFoundException("Project not found");
-//        }
-//    }
+    public ProjectGetDto getProjectDetailsById(long projectId) throws EntityNotFoundException {
+        try {
+            ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+            if (projectEntity != null) {
+                return convertProjectEntityToProjectDto(projectEntity);
+            } else {
+                throw new EntityNotFoundException("Project not found");
+            }
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("Project not found");
+        }
+    }
 
     public void sendInviteToUser(ProjectInviteDto projectInviteDto) throws UserNotFoundException, InputValidationException {
         if (projectInviteDto == null) {
@@ -167,6 +165,13 @@ public class ProjectBean implements Serializable {
             projectMemberDao.persist(pendingInvite);
             emailService.sendInvitationToProjectEmail(user.getEmail(), acceptanceToken, projectEntity.getName());
     }
+    public ProjectsPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
+        List<ProjectEntity> projectEntities = projectDao.findFilteredProjects(page, pageSize, uriInfo);
+        long totalProjects = projectDao.countFilteredProjects(uriInfo);
+        List<ProjectGetDto> projectGetDtos = convertProjectEntityListToProjectDtoList(new ArrayList<>(projectEntities));
+        return new ProjectsPaginatedDto(projectGetDtos, totalProjects);
+    }
+
 
     private ProjectEntity convertProjectDtotoProjectEntity(ProjectCreateDto projectCreateDto) {
         ProjectEntity projectEntity = new ProjectEntity();

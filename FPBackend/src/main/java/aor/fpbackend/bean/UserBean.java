@@ -517,6 +517,10 @@ public class UserBean implements Serializable {
         // Remove the membership from the project's users
         projectEntity.getMembers().remove(userMembership);
     }
+    public List<UserBasicInfoDto> getUsersByProject(long projectId){
+        List<UserEntity> userEntities = userDao.getUsersByProject(projectId);
+        return convertUserEntityListToUserBasicInfoDtoList(userEntities);
+    }
 
     public UserEntity convertUserRegisterDtotoUserEntity(UserRegisterDto user) {
         UserEntity userEntity = new UserEntity();
