@@ -130,6 +130,7 @@ public class InterestBean implements Serializable {
         InterestGetDto interestGetDto = new InterestGetDto();
         interestGetDto.setId(interestEntity.getId());
         interestGetDto.setName(interestEntity.getName());
+        interestGetDto.setType(interestEntity.getType());
         return interestGetDto;
     }
 

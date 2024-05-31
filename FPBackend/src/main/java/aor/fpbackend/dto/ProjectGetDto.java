@@ -1,12 +1,16 @@
 package aor.fpbackend.dto;
 
+import aor.fpbackend.entity.ProjectMembershipEntity;
+import aor.fpbackend.entity.UserEntity;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.entity.LaboratoryEntity;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 @XmlRootElement
@@ -40,12 +44,18 @@ public class ProjectGetDto implements Serializable {
     private Instant conclusionDate;
 
     @XmlElement
-    private long laboratoryId;
+    private LaboratoryDto laboratory;
+
+    @XmlElement
+    private List<ProjectMembershipDto> members;
+    @XmlElement
+    private UserBasicInfoDto createdBy;
+
 
     public ProjectGetDto() {
     }
 
-    public ProjectGetDto(long id, String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, long laboratoryId) {
+    public ProjectGetDto(long id, String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, LaboratoryDto laboratory, List<ProjectMembershipDto> members, UserBasicInfoDto createdBy) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -55,8 +65,12 @@ public class ProjectGetDto implements Serializable {
         this.initialDate = initialDate;
         this.finalDate = finalDate;
         this.conclusionDate = conclusionDate;
-        this.laboratoryId = laboratoryId;
+        this.laboratory = laboratory;
+        this.members = members;
+        this.createdBy = createdBy;
     }
+
+    // Getters and setters
 
     public long getId() {
         return id;
@@ -130,11 +144,28 @@ public class ProjectGetDto implements Serializable {
         this.conclusionDate = conclusionDate;
     }
 
-    public long getLaboratoryId() {
-        return laboratoryId;
+
+    public LaboratoryDto getLaboratory() {
+        return laboratory;
     }
 
-    public void setLaboratoryId(long laboratoryId) {
-        this.laboratoryId = laboratoryId;
+    public void setLaboratory(LaboratoryDto laboratory) {
+        this.laboratory = laboratory;
+    }
+
+    public List<ProjectMembershipDto> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<ProjectMembershipDto> members) {
+        this.members = members;
+    }
+
+    public UserBasicInfoDto getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(UserBasicInfoDto createdBy) {
+        this.createdBy = createdBy;
     }
 }

@@ -28,7 +28,7 @@ public class KeywordService {
     @RequiresPermission(MethodEnum.ADD_KEYWORD)
     public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, InputValidationException {
         if (keywordAddDto != null) {
-            keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getType(), keywordAddDto.getProjectId());
+            keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
         } else {
             throw new InputValidationException("Invalid Dto");
         }

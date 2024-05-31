@@ -10,7 +10,9 @@ import aor.fpbackend.filters.RequiresPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.ArrayList;
 
@@ -25,25 +27,25 @@ public class ProjectService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_PROJECT)
-    public void createProject(@Valid ProjectCreateDto projectCreateDto) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException {
-        projectBean.createProject(projectCreateDto);
+    public void createProject(@Valid ProjectCreateDto projectCreateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException {
+        projectBean.createProject(projectCreateDto, securityContext);
     }
 
     @GET
-    @Path("")
+    @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ALL_PROJECTS)
     public ArrayList<ProjectGetDto> getAllProjects() {
         return projectBean.getAllProjects();
     }
 
-    @GET
-    @Path("/info/{projectId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.PROJECT_BY_ID)
-    public ProjectGetDto getProjectDetails(@PathParam("projectId") long projectId) throws EntityNotFoundException {
-        return projectBean.getProjectDetailsById(projectId);
-    }
+//    @GET
+//    @Path("/info/{projectId}")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @RequiresPermission(MethodEnum.PROJECT_BY_ID)
+//    public ProjectGetDto getProjectDetails(@PathParam("projectId") long projectId) throws EntityNotFoundException {
+//        return projectBean.getProjectDetailsById(projectId);
+//    }
 
     @PUT
     @Path("/send/invite")

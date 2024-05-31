@@ -9,6 +9,7 @@ import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,10 +49,12 @@ public class ProjectBean implements Serializable {
     UserDao userDao;
     @EJB
     ProjectMembershipDao projectMemberDao;
+    @EJB
+    LaboratoryBean laboratoryBean;
 
 
     @Transactional
-    public boolean createProject(ProjectCreateDto projectCreateDto) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException {
+    public boolean createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException {
         if (projectCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
@@ -63,7 +67,17 @@ public class ProjectBean implements Serializable {
         if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new IllegalArgumentException("Conclusion date cannot be in the past");
         }
-        ProjectEntity projectEntity = convertProjectDtotoProjectEntity(projectCreateDto);
+
+        ProjectEntity projectEntity = new ProjectEntity();
+        projectEntity.setName(projectCreateDto.getName());
+        projectEntity.setDescription(projectCreateDto.getDescription());
+        projectEntity.setMotivation(projectCreateDto.getMotivation());
+        projectEntity.setConclusionDate(projectCreateDto.getConclusionDate());
+        LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectCreateDto.getLaboratoryId());
+        projectEntity.setLaboratory(laboratoryEntity);
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity user = userDao.findUserById(authUserDto.getUserId());
+        projectEntity.setCreatedBy(user);
         projectEntity.setState(ProjectStateEnum.PLANNING);
         projectEntity.setCreationDate(Instant.now());
         projectDao.persist(projectEntity);
@@ -96,8 +110,7 @@ public class ProjectBean implements Serializable {
             Set<KeywordAddDto> keywords = projectCreateDto.getKeywords().stream().collect(Collectors.toSet());
             for (KeywordAddDto keyword : keywords) {
                 String keywordName = keyword.getName();
-                IntKeyTypeEnum keywordType = keyword.getType();
-                keywordBean.addKeyword(keywordName, keywordType, projectEntity.getId());
+                keywordBean.addKeyword(keywordName,  projectEntity.getId());
             }
         }
         // Define default final Task
@@ -118,18 +131,18 @@ public class ProjectBean implements Serializable {
         }
     }
 
-    public ProjectGetDto getProjectDetailsById(long projectId) throws EntityNotFoundException {
-        try {
-            ProjectEntity projectEntity = projectDao.findProjectById(projectId);
-            if (projectEntity != null) {
-                return convertProjectEntityToProjectDto(projectEntity);
-            } else {
-                throw new EntityNotFoundException("Project not found");
-            }
-        } catch (EntityNotFoundException e) {
-            throw new EntityNotFoundException("Project not found");
-        }
-    }
+//    public ProjectGetDto getProjectDetailsById(long projectId) throws EntityNotFoundException {
+//        try {
+//            ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+//            if (projectEntity != null) {
+//                return convertProjectEntityToProjectDto(projectEntity);
+//            } else {
+//                throw new EntityNotFoundException("Project not found");
+//            }
+//        } catch (EntityNotFoundException e) {
+//            throw new EntityNotFoundException("Project not found");
+//        }
+//    }
 
     public void sendInviteToUser(ProjectInviteDto projectInviteDto) throws UserNotFoundException, InputValidationException {
         if (projectInviteDto == null) {
@@ -163,10 +176,12 @@ public class ProjectBean implements Serializable {
         projectEntity.setConclusionDate(projectCreateDto.getConclusionDate());
         LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectCreateDto.getLaboratoryId());
         projectEntity.setLaboratory(laboratoryEntity);
+        projectEntity.setState(ProjectStateEnum.PLANNING);
+
         return projectEntity;
     }
 
-    private ProjectGetDto convertProjectEntityToProjectDto(ProjectEntity projectEntity) {
+    public ProjectGetDto convertProjectEntityToProjectDto(ProjectEntity projectEntity) {
         ProjectGetDto projectGetDto = new ProjectGetDto();
         projectGetDto.setId(projectEntity.getId());
         projectGetDto.setName(projectEntity.getName());
@@ -177,11 +192,13 @@ public class ProjectBean implements Serializable {
         projectGetDto.setInitialDate(projectEntity.getInitialDate());
         projectGetDto.setFinalDate(projectEntity.getFinalDate());
         projectGetDto.setConclusionDate(projectEntity.getConclusionDate());
-        projectGetDto.setLaboratoryId(projectEntity.getLaboratory().getId());
+        projectGetDto.setLaboratory(laboratoryBean.convertLaboratoryEntityToLaboratoryDto(projectEntity.getLaboratory()));
+        projectGetDto.setCreatedBy(userBean.convertUserEntetyToUserBasicInfoDto(projectEntity.getCreatedBy()));
+        projectGetDto.setMembers(convertProjectMembershipsEntityToDto(projectEntity.getMembers()));
         return projectGetDto;
     }
 
-    private ArrayList<ProjectGetDto> convertProjectEntityListToProjectDtoList(ArrayList<ProjectEntity> projectEntities) {
+    public ArrayList<ProjectGetDto> convertProjectEntityListToProjectDtoList(ArrayList<ProjectEntity> projectEntities) {
         ArrayList<ProjectGetDto> projectGetDtos = new ArrayList<>();
         for (ProjectEntity p : projectEntities) {
             ProjectGetDto projectGetDto = convertProjectEntityToProjectDto(p);
@@ -189,4 +206,23 @@ public class ProjectBean implements Serializable {
         }
         return projectGetDtos;
     }
+    public ProjectMembershipDto convertProjectMembershipEntityToDto(ProjectMembershipEntity projectMembershipEntity) {
+        ProjectMembershipDto projectMembershipDto = new ProjectMembershipDto();
+        projectMembershipDto.setId(projectMembershipEntity.getId());
+        projectMembershipDto.setUserId(projectMembershipEntity.getUser().getId());
+        projectMembershipDto.setProjectId(projectMembershipEntity.getProject().getId());
+        projectMembershipDto.setRole(projectMembershipEntity.getRole());
+        projectMembershipDto.setAccepted(projectMembershipEntity.isAccepted());
+        projectMembershipDto.setAcceptanceToken(projectMembershipEntity.getAcceptanceToken());
+        return projectMembershipDto;
+    }
+    public ArrayList<ProjectMembershipDto> convertProjectMembershipsEntityToDto(Set<ProjectMembershipEntity> projectMemberships) {
+        ArrayList<ProjectMembershipDto> projectMembershipDtos = new ArrayList<>();
+        for (ProjectMembershipEntity p : projectMemberships) {
+            ProjectMembershipDto projectMembershipDto = convertProjectMembershipEntityToDto(p);
+            projectMembershipDtos.add(projectMembershipDto);
+        }
+        return projectMembershipDtos;
+    }
+
 }

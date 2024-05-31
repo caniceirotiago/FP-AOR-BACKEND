@@ -79,6 +79,9 @@ public class ProjectEntity implements Serializable {
 
     @OneToMany(mappedBy = "group")
     private Set<GroupMessageEntity> groupMessages = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "created_by_user_id", nullable = false)
+    private UserEntity createdBy;
 
     @OneToMany(mappedBy = "project")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();
@@ -86,7 +89,7 @@ public class ProjectEntity implements Serializable {
     public ProjectEntity() {
     }
 
-    public ProjectEntity(String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate) {
+    public ProjectEntity(String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, UserEntity createdBy, LaboratoryEntity laboratory) {
         this.name = name;
         this.description = description;
         this.motivation = motivation;
@@ -95,6 +98,8 @@ public class ProjectEntity implements Serializable {
         this.initialDate = initialDate;
         this.finalDate = finalDate;
         this.conclusionDate = conclusionDate;
+        this.createdBy = createdBy;
+        this.laboratory = laboratory;
     }
 
     // Getters and setters
@@ -212,10 +217,6 @@ public class ProjectEntity implements Serializable {
         this.projectAssetsForProject = projectAssets;
     }
 
-    public Set<ProjectMembershipEntity> getMembers() {
-        return members;
-    }
-
     public void setMembers(Set<ProjectMembershipEntity> members) {
         this.members = members;
     }
@@ -234,6 +235,18 @@ public class ProjectEntity implements Serializable {
 
     public void setProjectLogs(Set<ProjectLogEntity> projectLogs) {
         this.projectLogs = projectLogs;
+    }
+
+    public UserEntity getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(UserEntity createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Set<ProjectMembershipEntity> getMembers() {
+        return members;
     }
 
     @Override

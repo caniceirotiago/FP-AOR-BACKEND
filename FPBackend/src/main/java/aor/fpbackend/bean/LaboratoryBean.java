@@ -46,20 +46,26 @@ public class LaboratoryBean implements Serializable {
         return laboratoryEntity;
     }
 
-    private LaboratoryDto convertLaboratoryEntitytoLaboratoryDto(LaboratoryEntity laboratoryEntity) {
+    public LaboratoryDto convertLaboratoryEntitytoLaboratoryDto(LaboratoryEntity laboratoryEntity) {
         LaboratoryDto laboratoryDto = new LaboratoryDto();
         laboratoryDto.setId(laboratoryEntity.getId());
         laboratoryDto.setLocation(laboratoryEntity.getLocation());
         return laboratoryDto;
     }
 
-    private ArrayList<LaboratoryDto> convertLaboratoryEntityListToLaboratoryDtoList(ArrayList<LaboratoryEntity> laboratoryEntities) {
+    public ArrayList<LaboratoryDto> convertLaboratoryEntityListToLaboratoryDtoList(ArrayList<LaboratoryEntity> laboratoryEntities) {
         ArrayList<LaboratoryDto> labDtos = new ArrayList<>();
         for (LaboratoryEntity l : laboratoryEntities) {
             LaboratoryDto labDto = convertLaboratoryEntitytoLaboratoryDto(l);
             labDtos.add(labDto);
         }
         return labDtos;
+    }
+    public LaboratoryDto convertLaboratoryEntityToLaboratoryDto(LaboratoryEntity laboratoryEntity) {
+        LaboratoryDto laboratoryDto = new LaboratoryDto();
+        laboratoryDto.setId(laboratoryEntity.getId());
+        laboratoryDto.setLocation(laboratoryEntity.getLocation());
+        return laboratoryDto;
     }
 
 }

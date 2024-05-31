@@ -518,7 +518,7 @@ public class UserBean implements Serializable {
         projectEntity.getMembers().remove(userMembership);
     }
 
-    private UserEntity convertUserRegisterDtotoUserEntity(UserRegisterDto user) {
+    public UserEntity convertUserRegisterDtotoUserEntity(UserRegisterDto user) {
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(user.getEmail());
         userEntity.setUsername(user.getUsername());
@@ -527,7 +527,7 @@ public class UserBean implements Serializable {
         return userEntity;
     }
 
-    private UserRegisterDto convertUserEntitytoUserRegisterDto(UserEntity userEntity) {
+    public UserRegisterDto convertUserEntitytoUserRegisterDto(UserEntity userEntity) {
         UserRegisterDto userRegisterDto = new UserRegisterDto();
         userRegisterDto.setEmail(userEntity.getEmail());
         userRegisterDto.setUsername(userEntity.getUsername());
@@ -537,7 +537,7 @@ public class UserBean implements Serializable {
         return userRegisterDto;
     }
 
-    private UserBasicInfoDto convertUserEntitytoUserBasicInfoDto(UserEntity userEntity) {
+    public UserBasicInfoDto convertUserEntitytoUserBasicInfoDto(UserEntity userEntity) {
         UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
         userBasicInfo.setUsername(userEntity.getUsername());
         userBasicInfo.setRole(userEntity.getRole().getId());
@@ -546,7 +546,7 @@ public class UserBean implements Serializable {
         return userBasicInfo;
     }
 
-    private List<UserBasicInfoDto> convertUserEntityListToUserBasicInfoDtoList(List<UserEntity> userEntities) {
+    public List<UserBasicInfoDto> convertUserEntityListToUserBasicInfoDtoList(List<UserEntity> userEntities) {
         ArrayList<UserBasicInfoDto> userBasicInfoDtos = new ArrayList<>();
         for (UserEntity u : userEntities) {
             UserBasicInfoDto userBasicInfoDto = convertUserEntitytoUserBasicInfoDto(u);
@@ -554,5 +554,14 @@ public class UserBean implements Serializable {
         }
         return userBasicInfoDtos;
     }
+    public UserBasicInfoDto convertUserEntetyToUserBasicInfoDto(UserEntity userEntity) {
+        UserBasicInfoDto userBasicInfoDto = new UserBasicInfoDto();
+        userBasicInfoDto.setId(userEntity.getId());
+        userBasicInfoDto.setUsername(userEntity.getUsername());
+        userBasicInfoDto.setRole(userEntity.getRole().getId());
+        userBasicInfoDto.setPhoto(userEntity.getPhoto());
+        return userBasicInfoDto;
+    }
+
 
 }

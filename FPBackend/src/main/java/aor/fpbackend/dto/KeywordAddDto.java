@@ -20,9 +20,6 @@ public class KeywordAddDto implements Serializable {
     @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
     private String name;
 
-    @XmlElement
-    @Enumerated
-    private IntKeyTypeEnum type;
 
     @XmlElement
     private long projectId;
@@ -31,9 +28,9 @@ public class KeywordAddDto implements Serializable {
     public KeywordAddDto() {
     }
 
-    public KeywordAddDto(String name, IntKeyTypeEnum type, long projectId) {
+    public KeywordAddDto(String name, long projectId) {
         this.name = name;
-        this.type = type;
+
         this.projectId = projectId;
     }
 
@@ -45,13 +42,6 @@ public class KeywordAddDto implements Serializable {
         this.name = name;
     }
 
-    public IntKeyTypeEnum getType() {
-        return type;
-    }
-
-    public void setType(IntKeyTypeEnum type) {
-        this.type = type;
-    }
 
     public long getProjectId() {
         return projectId;

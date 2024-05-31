@@ -90,6 +90,8 @@ public class UserEntity implements Serializable {
 
     @ManyToMany(mappedBy = "additionalExecuters")
     private Set<TaskEntity> tasksAsExecutor = new HashSet<>();
+    @OneToMany(mappedBy = "createdBy")
+    private Set<ProjectEntity> projectsCreated = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -359,6 +361,14 @@ public class UserEntity implements Serializable {
 
     public void setLastSentEmailTimestamp(Instant lastSentEmailTimestamp) {
         this.lastSentEmailTimestamp = lastSentEmailTimestamp;
+    }
+
+    public Set<ProjectEntity> getProjectsCreated() {
+        return projectsCreated;
+    }
+
+    public void setProjectsCreated(Set<ProjectEntity> projectsCreated) {
+        this.projectsCreated = projectsCreated;
     }
 
     @Override
