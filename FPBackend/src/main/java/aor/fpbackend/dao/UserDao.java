@@ -1,6 +1,7 @@
 package aor.fpbackend.dao;
 
 import aor.fpbackend.bean.PassEncoder;
+import aor.fpbackend.dto.ProjectMembershipDto;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.SkillEntity;
@@ -116,9 +117,8 @@ public class UserDao extends AbstractDao<UserEntity> {
         query.setParameter("pattern", firstLetter + "%");
         return query.getResultList();
     }
-    public List<UserEntity> getUsersByProject(long projectId) {
-        TypedQuery<UserEntity> query = em.createQuery(
-                "SELECT u FROM UserEntity u JOIN u.projects p WHERE p.id = :projectId", UserEntity.class);
+    public List<ProjectMembershipDto> getUsersByProject(long projectId) {
+        TypedQuery<ProjectMembershipDto> query = em.createNamedQuery("ProjectMembership.findProjectMembershipsByProject", ProjectMembershipDto.class);
         query.setParameter("projectId", projectId);
         return query.getResultList();
     }

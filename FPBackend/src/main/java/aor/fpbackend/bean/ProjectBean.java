@@ -52,7 +52,7 @@ public class ProjectBean implements Serializable {
 
 
     @Transactional
-    public boolean createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException {
+    public boolean createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException, UserNotFoundException {
         if (projectCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
@@ -86,12 +86,14 @@ public class ProjectBean implements Serializable {
         return true;
     }
 
-    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity) throws EntityNotFoundException, AttributeAlreadyExistsException {
+    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity) throws EntityNotFoundException, AttributeAlreadyExistsException, UserNotFoundException, InputValidationException {
         // Define relations for project members (Users)
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
+            System.out.println(projectCreateDto.getUsers());
+            System.out.println(usernames);
             for (String username : usernames) {
-                userBean.addUserToProject(username, projectEntity.getId());
+                userBean.addUserToProject(username, projectEntity.getId(), true);
             }
         }
         // Define relations for project Skills
@@ -142,28 +144,9 @@ public class ProjectBean implements Serializable {
         }
     }
 
-    public void sendInviteToUser(ProjectInviteDto projectInviteDto) throws UserNotFoundException, InputValidationException {
-        if (projectInviteDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
-            UserEntity user = userDao.findUserByUsername(projectInviteDto.getUsername());
-            if (user == null) {
-                LOGGER.warn("Attempt to send invitation to project at - User not found: " + projectInviteDto.getUsername());
-                throw new UserNotFoundException("Not found user with this username");
-            }
-            ProjectEntity projectEntity = projectDao.findProjectById(projectInviteDto.getProjectId());
-        if (projectEntity == null) {
-            throw new InputValidationException("Project not found");
-        }
-            String acceptanceToken = userBean.generateNewToken();
-            ProjectMembershipEntity pendingInvite = new ProjectMembershipEntity();
-            pendingInvite.setAcceptanceToken(acceptanceToken);
-            pendingInvite.setProject(projectEntity);
-            pendingInvite.setUser(user);
-            pendingInvite.setRole(ProjectRoleEnum.NORMAL_USER);
-            pendingInvite.setAccepted(false);
-            projectMemberDao.persist(pendingInvite);
-            emailService.sendInvitationToProjectEmail(user.getEmail(), acceptanceToken, projectEntity.getName());
+    public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) throws UserNotFoundException, InputValidationException {
+
+            emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
     }
     public ProjectsPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
         List<ProjectEntity> projectEntities = projectDao.findFilteredProjects(page, pageSize, uriInfo);
@@ -218,7 +201,6 @@ public class ProjectBean implements Serializable {
         projectMembershipDto.setProjectId(projectMembershipEntity.getProject().getId());
         projectMembershipDto.setRole(projectMembershipEntity.getRole());
         projectMembershipDto.setAccepted(projectMembershipEntity.isAccepted());
-        projectMembershipDto.setAcceptanceToken(projectMembershipEntity.getAcceptanceToken());
         return projectMembershipDto;
     }
     public ArrayList<ProjectMembershipDto> convertProjectMembershipsEntityToDto(Set<ProjectMembershipEntity> projectMemberships) {

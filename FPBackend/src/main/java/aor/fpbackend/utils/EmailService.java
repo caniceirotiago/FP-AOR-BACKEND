@@ -88,6 +88,7 @@ public class EmailService {
     }
 
     public void sendInvitationToProjectEmail(String toEmail, String acceptanceToken, String projectName) {
+        System.out.println("Sending invitation email to " + toEmail);
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");

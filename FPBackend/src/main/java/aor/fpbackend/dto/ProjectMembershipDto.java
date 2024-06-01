@@ -14,6 +14,8 @@ public class ProjectMembershipDto implements Serializable {
 
     @XmlElement
     private long userId;
+    @XmlElement
+    private UserBasicInfoDto user;
 
     @XmlElement
     private long projectId;
@@ -24,18 +26,17 @@ public class ProjectMembershipDto implements Serializable {
     @XmlElement
     private boolean isAccepted;
 
-    @XmlElement
-    private String acceptanceToken;
 
     public ProjectMembershipDto() {}
 
-    public ProjectMembershipDto(long id, long userId, long projectId, ProjectRoleEnum role, boolean isAccepted, String acceptanceToken) {
+    public ProjectMembershipDto(long id, long userId, long projectId, ProjectRoleEnum role, boolean isAccepted, UserBasicInfoDto user) {
         this.id = id;
         this.userId = userId;
         this.projectId = projectId;
         this.role = role;
         this.isAccepted = isAccepted;
-        this.acceptanceToken = acceptanceToken;
+
+        this.user = user;
     }
 
     // Getters and setters
@@ -80,11 +81,12 @@ public class ProjectMembershipDto implements Serializable {
         isAccepted = accepted;
     }
 
-    public String getAcceptanceToken() {
-        return acceptanceToken;
+
+    public UserBasicInfoDto getUser() {
+        return user;
     }
 
-    public void setAcceptanceToken(String acceptanceToken) {
-        this.acceptanceToken = acceptanceToken;
+    public void setUser(UserBasicInfoDto user) {
+        this.user = user;
     }
 }

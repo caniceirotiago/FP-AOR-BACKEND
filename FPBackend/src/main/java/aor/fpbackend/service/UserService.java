@@ -159,8 +159,14 @@ public class UserService {
     @Path("/add/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_USER)
-    public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId) throws EntityNotFoundException {
-        userBean.addUserToProject(username, projectId);
+    public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+        userBean.addUserToProject(username, projectId, false);
+    }
+    @PUT
+    @Path("/confirm/project")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void confirmProjectInvite(@QueryParam("token") String token) throws EntityNotFoundException {
+        userBean.confirmProjectInvite(token);
     }
 
     @PUT
@@ -174,7 +180,7 @@ public class UserService {
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ASSETS_BY_PROJECT)
-    public List<UserBasicInfoDto> getUsersByProject(@PathParam("projectId") long projectId) {
+    public List<ProjectMembershipDto> getUsersByProject(@PathParam("projectId") long projectId) {
         return userBean.getUsersByProject(projectId);
     }
 

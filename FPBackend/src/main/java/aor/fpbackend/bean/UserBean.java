@@ -57,6 +57,10 @@ public class UserBean implements Serializable {
     ProjectDao projectDao;
     @EJB
     ProjectMembershipDao projectMemberDao;
+    @EJB
+    ProjectBean projectBean;
+    @EJB
+    UserBean userBean;
 
 
     public void createDefaultUserIfNotExistent(String username, String photo, long roleId, long labId) throws DatabaseOperationException {
@@ -455,14 +459,17 @@ public class UserBean implements Serializable {
     //    }
 
     @Transactional
-    public void addUserToProject(String username, long projectId) throws EntityNotFoundException {
+    public void addUserToProject(String username, long projectId, boolean createHasAccepted) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        System.out.println("ProjectEntity to add: " + projectEntity);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
         // Find user by username
         UserEntity userEntity = userDao.findUserByUsername(username);
+        System.out.println();
+        System.out.println("UserEntity to add: " + userEntity);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
         }
@@ -480,12 +487,15 @@ public class UserBean implements Serializable {
         membershipEntity.setUser(userEntity);
         membershipEntity.setProject(projectEntity);
         membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
-        membershipEntity.setAccepted(true); // User is immediately accepted
+        membershipEntity.setAccepted(createHasAccepted);
+        String acceptanceToken = userBean.generateNewToken();
+        membershipEntity.setAcceptanceToken(acceptanceToken);
         projectMemberDao.persist(membershipEntity);
         // Add the membership to the user's projects
         userEntity.getProjects().add(membershipEntity);
         // Add the user to the project's users
         projectEntity.getMembers().add(membershipEntity);
+        if(!createHasAccepted)projectBean.sendInviteToUser(membershipEntity, userEntity, projectEntity);
     }
 
     @Transactional
@@ -510,16 +520,25 @@ public class UserBean implements Serializable {
         }
         // Remove the membership from the user's projects
         if (userMembership != null) {
-            userEntity.getProjects().remove(userMembership);
+            projectMemberDao.remove(userMembership);
         } else {
             throw new IllegalStateException("Project does not have the specified user");
         }
-        // Remove the membership from the project's users
-        projectEntity.getMembers().remove(userMembership);
+        System.out.println("User Membership: " + userMembership);
+
     }
-    public List<UserBasicInfoDto> getUsersByProject(long projectId){
-        List<UserEntity> userEntities = userDao.getUsersByProject(projectId);
-        return convertUserEntityListToUserBasicInfoDtoList(userEntities);
+    public void confirmProjectInvite(String token) throws EntityNotFoundException {
+        ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
+        if (membershipEntity == null) {
+            throw new EntityNotFoundException("Project membership not found");
+        }
+        membershipEntity.setAccepted(true);
+        membershipEntity.setAcceptanceToken(null);
+    }
+
+    public List<ProjectMembershipDto> getUsersByProject(long projectId){
+
+        return userDao.getUsersByProject(projectId);
     }
 
     public UserEntity convertUserRegisterDtotoUserEntity(UserRegisterDto user) {

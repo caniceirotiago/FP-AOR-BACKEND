@@ -82,12 +82,15 @@ public class SkillBean implements Serializable {
 
     @Transactional
     public void addSkillProject(String skillName, SkillTypeEnum type, long projectId) throws AttributeAlreadyExistsException {
+        System.out.println(skillName + type + projectId);
         // Ensure the skill exists, creating it if necessary
         checkSkillExist(skillName, type);
         // Find the skill by name
         SkillEntity skillEntity = skillDao.findSkillByName(skillName);
         // Find the project by id
+        System.out.println(projectId);
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        System.out.println(projectEntity);
         // Add the skill to the project's skills
         Set<SkillEntity> projectSkills = projectEntity.getProjectSkills();
         if (projectSkills == null) {

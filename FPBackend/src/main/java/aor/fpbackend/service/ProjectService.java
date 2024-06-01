@@ -30,7 +30,7 @@ public class ProjectService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_PROJECT)
-    public void createProject(@Valid ProjectCreateDto projectCreateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException {
+    public void createProject(@Valid ProjectCreateDto projectCreateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException, UserNotFoundException {
         projectBean.createProject(projectCreateDto, securityContext);
     }
 
@@ -60,13 +60,13 @@ public class ProjectService {
         return projectBean.getProjectDetailsById(projectId);
     }
 
-    @PUT
-    @Path("/send/invite")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.INVITE_TO_PROJECT)
-    public void sendInvite(@Valid ProjectInviteDto projectInviteDto) throws UserNotFoundException, InputValidationException {
-        projectBean.sendInviteToUser(projectInviteDto);
-    }
+//    @PUT
+//    @Path("/send/invite")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @RequiresPermission(MethodEnum.INVITE_TO_PROJECT)
+//    public void sendInvite(@Valid ProjectInviteDto projectInviteDto) throws UserNotFoundException, InputValidationException {
+//        projectBean.sendInviteToUser(projectInviteDto);
+//    }
 
 
 }

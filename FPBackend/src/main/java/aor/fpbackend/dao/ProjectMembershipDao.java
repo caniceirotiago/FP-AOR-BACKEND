@@ -33,4 +33,13 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
             return null;
         }
     }
+    public ProjectMembershipEntity findProjectMembershipByAcceptanceToken(String acceptanceToken) {
+        try {
+            return (ProjectMembershipEntity) em.createNamedQuery("ProjectMembership.findProjectMembershipByAcceptanceToken")
+                    .setParameter("acceptanceToken", acceptanceToken)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
 }
