@@ -13,6 +13,7 @@ import java.io.Serializable;
         "p.id, u.id, pr.id, p.role, p.isAccepted, new aor.fpbackend.dto.UserBasicInfoDto(u.id, u.username, u.photo, u.role.id)) " +
         "FROM ProjectMembershipEntity p JOIN p.user u JOIN p.project pr WHERE pr.id = :projectId")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipByAcceptanceToken", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.acceptanceToken = :acceptanceToken")
+@NamedQuery(name = "ProjectMembership.findProjectMembershipByProjectIdAndUserId", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.user.id = :userId")
 public class ProjectMembershipEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

@@ -42,4 +42,14 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
             return null;
         }
     }
+    public ProjectMembershipEntity findProjectMembershipByUserIdAndProjectID(long projectId, long userId) {
+        try {
+            return (ProjectMembershipEntity) em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserId")
+                    .setParameter("projectId", projectId)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
 }

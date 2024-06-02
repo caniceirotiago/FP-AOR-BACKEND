@@ -155,6 +155,18 @@ public class ProjectBean implements Serializable {
         return new ProjectsPaginatedDto(projectGetDtos, totalProjects);
     }
 
+    public void updateProjectMembershipRole(ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
+        System.out.println(projectRoleUpdateDto.getProjectId() + " " + projectRoleUpdateDto.getUserId() + " " + projectRoleUpdateDto.getRole());
+        ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectID(projectRoleUpdateDto.getProjectId(), projectRoleUpdateDto.getUserId());
+        System.out.println(projectMembershipEntity);
+        if (projectMembershipEntity != null) {
+            projectMembershipEntity.setRole(projectRoleUpdateDto.getRole());
+            projectMemberDao.merge(projectMembershipEntity);
+        } else {
+            throw new EntityNotFoundException("Project Membership not found");
+        }
+    }
+
 
     private ProjectEntity convertProjectDtotoProjectEntity(ProjectCreateDto projectCreateDto) {
         ProjectEntity projectEntity = new ProjectEntity();

@@ -113,7 +113,10 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 || path.contains("/confirm")
                 || path.contains("/password/reset")
                 || path.contains("/labs")
-                || path.contains("/projects/all");
+                || path.contains("/projects/all")
+                || path.contains("/info/project-states")
+                || path.contains("/info/project-roles")
+                || path.contains("/project-role"); //TODO terá de sair daqui quando houver permissões específicas
     }
 
     public String extractTokenFromCookieHeader(String cookieHeader) {
