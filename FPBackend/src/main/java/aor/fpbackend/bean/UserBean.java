@@ -459,7 +459,7 @@ public class UserBean implements Serializable {
     //    }
 
     @Transactional
-    public void addUserToProject(String username, long projectId, boolean createHasAccepted) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         System.out.println("ProjectEntity to add: " + projectEntity);
@@ -486,7 +486,10 @@ public class UserBean implements Serializable {
         ProjectMembershipEntity membershipEntity = new ProjectMembershipEntity();
         membershipEntity.setUser(userEntity);
         membershipEntity.setProject(projectEntity);
-        membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
+        if(isTheCreator) {
+            System.out.println("User is the creator of the project");
+            membershipEntity.setRole(ProjectRoleEnum.PROJECT_MANAGER);
+        } else   membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
         membershipEntity.setAccepted(createHasAccepted);
         String acceptanceToken = userBean.generateNewToken();
         membershipEntity.setAcceptanceToken(acceptanceToken);
@@ -509,6 +512,9 @@ public class UserBean implements Serializable {
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
+        }
+        if(projectEntity.getCreatedBy().equals(userEntity)) {
+            throw new IllegalStateException("User is the creator of the project");
         }
         ProjectMembershipEntity userMembership = null;
         // Check if the user is a member of the project

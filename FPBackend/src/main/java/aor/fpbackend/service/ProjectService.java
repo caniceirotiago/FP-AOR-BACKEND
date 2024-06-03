@@ -94,6 +94,12 @@ public class ProjectService {
     public void askToJoinProject(@Valid ProjectAskJoinDto projectAskJoinDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UserNotFoundException {
         projectBean.askToJoinProject(projectAskJoinDto, securityContext);
     }
+    @PUT
+    @Path("")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void updateProject(@Valid ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
+        projectBean.updateProject(projectUpdateDto);
+    }
 
 //    @PUT
 //    @Path("/send/invite")

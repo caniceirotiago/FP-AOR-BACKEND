@@ -160,7 +160,7 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.ADD_USER)
     public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
-        userBean.addUserToProject(username, projectId, false);
+        userBean.addUserToProject(username, projectId, false, false);
     }
     @PUT
     @Path("/confirm/project")

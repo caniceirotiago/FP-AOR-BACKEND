@@ -82,19 +82,21 @@ public class ProjectBean implements Serializable {
         projectDao.persist(projectEntity);
 
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
-        addRelationsToProject(projectCreateDto, persistedProject);
+        addRelationsToProject(projectCreateDto, persistedProject, user);
 
         return true;
     }
 
-    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity) throws EntityNotFoundException, AttributeAlreadyExistsException, UserNotFoundException, InputValidationException {
+    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, AttributeAlreadyExistsException, UserNotFoundException, InputValidationException {
         // Define relations for project members (Users)
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
             System.out.println(projectCreateDto.getUsers());
             System.out.println(usernames);
+            // Add creator to project
+            userBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true);
             for (String username : usernames) {
-                userBean.addUserToProject(username, projectEntity.getId(), true);
+                userBean.addUserToProject(username, projectEntity.getId(), true, false);
             }
         }
         // Define relations for project Skills
@@ -165,9 +167,15 @@ public class ProjectBean implements Serializable {
     }
 
     public void updateProjectMembershipRole(ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
-        System.out.println(projectRoleUpdateDto.getProjectId() + " " + projectRoleUpdateDto.getUserId() + " " + projectRoleUpdateDto.getRole());
         ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectID(projectRoleUpdateDto.getProjectId(), projectRoleUpdateDto.getUserId());
-        System.out.println(projectMembershipEntity);
+
+        ProjectEntity projectEntity = projectDao.findProjectById(projectRoleUpdateDto.getProjectId());
+        UserEntity userEntity = userDao.findUserById(projectRoleUpdateDto.getUserId());
+        // Check if user is project creator
+        if(projectEntity.getCreatedBy().getId() == userEntity.getId()){
+            throw new InputValidationException("Cannot change role of project creator");
+        }
+
         if (projectMembershipEntity != null) {
             projectMembershipEntity.setRole(projectRoleUpdateDto.getRole());
             projectMemberDao.merge(projectMembershipEntity);
@@ -195,6 +203,45 @@ public class ProjectBean implements Serializable {
         } else {
             throw new EntityNotFoundException("Project or User not found");
         }
+    }
+    @Transactional
+    public void updateProject(ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
+        // Validate DTO
+        if (projectUpdateDto == null) {
+            throw new InputValidationException("Invalid DTO");
+        }
+        if (projectUpdateDto.getLaboratoryId() <= 0) {
+            throw new IllegalArgumentException("Laboratory ID must be a positive number");
+        }
+        if (projectUpdateDto.getMotivation() != null && projectUpdateDto.getMotivation().isEmpty()) {
+            throw new IllegalArgumentException("Motivation, if provided, cannot be empty");
+        }
+        if (projectUpdateDto.getConclusionDate() != null && projectUpdateDto.getConclusionDate().isBefore(Instant.now())) {
+            throw new IllegalArgumentException("Conclusion date cannot be in the past");
+        }
+
+        // Find existing project
+        ProjectEntity projectEntity = projectDao.findProjectById(projectUpdateDto.getId());
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found with ID: " + projectUpdateDto.getId());
+        }
+
+        // Update fields
+        projectEntity.setName(projectUpdateDto.getName());
+        projectEntity.setDescription(projectUpdateDto.getDescription());
+        projectEntity.setMotivation(projectUpdateDto.getMotivation());
+        projectEntity.setState(projectUpdateDto.getState());
+        projectEntity.setConclusionDate(projectUpdateDto.getConclusionDate());
+
+        // Update laboratory
+        LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectUpdateDto.getLaboratoryId());
+        if (laboratoryEntity == null) {
+            throw new EntityNotFoundException("Laboratory not found with ID: " + projectUpdateDto.getLaboratoryId());
+        }
+        projectEntity.setLaboratory(laboratoryEntity);
+
+        // Persist changes
+        projectDao.merge(projectEntity);
     }
 
 
