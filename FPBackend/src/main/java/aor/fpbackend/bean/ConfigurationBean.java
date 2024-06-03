@@ -1,6 +1,7 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.ConfigurationDao;
+import aor.fpbackend.dto.ConfigurationGetDto;
 import aor.fpbackend.entity.ConfigurationEntity;
 import aor.fpbackend.exception.DatabaseOperationException;
 import jakarta.ejb.EJB;
@@ -8,6 +9,7 @@ import jakarta.ejb.Stateless;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Stateless
 public class ConfigurationBean implements Serializable {
@@ -34,5 +36,8 @@ public class ConfigurationBean implements Serializable {
     public void updateConfigValue(String configKey, int configValue) {
         ConfigurationEntity configEntity = configurationDao.findConfigEntityByKey(configKey);
         configEntity.setValue(configValue);
+    }
+    public List<ConfigurationGetDto> getAllConfiguration() {
+        return configurationDao.getAllConfiguration();
     }
 }

@@ -1,11 +1,14 @@
 package aor.fpbackend.dao;
 
 
+import aor.fpbackend.dto.ConfigurationGetDto;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import aor.fpbackend.entity.ConfigurationEntity;
+
+import java.util.List;
 
 
 @Stateless
@@ -50,7 +53,10 @@ public class ConfigurationDao extends AbstractDao<ConfigurationEntity> {
             return null;
         }
     }
-
+    public List<ConfigurationGetDto> getAllConfiguration() {
+        return em.createNamedQuery("Configuration.getAllConfiguration")
+                .getResultList();
+    }
 
 
 }

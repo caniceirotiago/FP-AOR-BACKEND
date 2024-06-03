@@ -121,4 +121,38 @@ public class EmailService {
             throw new RuntimeException("Failed to send invitation email", e);
         }
     }
+    public void sendJoinRequisitionToManagersEmail(String toEmail, String username, String projectName, String acceptanceToken) {
+        System.out.println("Sending join requisition email to " + toEmail);
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+
+        Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
+            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+                return new jakarta.mail.PasswordAuthentication(USERNAME, PASSWORD);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("antnestservice@gmail.com")); // Sender e-mail
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // Receiver e-mail
+            message.setSubject(username + " asked to join to " + projectName + " project! "); // E-mail subject
+            String responseUrl = "http://localhost:3000/accept-project?token=" + acceptanceToken;
+            String confirmButton = "<html><body>"
+                    + "<h1>Project Join Requisition</h1>"
+                    + "<p>The user: " + username + " asked to join the project: " + projectName + ". Please click the button below to accept or ignore this email:</p>"
+                    + "<table cellspacing=\"0\" cellpadding=\"0\"><tr><td>"
+                    + "<a href='" + responseUrl + "' style='background-color:#007bff;border:1px solid #007bff;border-radius:5px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;line-height:44px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;mso-hide:all;'>Accept the user</a>"
+                    + "</td></tr></table>"
+                    + "</body></html>";
+            message.setContent(confirmButton, "text/html; charset=utf-8");
+            Transport.send(message);
+        } catch (MessagingException e) {
+            LOGGER.error("Failed to send requisition email", e);
+            throw new RuntimeException("Failed to send requisition email", e);
+        }
+    }
 }

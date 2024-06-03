@@ -8,6 +8,7 @@ import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.jws.soap.SOAPBinding;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.UriInfo;
@@ -148,6 +149,14 @@ public class ProjectBean implements Serializable {
 
             emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
     }
+    public void sendJoinRequisitionToManagers(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) throws UserNotFoundException, InputValidationException {
+        List<UserEntity> projectManagers = projectMemberDao.findProjectManagers(projectEntity.getId());
+        System.out.println(projectManagers);
+        for (UserEntity manager : projectManagers) {
+            System.out.println(manager);
+            emailService.sendJoinRequisitionToManagersEmail(manager.getEmail(), user.getUsername(), projectEntity.getName(), membershipEntity.getAcceptanceToken());
+        }
+    }
     public ProjectsPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
         List<ProjectEntity> projectEntities = projectDao.findFilteredProjects(page, pageSize, uriInfo);
         long totalProjects = projectDao.countFilteredProjects(uriInfo);
@@ -164,6 +173,27 @@ public class ProjectBean implements Serializable {
             projectMemberDao.merge(projectMembershipEntity);
         } else {
             throw new EntityNotFoundException("Project Membership not found");
+        }
+    }
+    public void askToJoinProject(ProjectAskJoinDto projectAskJoinDto, SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        ProjectEntity projectEntity = projectDao.findProjectById(projectAskJoinDto.getProjectId());
+        System.out.println(projectEntity);
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        System.out.println(userEntity);
+        if (projectEntity != null && userEntity != null) {
+            ProjectMembershipEntity projectMembershipEntity = new ProjectMembershipEntity();
+            projectMembershipEntity.setProject(projectEntity);
+            projectMembershipEntity.setUser(userEntity);
+            projectMembershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
+            projectMembershipEntity.setAccepted(false);
+            projectMembershipEntity.setAcceptanceToken(UUID.randomUUID().toString());
+            System.out.println("entrou");
+            projectMemberDao.persist(projectMembershipEntity);
+            System.out.println("saiu");
+            sendJoinRequisitionToManagers(projectMembershipEntity, userEntity, projectEntity);
+        } else {
+            throw new EntityNotFoundException("Project or User not found");
         }
     }
 

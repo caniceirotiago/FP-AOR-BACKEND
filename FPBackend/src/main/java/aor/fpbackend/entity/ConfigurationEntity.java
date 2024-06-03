@@ -18,7 +18,7 @@ import java.io.Serializable;
 @NamedQuery(name = "Configuration.findConfigValueByConfigKey", query = "SELECT c.value FROM ConfigurationEntity c WHERE c.configKey = :configKey")
 @NamedQuery(name = "Configuration.findConfigEntityByConfigKey", query = "SELECT c FROM ConfigurationEntity c WHERE c.configKey = :configKey")
 @NamedQuery(name = "Configuration.countConfigByConfigKey", query = "SELECT count(c) FROM ConfigurationEntity c WHERE c.configKey = :configKey")
-
+@NamedQuery(name = "Configuration.getAllConfiguration", query = "SELECT new aor.fpbackend.dto.ConfigurationGetDto(c.configKey, c.value) FROM ConfigurationEntity c")
 
 public class ConfigurationEntity implements Serializable {
     private static final long serialVersionUID = 1L;

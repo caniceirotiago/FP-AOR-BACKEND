@@ -87,6 +87,13 @@ public class ProjectService {
     public void updateProjectRole(@Valid ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
         projectBean.updateProjectMembershipRole(projectRoleUpdateDto);
     }
+    @PUT
+    @Path("/ask/join")
+    @Consumes(MediaType.APPLICATION_JSON)
+    //TODO: RequiresPermission especifica de projeto e role desse utilizador no projeto
+    public void askToJoinProject(@Valid ProjectAskJoinDto projectAskJoinDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UserNotFoundException {
+        projectBean.askToJoinProject(projectAskJoinDto, securityContext);
+    }
 
 //    @PUT
 //    @Path("/send/invite")
