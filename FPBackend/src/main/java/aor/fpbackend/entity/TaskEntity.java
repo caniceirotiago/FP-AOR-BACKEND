@@ -46,7 +46,7 @@ public class TaskEntity implements Serializable {
     private Instant endDate;
 
     @Column(name = "duration", nullable = true)
-    private int duration; // Counting in days
+    private long duration; // Counting in days
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
@@ -88,7 +88,7 @@ public class TaskEntity implements Serializable {
 
     public TaskEntity() {}
 
-    public TaskEntity(String title, Instant creationDate, int duration, TaskStateEnum state, ProjectEntity project) {
+    public TaskEntity(String title, Instant creationDate, long duration, TaskStateEnum state, ProjectEntity project) {
         this.title = title;
         this.creationDate = creationDate;
         this.duration = duration;
@@ -160,11 +160,11 @@ public class TaskEntity implements Serializable {
         this.endDate = endDate;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 

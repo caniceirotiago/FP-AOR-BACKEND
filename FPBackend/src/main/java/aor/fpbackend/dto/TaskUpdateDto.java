@@ -13,6 +13,9 @@ import java.util.Set;
 public class TaskUpdateDto implements Serializable {
 
     @XmlElement
+    private long taskId;
+
+    @XmlElement
     private String description;
 
     @XmlElement
@@ -28,11 +31,20 @@ public class TaskUpdateDto implements Serializable {
     public TaskUpdateDto() {
     }
 
-    public TaskUpdateDto(String description, Instant plannedStartDate, Instant plannedEndDate, TaskStateEnum state) {
+    public TaskUpdateDto(long taskId, String description, Instant plannedStartDate, Instant plannedEndDate, TaskStateEnum state) {
+        this.taskId = taskId;
         this.description = description;
         this.plannedStartDate = plannedStartDate;
         this.plannedEndDate = plannedEndDate;
         this.state = state;
+    }
+
+    public long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(long taskId) {
+        this.taskId = taskId;
     }
 
     public String getDescription() {

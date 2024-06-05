@@ -34,10 +34,16 @@ public class TaskGetDto implements Serializable {
     private Instant plannedStartDate;
 
     @XmlElement
-    private int duration;
+    private Instant startDate;
 
     @XmlElement
     private Instant plannedEndDate;
+
+    @XmlElement
+    private Instant endDate;
+
+    @XmlElement
+    private long duration;
 
     @XmlElement
     @Enumerated
@@ -47,7 +53,7 @@ public class TaskGetDto implements Serializable {
     private long responsibleId;
 
     @XmlElement
-    private Set<UsernameDto> registeredExecutors;
+    private Set<UserBasicInfoDto> registeredExecutors;
 
     @XmlElement
     private String nonRegisteredExecutors;
@@ -62,15 +68,17 @@ public class TaskGetDto implements Serializable {
     }
 
     public TaskGetDto(long id, String title, String description, Instant creationDate, Instant plannedStartDate,
-                      int duration, Instant plannedEndDate, TaskStateEnum state, long responsibleId,
-                      Set<UsernameDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, long projectId) {
+                      Instant startDate, Instant plannedEndDate, Instant endDate, long duration, TaskStateEnum state, long responsibleId,
+                      Set<UserBasicInfoDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, long projectId) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.creationDate = creationDate;
         this.plannedStartDate = plannedStartDate;
-        this.duration = duration;
+        this.startDate = startDate;
         this.plannedEndDate = plannedEndDate;
+        this.endDate = endDate;
+        this.duration = duration;
         this.state = state;
         this.responsibleId = responsibleId;
         this.registeredExecutors = registeredExecutors;
@@ -119,12 +127,12 @@ public class TaskGetDto implements Serializable {
         this.plannedStartDate = plannedStartDate;
     }
 
-    public int getDuration() {
-        return duration;
+    public Instant getStartDate() {
+        return startDate;
     }
 
-    public void setDuration(int duration) {
-        this.duration = duration;
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
     }
 
     public Instant getPlannedEndDate() {
@@ -133,6 +141,22 @@ public class TaskGetDto implements Serializable {
 
     public void setPlannedEndDate(Instant plannedEndDate) {
         this.plannedEndDate = plannedEndDate;
+    }
+
+    public Instant getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public TaskStateEnum getState() {
@@ -151,11 +175,11 @@ public class TaskGetDto implements Serializable {
         this.responsibleId = responsibleId;
     }
 
-    public Set<UsernameDto> getRegisteredExecutors() {
+    public Set<UserBasicInfoDto> getRegisteredExecutors() {
         return registeredExecutors;
     }
 
-    public void setRegisteredExecutors(Set<UsernameDto> registeredExecutors) {
+    public void setRegisteredExecutors(Set<UserBasicInfoDto> registeredExecutors) {
         this.registeredExecutors = registeredExecutors;
     }
 
