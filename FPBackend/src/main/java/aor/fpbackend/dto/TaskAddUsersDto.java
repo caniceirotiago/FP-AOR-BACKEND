@@ -1,6 +1,7 @@
 package aor.fpbackend.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -15,6 +16,7 @@ public class TaskAddUsersDto implements Serializable {
 
 
     @XmlElement
+    @NotNull
     private long taskId;
 
     @XmlElement
