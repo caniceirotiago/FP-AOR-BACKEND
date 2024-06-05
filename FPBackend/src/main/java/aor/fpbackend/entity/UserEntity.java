@@ -88,7 +88,7 @@ public class UserEntity implements Serializable {
     @OneToMany(mappedBy = "responsibleUser")
     private Set<TaskEntity> responsibleTasks = new HashSet<>();
 
-    @ManyToMany(mappedBy = "additionalExecuters")
+    @ManyToMany(mappedBy = "registeredExecutors")
     private Set<TaskEntity> tasksAsExecutor = new HashSet<>();
     @OneToMany(mappedBy = "createdBy")
     private Set<ProjectEntity> projectsCreated = new HashSet<>();

@@ -36,57 +36,6 @@ public class TaskBean implements Serializable {
 
     private static final Logger LOGGER = LogManager.getLogger(TaskBean.class);
 
-    @Transactional
-    public void addTask(TaskAddDto taskAddDto) throws EntityNotFoundException, InputValidationException {
-        if (taskAddDto==null){
-            throw new InputValidationException("Invalid Dto");
-        }
-        // Find the project by id
-        ProjectEntity projectEntity = projectDao.findProjectById(taskAddDto.getProjectId());
-        if (projectEntity == null) {
-            throw new EntityNotFoundException("Project not found");
-        }
-        UserEntity taskResponsible = userDao.findUserById(taskAddDto.getResponsibleId());
-        if (taskResponsible == null) {
-            throw new EntityNotFoundException("User not found");
-        }
-        // Avoid duplicate titles
-        if (taskDao.checkTitleExist(taskAddDto.getTitle())) {
-            throw new InputValidationException("Duplicated title");
-        }
-        // Fetch additional executers by their IDs
-        Set<UserEntity> additionalExecuters = new HashSet<>();
-        for (UsernameDto user : taskAddDto.getAddExecuters()) {
-            UserEntity additionalExecuter = userDao.findUserById(user.getId());
-            if (additionalExecuter == null) {
-                throw new EntityNotFoundException("Additional executer not found");
-            }
-            additionalExecuters.add(additionalExecuter);
-        }
-        // Fetch dependent tasks by their IDs
-        Set<TaskEntity> dependentTasks = new HashSet<>();
-        for (Long taskId : taskAddDto.getDependentTasks()) {
-            TaskEntity dependentTask = taskDao.findTaskById(taskId);
-            if (dependentTask == null) {
-                throw new EntityNotFoundException("Dependent task not found");
-            }
-            dependentTasks.add(dependentTask);
-        }
-        // Create a new task entity
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setTitle(taskAddDto.getTitle());
-        taskEntity.setDescription(taskAddDto.getDescription());
-        taskEntity.setPlannedStartDate(taskAddDto.getPlannedStartDate());
-        taskEntity.setCreationDate(Instant.now());
-        taskEntity.setPlannedEndDate(taskAddDto.getPlannedEndDate());
-        taskEntity.setState(TaskStateEnum.PLANNED); // Default state
-        taskEntity.setResponsibleUser(taskResponsible);
-        taskEntity.setAdditionalExecuters(additionalExecuters);
-        taskEntity.setDependentTasks(dependentTasks);
-        // Associate the task with the project
-        taskEntity.setProject(projectEntity);
-        taskDao.persist(taskEntity);
-    }
 
     public List<TaskGetDto> getTasks() {
         return convertTaskEntityListToTaskDtoList(taskDao.findAllTasks());
@@ -95,6 +44,81 @@ public class TaskBean implements Serializable {
     public List<TaskGetDto> getTasksByProject(long projectId) {
         return convertTaskEntityListToTaskDtoList(taskDao.getTasksByProjectId(projectId));
     }
+
+    @Transactional
+    public void addTask(TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
+        if (taskCreateDto ==null){
+            throw new InputValidationException("Invalid Dto");
+        }
+        // Find the project by id
+        ProjectEntity projectEntity = projectDao.findProjectById(taskCreateDto.getProjectId());
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found");
+        }
+        UserEntity taskResponsible = userDao.findUserById(taskCreateDto.getResponsibleId());
+        if (taskResponsible == null) {
+            throw new EntityNotFoundException("User not found");
+        }
+        // Avoid duplicate titles
+        if (taskDao.checkTitleExist(taskCreateDto.getTitle())) {
+            throw new InputValidationException("Duplicated title");
+        }
+        // Create a new task entity
+        TaskEntity taskEntity = new TaskEntity();
+        taskEntity.setTitle(taskCreateDto.getTitle());
+        taskEntity.setDescription(taskCreateDto.getDescription());
+        taskEntity.setPlannedStartDate(taskCreateDto.getPlannedStartDate());
+        taskEntity.setCreationDate(Instant.now());
+        taskEntity.setPlannedEndDate(taskCreateDto.getPlannedEndDate());
+        taskEntity.setState(TaskStateEnum.PLANNED); // Default state
+        taskEntity.setResponsibleUser(taskResponsible);
+        // Associate the task with the project
+        taskEntity.setProject(projectEntity);
+        taskDao.persist(taskEntity);
+    }
+
+    public void addUserTask(TaskAddUsersDto taskAddUsersDto) {
+
+        // Fetch additional executers by their IDs
+//        Set<UserEntity> registeredExecuters = new HashSet<>();
+//        for (UsernameDto user : taskCreateDto.getRegisteredExecutors()) {
+//            UserEntity additionalExecuter = userDao.findUserById(user.getId());
+//            if (additionalExecuter == null) {
+//                throw new EntityNotFoundException("Additional executer not found");
+//            }
+//            registeredExecuters.add(additionalExecuter);
+//        }
+
+    }
+
+    public void addDependencyTask(TaskAddDependencyDto addDependencyDto) {
+
+        // Fetch dependent tasks by their IDs
+//        Set<TaskEntity> dependentTasks = new HashSet<>();
+//        for (Long taskId : taskCreateDto.getDependentTasks()) {
+//            TaskEntity dependentTask = taskDao.findTaskById(taskId);
+//            if (dependentTask == null) {
+//                throw new EntityNotFoundException("Dependent task not found");
+//            }
+//            dependentTasks.add(dependentTask);
+//        }
+
+    }
+
+    public void updateTask(TaskUpdateDto taskUpdateDto) {
+
+        // Fetch dependent tasks by their IDs
+//        Set<TaskEntity> dependentTasks = new HashSet<>();
+//        for (Long taskId : taskCreateDto.getDependentTasks()) {
+//            TaskEntity dependentTask = taskDao.findTaskById(taskId);
+//            if (dependentTask == null) {
+//                throw new EntityNotFoundException("Dependent task not found");
+//            }
+//            dependentTasks.add(dependentTask);
+//        }
+
+    }
+
 
     public TaskGetDto convertTaskEntityToTaskDto(TaskEntity taskEntity) {
         TaskGetDto taskGetDto = new TaskGetDto();

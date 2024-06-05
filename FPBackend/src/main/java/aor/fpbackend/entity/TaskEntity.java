@@ -36,8 +36,14 @@ public class TaskEntity implements Serializable {
     @Column(name = "planned_start_date", nullable = true)
     private Instant plannedStartDate;
 
+    @Column(name = "start_date", nullable = true)
+    private Instant startDate;
+
     @Column(name = "planned_end_date", nullable = true)
     private Instant plannedEndDate;
+
+    @Column(name = "end_date", nullable = true)
+    private Instant endDate;
 
     @Column(name = "duration", nullable = true)
     private int duration; // Counting in days
@@ -46,6 +52,7 @@ public class TaskEntity implements Serializable {
     @Column(name = "state", nullable = false)
     private TaskStateEnum state;
 
+
     // Relationships
     @ManyToOne
     @JoinColumn(name = "responsible_user_id")
@@ -53,11 +60,14 @@ public class TaskEntity implements Serializable {
 
     @ManyToMany
     @JoinTable(
-            name = "task_executors",
+            name = "registered_executors",
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<UserEntity> additionalExecuters = new HashSet<>();
+    private Set<UserEntity> registeredExecutors = new HashSet<>();
+
+    @Column(name = "additional_executors", nullable = true)
+    private String additionalExecutors;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
@@ -126,12 +136,28 @@ public class TaskEntity implements Serializable {
         this.plannedStartDate = plannedStartDate;
     }
 
+    public Instant getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
+    }
+
     public Instant getPlannedEndDate() {
         return plannedEndDate;
     }
 
     public void setPlannedEndDate(Instant plannedEndDate) {
         this.plannedEndDate = plannedEndDate;
+    }
+
+    public Instant getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
     }
 
     public int getDuration() {
@@ -158,12 +184,20 @@ public class TaskEntity implements Serializable {
         this.responsibleUser = responsibleUser;
     }
 
-    public Set<UserEntity> getAdditionalExecuters() {
-        return additionalExecuters;
+    public Set<UserEntity> getRegisteredExecutors() {
+        return registeredExecutors;
     }
 
-    public void setAdditionalExecuters(Set<UserEntity> additionalExecuters) {
-        this.additionalExecuters = additionalExecuters;
+    public void setRegisteredExecutors(Set<UserEntity> registeredExecutors) {
+        this.registeredExecutors = registeredExecutors;
+    }
+
+    public String getAdditionalExecutors() {
+        return additionalExecutors;
+    }
+
+    public void setAdditionalExecutors(String additionalExecutors) {
+        this.additionalExecutors = additionalExecutors;
     }
 
     public ProjectEntity getProject() {
@@ -198,12 +232,17 @@ public class TaskEntity implements Serializable {
                 ", description='" + description + '\'' +
                 ", creationDate=" + creationDate +
                 ", plannedStartDate=" + plannedStartDate +
+                ", startDate=" + startDate +
                 ", plannedEndDate=" + plannedEndDate +
+                ", endDate=" + endDate +
                 ", duration=" + duration +
-                ", state='" + state + '\'' +
+                ", state=" + state +
                 ", responsibleUser=" + responsibleUser +
-                ", additionalExecuters=" + additionalExecuters +
+                ", registeredExecutors=" + registeredExecutors +
+                ", additionalExecutors='" + additionalExecutors + '\'' +
                 ", project=" + project +
+                ", prerequisites=" + prerequisites +
+                ", dependentTasks=" + dependentTasks +
                 '}';
     }
 }

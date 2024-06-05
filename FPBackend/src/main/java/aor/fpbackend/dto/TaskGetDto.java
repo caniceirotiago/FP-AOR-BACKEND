@@ -1,7 +1,6 @@
 package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.TaskStateEnum;
-import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -48,7 +47,10 @@ public class TaskGetDto implements Serializable {
     private long responsibleId;
 
     @XmlElement
-    private Set<UsernameDto> addExecuters;
+    private Set<UsernameDto> registeredExecutors;
+
+    @XmlElement
+    private String nonRegisteredExecutors;
 
     @XmlElement
     private Set<Long> dependentTasks;
@@ -61,7 +63,7 @@ public class TaskGetDto implements Serializable {
 
     public TaskGetDto(long id, String title, String description, Instant creationDate, Instant plannedStartDate,
                       int duration, Instant plannedEndDate, TaskStateEnum state, long responsibleId,
-                      Set<UsernameDto> addExecuters, Set<Long> dependentTasks, long projectId) {
+                      Set<UsernameDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, long projectId) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -71,7 +73,8 @@ public class TaskGetDto implements Serializable {
         this.plannedEndDate = plannedEndDate;
         this.state = state;
         this.responsibleId = responsibleId;
-        this.addExecuters = addExecuters;
+        this.registeredExecutors = registeredExecutors;
+        this.nonRegisteredExecutors = nonRegisteredExecutors;
         this.dependentTasks = dependentTasks;
         this.projectId = projectId;
     }
@@ -148,12 +151,20 @@ public class TaskGetDto implements Serializable {
         this.responsibleId = responsibleId;
     }
 
-    public Set<UsernameDto> getAddExecuters() {
-        return addExecuters;
+    public Set<UsernameDto> getRegisteredExecutors() {
+        return registeredExecutors;
     }
 
-    public void setAddExecuters(Set<UsernameDto> addExecuters) {
-        this.addExecuters = addExecuters;
+    public void setRegisteredExecutors(Set<UsernameDto> registeredExecutors) {
+        this.registeredExecutors = registeredExecutors;
+    }
+
+    public String getNonRegisteredExecutors() {
+        return nonRegisteredExecutors;
+    }
+
+    public void setNonRegisteredExecutors(String nonRegisteredExecutors) {
+        this.nonRegisteredExecutors = nonRegisteredExecutors;
     }
 
     public Set<Long> getDependentTasks() {
