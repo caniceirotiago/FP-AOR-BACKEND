@@ -31,9 +31,12 @@ public enum MethodEnum {
     ADD_USER(28L),
     REMOVE_USER(29L),
     ADD_TASK(30L),
-    ALL_TASKS (31L),
-    TASKS_BY_PROJECT (32L),
-    INVITE_TO_PROJECT(33L);
+    ALL_TASKS(31L),
+    TASKS_BY_PROJECT(32L),
+    INVITE_TO_PROJECT(33L),
+    TASK_USER(34L),
+    TASK_DEPENDENCY(35L),
+    TASK_UPDATE(36L);
 
     private final long value;
 
