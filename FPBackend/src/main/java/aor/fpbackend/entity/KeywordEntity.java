@@ -1,6 +1,5 @@
 package aor.fpbackend.entity;
 
-import aor.fpbackend.enums.IntKeyTypeEnum;
 import jakarta.persistence.*;
 
 import java.io.Serializable;

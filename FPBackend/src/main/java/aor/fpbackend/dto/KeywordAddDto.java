@@ -1,9 +1,6 @@
 package aor.fpbackend.dto;
 
-import aor.fpbackend.enums.IntKeyTypeEnum;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -30,7 +27,6 @@ public class KeywordAddDto implements Serializable {
 
     public KeywordAddDto(String name, long projectId) {
         this.name = name;
-
         this.projectId = projectId;
     }
 
@@ -41,7 +37,6 @@ public class KeywordAddDto implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-
 
     public long getProjectId() {
         return projectId;

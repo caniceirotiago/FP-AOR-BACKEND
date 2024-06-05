@@ -48,6 +48,10 @@ public class TaskBean implements Serializable {
         return convertTaskEntityListToTaskDtoList(taskDao.getTasksByProjectId(projectId));
     }
 
+    public TaskGetDto getTasksById(long taskId) {
+        return convertTaskEntityToTaskDto(taskDao.findTaskById(taskId));
+    }
+
     @Transactional
     public void addTask(TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
         if (taskCreateDto == null) {
@@ -66,6 +70,15 @@ public class TaskBean implements Serializable {
         if (taskDao.checkTitleExist(taskCreateDto.getTitle())) {
             throw new InputValidationException("Duplicated title");
         }
+        // Validate planned dates if both are present
+        if (taskCreateDto.getPlannedStartDate() != null && taskCreateDto.getPlannedEndDate() != null) {
+            if (taskCreateDto.getPlannedEndDate().isBefore(taskCreateDto.getPlannedStartDate())) {
+                throw new InputValidationException("Planned end date cannot be before planned start date");
+            }
+        } else if (taskCreateDto.getPlannedStartDate() == null && taskCreateDto.getPlannedEndDate() != null) {
+            // Planned end date is present but planned start date is missing
+            throw new InputValidationException("Cannot plan end date if planned start date is missing");
+        }
         // Create a new task entity
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setTitle(taskCreateDto.getTitle());
@@ -83,32 +96,30 @@ public class TaskBean implements Serializable {
     }
 
     @Transactional
-    public void addUserTask(TaskAddUsersDto taskAddUsersDto) throws InputValidationException, EntityNotFoundException {
-        if (taskAddUsersDto == null) {
+    public void addUserTask(TaskAddUserDto taskAddUserDto) throws InputValidationException, EntityNotFoundException {
+        if (taskAddUserDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
-        TaskEntity taskEntity = taskDao.findTaskById(taskAddUsersDto.getTaskId());
+        TaskEntity taskEntity = taskDao.findTaskById(taskAddUserDto.getTaskId());
         if (taskEntity == null) {
             throw new EntityNotFoundException("Task not found");
         }
         // Fetch registered executors by their IDs
         Set<UserEntity> registeredExecutors = taskEntity.getRegisteredExecutors();
-        for (UsernameDto user : taskAddUsersDto.getRegisteredExecutors()) {
-            UserEntity registeredExecutor = userDao.findUserById(user.getId());
-            if (registeredExecutor == null) {
-                throw new EntityNotFoundException("Registered executor not found");
-            }
-            if (!registeredExecutors.contains(registeredExecutor)) {
-                registeredExecutors.add(registeredExecutor);
-                registeredExecutor.getTasksAsExecutor().add(taskEntity); // Update the other side of the relation
-            } else {
-                // Handle duplicate entry scenario
-                LOGGER.warn("Duplicate entry for Registered Executor: " + registeredExecutor.getUsername());
-            }
+        UserEntity registeredExecutor = userDao.findUserById(taskAddUserDto.getExecutorId());
+        if (registeredExecutor == null) {
+            throw new EntityNotFoundException("Registered executor not found");
+        }
+        if (!registeredExecutors.contains(registeredExecutor)) {
+            registeredExecutors.add(registeredExecutor);
+            registeredExecutor.getTasksAsExecutor().add(taskEntity); // Update the other side of the relation
+        } else {
+            // Handle duplicate entry scenario
+            LOGGER.warn("Duplicate entry for Registered Executor: " + registeredExecutor.getUsername());
         }
         // Add additional executors (non-registered)
-        if (taskAddUsersDto.getNonRegisteredExecutors() != null) {
-            taskEntity.setAdditionalExecutors(taskAddUsersDto.getNonRegisteredExecutors());
+        if (taskAddUserDto.getNonRegisteredExecutors() != null) {
+            taskEntity.setAdditionalExecutors(taskAddUserDto.getNonRegisteredExecutors());
         }
     }
 
@@ -148,6 +159,9 @@ public class TaskBean implements Serializable {
             if (taskUpdateDto.getPlannedEndDate().isBefore(taskUpdateDto.getPlannedStartDate())) {
                 throw new InputValidationException("Planned end date cannot be before planned start date");
             }
+        } else if (taskUpdateDto.getPlannedStartDate() == null && taskUpdateDto.getPlannedEndDate() != null) {
+            // Planned end date is present but planned start date is missing
+            throw new InputValidationException("Cannot plan end date if planned start date is missing");
         }
         // Validate state and handle state transitions
         if (taskUpdateDto.getState() != null) {
