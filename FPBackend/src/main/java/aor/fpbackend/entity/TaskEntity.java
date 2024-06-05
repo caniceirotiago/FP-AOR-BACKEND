@@ -88,12 +88,14 @@ public class TaskEntity implements Serializable {
 
     public TaskEntity() {}
 
-    public TaskEntity(String title, Instant creationDate, long duration, TaskStateEnum state, ProjectEntity project) {
+    public TaskEntity(String title, String description, Instant creationDate, long duration, TaskStateEnum state, ProjectEntity project, UserEntity responsibleUser) {
         this.title = title;
+        this.description = description;
         this.creationDate = creationDate;
         this.duration = duration;
         this.state = state;
         this.project = project;
+        this.responsibleUser = responsibleUser;
     }
 
     public long getId() {

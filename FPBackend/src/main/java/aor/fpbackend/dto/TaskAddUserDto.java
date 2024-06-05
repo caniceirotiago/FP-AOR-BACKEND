@@ -1,18 +1,13 @@
 package aor.fpbackend.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.util.Set;
 
 @XmlRootElement
-public class TaskAddUsersDto implements Serializable {
+public class TaskAddUserDto implements Serializable {
 
 
     @XmlElement
@@ -20,17 +15,17 @@ public class TaskAddUsersDto implements Serializable {
     private long taskId;
 
     @XmlElement
-    private Set<UsernameDto> registeredExecutors;
+    private long executorId;
 
     @XmlElement
     private String nonRegisteredExecutors;
 
-    public TaskAddUsersDto() {
+    public TaskAddUserDto() {
     }
 
-    public TaskAddUsersDto(long taskId, Set<UsernameDto> registeredExecutors, String nonRegisteredExecutors) {
+    public TaskAddUserDto(long taskId, long executorId, String nonRegisteredExecutors) {
         this.taskId = taskId;
-        this.registeredExecutors = registeredExecutors;
+        this.executorId = executorId;
         this.nonRegisteredExecutors = nonRegisteredExecutors;
     }
 
@@ -42,12 +37,12 @@ public class TaskAddUsersDto implements Serializable {
         this.taskId = taskId;
     }
 
-    public Set<UsernameDto> getRegisteredExecutors() {
-        return registeredExecutors;
+    public long getExecutorId() {
+        return executorId;
     }
 
-    public void setRegisteredExecutors(Set<UsernameDto> registeredExecutors) {
-        this.registeredExecutors = registeredExecutors;
+    public void setExecutorId(long executorId) {
+        this.executorId = executorId;
     }
 
     public String getNonRegisteredExecutors() {

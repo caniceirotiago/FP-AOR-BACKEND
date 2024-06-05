@@ -13,7 +13,6 @@ import java.io.Serializable;
 public class UsernameDto implements Serializable {
 
     @XmlElement
-    @NotNull
     private long id;
 
     @XmlElement

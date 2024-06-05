@@ -2,15 +2,10 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.KeywordDao;
 import aor.fpbackend.dao.ProjectDao;
-import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.dto.KeywordGetDto;
 import aor.fpbackend.dto.KeywordRemoveDto;
-import aor.fpbackend.dto.ProjectGetDto;
-import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
-import aor.fpbackend.enums.IntKeyTypeEnum;
-import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
