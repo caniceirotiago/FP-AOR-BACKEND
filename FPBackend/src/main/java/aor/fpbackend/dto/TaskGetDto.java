@@ -62,6 +62,9 @@ public class TaskGetDto implements Serializable {
     private Set<Long> dependentTasks;
 
     @XmlElement
+    private Set<Long> prerequisites;
+
+    @XmlElement
     private long projectId;
 
     public TaskGetDto() {
@@ -69,7 +72,7 @@ public class TaskGetDto implements Serializable {
 
     public TaskGetDto(long id, String title, String description, Instant creationDate, Instant plannedStartDate,
                       Instant startDate, Instant plannedEndDate, Instant endDate, long duration, TaskStateEnum state, long responsibleId,
-                      Set<UserBasicInfoDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, long projectId) {
+                      Set<UserBasicInfoDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, Set<Long> prerequisites, long projectId) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -84,6 +87,7 @@ public class TaskGetDto implements Serializable {
         this.registeredExecutors = registeredExecutors;
         this.nonRegisteredExecutors = nonRegisteredExecutors;
         this.dependentTasks = dependentTasks;
+        this.prerequisites = prerequisites;
         this.projectId = projectId;
     }
 
@@ -197,6 +201,14 @@ public class TaskGetDto implements Serializable {
 
     public void setDependentTasks(Set<Long> dependentTasks) {
         this.dependentTasks = dependentTasks;
+    }
+
+    public Set<Long> getPrerequisites() {
+        return prerequisites;
+    }
+
+    public void setPrerequisites(Set<Long> prerequisites) {
+        this.prerequisites = prerequisites;
     }
 
     public long getProjectId() {

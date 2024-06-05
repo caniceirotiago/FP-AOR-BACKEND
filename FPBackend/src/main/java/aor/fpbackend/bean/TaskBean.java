@@ -74,10 +74,12 @@ public class TaskBean implements Serializable {
         taskEntity.setCreationDate(Instant.now());
         taskEntity.setPlannedEndDate(taskCreateDto.getPlannedEndDate());
         taskEntity.setState(TaskStateEnum.PLANNED); // Default state
+        // Set the responsible user for the task
         taskEntity.setResponsibleUser(taskResponsible);
         // Associate the task with the project
         taskEntity.setProject(projectEntity);
         taskDao.persist(taskEntity);
+        taskResponsible.getResponsibleTasks().add(taskEntity);
     }
 
     @Transactional
@@ -96,8 +98,13 @@ public class TaskBean implements Serializable {
             if (registeredExecutor == null) {
                 throw new EntityNotFoundException("Registered executor not found");
             }
-            registeredExecutors.add(registeredExecutor);
-            registeredExecutor.getTasksAsExecutor().add(taskEntity); // Update the other side of the relation
+            if (!registeredExecutors.contains(registeredExecutor)) {
+                registeredExecutors.add(registeredExecutor);
+                registeredExecutor.getTasksAsExecutor().add(taskEntity); // Update the other side of the relation
+            } else {
+                // Handle duplicate entry scenario
+                LOGGER.warn("Duplicate entry for Registered Executor: " + registeredExecutor.getUsername());
+            }
         }
         // Add additional executors (non-registered)
         if (taskAddUsersDto.getNonRegisteredExecutors() != null) {
@@ -106,7 +113,8 @@ public class TaskBean implements Serializable {
     }
 
     @Transactional
-    public void addDependencyTask(TaskAddDependencyDto addDependencyDto) throws InputValidationException, EntityNotFoundException {
+    public void addDependencyTask(TaskAddDependencyDto addDependencyDto) throws
+            InputValidationException, EntityNotFoundException {
         if (addDependencyDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
@@ -177,6 +185,29 @@ public class TaskBean implements Serializable {
         taskGetDto.setNonRegisteredExecutors(taskEntity.getAdditionalExecutors());
         taskGetDto.setProjectId(taskEntity.getProject().getId());
 
+        // Map registered executors to UserBasicInfoDto set
+        Set<UserBasicInfoDto> registeredExecutorsDtoSet = new HashSet<>();
+        for (UserEntity user : taskEntity.getRegisteredExecutors()) {
+            UserBasicInfoDto userDto = new UserBasicInfoDto();
+            userDto.setId(user.getId());
+            userDto.setUsername(user.getUsername());
+            userDto.setPhoto(user.getPhoto());
+            userDto.setRole(user.getRole().getId());
+            registeredExecutorsDtoSet.add(userDto);
+        }
+        taskGetDto.setRegisteredExecutors(registeredExecutorsDtoSet);
+        // Map task IDs of prerequisites
+        Set<Long> prerequisiteIds = new HashSet<>();
+        for (TaskEntity prerequisite : taskEntity.getPrerequisites()) {
+            prerequisiteIds.add(prerequisite.getId());
+        }
+        taskGetDto.setPrerequisites(prerequisiteIds);
+        // Map task IDs of dependent tasks
+        Set<Long> dependentTaskIds = new HashSet<>();
+        for (TaskEntity dependentTask : taskEntity.getDependentTasks()) {
+            dependentTaskIds.add(dependentTask.getId());
+        }
+        taskGetDto.setDependentTasks(dependentTaskIds);
         return taskGetDto;
     }
 
