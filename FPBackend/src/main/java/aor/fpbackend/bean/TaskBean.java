@@ -10,7 +10,9 @@ import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.TaskStateEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
+
 import java.time.temporal.ChronoUnit;
+
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -48,7 +50,7 @@ public class TaskBean implements Serializable {
 
     @Transactional
     public void addTask(TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
-        if (taskCreateDto ==null){
+        if (taskCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
         // Find the project by id
@@ -78,40 +80,59 @@ public class TaskBean implements Serializable {
         taskDao.persist(taskEntity);
     }
 
-    public void addUserTask(TaskAddUsersDto taskAddUsersDto) {
-
-        // Fetch additional executers by their IDs
-//        Set<UserEntity> registeredExecuters = new HashSet<>();
-//        for (UsernameDto user : taskCreateDto.getRegisteredExecutors()) {
-//            UserEntity additionalExecuter = userDao.findUserById(user.getId());
-//            if (additionalExecuter == null) {
-//                throw new EntityNotFoundException("Additional executer not found");
-//            }
-//            registeredExecuters.add(additionalExecuter);
-//        }
-
+    @Transactional
+    public void addUserTask(TaskAddUsersDto taskAddUsersDto) throws InputValidationException, EntityNotFoundException {
+        if (taskAddUsersDto == null) {
+            throw new InputValidationException("Invalid Dto");
+        }
+        TaskEntity taskEntity = taskDao.findTaskById(taskAddUsersDto.getTaskId());
+        if (taskEntity == null) {
+            throw new EntityNotFoundException("Task not found");
+        }
+        // Fetch registered executors by their IDs
+        Set<UserEntity> registeredExecutors = taskEntity.getRegisteredExecutors();
+        for (UsernameDto user : taskAddUsersDto.getRegisteredExecutors()) {
+            UserEntity registeredExecutor = userDao.findUserById(user.getId());
+            if (registeredExecutor == null) {
+                throw new EntityNotFoundException("Registered executor not found");
+            }
+            registeredExecutors.add(registeredExecutor);
+            registeredExecutor.getTasksAsExecutor().add(taskEntity); // Update the other side of the relation
+        }
+        // Add additional executors (non-registered)
+        if (taskAddUsersDto.getNonRegisteredExecutors() != null) {
+            taskEntity.setAdditionalExecutors(taskAddUsersDto.getNonRegisteredExecutors());
+        }
     }
 
-    public void addDependencyTask(TaskAddDependencyDto addDependencyDto) {
+    @Transactional
+    public void addDependencyTask(TaskAddDependencyDto addDependencyDto) throws InputValidationException, EntityNotFoundException {
+        if (addDependencyDto == null) {
+            throw new InputValidationException("Invalid Dto");
+        }
+        TaskEntity mainTaskEntity = taskDao.findTaskById(addDependencyDto.getMainTaskId());
+        TaskEntity dependentTaskEntity = taskDao.findTaskById(addDependencyDto.getDependentTaskId());
+        if (mainTaskEntity == null || dependentTaskEntity == null) {
+            throw new EntityNotFoundException("Task not found");
+        }
+        defineDependency(mainTaskEntity, dependentTaskEntity);
+    }
 
-        // Fetch dependent tasks by their IDs
-//        Set<TaskEntity> dependentTasks = new HashSet<>();
-//        for (Long taskId : taskCreateDto.getDependentTasks()) {
-//            TaskEntity dependentTask = taskDao.findTaskById(taskId);
-//            if (dependentTask == null) {
-//                throw new EntityNotFoundException("Dependent task not found");
-//            }
-//            dependentTasks.add(dependentTask);
-//        }
-
+    private void defineDependency(TaskEntity mainTaskEntity, TaskEntity dependentTaskEntity) {
+        // Update dependent tasks of the main task
+        Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
+        dependentTasks.add(dependentTaskEntity);
+        // Update prerequisites of the dependent task
+        Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
+        prerequisites.add(mainTaskEntity);
     }
 
     public void updateTask(TaskUpdateDto taskUpdateDto) throws InputValidationException, EntityNotFoundException {
-        if (taskUpdateDto == null){
+        if (taskUpdateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
         TaskEntity taskEntity = taskDao.findTaskById(taskUpdateDto.getTaskId());
-        if (taskEntity==null){
+        if (taskEntity == null) {
             throw new EntityNotFoundException("Task not found");
         }
         // Validate planned dates if both are present
@@ -147,11 +168,15 @@ public class TaskBean implements Serializable {
         taskGetDto.setDescription(taskEntity.getDescription());
         taskGetDto.setCreationDate(taskEntity.getCreationDate());
         taskGetDto.setPlannedStartDate(taskEntity.getPlannedStartDate());
-        taskGetDto.setDuration(taskEntity.getDuration());
+        taskGetDto.setStartDate(taskEntity.getStartDate());
         taskGetDto.setPlannedEndDate(taskEntity.getPlannedEndDate());
+        taskGetDto.setEndDate(taskEntity.getEndDate());
+        taskGetDto.setDuration(taskEntity.getDuration());
         taskGetDto.setState(taskEntity.getState());
         taskGetDto.setResponsibleId(taskEntity.getResponsibleUser().getId());
+        taskGetDto.setNonRegisteredExecutors(taskEntity.getAdditionalExecutors());
         taskGetDto.setProjectId(taskEntity.getProject().getId());
+
         return taskGetDto;
     }
 

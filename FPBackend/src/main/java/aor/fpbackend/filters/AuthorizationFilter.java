@@ -87,7 +87,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             long definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
             long renovateSessionTime = definedTimeOut / 2; //Renovate session if it has less than half of the time remaining
             if (timeRemaining < renovateSessionTime && !path.contains("/logout")) {
-                userBean.createNewSessionAndInvaladateOld(authUserDto, requestContext, definedTimeOut, token);
+                userBean.createNewSessionAndInvalidateOld(authUserDto, requestContext, definedTimeOut, token);
             }
             setSecurityContext(requestContext, authUserDto);
             checkAuthorization(requestContext, authUserDto);
