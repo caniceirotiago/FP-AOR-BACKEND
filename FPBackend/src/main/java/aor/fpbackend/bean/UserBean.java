@@ -468,7 +468,7 @@ public class UserBean implements Serializable {
         }
         // Find user by username
         UserEntity userEntity = userDao.findUserByUsername(username);
-        System.out.println();
+        System.out.println("is the creator" + isTheCreator);
         System.out.println("UserEntity to add: " + userEntity);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
