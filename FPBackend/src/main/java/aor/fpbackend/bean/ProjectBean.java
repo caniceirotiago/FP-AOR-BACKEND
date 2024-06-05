@@ -82,6 +82,7 @@ public class ProjectBean implements Serializable {
         projectDao.persist(projectEntity);
 
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
+        System.out.println(persistedProject);
         addRelationsToProject(projectCreateDto, persistedProject, user);
 
         return true;
@@ -89,12 +90,12 @@ public class ProjectBean implements Serializable {
 
     private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, AttributeAlreadyExistsException, UserNotFoundException, InputValidationException {
         // Define relations for project members (Users)
+        userBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true);
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
             System.out.println(projectCreateDto.getUsers());
             System.out.println(usernames);
             // Add creator to project
-            userBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true);
             for (String username : usernames) {
                 userBean.addUserToProject(username, projectEntity.getId(), true, false);
             }
