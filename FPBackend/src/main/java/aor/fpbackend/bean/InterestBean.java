@@ -3,11 +3,9 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.InterestDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.*;
-import aor.fpbackend.entity.AssetEntity;
 import aor.fpbackend.entity.InterestEntity;
-import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
-import aor.fpbackend.enums.IntKeyTypeEnum;
+import aor.fpbackend.enums.InterestTypeEnum;
 import aor.fpbackend.exception.AttributeAlreadyExistsException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -72,7 +70,7 @@ public class InterestBean implements Serializable {
     }
 
 
-    private void checkInterestExist(String name, IntKeyTypeEnum type) {
+    private void checkInterestExist(String name, InterestTypeEnum type) {
         if (!interestDao.checkInterestExist(name)) {
             InterestEntity interest = new InterestEntity(name, type);
             interestDao.persist(interest);

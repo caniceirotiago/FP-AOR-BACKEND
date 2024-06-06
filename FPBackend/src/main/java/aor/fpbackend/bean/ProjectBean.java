@@ -118,8 +118,8 @@ public class ProjectBean implements Serializable {
             }
         }
         // Define default final Task
-        TaskEntity defaultTask = new TaskEntity("Final Presentation", Instant.now(), 1,
-                TaskStateEnum.PLANNED, projectEntity);
+        TaskEntity defaultTask = new TaskEntity("Final Presentation nº" + projectEntity.getId(), "Presentation of project: " + projectEntity.getName(),
+                Instant.now(), 1, TaskStateEnum.PLANNED, projectEntity, userCreator);
         taskDao.persist(defaultTask);
         Set<TaskEntity> projectTasks = new HashSet<>();
         projectTasks.add(defaultTask);

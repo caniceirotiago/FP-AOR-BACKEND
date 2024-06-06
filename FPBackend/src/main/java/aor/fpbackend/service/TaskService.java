@@ -1,6 +1,5 @@
 package aor.fpbackend.service;
 
-import aor.fpbackend.bean.KeywordBean;
 import aor.fpbackend.bean.TaskBean;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.MethodEnum;
@@ -21,14 +20,6 @@ public class TaskService {
     @EJB
     TaskBean taskBean;
 
-    @POST
-    @Path("/add/project")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ADD_TASK)
-    public void addKeyword(@Valid TaskAddDto taskAddDto) throws EntityNotFoundException, InputValidationException {
-        taskBean.addTask(taskAddDto);
-    }
-
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
@@ -45,4 +36,43 @@ public class TaskService {
         return taskBean.getTasksByProject(projectId);
     }
 
+    @GET
+    @Path("/{taskId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    //@RequiresPermission(MethodEnum.TASK_BY_ID)
+    public TaskGetDto getTaskById(@PathParam("taskId") long taskId) {
+        return taskBean.getTasksById(taskId);
+    }
+
+    @POST
+    @Path("/add/project")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.ADD_TASK)
+    public void addTaskToProject(@Valid TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
+        taskBean.addTask(taskCreateDto);
+    }
+
+    @PUT
+    @Path("/add/executor")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.TASK_USER)
+    public void addUserToTask(@Valid TaskAddUserDto taskAddUserDto) throws EntityNotFoundException, InputValidationException {
+        taskBean.addUserTask(taskAddUserDto);
+    }
+
+    @PUT
+    @Path("/add/dependency")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.TASK_DEPENDENCY)
+    public void addDependencyToTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, InputValidationException {
+        taskBean.addDependencyTask(addDependencyDto);
+    }
+
+    @PUT
+    @Path("/update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.TASK_UPDATE)
+    public void updateTask(@Valid TaskUpdateDto taskUpdateDto) throws EntityNotFoundException, InputValidationException {
+        taskBean.updateTask(taskUpdateDto);
+    }
 }

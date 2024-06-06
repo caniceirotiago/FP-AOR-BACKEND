@@ -1,10 +1,7 @@
 package aor.fpbackend.dto;
 
-import aor.fpbackend.enums.IntKeyTypeEnum;
+import aor.fpbackend.enums.InterestTypeEnum;
 import jakarta.persistence.Enumerated;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -18,12 +15,12 @@ public class InterestGetDto implements Serializable {
     private String name;
     @XmlElement
     @Enumerated
-    private IntKeyTypeEnum type;
+    private InterestTypeEnum type;
 
     public InterestGetDto() {
     }
 
-    public InterestGetDto(long id, String name, IntKeyTypeEnum type) {
+    public InterestGetDto(long id, String name, InterestTypeEnum type) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -45,11 +42,11 @@ public class InterestGetDto implements Serializable {
         this.name = name;
     }
 
-    public IntKeyTypeEnum getType() {
+    public InterestTypeEnum getType() {
         return type;
     }
 
-    public void setType(IntKeyTypeEnum type) {
+    public void setType(InterestTypeEnum type) {
         this.type = type;
     }
 }

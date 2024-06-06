@@ -1,6 +1,6 @@
 package aor.fpbackend.enums;
 
-public enum IntKeyTypeEnum {
+public enum InterestTypeEnum {
     TOPICS,
     CAUSES,
     KNOWLEDGE_AREAS

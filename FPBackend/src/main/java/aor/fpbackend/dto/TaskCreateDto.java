@@ -1,8 +1,5 @@
 package aor.fpbackend.dto;
 
-import aor.fpbackend.enums.AssetTypeEnum;
-import aor.fpbackend.enums.TaskStateEnum;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -14,7 +11,7 @@ import java.time.Instant;
 import java.util.Set;
 
 @XmlRootElement
-public class TaskAddDto implements Serializable {
+public class TaskCreateDto implements Serializable {
 
     @XmlElement
     @NotBlank
@@ -35,26 +32,18 @@ public class TaskAddDto implements Serializable {
     private long responsibleId;
 
     @XmlElement
-    private Set<UsernameDto> addExecuters;
-
-    @XmlElement
-    private Set<Long> dependentTasks;
-
-    @XmlElement
     private long projectId;
 
-    public TaskAddDto() {
+    public TaskCreateDto() {
     }
 
-    public TaskAddDto(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId,
-                      Set<UsernameDto> addExecuters, Set<Long> dependentTasks, long projectId) {
+    public TaskCreateDto(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId,
+                         Set<UsernameDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, long projectId) {
         this.title = title;
         this.description = description;
         this.plannedStartDate = plannedStartDate;
         this.plannedEndDate = plannedEndDate;
         this.responsibleId = responsibleId;
-        this.addExecuters = addExecuters;
-        this.dependentTasks = dependentTasks;
         this.projectId = projectId;
     }
 
@@ -96,22 +85,6 @@ public class TaskAddDto implements Serializable {
 
     public void setResponsibleId(long responsibleId) {
         this.responsibleId = responsibleId;
-    }
-
-    public Set<UsernameDto> getAddExecuters() {
-        return addExecuters;
-    }
-
-    public void setAddExecuters(Set<UsernameDto> addExecuters) {
-        this.addExecuters = addExecuters;
-    }
-
-    public Set<Long> getDependentTasks() {
-        return dependentTasks;
-    }
-
-    public void setDependentTasks(Set<Long> dependentTasks) {
-        this.dependentTasks = dependentTasks;
     }
 
     public long getProjectId() {

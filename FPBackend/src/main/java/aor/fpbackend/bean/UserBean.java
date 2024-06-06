@@ -294,7 +294,7 @@ public class UserBean implements Serializable {
         }
     }
 
-    public void createNewSessionAndInvaladateOld(AuthUserDto authUserDto, ContainerRequestContext requestContext, long definedTimeout, String oldToken) throws UnknownHostException {
+    public void createNewSessionAndInvalidateOld(AuthUserDto authUserDto, ContainerRequestContext requestContext, long definedTimeout, String oldToken) throws UnknownHostException {
         UserEntity user = userDao.findUserById(authUserDto.getUserId());
         String newAuthToken = generateJwtToken(user, definedTimeout, "auth");
         Instant now = Instant.now();
