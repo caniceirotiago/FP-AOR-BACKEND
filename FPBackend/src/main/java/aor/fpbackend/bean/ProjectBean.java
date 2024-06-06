@@ -8,7 +8,6 @@ import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jws.soap.SOAPBinding;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
@@ -18,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,6 +50,9 @@ public class ProjectBean implements Serializable {
     @EJB
     LaboratoryBean laboratoryBean;
 
+    @EJB
+    ProjectLogDao projectLogDao;
+
 
     @Transactional
     public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException, UserNotFoundException {
@@ -70,6 +71,7 @@ public class ProjectBean implements Serializable {
         if (laboratoryEntity == null) {
             throw new EntityNotFoundException("Lab with Id: " + projectCreateDto.getLaboratoryId() + " not found");
         }
+        // Check for duplicate project name
         if (projectDao.checkProjectNameExist(projectCreateDto.getName())) {
             throw new InputValidationException("Duplicated project name");
         }
@@ -86,7 +88,6 @@ public class ProjectBean implements Serializable {
         projectDao.persist(projectEntity);
         // Define relations on the persisted Project
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
-        System.out.println(persistedProject);
         addRelationsToProject(projectCreateDto, persistedProject, user);
     }
 
@@ -160,26 +161,47 @@ public class ProjectBean implements Serializable {
         return projectRoleEnums;
     }
 
-    public void approveProject(long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
-        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+    public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+        // Validate input DTO
+        if (projectApproveDto == null) {
+            throw new InputValidationException("Invalid DTO");
+        }
+        // Retrieve the project entity
+        ProjectEntity projectEntity = projectDao.findProjectById(projectApproveDto.getProjectId());
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project with this Id not found");
         }
-        // Validate state and handle state transitions
+        // Retrieve the authenticated user
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        if (userEntity == null) {
+            throw new UserNotFoundException("User with this Id not found");
+        }
+        // Validate project state
         ProjectStateEnum currentState = projectEntity.getState();
-        // Handle state transitions
-        if (currentState == ProjectStateEnum.READY) {
+        if (currentState != ProjectStateEnum.READY) {
+            return;
+        }
+        // Handle admin decision and state transitions
+        if (projectApproveDto.isConfirm()) {
             projectEntity.setApproved(true);
             projectEntity.setState(ProjectStateEnum.IN_PROGRESS);
             projectEntity.setInitialDate(Instant.now());
-            // TODO - Sacar user através do Security Context
-            //ProjectLogEntity projectLogEntity = new ProjectLogEntity();
-            //projectLogEntity.setUser();
+        } else {
+            projectEntity.setState(ProjectStateEnum.PLANNING);
         }
+        // Create a Project Log
+        ProjectLogEntity projectLogEntity = new ProjectLogEntity();
+        projectLogEntity.setProject(projectEntity);
+        projectLogEntity.setUser(userEntity);
+        projectLogEntity.setCreationDate(Instant.now());
+        projectLogEntity.setType("Approval");
+        projectLogEntity.setContent(projectApproveDto.getComment());
+        projectLogDao.persist(projectLogEntity);
+        projectEntity.getProjectLogs().add(projectLogEntity);
     }
 
-    public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) throws UserNotFoundException, InputValidationException {
-
+    public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
         emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
     }
 
@@ -220,8 +242,8 @@ public class ProjectBean implements Serializable {
 
     public void askToJoinProject(ProjectAskJoinDto projectAskJoinDto, SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        ProjectEntity projectEntity = projectDao.findProjectById(projectAskJoinDto.getProjectId());
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectAskJoinDto.getProjectId());
         if (projectEntity != null && userEntity != null) {
             ProjectMembershipEntity projectMembershipEntity = new ProjectMembershipEntity();
             projectMembershipEntity.setProject(projectEntity);
@@ -245,26 +267,46 @@ public class ProjectBean implements Serializable {
         if (projectUpdateDto.getConclusionDate() != null && projectUpdateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new IllegalArgumentException("Conclusion date cannot be in the past");
         }
+        // Find associated laboratory
+        LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectUpdateDto.getLaboratoryId());
+        if (laboratoryEntity == null) {
+            throw new EntityNotFoundException("Laboratory not found with ID: " + projectUpdateDto.getLaboratoryId());
+        }
         // Find existing project
         ProjectEntity projectEntity = projectDao.findProjectById(projectUpdateDto.getId());
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found with ID: " + projectUpdateDto.getId());
         }
-        if (projectDao.checkProjectNameExist(projectUpdateDto.getName())) {
-            throw new InputValidationException("Duplicated project name");
+        // Check for duplicate project name, if updating the project name
+        if (!projectEntity.getName().equals(projectUpdateDto.getName())) {
+            if (projectDao.checkProjectNameExist(projectUpdateDto.getName())) {
+                throw new InputValidationException("Duplicated project name");
+            }
         }
         // Update fields
         projectEntity.setName(projectUpdateDto.getName());
         projectEntity.setDescription(projectUpdateDto.getDescription());
         projectEntity.setMotivation(projectUpdateDto.getMotivation());
-        projectEntity.setState(projectUpdateDto.getState());
         projectEntity.setConclusionDate(projectUpdateDto.getConclusionDate());
-        // Update laboratory
-        LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectUpdateDto.getLaboratoryId());
-        if (laboratoryEntity == null) {
-            throw new EntityNotFoundException("Laboratory not found with ID: " + projectUpdateDto.getLaboratoryId());
-        }
         projectEntity.setLaboratory(laboratoryEntity);
+        // Validate state and handle state transitions
+        if (projectUpdateDto.getState() != null) {
+            ProjectStateEnum newState = projectUpdateDto.getState();
+            boolean approved = projectEntity.isApproved();
+            if (!approved) {
+                if (newState == ProjectStateEnum.READY || newState == ProjectStateEnum.CANCELLED) {
+                    projectEntity.setState(newState);
+                } else {
+                    throw new InputValidationException("Invalid state transition: Project is not approved");
+                }
+            } else {
+                if (newState == ProjectStateEnum.FINISHED || newState == ProjectStateEnum.CANCELLED) {
+                    projectEntity.setState(newState);
+                } else {
+                    throw new InputValidationException("Invalid state transition: Project is approved");
+                }
+            }
+        }
     }
 
     public ProjectGetDto convertProjectEntityToProjectDto(ProjectEntity projectEntity) {

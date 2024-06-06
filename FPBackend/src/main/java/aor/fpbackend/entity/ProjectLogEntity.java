@@ -7,6 +7,9 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "project_log")
+
+@NamedQuery(name = "ProjectLog.findAllProjectLogs", query = "SELECT p FROM ProjectLogEntity p")
+
 public class ProjectLogEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     
