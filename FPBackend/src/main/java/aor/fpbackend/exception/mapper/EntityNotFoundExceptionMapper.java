@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger;
             Error error = new Error(e.getMessage());
             LOGGER.warn("Entity not found: " + error.getErrorMessage());
             return Response
-                    .status(Response.Status.NOT_FOUND)
+                    .status(Response.Status.BAD_REQUEST)
                     .entity(error)
                     .type(MediaType.APPLICATION_JSON)
                     .build();

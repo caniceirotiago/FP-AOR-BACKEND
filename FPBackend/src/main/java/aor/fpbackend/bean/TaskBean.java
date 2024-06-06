@@ -171,16 +171,18 @@ public class TaskBean implements Serializable {
             // Handle state transitions
             if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.IN_PROGRESS) {
                 taskEntity.setStartDate(Instant.now()); // Set startDate to current date
-            } else if (currentState == TaskStateEnum.IN_PROGRESS && newState == TaskStateEnum.FINISHED) {
-                taskEntity.setEndDate(Instant.now()); // Set endDate to current date
-            } else if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.FINISHED) {
-                taskEntity.setStartDate(Instant.now()); // Set startDate to current date
-                taskEntity.setEndDate(Instant.now()); // Set endDate to current date
-            }
-            // Calculate duration if both start and end dates are set
-            if (taskEntity.getStartDate() != null && taskEntity.getEndDate() != null) {
-                long duration = ChronoUnit.DAYS.between(taskEntity.getStartDate(), taskEntity.getEndDate());
-                taskEntity.setDuration(duration);
+            } else {
+                if (currentState == TaskStateEnum.IN_PROGRESS && newState == TaskStateEnum.FINISHED) {
+                    taskEntity.setEndDate(Instant.now()); // Set endDate to current date
+                } else if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.FINISHED) {
+                    taskEntity.setStartDate(Instant.now()); // Set startDate to current date
+                    taskEntity.setEndDate(Instant.now()); // Set endDate to current date
+                }
+                // Calculate duration if end date is set
+                if (taskEntity.getEndDate() != null) {
+                    long duration = ChronoUnit.DAYS.between(taskEntity.getStartDate(), taskEntity.getEndDate());
+                    taskEntity.setDuration(duration);
+                }
             }
             taskEntity.setState(newState);
         }

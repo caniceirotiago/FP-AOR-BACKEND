@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
             LOGGER.warn("Invalid inputs " + LocalDateTime.now() + ": " + error.getErrorMessage());
 
             return Response
-                    .status(Response.Status.NOT_ACCEPTABLE)
+                    .status(Response.Status.BAD_REQUEST)
                     .entity(error)
                     .type(MediaType.APPLICATION_JSON)
                     .build();

@@ -3,6 +3,7 @@ package aor.fpbackend.dto;
 import aor.fpbackend.enums.InterestTypeEnum;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -21,6 +22,7 @@ public class InterestAddDto implements Serializable {
 
     @XmlElement
     @Enumerated
+    @NotNull
     private InterestTypeEnum type;
 
     public InterestAddDto() {

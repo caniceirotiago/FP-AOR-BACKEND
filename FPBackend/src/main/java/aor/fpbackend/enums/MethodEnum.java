@@ -33,7 +33,7 @@ public enum MethodEnum {
     ADD_TASK(30L),
     ALL_TASKS(31L),
     TASKS_BY_PROJECT(32L),
-    INVITE_TO_PROJECT(33L),
+    PROJECT_ENUMS (33l),
     TASK_USER(34L),
     TASK_DEPENDENCY(35L),
     TASK_UPDATE(36L);

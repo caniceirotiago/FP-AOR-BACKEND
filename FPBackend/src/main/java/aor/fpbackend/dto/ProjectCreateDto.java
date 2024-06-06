@@ -1,7 +1,10 @@
 package aor.fpbackend.dto;
 
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -15,20 +18,23 @@ import java.util.Set;
 public class ProjectCreateDto implements Serializable {
 
     @XmlElement
-    @NotBlank
+    @Size(min = 1, max = 255, message = "Project name must be between 1 and 255 characters")
     private String name;
 
     @XmlElement
-    @NotBlank
+    @Size(min = 1, max = 2048, message = "Description must be between 1 and 2048 characters")
     private String description;
 
     @XmlElement
+    @Size(min = 1, max = 2048, message = "Motivation must be between 1 and 2048 characters")
     private String motivation;
 
     @XmlElement
     private Instant conclusionDate;
 
     @XmlElement
+    @NotNull
+    @Min(value = 1, message = "Laboratory ID must be greater than 0")
     private long laboratoryId;
 
     @XmlElement

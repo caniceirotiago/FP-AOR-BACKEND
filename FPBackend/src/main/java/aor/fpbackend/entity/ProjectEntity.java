@@ -11,6 +11,7 @@ import java.util.Set;
 @Entity
 @Table(name = "project")
 
+@NamedQuery(name = "Project.countProjectByName", query = "SELECT COUNT(p) FROM ProjectEntity p WHERE LOWER(p.name) = LOWER(:name)")
 @NamedQuery(name = "Project.findProjectById", query = "SELECT p FROM ProjectEntity p WHERE p.id = :projectId")
 @NamedQuery(name = "Project.findProjectByName", query = "SELECT p FROM ProjectEntity p WHERE LOWER(p.name) = LOWER(:name)")
 @NamedQuery(name = "Project.findAllProjects", query = "SELECT p FROM ProjectEntity p")

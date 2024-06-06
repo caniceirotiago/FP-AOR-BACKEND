@@ -247,7 +247,6 @@ public class UserBean implements Serializable {
         return builder.compact();
     }
 
-
     public String generateNewToken() {
         SecureRandom secureRandom = new SecureRandom();
         Base64.Encoder base64Encoder = Base64.getUrlEncoder();
@@ -255,7 +254,6 @@ public class UserBean implements Serializable {
         secureRandom.nextBytes(randomBytes);
         return base64Encoder.encodeToString(randomBytes);
     }
-
 
     public AuthUserDto validateTokenAndGetUserDetails(String token) throws InvalidCredentialsException {
         try {
@@ -362,19 +360,6 @@ public class UserBean implements Serializable {
         userDao.merge(userEntity);
     }
 
-//    public AuthUserDto getAuthUserDtoByToken(String token) throws UserNotFoundException {
-//        UserEntity userEntity = userDao.findUserByToken(token);
-//        if (userEntity != null) {
-//            AuthUserDto authUserDto = new AuthUserDto();
-//            authUserDto.setUsername(userEntity.getUsername());
-//            authUserDto.setSessionToken(token);
-//            authUserDto.setRoleId(userEntity.getRole().getId());
-//            return authUserDto;
-//        } else {
-//            throw new UserNotFoundException("No user found for this token");
-//        }
-//    }
-
     public UserBasicInfoDto getUserBasicInfo(@Context SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -446,30 +431,15 @@ public class UserBean implements Serializable {
         u.setRole(newRole);
     }
 
-    //TODO Não está a ser usado!!
-
-    //    public boolean isMethodAssociatedWithRole(long roleId, MethodEnum method) throws InvalidCredentialsException, UnknownHostException {
-    //        // Check if user's role has permission to the method
-    //        boolean isMethodAssociated = roleDao.isMethodAssociatedWithRole(roleId, method);
-    //        if (!isMethodAssociated) {
-    //            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Unauthorized method access attempt");
-    //            throw new InvalidCredentialsException("Unauthorized access");
-    //        }
-    //        return true;
-    //    }
-
     @Transactional
     public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
-        System.out.println("ProjectEntity to add: " + projectEntity);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
         // Find user by username
         UserEntity userEntity = userDao.findUserByUsername(username);
-        System.out.println();
-        System.out.println("UserEntity to add: " + userEntity);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
         }
@@ -486,10 +456,10 @@ public class UserBean implements Serializable {
         ProjectMembershipEntity membershipEntity = new ProjectMembershipEntity();
         membershipEntity.setUser(userEntity);
         membershipEntity.setProject(projectEntity);
-        if(isTheCreator) {
+        if (isTheCreator) {
             System.out.println("User is the creator of the project");
             membershipEntity.setRole(ProjectRoleEnum.PROJECT_MANAGER);
-        } else   membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
+        } else membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
         membershipEntity.setAccepted(createHasAccepted);
         String acceptanceToken = userBean.generateNewToken();
         membershipEntity.setAcceptanceToken(acceptanceToken);
@@ -498,7 +468,7 @@ public class UserBean implements Serializable {
         userEntity.getProjects().add(membershipEntity);
         // Add the user to the project's users
         projectEntity.getMembers().add(membershipEntity);
-        if(!createHasAccepted)projectBean.sendInviteToUser(membershipEntity, userEntity, projectEntity);
+        if (!createHasAccepted) projectBean.sendInviteToUser(membershipEntity, userEntity, projectEntity);
     }
 
     @Transactional
@@ -513,7 +483,7 @@ public class UserBean implements Serializable {
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
         }
-        if(projectEntity.getCreatedBy().equals(userEntity)) {
+        if (projectEntity.getCreatedBy().equals(userEntity)) {
             throw new IllegalStateException("User is the creator of the project");
         }
         ProjectMembershipEntity userMembership = null;
@@ -530,9 +500,8 @@ public class UserBean implements Serializable {
         } else {
             throw new IllegalStateException("Project does not have the specified user");
         }
-        System.out.println("User Membership: " + userMembership);
-
     }
+
     public void confirmProjectInvite(String token) throws EntityNotFoundException {
         ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
         if (membershipEntity == null) {
@@ -542,8 +511,7 @@ public class UserBean implements Serializable {
         membershipEntity.setAcceptanceToken(null);
     }
 
-    public List<ProjectMembershipDto> getUsersByProject(long projectId){
-
+    public List<ProjectMembershipDto> getUsersByProject(long projectId) {
         return userDao.getUsersByProject(projectId);
     }
 
@@ -583,6 +551,7 @@ public class UserBean implements Serializable {
         }
         return userBasicInfoDtos;
     }
+
     public UserBasicInfoDto convertUserEntetyToUserBasicInfoDto(UserEntity userEntity) {
         UserBasicInfoDto userBasicInfoDto = new UserBasicInfoDto();
         userBasicInfoDto.setId(userEntity.getId());

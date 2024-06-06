@@ -53,38 +53,38 @@ public class ProjectBean implements Serializable {
 
 
     @Transactional
-    public boolean createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException, UserNotFoundException {
+    public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException, UserNotFoundException {
         if (projectCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
-        }
-        if (projectCreateDto.getLaboratoryId() <= 0) {
-            throw new IllegalArgumentException("Laboratory ID must be a positive number");
-        }
-        if (projectCreateDto.getMotivation() != null && projectCreateDto.getMotivation().isEmpty()) {
-            throw new IllegalArgumentException("Motivation, if provided, cannot be empty");
         }
         if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new IllegalArgumentException("Conclusion date cannot be in the past");
         }
-
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity user = userDao.findUserById(authUserDto.getUserId());
+        if (user == null) {
+            throw new UserNotFoundException("User with Id: " + authUserDto.getUserId() + " not found");
+        }
+        LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectCreateDto.getLaboratoryId());
+        if (laboratoryEntity == null) {
+            throw new EntityNotFoundException("Lab with Id: " + projectCreateDto.getLaboratoryId() + " not found");
+        }
+        if (projectDao.checkProjectNameExist(projectCreateDto.getName())) {
+            throw new InputValidationException("Duplicated project name");
+        }
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setName(projectCreateDto.getName());
         projectEntity.setDescription(projectCreateDto.getDescription());
         projectEntity.setMotivation(projectCreateDto.getMotivation());
         projectEntity.setConclusionDate(projectCreateDto.getConclusionDate());
-        LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectCreateDto.getLaboratoryId());
         projectEntity.setLaboratory(laboratoryEntity);
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity user = userDao.findUserById(authUserDto.getUserId());
         projectEntity.setCreatedBy(user);
         projectEntity.setState(ProjectStateEnum.PLANNING);
         projectEntity.setCreationDate(Instant.now());
         projectDao.persist(projectEntity);
-
+        // Define relations on the persisted Project
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
         addRelationsToProject(projectCreateDto, persistedProject, user);
-
-        return true;
     }
 
     private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, AttributeAlreadyExistsException, UserNotFoundException, InputValidationException {
@@ -113,7 +113,7 @@ public class ProjectBean implements Serializable {
             Set<KeywordAddDto> keywords = projectCreateDto.getKeywords().stream().collect(Collectors.toSet());
             for (KeywordAddDto keyword : keywords) {
                 String keywordName = keyword.getName();
-                keywordBean.addKeyword(keywordName,  projectEntity.getId());
+                keywordBean.addKeyword(keywordName, projectEntity.getId());
             }
         }
         // Define default final Task
@@ -135,22 +135,35 @@ public class ProjectBean implements Serializable {
     }
 
     public ProjectGetDto getProjectDetailsById(long projectId) throws EntityNotFoundException {
-        try {
-            ProjectEntity projectEntity = projectDao.findProjectById(projectId);
-            if (projectEntity != null) {
-                return convertProjectEntityToProjectDto(projectEntity);
-            } else {
-                throw new EntityNotFoundException("Project not found");
-            }
-        } catch (EntityNotFoundException e) {
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if (projectEntity != null) {
+            return convertProjectEntityToProjectDto(projectEntity);
+        } else {
             throw new EntityNotFoundException("Project not found");
         }
     }
 
+    public List<ProjectStateEnum> getEnumListProjectStates() {
+        List<ProjectStateEnum> projectStateEnums = new ArrayList<>();
+        for (ProjectStateEnum projectStateEnum : ProjectStateEnum.values()) {
+            projectStateEnums.add(projectStateEnum);
+        }
+        return projectStateEnums;
+    }
+
+    public List<ProjectRoleEnum> getEnumListProjectRoles() {
+        List<ProjectRoleEnum> projectRoleEnums = new ArrayList<>();
+        for (ProjectRoleEnum projectRoleEnum : ProjectRoleEnum.values()) {
+            projectRoleEnums.add(projectRoleEnum);
+        }
+        return projectRoleEnums;
+    }
+
     public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) throws UserNotFoundException, InputValidationException {
 
-            emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
+        emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
     }
+
     public void sendJoinRequisitionToManagers(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) throws UserNotFoundException, InputValidationException {
         List<UserEntity> projectManagers = projectMemberDao.findProjectManagers(projectEntity.getId());
         System.out.println(projectManagers);
@@ -159,6 +172,7 @@ public class ProjectBean implements Serializable {
             emailService.sendJoinRequisitionToManagersEmail(manager.getEmail(), user.getUsername(), projectEntity.getName(), membershipEntity.getAcceptanceToken());
         }
     }
+
     public ProjectsPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
         List<ProjectEntity> projectEntities = projectDao.findFilteredProjects(page, pageSize, uriInfo);
         long totalProjects = projectDao.countFilteredProjects(uriInfo);
@@ -167,12 +181,15 @@ public class ProjectBean implements Serializable {
     }
 
     public void updateProjectMembershipRole(ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
-        ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectID(projectRoleUpdateDto.getProjectId(), projectRoleUpdateDto.getUserId());
-
+        if (projectRoleUpdateDto == null) {
+            throw new InputValidationException("Invalid DTO");
+        }
+        ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectID(
+                projectRoleUpdateDto.getProjectId(), projectRoleUpdateDto.getUserId());
         ProjectEntity projectEntity = projectDao.findProjectById(projectRoleUpdateDto.getProjectId());
         UserEntity userEntity = userDao.findUserById(projectRoleUpdateDto.getUserId());
         // Check if user is project creator
-        if(projectEntity.getCreatedBy().getId() == userEntity.getId()){
+        if (projectEntity.getCreatedBy().getId() == userEntity.getId()) {
             throw new InputValidationException("Cannot change role of project creator");
         }
 
@@ -183,12 +200,11 @@ public class ProjectBean implements Serializable {
             throw new EntityNotFoundException("Project Membership not found");
         }
     }
+
     public void askToJoinProject(ProjectAskJoinDto projectAskJoinDto, SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         ProjectEntity projectEntity = projectDao.findProjectById(projectAskJoinDto.getProjectId());
-        System.out.println(projectEntity);
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-        System.out.println(userEntity);
         if (projectEntity != null && userEntity != null) {
             ProjectMembershipEntity projectMembershipEntity = new ProjectMembershipEntity();
             projectMembershipEntity.setProject(projectEntity);
@@ -196,66 +212,42 @@ public class ProjectBean implements Serializable {
             projectMembershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
             projectMembershipEntity.setAccepted(false);
             projectMembershipEntity.setAcceptanceToken(UUID.randomUUID().toString());
-            System.out.println("entrou");
             projectMemberDao.persist(projectMembershipEntity);
-            System.out.println("saiu");
             sendJoinRequisitionToManagers(projectMembershipEntity, userEntity, projectEntity);
         } else {
             throw new EntityNotFoundException("Project or User not found");
         }
     }
+
     @Transactional
     public void updateProject(ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
         // Validate DTO
         if (projectUpdateDto == null) {
             throw new InputValidationException("Invalid DTO");
         }
-        if (projectUpdateDto.getLaboratoryId() <= 0) {
-            throw new IllegalArgumentException("Laboratory ID must be a positive number");
-        }
-        if (projectUpdateDto.getMotivation() != null && projectUpdateDto.getMotivation().isEmpty()) {
-            throw new IllegalArgumentException("Motivation, if provided, cannot be empty");
-        }
         if (projectUpdateDto.getConclusionDate() != null && projectUpdateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new IllegalArgumentException("Conclusion date cannot be in the past");
         }
-
         // Find existing project
         ProjectEntity projectEntity = projectDao.findProjectById(projectUpdateDto.getId());
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found with ID: " + projectUpdateDto.getId());
         }
-
+        if (projectDao.checkProjectNameExist(projectUpdateDto.getName())) {
+            throw new InputValidationException("Duplicated project name");
+        }
         // Update fields
         projectEntity.setName(projectUpdateDto.getName());
         projectEntity.setDescription(projectUpdateDto.getDescription());
         projectEntity.setMotivation(projectUpdateDto.getMotivation());
         projectEntity.setState(projectUpdateDto.getState());
         projectEntity.setConclusionDate(projectUpdateDto.getConclusionDate());
-
         // Update laboratory
         LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectUpdateDto.getLaboratoryId());
         if (laboratoryEntity == null) {
             throw new EntityNotFoundException("Laboratory not found with ID: " + projectUpdateDto.getLaboratoryId());
         }
         projectEntity.setLaboratory(laboratoryEntity);
-
-        // Persist changes
-        projectDao.merge(projectEntity);
-    }
-
-
-    private ProjectEntity convertProjectDtotoProjectEntity(ProjectCreateDto projectCreateDto) {
-        ProjectEntity projectEntity = new ProjectEntity();
-        projectEntity.setName(projectCreateDto.getName());
-        projectEntity.setDescription(projectCreateDto.getDescription());
-        projectEntity.setMotivation(projectCreateDto.getMotivation());
-        projectEntity.setConclusionDate(projectCreateDto.getConclusionDate());
-        LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectCreateDto.getLaboratoryId());
-        projectEntity.setLaboratory(laboratoryEntity);
-        projectEntity.setState(ProjectStateEnum.PLANNING);
-
-        return projectEntity;
     }
 
     public ProjectGetDto convertProjectEntityToProjectDto(ProjectEntity projectEntity) {
@@ -283,6 +275,7 @@ public class ProjectBean implements Serializable {
         }
         return projectGetDtos;
     }
+
     public ProjectMembershipDto convertProjectMembershipEntityToDto(ProjectMembershipEntity projectMembershipEntity) {
         ProjectMembershipDto projectMembershipDto = new ProjectMembershipDto();
         projectMembershipDto.setId(projectMembershipEntity.getId());
@@ -292,6 +285,7 @@ public class ProjectBean implements Serializable {
         projectMembershipDto.setAccepted(projectMembershipEntity.isAccepted());
         return projectMembershipDto;
     }
+
     public ArrayList<ProjectMembershipDto> convertProjectMembershipsEntityToDto(Set<ProjectMembershipEntity> projectMemberships) {
         ArrayList<ProjectMembershipDto> projectMembershipDtos = new ArrayList<>();
         for (ProjectMembershipEntity p : projectMemberships) {

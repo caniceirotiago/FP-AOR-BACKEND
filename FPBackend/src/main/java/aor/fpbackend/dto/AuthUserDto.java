@@ -30,8 +30,6 @@ public class AuthUserDto implements Serializable, Principal {
     @NotNull
     private String token;
 
-
-
     // Constructors
     public AuthUserDto() {}
 

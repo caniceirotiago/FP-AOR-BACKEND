@@ -69,7 +69,7 @@ public class TaskService {
     }
 
     @PUT
-    @Path("/update")
+    @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.TASK_UPDATE)
     public void updateTask(@Valid TaskUpdateDto taskUpdateDto) throws EntityNotFoundException, InputValidationException {

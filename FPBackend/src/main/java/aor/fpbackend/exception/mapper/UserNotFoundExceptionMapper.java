@@ -18,7 +18,7 @@ public class UserNotFoundExceptionMapper implements ExceptionMapper<UserNotFound
         Error error = new Error(e.getMessage());
         LOGGER.warn("User not found: " + error.getErrorMessage());
         return Response
-                .status(Response.Status.NOT_FOUND)
+                .status(Response.Status.BAD_REQUEST)
                 .entity(error)
                 .type(MediaType.APPLICATION_JSON)
                 .build();

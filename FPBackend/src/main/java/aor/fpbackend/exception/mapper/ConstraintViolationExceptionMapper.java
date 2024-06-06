@@ -16,7 +16,11 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
         final String errors = e.getConstraintViolations().stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining(", "));
-        return Response.status(Response.Status.BAD_REQUEST).entity(new Error(errors)).type(MediaType.APPLICATION_JSON).build();
+        return Response
+                .status(Response.Status.BAD_REQUEST)
+                .entity(new Error(errors))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
 }
