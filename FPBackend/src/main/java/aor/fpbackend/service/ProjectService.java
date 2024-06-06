@@ -75,11 +75,11 @@ public class ProjectService {
     }
 
     @PUT
-    @Path("/approve/{projectId}")
+    @Path("/approve")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.PROJECT_APPROVE)
-    public void approveProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
-        projectBean.approveProject(projectId, securityContext);
+    public void approveProject(@Valid ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+        projectBean.approveProject(projectApproveDto, securityContext);
     }
 
     @PUT

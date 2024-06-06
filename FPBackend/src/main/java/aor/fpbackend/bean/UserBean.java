@@ -219,7 +219,6 @@ public class UserBean implements Serializable {
         Instant now = Instant.now();
         // Calcular o Instant de expiração adicionando o tempo de expiração em milissegundos
         Instant expirationInstant = now.plus(Duration.ofMillis(definedTimeOut));
-        System.out.println("Expiration Instant on Login " + expirationInstant);
         String authToken = generateJwtToken(userEntity, definedTimeOut, "auth");
         NewCookie authCookie = new NewCookie("authToken", authToken, "/", null, "Auth Token", 3600, false, true);
         String sessionToken = generateJwtToken(userEntity, definedTimeOut, "session");
@@ -457,7 +456,6 @@ public class UserBean implements Serializable {
         membershipEntity.setUser(userEntity);
         membershipEntity.setProject(projectEntity);
         if (isTheCreator) {
-            System.out.println("User is the creator of the project");
             membershipEntity.setRole(ProjectRoleEnum.PROJECT_MANAGER);
         } else membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
         membershipEntity.setAccepted(createHasAccepted);
