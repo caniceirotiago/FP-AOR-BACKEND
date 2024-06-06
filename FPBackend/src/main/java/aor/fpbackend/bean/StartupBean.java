@@ -138,6 +138,7 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.TASK_DEPENDENCY, "add task dependency to task", MethodEnum.TASK_DEPENDENCY.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.TASK_UPDATE, "update task elements", MethodEnum.TASK_UPDATE.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_ENUMS, "retrieve all project enum elements", MethodEnum.PROJECT_ENUMS.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_APPROVE, "approve a project in READY state", MethodEnum.PROJECT_APPROVE.getValue());
     }
 
     @Transactional
@@ -213,5 +214,6 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASK_UPDATE);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_ENUMS);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.PROJECT_ENUMS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_APPROVE);
     }
 }

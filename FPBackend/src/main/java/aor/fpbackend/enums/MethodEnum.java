@@ -36,7 +36,8 @@ public enum MethodEnum {
     PROJECT_ENUMS (33l),
     TASK_USER(34L),
     TASK_DEPENDENCY(35L),
-    TASK_UPDATE(36L);
+    TASK_UPDATE(36L),
+    PROJECT_APPROVE(37L);
 
     private final long value;
 

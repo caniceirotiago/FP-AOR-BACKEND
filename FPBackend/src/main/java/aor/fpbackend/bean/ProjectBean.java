@@ -10,6 +10,7 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.jws.soap.SOAPBinding;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.UriInfo;
 import org.apache.logging.log4j.LogManager;
@@ -81,6 +82,7 @@ public class ProjectBean implements Serializable {
         projectEntity.setCreatedBy(user);
         projectEntity.setState(ProjectStateEnum.PLANNING);
         projectEntity.setCreationDate(Instant.now());
+        projectEntity.setApproved(false);
         projectDao.persist(projectEntity);
         // Define relations on the persisted Project
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
@@ -91,8 +93,6 @@ public class ProjectBean implements Serializable {
         // Define relations for project members (Users)
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
-            System.out.println(projectCreateDto.getUsers());
-            System.out.println(usernames);
             // Add creator to project
             userBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true);
             for (String username : usernames) {
@@ -159,6 +159,24 @@ public class ProjectBean implements Serializable {
         return projectRoleEnums;
     }
 
+    public void approveProject(long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project with this Id not found");
+        }
+        // Validate state and handle state transitions
+        ProjectStateEnum currentState = projectEntity.getState();
+        // Handle state transitions
+        if (currentState == ProjectStateEnum.READY) {
+            projectEntity.setApproved(true);
+            projectEntity.setState(ProjectStateEnum.IN_PROGRESS);
+            projectEntity.setInitialDate(Instant.now());
+            // TODO - Sacar user através do Security Context
+            //ProjectLogEntity projectLogEntity = new ProjectLogEntity();
+            //projectLogEntity.setUser();
+        }
+    }
+
     public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) throws UserNotFoundException, InputValidationException {
 
         emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
@@ -166,9 +184,7 @@ public class ProjectBean implements Serializable {
 
     public void sendJoinRequisitionToManagers(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) throws UserNotFoundException, InputValidationException {
         List<UserEntity> projectManagers = projectMemberDao.findProjectManagers(projectEntity.getId());
-        System.out.println(projectManagers);
         for (UserEntity manager : projectManagers) {
-            System.out.println(manager);
             emailService.sendJoinRequisitionToManagersEmail(manager.getEmail(), user.getUsername(), projectEntity.getName(), membershipEntity.getAcceptanceToken());
         }
     }
@@ -261,6 +277,7 @@ public class ProjectBean implements Serializable {
         projectGetDto.setInitialDate(projectEntity.getInitialDate());
         projectGetDto.setFinalDate(projectEntity.getFinalDate());
         projectGetDto.setConclusionDate(projectEntity.getConclusionDate());
+        projectGetDto.setApproved(projectEntity.isApproved());
         projectGetDto.setLaboratory(laboratoryBean.convertLaboratoryEntityToLaboratoryDto(projectEntity.getLaboratory()));
         projectGetDto.setCreatedBy(userBean.convertUserEntetyToUserBasicInfoDto(projectEntity.getCreatedBy()));
         projectGetDto.setMembers(convertProjectMembershipsEntityToDto(projectEntity.getMembers()));

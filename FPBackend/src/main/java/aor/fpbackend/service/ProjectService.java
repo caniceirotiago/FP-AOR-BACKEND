@@ -59,7 +59,7 @@ public class ProjectService {
         return projectBean.getProjectDetailsById(projectId);
     }
     @GET
-    @Path("/info/enum/states")
+    @Path("/enum/states")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.PROJECT_ENUMS)
     public List<ProjectStateEnum> getProjectStates() {
@@ -67,11 +67,19 @@ public class ProjectService {
     }
 
     @GET
-    @Path("/info/enum/roles")
+    @Path("/enum/roles")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermission(MethodEnum.PROJECT_ENUMS)
     public List<ProjectRoleEnum> getProjectRoles() {
         return projectBean.getEnumListProjectRoles();
+    }
+
+    @PUT
+    @Path("/approve/{projectId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.PROJECT_APPROVE)
+    public void approveProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+        projectBean.approveProject(projectId, securityContext);
     }
 
     @PUT

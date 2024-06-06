@@ -19,9 +19,6 @@ public class TaskGetDto implements Serializable {
     private long id;
 
     @XmlElement
-    @NotBlank
-    @Size(min = 2, max = 25, message = "Title must be between 2 and 25 characters")
-    @Pattern(regexp = "^[a-zA-Z].*", message = "Title must start with a letter")
     private String title;
 
     @XmlElement

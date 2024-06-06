@@ -2,6 +2,7 @@ package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.TaskStateEnum;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -15,6 +16,7 @@ public class TaskUpdateDto implements Serializable {
 
     @XmlElement
     @NotNull
+    @Min(value = 1, message = "ID must be greater than 0")
     private long taskId;
 
     @XmlElement

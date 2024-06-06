@@ -2,10 +2,7 @@ package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.SkillTypeEnum;
 import jakarta.persistence.Enumerated;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -22,9 +19,12 @@ public class SkillAddProjectDto implements Serializable {
 
     @XmlElement
     @Enumerated
+    @NotNull
     private SkillTypeEnum type;
 
     @XmlElement
+    @NotNull
+    @Min(value = 1, message = "ID must be greater than 0")
     private long projectId;
 
     public SkillAddProjectDto() {

@@ -49,6 +49,9 @@ public class ProjectEntity implements Serializable {
     @Column(name = "conclusion_date", nullable = true)
     private Instant conclusionDate;
 
+    @Column(name = "approved", nullable = true)
+    private boolean isApproved;
+
     @ManyToOne
     @JoinColumn(name = "laboratory_id")
     private LaboratoryEntity laboratory;
@@ -90,7 +93,8 @@ public class ProjectEntity implements Serializable {
     public ProjectEntity() {
     }
 
-    public ProjectEntity(String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, UserEntity createdBy, LaboratoryEntity laboratory) {
+    public ProjectEntity(String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate,
+                         Instant finalDate, Instant conclusionDate, UserEntity createdBy, LaboratoryEntity laboratory, boolean isApproved) {
         this.name = name;
         this.description = description;
         this.motivation = motivation;
@@ -101,6 +105,7 @@ public class ProjectEntity implements Serializable {
         this.conclusionDate = conclusionDate;
         this.createdBy = createdBy;
         this.laboratory = laboratory;
+        this.isApproved = isApproved;
     }
 
     // Getters and setters
@@ -184,6 +189,14 @@ public class ProjectEntity implements Serializable {
 
     public void setLaboratory(LaboratoryEntity laboratory) {
         this.laboratory = laboratory;
+    }
+
+    public boolean isApproved() {
+        return isApproved;
+    }
+
+    public void setApproved(boolean approved) {
+        isApproved = approved;
     }
 
     public Set<TaskEntity> getTasks() {

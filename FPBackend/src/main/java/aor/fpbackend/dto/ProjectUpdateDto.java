@@ -19,15 +19,18 @@ public class ProjectUpdateDto implements Serializable {
     private Long id;
 
     @XmlElement
-    @Size(min = 1, max = 255, message = "Project name must be between 1 and 255 characters")
+    @NotNull
+    @Size(min = 2, max = 255, message = "Project name must be between 2 and 255 characters")
     private String name;
 
     @XmlElement
-    @Size(min = 1, max = 2048, message = "Description must be between 1 and 2048 characters")
+    @NotNull
+    @Size(min = 2, max = 2048, message = "Description must be between 2 and 2048 characters")
     private String description;
 
     @XmlElement
-    @Size(min = 1, max = 2048, message = "Motivation must be between 1 and 2048 characters")
+    @NotNull
+    @Size(min = 2, max = 2048, message = "Motivation must be between 2 and 2048 characters")
     private String motivation;
 
     @XmlElement

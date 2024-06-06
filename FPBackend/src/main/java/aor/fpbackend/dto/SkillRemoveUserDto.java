@@ -1,5 +1,6 @@
 package aor.fpbackend.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 public class SkillRemoveUserDto implements Serializable {
     @XmlElement
     @NotNull
+    @Min(value = 1, message = "ID must be greater than 0")
     private long id;
 
     public SkillRemoveUserDto() {
