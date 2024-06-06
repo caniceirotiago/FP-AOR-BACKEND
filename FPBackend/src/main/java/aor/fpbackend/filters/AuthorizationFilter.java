@@ -116,6 +116,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 || path.contains("/projects/all")
                 || path.contains("/info/project-states")
                 || path.contains("/info/project-roles")
+                || path.contains("/enum/roles")
+                || path.contains("/enum/states")
                 || path.contains("/project-role")//TODO terá de sair daqui quando houver permissões específicas
                 || path.contains("/configurations/all"); //TODO terá de sair daqui quando houver permissões específicas
     }
