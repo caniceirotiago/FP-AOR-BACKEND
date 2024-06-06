@@ -83,7 +83,7 @@ public class ProjectService {
     }
 
     @PUT
-    @Path("/project-role")
+    @Path("/project/role")
     @Consumes(MediaType.APPLICATION_JSON)
     //TODO: RequiresPermission especifica de projeto e role desse utilizador no projeto
     public void updateProjectRole(@Valid ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
