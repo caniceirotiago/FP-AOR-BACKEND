@@ -343,6 +343,7 @@ public class ProjectBean implements Serializable {
         projectMembershipDto.setProjectId(projectMembershipEntity.getProject().getId());
         projectMembershipDto.setRole(projectMembershipEntity.getRole());
         projectMembershipDto.setAccepted(projectMembershipEntity.isAccepted());
+        projectMembershipDto.setUser(userBean.convertUserEntetyToUserBasicInfoDto(projectMembershipEntity.getUser()));
         return projectMembershipDto;
     }
 

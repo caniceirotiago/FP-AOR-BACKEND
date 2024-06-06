@@ -27,6 +27,7 @@ public class ProjectMembershipDto implements Serializable {
     private boolean isAccepted;
 
 
+
     public ProjectMembershipDto() {}
 
     public ProjectMembershipDto(long id, long userId, long projectId, ProjectRoleEnum role, boolean isAccepted, UserBasicInfoDto user) {
@@ -35,7 +36,6 @@ public class ProjectMembershipDto implements Serializable {
         this.projectId = projectId;
         this.role = role;
         this.isAccepted = isAccepted;
-
         this.user = user;
     }
 
