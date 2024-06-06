@@ -24,7 +24,6 @@ public class ProjectService {
     @EJB
     ProjectBean projectBean;
 
-
     @POST
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -40,6 +39,7 @@ public class ProjectService {
     public List<ProjectGetDto> getAllProjects() {
         return projectBean.getAllProjects();
     }
+
     @GET
     @Path("/all/filter")
     @Produces(MediaType.APPLICATION_JSON)
@@ -59,27 +59,29 @@ public class ProjectService {
         return projectBean.getProjectDetailsById(projectId);
     }
     @GET
-    @Path("/info/project-states")
+    @Path("/enum/states")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ALL_PROJECTS)
+    @RequiresPermission(MethodEnum.PROJECT_ENUMS)
     public List<ProjectStateEnum> getProjectStates() {
-        List<ProjectStateEnum> projectStateEnums = new ArrayList<>();
-        for (ProjectStateEnum projectStateEnum : ProjectStateEnum.values()) {
-            projectStateEnums.add(projectStateEnum);
-        }
-        return projectStateEnums;
+        return projectBean.getEnumListProjectStates();
     }
+
     @GET
-    @Path("/info/project-roles")
+    @Path("/enum/roles")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ALL_PROJECTS)
+    @RequiresPermission(MethodEnum.PROJECT_ENUMS)
     public List<ProjectRoleEnum> getProjectRoles() {
-        List<ProjectRoleEnum> projectRoleEnums = new ArrayList<>();
-        for (ProjectRoleEnum projectRoleEnum : ProjectRoleEnum.values()) {
-            projectRoleEnums.add(projectRoleEnum);
-        }
-        return projectRoleEnums;
+        return projectBean.getEnumListProjectRoles();
     }
+
+    @PUT
+    @Path("/approve/{projectId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresPermission(MethodEnum.PROJECT_APPROVE)
+    public void approveProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+        projectBean.approveProject(projectId, securityContext);
+    }
+
     @PUT
     @Path("/project-role")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -87,6 +89,7 @@ public class ProjectService {
     public void updateProjectRole(@Valid ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
         projectBean.updateProjectMembershipRole(projectRoleUpdateDto);
     }
+
     @PUT
     @Path("/ask/join")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -94,20 +97,11 @@ public class ProjectService {
     public void askToJoinProject(@Valid ProjectAskJoinDto projectAskJoinDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UserNotFoundException {
         projectBean.askToJoinProject(projectAskJoinDto, securityContext);
     }
+
     @PUT
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     public void updateProject(@Valid ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
         projectBean.updateProject(projectUpdateDto);
     }
-
-//    @PUT
-//    @Path("/send/invite")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @RequiresPermission(MethodEnum.INVITE_TO_PROJECT)
-//    public void sendInvite(@Valid ProjectInviteDto projectInviteDto) throws UserNotFoundException, InputValidationException {
-//        projectBean.sendInviteToUser(projectInviteDto);
-//    }
-
-
 }

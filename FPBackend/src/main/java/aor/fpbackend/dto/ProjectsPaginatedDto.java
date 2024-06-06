@@ -1,9 +1,16 @@
 package aor.fpbackend.dto;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+import java.io.Serializable;
 import java.util.List;
 
-public class ProjectsPaginatedDto {
+@XmlRootElement
+public class ProjectsPaginatedDto implements Serializable {
+    @XmlElement
     private List<ProjectGetDto> projectsForAPage;
+    @XmlElement
     private long totalProjects;
 
     public ProjectsPaginatedDto(List<ProjectGetDto> projectsForAPage, long totalProjects) {

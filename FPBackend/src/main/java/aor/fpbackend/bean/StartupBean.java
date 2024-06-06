@@ -134,10 +134,11 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ADD_TASK, "add a task to the project", MethodEnum.ADD_TASK.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_TASKS, "retrieves all persisted tasks", MethodEnum.ALL_TASKS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.TASKS_BY_PROJECT, "all tasks by projectId", MethodEnum.TASKS_BY_PROJECT.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.INVITE_TO_PROJECT, "send invitation to project", MethodEnum.INVITE_TO_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.TASK_USER, "add executor users to task", MethodEnum.TASK_USER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.TASK_DEPENDENCY, "add task dependency to task", MethodEnum.TASK_DEPENDENCY.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.TASK_UPDATE, "update task elements", MethodEnum.TASK_UPDATE.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_ENUMS, "retrieve all project enum elements", MethodEnum.PROJECT_ENUMS.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_APPROVE, "approve a project in READY state", MethodEnum.PROJECT_APPROVE.getValue());
     }
 
     @Transactional
@@ -205,13 +206,14 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASKS_BY_PROJECT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ALL_TASKS);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ALL_TASKS);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.INVITE_TO_PROJECT);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.INVITE_TO_PROJECT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.TASK_USER);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASK_USER);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.TASK_DEPENDENCY);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASK_DEPENDENCY);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.TASK_UPDATE);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASK_UPDATE);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_ENUMS);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.PROJECT_ENUMS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_APPROVE);
     }
 }

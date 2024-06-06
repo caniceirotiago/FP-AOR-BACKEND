@@ -1,7 +1,15 @@
 package aor.fpbackend.dto;
 
-public class ConfigurationGetDto {
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+import java.io.Serializable;
+
+@XmlRootElement
+public class ConfigurationGetDto implements Serializable {
+    @XmlElement
     private String configKey;
+    @XmlElement
     private int configValue;
 
     public ConfigurationGetDto(String configKey, int configValue) {

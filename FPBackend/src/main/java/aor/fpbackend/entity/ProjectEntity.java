@@ -11,6 +11,7 @@ import java.util.Set;
 @Entity
 @Table(name = "project")
 
+@NamedQuery(name = "Project.countProjectByName", query = "SELECT COUNT(p) FROM ProjectEntity p WHERE LOWER(p.name) = LOWER(:name)")
 @NamedQuery(name = "Project.findProjectById", query = "SELECT p FROM ProjectEntity p WHERE p.id = :projectId")
 @NamedQuery(name = "Project.findProjectByName", query = "SELECT p FROM ProjectEntity p WHERE LOWER(p.name) = LOWER(:name)")
 @NamedQuery(name = "Project.findAllProjects", query = "SELECT p FROM ProjectEntity p")
@@ -47,6 +48,9 @@ public class ProjectEntity implements Serializable {
 
     @Column(name = "conclusion_date", nullable = true)
     private Instant conclusionDate;
+
+    @Column(name = "approved", nullable = true)
+    private boolean isApproved;
 
     @ManyToOne
     @JoinColumn(name = "laboratory_id")
@@ -89,7 +93,8 @@ public class ProjectEntity implements Serializable {
     public ProjectEntity() {
     }
 
-    public ProjectEntity(String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, UserEntity createdBy, LaboratoryEntity laboratory) {
+    public ProjectEntity(String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate,
+                         Instant finalDate, Instant conclusionDate, UserEntity createdBy, LaboratoryEntity laboratory, boolean isApproved) {
         this.name = name;
         this.description = description;
         this.motivation = motivation;
@@ -100,6 +105,7 @@ public class ProjectEntity implements Serializable {
         this.conclusionDate = conclusionDate;
         this.createdBy = createdBy;
         this.laboratory = laboratory;
+        this.isApproved = isApproved;
     }
 
     // Getters and setters
@@ -183,6 +189,14 @@ public class ProjectEntity implements Serializable {
 
     public void setLaboratory(LaboratoryEntity laboratory) {
         this.laboratory = laboratory;
+    }
+
+    public boolean isApproved() {
+        return isApproved;
+    }
+
+    public void setApproved(boolean approved) {
+        isApproved = approved;
     }
 
     public Set<TaskEntity> getTasks() {

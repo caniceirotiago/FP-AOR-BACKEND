@@ -1,6 +1,7 @@
 package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.ProjectStateEnum;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -13,19 +14,23 @@ import java.time.Instant;
 public class ProjectUpdateDto implements Serializable {
 
     @XmlElement
-    @NotNull(message = "Project ID cannot be null")
+    @NotNull(message = "Project Id cannot be null")
+    @Min(value = 1, message = "Id must be greater than 0")
     private Long id;
 
     @XmlElement
-    @Size(min = 1, max = 255, message = "Project name must be between 1 and 255 characters")
+    @NotNull
+    @Size(min = 2, max = 255, message = "Project name must be between 2 and 255 characters")
     private String name;
 
     @XmlElement
-    @Size(max = 2048, message = "Description must be at most 2048 characters")
+    @NotNull
+    @Size(min = 2, max = 2048, message = "Description must be between 2 and 2048 characters")
     private String description;
 
     @XmlElement
-    @Size(max = 2048, message = "Motivation must be at most 2048 characters")
+    @NotNull
+    @Size(min = 2, max = 2048, message = "Motivation must be between 2 and 2048 characters")
     private String motivation;
 
     @XmlElement
@@ -34,6 +39,7 @@ public class ProjectUpdateDto implements Serializable {
 
     @XmlElement
     @NotNull(message = "Laboratory ID cannot be null")
+    @Min(value = 1, message = "Laboratory Id must be greater than 0")
     private Long laboratoryId;
 
     @XmlElement

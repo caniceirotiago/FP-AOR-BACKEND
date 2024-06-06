@@ -1,8 +1,6 @@
 package aor.fpbackend.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -14,12 +12,14 @@ import java.util.Set;
 public class TaskCreateDto implements Serializable {
 
     @XmlElement
-    @NotBlank
+    @NotNull
     @Size(min = 2, max = 25, message = "Title must be between 2 and 25 characters")
     @Pattern(regexp = "^[a-zA-Z].*", message = "Title must start with a letter")
     private String title;
 
     @XmlElement
+    @NotNull
+    @Size(min = 1, max = 2048, message = "Motivation must be between 1 and 2048 characters")
     private String description;
 
     @XmlElement
@@ -29,9 +29,13 @@ public class TaskCreateDto implements Serializable {
     private Instant plannedEndDate;
 
     @XmlElement
+    @NotNull
+    @Min(value = 1, message = "ID must be greater than 0")
     private long responsibleId;
 
     @XmlElement
+    @NotNull
+    @Min(value = 1, message = "ID must be greater than 0")
     private long projectId;
 
     public TaskCreateDto() {

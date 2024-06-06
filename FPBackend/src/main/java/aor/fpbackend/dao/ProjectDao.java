@@ -16,16 +16,27 @@ import java.util.stream.Collectors;
 
 
 @Stateless
-    public class ProjectDao extends AbstractDao<ProjectEntity> {
-        private static final long serialVersionUID = 1L;
+public class ProjectDao extends AbstractDao<ProjectEntity> {
+    private static final long serialVersionUID = 1L;
 
-        public ProjectDao() {
-            super(ProjectEntity.class);
+    public ProjectDao() {
+        super(ProjectEntity.class);
+    }
+
+    @PersistenceContext
+    private EntityManager em;
+
+
+    public boolean checkProjectNameExist(String name) {
+        try {
+            Long count = (Long) em.createNamedQuery("Project.countProjectByName")
+                    .setParameter("name", name)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
         }
-
-        @PersistenceContext
-        private EntityManager em;
-
+    }
 
     public boolean isProjectMember(long projectId, long userId) {
         TypedQuery<Long> query = em.createQuery(

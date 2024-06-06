@@ -51,11 +51,15 @@ public class ProjectGetDto implements Serializable {
     @XmlElement
     private UserBasicInfoDto createdBy;
 
+    @XmlElement
+    private boolean isApproved;
+
 
     public ProjectGetDto() {
     }
 
-    public ProjectGetDto(long id, String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate, Instant conclusionDate, LaboratoryDto laboratory, List<ProjectMembershipDto> members, UserBasicInfoDto createdBy) {
+    public ProjectGetDto(long id, String name, String description, String motivation, ProjectStateEnum state, Instant creationDate, Instant initialDate, Instant finalDate,
+                         Instant conclusionDate, LaboratoryDto laboratory, List<ProjectMembershipDto> members, UserBasicInfoDto createdBy, boolean isApproved) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -68,6 +72,7 @@ public class ProjectGetDto implements Serializable {
         this.laboratory = laboratory;
         this.members = members;
         this.createdBy = createdBy;
+        this.isApproved = isApproved;
     }
 
     // Getters and setters
@@ -167,5 +172,13 @@ public class ProjectGetDto implements Serializable {
 
     public void setCreatedBy(UserBasicInfoDto createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public boolean isApproved() {
+        return isApproved;
+    }
+
+    public void setApproved(boolean approved) {
+        isApproved = approved;
     }
 }

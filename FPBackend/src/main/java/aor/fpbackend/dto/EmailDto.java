@@ -2,10 +2,15 @@ package aor.fpbackend.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 
+@XmlRootElement
 public class EmailDto implements Serializable {
+
+    @XmlElement
 
     @NotEmpty(message = "Email is required")
     @Email(message = "Invalid email format")
