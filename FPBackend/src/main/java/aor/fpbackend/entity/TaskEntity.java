@@ -60,7 +60,7 @@ public class TaskEntity implements Serializable {
 
     @ManyToMany
     @JoinTable(
-            name = "registered_executors",
+            name = "task_registered_executors",
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
