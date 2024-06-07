@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -219,21 +218,19 @@ public class ProjectBean implements Serializable {
         return new ProjectsPaginatedDto(projectGetDtos, totalProjects);
     }
 
-    public void updateProjectMembershipRole(ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
+    public void updateProjectMembershipRole(long projectId, ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
         if (projectRoleUpdateDto == null) {
             throw new InputValidationException("Invalid DTO");
         }
-        ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectID(
-                projectRoleUpdateDto.getProjectId(), projectRoleUpdateDto.getUserId());
-        ProjectEntity projectEntity = projectDao.findProjectById(projectRoleUpdateDto.getProjectId());
+        ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectId(projectId, projectRoleUpdateDto.getUserId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         UserEntity userEntity = userDao.findUserById(projectRoleUpdateDto.getUserId());
         // Check if user is project creator
         if (projectEntity.getCreatedBy().getId() == userEntity.getId()) {
             throw new InputValidationException("Cannot change role of project creator");
         }
-
         if (projectMembershipEntity != null) {
-            projectMembershipEntity.setRole(projectRoleUpdateDto.getRole());
+            projectMembershipEntity.setRole(projectRoleUpdateDto.getNewRole());
             projectMemberDao.merge(projectMembershipEntity);
         } else {
             throw new EntityNotFoundException("Project Membership not found");

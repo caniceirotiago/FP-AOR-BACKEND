@@ -2,15 +2,11 @@ package aor.fpbackend.filters;
 
 
 import aor.fpbackend.bean.ConfigurationBean;
-import aor.fpbackend.dao.RoleDao;
-import aor.fpbackend.dao.SessionDao;
-import aor.fpbackend.dao.UserDao;
+import aor.fpbackend.dao.ProjectMembershipDao;
 import aor.fpbackend.dto.AuthUserDto;
-import aor.fpbackend.entity.RoleEntity;
-import aor.fpbackend.entity.UserEntity;
-import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.entity.ProjectMembershipEntity;
+import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.exception.InvalidCredentialsException;
-import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.utils.JwtKeyProvider;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.Priority;
@@ -21,17 +17,18 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.NewCookie;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import aor.fpbackend.bean.UserBean;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.UnknownHostException;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 
 
 @Provider
@@ -41,8 +38,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     @EJB
     UserBean userBean;
-    @EJB
-    RoleDao roleDao;
 
     @Context
     private ResourceInfo resourceInfo;
@@ -50,9 +45,11 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     @Context
     private HttpServletRequest request;
     @EJB
-    private UserDao userDao;
+    private ConfigurationBean configBean;
+
     @EJB
-    private ConfigurationBean configurationBean;
+    private ProjectMembershipDao projectMembershipDao;
+
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -84,7 +81,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
             long timeRemaining = expiration.getTime() - now.toEpochMilli();
 
-            long definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
+            long definedTimeOut = configBean.getConfigValueByKey("sessionTimeout");
             long renovateSessionTime = definedTimeOut / 2; //Renovate session if it has less than half of the time remaining
             if (timeRemaining < renovateSessionTime && !path.contains("/logout")) {
                 userBean.createNewSessionAndInvalidateOld(authUserDto, requestContext, definedTimeOut, token);
@@ -116,9 +113,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 || path.contains("/projects/all")
                 || path.contains("/info/project-states")
                 || path.contains("/info/project-roles")
-                || path.contains("/enum/roles")
-                || path.contains("/enum/states")
-                || path.contains("/project-role")//TODO terá de sair daqui quando houver permissões específicas
+                //|| path.contains("/enum/roles")
+                //|| path.contains("/enum/states")
                 || path.contains("/configurations/all"); //TODO terá de sair daqui quando houver permissões específicas
     }
 
@@ -161,13 +157,29 @@ public class AuthorizationFilter implements ContainerRequestFilter {
         });
     }
 
-    private void checkAuthorization(ContainerRequestContext requestContext, AuthUserDto authUserDto) throws UnknownHostException, InvalidCredentialsException {
+    private void checkAuthorization(ContainerRequestContext requestContext, AuthUserDto authUserDto) throws InvalidCredentialsException, IOException {
         Method method = resourceInfo.getResourceMethod();
         if (method.isAnnotationPresent(RequiresPermission.class)) {
             long permissionId = method.getAnnotation(RequiresPermission.class).value().getValue();
             boolean hasPermission = authUserDto.getPermissions().stream()
                     .anyMatch(methodEntity -> methodEntity.getId() == permissionId);
             if (!hasPermission) {
+                requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+            }
+        }
+        if (method.isAnnotationPresent(RequiresProjectRolePermission.class)) {
+            ProjectRoleEnum requiredRole = method.getAnnotation(RequiresProjectRolePermission.class).value();
+            // Get the path parameters
+            MultivaluedMap<String, String> pathParams = requestContext.getUriInfo().getPathParameters();
+            // Get the project ID from the path parameters
+            List<String> projectIdList = pathParams.get("projectId");
+            if (projectIdList == null || projectIdList.isEmpty()) {
+                requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST).entity("Project ID is missing").build());
+                return;
+            }
+            long projectId = Long.parseLong(projectIdList.get(0));
+            ProjectMembershipEntity membership = projectMembershipDao.findProjectMembershipByUserIdAndProjectId(projectId, authUserDto.getUserId());
+            if (membership == null || !membership.getRole().equals(requiredRole)) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
             }
         }

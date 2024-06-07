@@ -11,10 +11,7 @@ import java.io.Serializable;
 
 @XmlRootElement
 public class ProjectRoleUpdateDto implements Serializable {
-    @XmlElement
-    @NotNull
-    @Min(value = 1, message = "Project Id must be greater than 0")
-    private long projectId;
+
     @XmlElement
     @NotNull
     @Min(value = 1, message = "User Id must be greater than 0")
@@ -22,17 +19,14 @@ public class ProjectRoleUpdateDto implements Serializable {
     @XmlElement
     @Enumerated
     @NotNull
-    private ProjectRoleEnum role;
+    private ProjectRoleEnum newRole;
 
     public ProjectRoleUpdateDto() {
     }
 
-    public long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(long projectId) {
-        this.projectId = projectId;
+    public ProjectRoleUpdateDto(long userId, ProjectRoleEnum newRole) {
+        this.userId = userId;
+        this.newRole = newRole;
     }
 
     public long getUserId() {
@@ -43,11 +37,11 @@ public class ProjectRoleUpdateDto implements Serializable {
         this.userId = userId;
     }
 
-    public ProjectRoleEnum getRole() {
-        return role;
+    public ProjectRoleEnum getNewRole() {
+        return newRole;
     }
 
-    public void setRole(ProjectRoleEnum role) {
-        this.role = role;
+    public void setNewRole(ProjectRoleEnum newRole) {
+        this.newRole = newRole;
     }
 }

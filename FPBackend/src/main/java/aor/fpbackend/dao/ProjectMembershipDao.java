@@ -35,6 +35,7 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
             return null;
         }
     }
+
     public ProjectMembershipEntity findProjectMembershipByAcceptanceToken(String acceptanceToken) {
         try {
             return (ProjectMembershipEntity) em.createNamedQuery("ProjectMembership.findProjectMembershipByAcceptanceToken")
@@ -44,7 +45,8 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
             return null;
         }
     }
-    public ProjectMembershipEntity findProjectMembershipByUserIdAndProjectID(long projectId, long userId) {
+
+    public ProjectMembershipEntity findProjectMembershipByUserIdAndProjectId(long projectId, long userId) {
         try {
             return (ProjectMembershipEntity) em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserId")
                     .setParameter("projectId", projectId)
@@ -54,6 +56,7 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
             return null;
         }
     }
+
     public List<UserEntity> findProjectManagers(long projectId) {
         return em.createNamedQuery("ProjectMembership.findProjectManagers")
                 .setParameter("projectId", projectId)
