@@ -219,6 +219,7 @@ public class ProjectBean implements Serializable {
     }
 
     public void updateProjectMembershipRole(ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
+        System.out.println("Request body: " + projectRoleUpdateDto);
         if (projectRoleUpdateDto == null) {
             throw new InputValidationException("Invalid DTO");
         }

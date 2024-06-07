@@ -8,14 +8,17 @@ import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresPermission;
 import aor.fpbackend.filters.RequiresProjectRolePermission;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.UriInfo;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,13 +87,14 @@ public class ProjectService {
     }
 
     @PUT
-    @Path("/project/role")
+    @Path("/role/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void updateProjectRole(@Valid ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
-        System.out.println("Entrou no Service");
-        projectBean.updateProjectMembershipRole(projectRoleUpdateDto);
+    public void updateProjectRole(@PathParam("projectId") long projectId, @Valid ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
+        System.out.println("You've entered on Service Layer");
+        System.out.println("ProjectRoleUpdateDto: " + projectRoleUpdateDto);
+        projectBean.updateProjectMembershipRole(projectId, projectRoleUpdateDto);
     }
 
     @PUT
