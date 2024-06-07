@@ -81,41 +81,7 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         CriteriaQuery<ProjectEntity> query = cb.createQuery(ProjectEntity.class);
         Root<ProjectEntity> projectRoot = query.from(ProjectEntity.class);
 
-        List<Predicate> predicates = new ArrayList<>();
-
-        Map<String, List<String>> filters = uriInfo.getQueryParameters()
-                .entrySet()
-                .stream()
-                .filter(entry -> !entry.getKey().equals("page") && !entry.getKey().equals("pageSize") && !entry.getKey().equals("sortBy"))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        filters.forEach((key, values) -> {
-            if (values == null || values.isEmpty() || values.get(0).isEmpty()) {
-                return;
-            }
-            switch (key) {
-                case "name":
-                    predicates.add(cb.like(cb.lower(projectRoot.get("name")), "%" + values.get(0).toLowerCase() + "%"));
-                    break;
-                case "state":
-                    try {
-                        ProjectStateEnum state = ProjectStateEnum.valueOf(values.get(0).toUpperCase());
-                        predicates.add(cb.equal(projectRoot.get("state"), state));
-                    } catch (IllegalArgumentException e) {
-                        throw new BadRequestException("Invalid value for project state: " + values.get(0));
-                    }
-                    break;
-                case "keywords":
-                    Join<ProjectEntity, KeywordEntity> keywordJoin = projectRoot.join("projectKeywords");
-                    predicates.add(cb.like(cb.lower(keywordJoin.get("name")), "%" + values.get(0).toLowerCase() + "%"));
-                    break;
-                case "skills":
-                    Join<ProjectEntity, SkillEntity> skillJoin = projectRoot.join("projectSkills");
-                    predicates.add(cb.like(cb.lower(skillJoin.get("name")), "%" + values.get(0).toLowerCase() + "%"));
-                    break;
-                // Add more filters as needed
-            }
-        });
+        List<Predicate> predicates = createPredicates(uriInfo, cb, projectRoot);
 
         query.where(cb.and(predicates.toArray(new Predicate[0])));
 
@@ -151,56 +117,69 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         return typedQuery.getResultList();
     }
 
+    public long countFilteredProjects(UriInfo uriInfo) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<ProjectEntity> projectRoot = query.from(ProjectEntity.class);
+
+        query.select(cb.count(projectRoot));
+
+        List<Predicate> predicates = createPredicates(uriInfo, cb, projectRoot);
+
+        query.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        return em.createQuery(query).getSingleResult();
+    }
+
+    private List<Predicate> createPredicates(UriInfo uriInfo, CriteriaBuilder cb, Root<ProjectEntity> projectRoot) {
+        List<Predicate> predicates = new ArrayList<>();
+
+        Map<String, List<String>> filters = uriInfo.getQueryParameters()
+                .entrySet()
+                .stream()
+                .filter(entry -> !entry.getKey().equals("page") && !entry.getKey().equals("pageSize") && !entry.getKey().equals("sortBy"))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        filters.forEach((key, values) -> {
+            if (values == null || values.isEmpty() || values.get(0).isEmpty()) {
+                return;
+            }
+            switch (key) {
+                case "name":
+                    predicates.add(cb.like(cb.lower(projectRoot.get("name")), "%" + values.get(0).toLowerCase() + "%"));
+                    break;
+                case "state":
+                    try {
+                        ProjectStateEnum state = ProjectStateEnum.valueOf(values.get(0).toUpperCase());
+                        predicates.add(cb.equal(projectRoot.get("state"), state));
+                    } catch (IllegalArgumentException e) {
+                        throw new BadRequestException("Invalid value for project state: " + values.get(0));
+                    }
+                    break;
+                case "keywords":
+                    Join<ProjectEntity, KeywordEntity> keywordJoin = projectRoot.join("projectKeywords");
+                    predicates.add(cb.like(cb.lower(keywordJoin.get("name")), "%" + values.get(0).toLowerCase() + "%"));
+                    break;
+                case "skills":
+                    Join<ProjectEntity, SkillEntity> skillJoin = projectRoot.join("projectSkills");
+                    predicates.add(cb.like(cb.lower(skillJoin.get("name")), "%" + values.get(0).toLowerCase() + "%"));
+                    break;
+                case "laboratory":
+                    Join<ProjectEntity, LaboratoryEntity> labJoin = projectRoot.join("laboratory");
+                    predicates.add(cb.equal(labJoin.get("id"), Long.parseLong(values.get(0))));
+                    break;
+                // Add more filters as needed
+            }
+        });
+
+        return predicates;
+    }
 
     private int getMaxProjectMembers() {
         String configKey = "maxProjectMembers";
         TypedQuery<Integer> query = em.createNamedQuery("Configuration.findConfigValueByConfigKey", Integer.class);
         query.setParameter("configKey", configKey);
         return query.getSingleResult();
-    }
-
-
-
-
-
-    public long countFilteredProjects(UriInfo uriInfo) {
-        Map<String, Object> parameters = new HashMap<>();
-        StringBuilder queryString = new StringBuilder("SELECT COUNT(p) FROM ProjectEntity p WHERE 1=1");
-
-        if (uriInfo.getQueryParameters().containsKey("projectSkills")) {
-            queryString.append(" AND p.projectSkills IN :projectSkills");
-            parameters.put("projectSkills", uriInfo.getQueryParameters().get("projectSkills"));
-        }
-
-        if (uriInfo.getQueryParameters().containsKey("name")) {
-            queryString.append(" AND p.name LIKE :name");
-            parameters.put("name", "%" + uriInfo.getQueryParameters().getFirst("name") + "%");
-        }
-
-        if (uriInfo.getQueryParameters().containsKey("state")) {
-            try {
-                List<String> stateStrings = uriInfo.getQueryParameters().get("state");
-                List<ProjectStateEnum> states = stateStrings.stream()
-                        .map(state -> ProjectStateEnum.valueOf(state.toUpperCase()))
-                        .collect(Collectors.toList());
-                queryString.append(" AND p.state IN :state");
-                parameters.put("state", states);
-            } catch (IllegalArgumentException e) {
-                throw new BadRequestException("Invalid value for project state: " + uriInfo.getQueryParameters().get("state"));
-            }
-        }
-
-        if (uriInfo.getQueryParameters().containsKey("projectKeywords")) {
-            queryString.append(" AND p.projectKeywords IN :projectKeywords");
-            parameters.put("projectKeywords", uriInfo.getQueryParameters().get("projectKeywords"));
-        }
-
-        Query query = em.createQuery(queryString.toString());
-        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-            query.setParameter(entry.getKey(), entry.getValue());
-        }
-
-        return (long) query.getSingleResult();
     }
 
 
