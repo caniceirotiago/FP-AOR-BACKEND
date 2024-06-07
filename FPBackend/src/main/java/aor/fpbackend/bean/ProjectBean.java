@@ -258,9 +258,25 @@ public class ProjectBean implements Serializable {
 
     @Transactional
     public void updateProject(long projectId, ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
+        // Find existing project
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found with ID: " + projectId);
+        }
+        // Don't update CANCELLED projects
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState == ProjectStateEnum.CANCELLED) {
+            return;
+        }
         // Validate DTO
         if (projectUpdateDto == null) {
             throw new InputValidationException("Invalid DTO");
+        }
+        // When updates project name, check for duplicates
+        if (!projectEntity.getName().equals(projectUpdateDto.getName())) {
+            if (projectDao.checkProjectNameExist(projectUpdateDto.getName())) {
+                throw new InputValidationException("Duplicated project name");
+            }
         }
         if (projectUpdateDto.getConclusionDate() != null && projectUpdateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new IllegalArgumentException("Conclusion date cannot be in the past");
@@ -269,21 +285,6 @@ public class ProjectBean implements Serializable {
         LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectUpdateDto.getLaboratoryId());
         if (laboratoryEntity == null) {
             throw new EntityNotFoundException("Laboratory not found with ID: " + projectUpdateDto.getLaboratoryId());
-        }
-        // Find existing project
-        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
-        if (projectEntity == null) {
-            throw new EntityNotFoundException("Project not found with ID: " + projectId);
-        }
-        // Check for duplicate project name, if updating the project name
-        if (!projectEntity.getName().equals(projectUpdateDto.getName())) {
-            if (projectDao.checkProjectNameExist(projectUpdateDto.getName())) {
-                throw new InputValidationException("Duplicated project name");
-            }
-        }
-        ProjectStateEnum currentState = projectEntity.getState();
-        if (currentState==ProjectStateEnum.CANCELLED){
-            return;
         }
         // Update fields
         projectEntity.setName(projectUpdateDto.getName());
