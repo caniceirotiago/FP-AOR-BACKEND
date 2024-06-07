@@ -7,6 +7,7 @@ import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresPermission;
+import aor.fpbackend.filters.RequiresProjectRolePermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -85,8 +86,9 @@ public class ProjectService {
     @PUT
     @Path("/project/role")
     @Consumes(MediaType.APPLICATION_JSON)
-    //TODO: RequiresPermission especifica de projeto e role desse utilizador no projeto
+    @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
     public void updateProjectRole(@Valid ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
+        System.out.println("Entrou no Service");
         projectBean.updateProjectMembershipRole(projectRoleUpdateDto);
     }
 

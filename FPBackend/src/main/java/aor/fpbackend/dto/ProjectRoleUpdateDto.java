@@ -22,9 +22,15 @@ public class ProjectRoleUpdateDto implements Serializable {
     @XmlElement
     @Enumerated
     @NotNull
-    private ProjectRoleEnum role;
+    private ProjectRoleEnum newRole;
 
     public ProjectRoleUpdateDto() {
+    }
+
+    public ProjectRoleUpdateDto(long projectId, long userId, ProjectRoleEnum newRole) {
+        this.projectId = projectId;
+        this.userId = userId;
+        this.newRole = newRole;
     }
 
     public long getProjectId() {
@@ -43,11 +49,11 @@ public class ProjectRoleUpdateDto implements Serializable {
         this.userId = userId;
     }
 
-    public ProjectRoleEnum getRole() {
-        return role;
+    public ProjectRoleEnum getNewRole() {
+        return newRole;
     }
 
-    public void setRole(ProjectRoleEnum role) {
-        this.role = role;
+    public void setNewRole(ProjectRoleEnum newRole) {
+        this.newRole = newRole;
     }
 }

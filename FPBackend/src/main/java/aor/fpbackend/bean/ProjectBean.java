@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -223,7 +222,7 @@ public class ProjectBean implements Serializable {
         if (projectRoleUpdateDto == null) {
             throw new InputValidationException("Invalid DTO");
         }
-        ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectID(
+        ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectId(
                 projectRoleUpdateDto.getProjectId(), projectRoleUpdateDto.getUserId());
         ProjectEntity projectEntity = projectDao.findProjectById(projectRoleUpdateDto.getProjectId());
         UserEntity userEntity = userDao.findUserById(projectRoleUpdateDto.getUserId());
@@ -233,7 +232,7 @@ public class ProjectBean implements Serializable {
         }
 
         if (projectMembershipEntity != null) {
-            projectMembershipEntity.setRole(projectRoleUpdateDto.getRole());
+            projectMembershipEntity.setRole(projectRoleUpdateDto.getNewRole());
             projectMemberDao.merge(projectMembershipEntity);
         } else {
             throw new EntityNotFoundException("Project Membership not found");
