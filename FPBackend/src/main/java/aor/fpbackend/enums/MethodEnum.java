@@ -37,7 +37,9 @@ public enum MethodEnum {
     TASK_USER(34L),
     TASK_DEPENDENCY(35L),
     TASK_UPDATE(36L),
-    PROJECT_APPROVE(37L);
+    PROJECT_APPROVE(37L),
+    ASK_TO_JOIN(38L),
+    USERS_BY_PROJECT(39L);
 
     private final long value;
 

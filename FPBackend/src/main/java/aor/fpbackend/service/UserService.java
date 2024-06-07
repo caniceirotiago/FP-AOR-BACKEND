@@ -3,8 +3,10 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.exception.*;
-import aor.fpbackend.filters.RequiresPermission;
+import aor.fpbackend.filters.RequiresMethodPermission;
+import aor.fpbackend.filters.RequiresProjectRolePermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -72,6 +74,18 @@ public class UserService {
         return userBean.login(userLogin);
     }
 
+    /**
+     * This endpoint makes logging out a user. Since this example does not
+     * manage user sessions or authentication tokens explicitly, the endpoint simply returns
+     * a response indicating that the user has been logged out successfully.
+     */
+    @POST
+    @Path("/logout")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
+        userBean.logout(securityContext);
+    }
+
     @GET
     @Path("/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
@@ -99,18 +113,6 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public UserProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException, ForbiddenAccessException {
         return userBean.getProfileDto(usernameProfile, securityContext);
-    }
-
-    /**
-     * This endpoint makes logging out a user. Since this example does not
-     * manage user sessions or authentication tokens explicitly, the endpoint simply returns
-     * a response indicating that the user has been logged out successfully.
-     */
-    @POST
-    @Path("/logout")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
-        userBean.logout(securityContext);
     }
 
     @GET
@@ -146,10 +148,11 @@ public class UserService {
     @Path("/role")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.UPDATE_ROLE)
+    @RequiresMethodPermission(MethodEnum.UPDATE_ROLE)
     public void updateUserRole(@Valid UserUpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
         userBean.updateRole(updatedRole);
     }
+
     @GET
     @Path("/session/check")
     @Produces(MediaType.APPLICATION_JSON)
@@ -158,30 +161,24 @@ public class UserService {
     @POST
     @Path("/add/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ADD_USER)
+    @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
     public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         userBean.addUserToProject(username, projectId, false, false);
-    }
-    @PUT
-    @Path("/confirm/project")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void confirmProjectInvite(@QueryParam("token") String token) throws EntityNotFoundException {
-        userBean.confirmProjectInvite(token);
     }
 
     @PUT
     @Path("/remove/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.REMOVE_USER)
+    @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
     public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId) throws EntityNotFoundException {
         userBean.removeUserFromProject(username, projectId);
     }
+
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ASSETS_BY_PROJECT)
+    @RequiresMethodPermission(MethodEnum.USERS_BY_PROJECT)
     public List<ProjectMembershipDto> getUsersByProject(@PathParam("projectId") long projectId) {
         return userBean.getUsersByProject(projectId);
     }
-
 }

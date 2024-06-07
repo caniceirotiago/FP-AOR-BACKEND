@@ -159,8 +159,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     private void checkAuthorization(ContainerRequestContext requestContext, AuthUserDto authUserDto) throws InvalidCredentialsException, IOException {
         Method method = resourceInfo.getResourceMethod();
-        if (method.isAnnotationPresent(RequiresPermission.class)) {
-            long permissionId = method.getAnnotation(RequiresPermission.class).value().getValue();
+        if (method.isAnnotationPresent(RequiresMethodPermission.class)) {
+            long permissionId = method.getAnnotation(RequiresMethodPermission.class).value().getValue();
             boolean hasPermission = authUserDto.getPermissions().stream()
                     .anyMatch(methodEntity -> methodEntity.getId() == permissionId);
             if (!hasPermission) {

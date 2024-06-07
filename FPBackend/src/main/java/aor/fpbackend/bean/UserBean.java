@@ -3,6 +3,7 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
+import aor.fpbackend.enums.LogTypeEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
@@ -467,6 +468,8 @@ public class UserBean implements Serializable {
         // Add the user to the project's users
         projectEntity.getMembers().add(membershipEntity);
         if (!createHasAccepted) projectBean.sendInviteToUser(membershipEntity, userEntity, projectEntity);
+        String content = "User " + userEntity.getUsername() + "added to project: " + projectEntity.getName();
+        projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
     }
 
     @Transactional
@@ -498,15 +501,8 @@ public class UserBean implements Serializable {
         } else {
             throw new IllegalStateException("Project does not have the specified user");
         }
-    }
-
-    public void confirmProjectInvite(String token) throws EntityNotFoundException {
-        ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
-        if (membershipEntity == null) {
-            throw new EntityNotFoundException("Project membership not found");
-        }
-        membershipEntity.setAccepted(true);
-        membershipEntity.setAcceptanceToken(null);
+        String content = "User " + userEntity.getUsername() + "removed from project: " + projectEntity.getName();
+        projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
     }
 
     public List<ProjectMembershipDto> getUsersByProject(long projectId) {
@@ -522,15 +518,26 @@ public class UserBean implements Serializable {
         return userEntity;
     }
 
-    public UserRegisterDto convertUserEntitytoUserRegisterDto(UserEntity userEntity) {
-        UserRegisterDto userRegisterDto = new UserRegisterDto();
-        userRegisterDto.setEmail(userEntity.getEmail());
-        userRegisterDto.setUsername(userEntity.getUsername());
-        userRegisterDto.setFirstName(userEntity.getFirstName());
-        userRegisterDto.setLastName(userEntity.getLastName());
-        userRegisterDto.setLaboratoryId(userEntity.getLaboratory().getId());
-        return userRegisterDto;
-    }
+//    public UserProfileDto convertUserEntitytoUserProfileDto(UserEntity userEntity) {
+//        UserProfileDto userRegisterDto = new UserProfileDto();
+//        UserProfileDto.setEmail(userEntity.getEmail());
+//        UserProfileDto.setUsername(userEntity.getUsername());
+//        UserProfileDto.setFirstName(userEntity.getFirstName());
+//        UserProfileDto.setLastName(userEntity.getLastName());
+//        UserProfileDto.setLaboratoryId(userEntity.getLaboratory().getId());
+//        return userRegisterDto;
+//    }
+//
+//    UserProfileDto userProfileDto = new UserProfileDto();
+//        userProfileDto.setId(userEntity.getId());
+//        userProfileDto.setEmail(userEntity.getEmail());
+//        userProfileDto.setUsername(userEntity.getUsername());
+//        userProfileDto.setFirstName(userEntity.getFirstName());
+//        userProfileDto.setLastName(userEntity.getLastName());
+//        userProfileDto.setPhoto(userEntity.getPhoto());
+//        userProfileDto.setBiography(userEntity.getBiography());
+//        userProfileDto.setLaboratoryId(userEntity.getLaboratory().getId());
+//        userProfileDto.setPrivate(userEntity.isPrivate());
 
     public UserBasicInfoDto convertUserEntitytoUserBasicInfoDto(UserEntity userEntity) {
         UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();

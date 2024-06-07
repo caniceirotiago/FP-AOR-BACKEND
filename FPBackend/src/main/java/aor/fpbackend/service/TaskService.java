@@ -5,7 +5,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
-import aor.fpbackend.filters.RequiresPermission;
+import aor.fpbackend.filters.RequiresMethodPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -23,7 +23,7 @@ public class TaskService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ALL_TASKS)
+    @RequiresMethodPermission(MethodEnum.ALL_TASKS)
     public List<TaskGetDto> getAllTasks() {
         return taskBean.getTasks();
     }
@@ -31,7 +31,7 @@ public class TaskService {
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.TASKS_BY_PROJECT)
+    @RequiresMethodPermission(MethodEnum.TASKS_BY_PROJECT)
     public List<TaskGetDto> getAllTasksByProject(@PathParam("projectId") long projectId) {
         return taskBean.getTasksByProject(projectId);
     }
@@ -47,7 +47,7 @@ public class TaskService {
     @POST
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ADD_TASK)
+    @RequiresMethodPermission(MethodEnum.ADD_TASK)
     public void addTaskToProject(@Valid TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
         taskBean.addTask(taskCreateDto);
     }
@@ -55,7 +55,7 @@ public class TaskService {
     @PUT
     @Path("/add/executor")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.TASK_USER)
+    @RequiresMethodPermission(MethodEnum.TASK_USER)
     public void addUserToTask(@Valid TaskAddUserDto taskAddUserDto) throws EntityNotFoundException, InputValidationException {
         taskBean.addUserTask(taskAddUserDto);
     }
@@ -63,7 +63,7 @@ public class TaskService {
     @PUT
     @Path("/add/dependency")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.TASK_DEPENDENCY)
+    @RequiresMethodPermission(MethodEnum.TASK_DEPENDENCY)
     public void addDependencyToTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, InputValidationException {
         taskBean.addDependencyTask(addDependencyDto);
     }
@@ -71,7 +71,7 @@ public class TaskService {
     @PUT
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.TASK_UPDATE)
+    @RequiresMethodPermission(MethodEnum.TASK_UPDATE)
     public void updateTask(@Valid TaskUpdateDto taskUpdateDto) throws EntityNotFoundException, InputValidationException {
         taskBean.updateTask(taskUpdateDto);
     }

@@ -1,5 +1,7 @@
 package aor.fpbackend.entity;
 
+import aor.fpbackend.enums.LogTypeEnum;
+import jakarta.ejb.EJB;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -21,8 +23,9 @@ public class ProjectLogEntity implements Serializable {
     @Column(name = "creation_date", nullable = false)
     private Instant creationDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "log_type", nullable = false)
-    private String type;
+    private LogTypeEnum type;
 
     @Column(name = "content", nullable = false)
     private String content;
@@ -38,7 +41,7 @@ public class ProjectLogEntity implements Serializable {
     // Constructors
     public ProjectLogEntity() {}
 
-    public ProjectLogEntity(Instant creationDate, String type, String content, UserEntity user, ProjectEntity project) {
+    public ProjectLogEntity(Instant creationDate, LogTypeEnum type, String content, UserEntity user, ProjectEntity project) {
         this.creationDate = creationDate;
         this.type = type;
         this.content = content;
@@ -63,11 +66,11 @@ public class ProjectLogEntity implements Serializable {
         this.creationDate = creationDate;
     }
 
-    public String getType() {
+    public LogTypeEnum getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(LogTypeEnum type) {
         this.type = type;
     }
 

@@ -6,7 +6,7 @@ import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
-import aor.fpbackend.filters.RequiresPermission;
+import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectRolePermission;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
@@ -27,7 +27,7 @@ public class ProjectService {
     @POST
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ADD_PROJECT)
+    @RequiresMethodPermission(MethodEnum.ADD_PROJECT)
     public void createProject(@Valid ProjectCreateDto projectCreateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException, UserNotFoundException {
         projectBean.createProject(projectCreateDto, securityContext);
     }
@@ -35,7 +35,7 @@ public class ProjectService {
     @GET
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ALL_PROJECTS)
+    @RequiresMethodPermission(MethodEnum.ALL_PROJECTS)
     public List<ProjectGetDto> getAllProjects() {
         return projectBean.getAllProjects();
     }
@@ -43,7 +43,7 @@ public class ProjectService {
     @GET
     @Path("/all/filter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ALL_PROJECTS)
+    @RequiresMethodPermission(MethodEnum.ALL_PROJECTS)
     public ProjectsPaginatedDto getFilteredProjects(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("pageSize") @DefaultValue("10") int pageSize,
@@ -54,14 +54,14 @@ public class ProjectService {
     @GET
     @Path("/info/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.PROJECT_BY_ID)
+    @RequiresMethodPermission(MethodEnum.PROJECT_BY_ID)
     public ProjectGetDto getProjectDetails(@PathParam("projectId") long projectId) throws EntityNotFoundException {
         return projectBean.getProjectDetailsById(projectId);
     }
     @GET
     @Path("/enum/states")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.PROJECT_ENUMS)
+
     public List<ProjectStateEnum> getProjectStates() {
         return projectBean.getEnumListProjectStates();
     }
@@ -69,7 +69,7 @@ public class ProjectService {
     @GET
     @Path("/enum/roles")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.PROJECT_ENUMS)
+    @RequiresMethodPermission(MethodEnum.PROJECT_ENUMS)
     public List<ProjectRoleEnum> getProjectRoles() {
         return projectBean.getEnumListProjectRoles();
     }
@@ -77,7 +77,7 @@ public class ProjectService {
     @PUT
     @Path("/approve")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.PROJECT_APPROVE)
+    @RequiresMethodPermission(MethodEnum.PROJECT_APPROVE)
     public void approveProject(@Valid ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         projectBean.approveProject(projectApproveDto, securityContext);
     }
@@ -91,18 +91,10 @@ public class ProjectService {
     }
 
     @PUT
-    @Path("/ask/join")
-    @Consumes(MediaType.APPLICATION_JSON)
-    //TODO: RequiresPermission especifica de projeto e role desse utilizador no projeto
-    public void askToJoinProject(@Valid ProjectAskJoinDto projectAskJoinDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UserNotFoundException {
-        projectBean.askToJoinProject(projectAskJoinDto, securityContext);
-    }
-
-    @PUT
     @Path("/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void updateProject(@PathParam("projectId") long projectId, @Valid ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
-        projectBean.updateProject(projectId, projectUpdateDto);
+    public void updateProject(@PathParam("projectId") long projectId, @Valid ProjectUpdateDto projectUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+        projectBean.updateProject(projectId, projectUpdateDto, securityContext);
     }
 }
