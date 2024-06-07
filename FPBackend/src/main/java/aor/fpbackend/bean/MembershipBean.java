@@ -47,6 +47,8 @@ public class MembershipBean implements Serializable {
     @EJB
     ProjectDao projectDao;
     @EJB
+    ProjectBean projectBean;
+    @EJB
     ProjectMembershipDao projectMemberDao;
 
     // TODO verificar se já é membro
@@ -77,7 +79,6 @@ public class MembershipBean implements Serializable {
 
 
     // TODO fazer verificação se pedido já foi aceite (Testar no Postman)
-    // Incluir Project Log
     public void confirmProjectInvite(String token) throws EntityNotFoundException {
         ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
         if (membershipEntity == null) {
@@ -85,6 +86,8 @@ public class MembershipBean implements Serializable {
         }
         membershipEntity.setAccepted(true);
         membershipEntity.setAcceptanceToken(null);
+        String content = "User " + membershipEntity.getUser().getUsername() + "added to project: " + membershipEntity.getProject().getName();
+        projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
     }
 
 

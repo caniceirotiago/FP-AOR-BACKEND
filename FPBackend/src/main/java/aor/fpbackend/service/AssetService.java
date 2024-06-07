@@ -24,7 +24,6 @@ public class AssetService {
     @RequiresMethodPermission(MethodEnum.ADD_ASSET)
     public void createAsset(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException {
         assetBean.addAsset(assetAddDto);
-
     }
 
     @GET

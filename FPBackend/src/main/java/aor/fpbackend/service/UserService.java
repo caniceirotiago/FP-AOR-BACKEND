@@ -74,6 +74,18 @@ public class UserService {
         return userBean.login(userLogin);
     }
 
+    /**
+     * This endpoint makes logging out a user. Since this example does not
+     * manage user sessions or authentication tokens explicitly, the endpoint simply returns
+     * a response indicating that the user has been logged out successfully.
+     */
+    @POST
+    @Path("/logout")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
+        userBean.logout(securityContext);
+    }
+
     @GET
     @Path("/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
@@ -101,18 +113,6 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public UserProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException, ForbiddenAccessException {
         return userBean.getProfileDto(usernameProfile, securityContext);
-    }
-
-    /**
-     * This endpoint makes logging out a user. Since this example does not
-     * manage user sessions or authentication tokens explicitly, the endpoint simply returns
-     * a response indicating that the user has been logged out successfully.
-     */
-    @POST
-    @Path("/logout")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
-        userBean.logout(securityContext);
     }
 
     @GET
@@ -152,6 +152,7 @@ public class UserService {
     public void updateUserRole(@Valid UserUpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
         userBean.updateRole(updatedRole);
     }
+
     @GET
     @Path("/session/check")
     @Produces(MediaType.APPLICATION_JSON)
@@ -165,7 +166,6 @@ public class UserService {
         userBean.addUserToProject(username, projectId, false, false);
     }
 
-
     @PUT
     @Path("/remove/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -173,6 +173,7 @@ public class UserService {
     public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId) throws EntityNotFoundException {
         userBean.removeUserFromProject(username, projectId);
     }
+
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -180,5 +181,4 @@ public class UserService {
     public List<ProjectMembershipDto> getUsersByProject(@PathParam("projectId") long projectId) {
         return userBean.getUsersByProject(projectId);
     }
-
 }
