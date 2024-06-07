@@ -122,7 +122,6 @@ public class EmailService {
         }
     }
     public void sendJoinRequisitionToManagersEmail(String toEmail, String username, String projectName, String acceptanceToken) {
-        System.out.println("Sending join requisition email to " + toEmail);
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");

@@ -8,18 +8,14 @@ import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresPermission;
 import aor.fpbackend.filters.RequiresProjectRolePermission;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.UriInfo;
-
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -89,7 +85,6 @@ public class ProjectService {
     @PUT
     @Path("/role/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
     public void updateProjectRole(@PathParam("projectId") long projectId, @Valid ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
         projectBean.updateProjectMembershipRole(projectId, projectRoleUpdateDto);
@@ -104,9 +99,10 @@ public class ProjectService {
     }
 
     @PUT
-    @Path("")
+    @Path("/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void updateProject(@Valid ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
-        projectBean.updateProject(projectUpdateDto);
+    @RequiresProjectMemberPermission()
+    public void updateProject(@PathParam("projectId") long projectId, @Valid ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
+        projectBean.updateProject(projectId, projectUpdateDto);
     }
 }
