@@ -139,6 +139,8 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.TASK_UPDATE, "update task elements", MethodEnum.TASK_UPDATE.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_ENUMS, "retrieve all project enum elements", MethodEnum.PROJECT_ENUMS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_APPROVE, "approve a project in READY state", MethodEnum.PROJECT_APPROVE.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ASK_TO_JOIN, "ask to join a project", MethodEnum.ASK_TO_JOIN.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.USERS_BY_PROJECT, "get all users by project", MethodEnum.USERS_BY_PROJECT.getValue());
     }
 
     @Transactional
@@ -215,5 +217,9 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_ENUMS);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.PROJECT_ENUMS);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_APPROVE);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASK_TO_JOIN);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASK_TO_JOIN);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.USERS_BY_PROJECT);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.USERS_BY_PROJECT);
     }
 }

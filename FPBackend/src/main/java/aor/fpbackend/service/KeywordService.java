@@ -12,7 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import java.util.List;
 
-import aor.fpbackend.filters.RequiresPermission;
+import aor.fpbackend.filters.RequiresMethodPermission;
 import jakarta.validation.Valid;
 import aor.fpbackend.enums.MethodEnum;
 
@@ -25,7 +25,7 @@ public class KeywordService {
     @POST
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ADD_KEYWORD)
+    @RequiresMethodPermission(MethodEnum.ADD_KEYWORD)
     public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, InputValidationException {
         if (keywordAddDto != null) {
             keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
@@ -37,7 +37,7 @@ public class KeywordService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.ALL_KEYWORDS)
+    @RequiresMethodPermission(MethodEnum.ALL_KEYWORDS)
     public List<KeywordGetDto> getAllKeywords() {
         return keywordBean.getKeywords();
     }
@@ -45,7 +45,7 @@ public class KeywordService {
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.KEYWORDS_BY_PROJECT)
+    @RequiresMethodPermission(MethodEnum.KEYWORDS_BY_PROJECT)
     public List<KeywordGetDto> getAllKeywordsByProject(@PathParam("projectId") long projectId) {
         return keywordBean.getKeywordsByProject(projectId);
     }
@@ -53,7 +53,7 @@ public class KeywordService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.KEYWORDS_FIRST_LETTER)
+    @RequiresMethodPermission(MethodEnum.KEYWORDS_FIRST_LETTER)
     public List<KeywordGetDto> getAllKeywordsByFirstLetter(@QueryParam("value") String firstLetter) {
         return keywordBean.getKeywordsByFirstLetter(firstLetter);
     }
@@ -61,7 +61,7 @@ public class KeywordService {
     @PUT
     @Path("/remove/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresPermission(MethodEnum.REMOVE_KEYWORD)
+    @RequiresMethodPermission(MethodEnum.REMOVE_KEYWORD)
     public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException, InputValidationException {
         keywordBean.removeKeyword(keywordRemoveDto);
     }

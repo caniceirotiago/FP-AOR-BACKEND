@@ -190,26 +190,12 @@ public class ProjectBean implements Serializable {
             projectEntity.setState(ProjectStateEnum.PLANNING);
         }
         // Create a Project Log
-        ProjectLogEntity projectLogEntity = new ProjectLogEntity();
-        projectLogEntity.setProject(projectEntity);
-        projectLogEntity.setUser(userEntity);
-        projectLogEntity.setCreationDate(Instant.now());
-        projectLogEntity.setType("Approval");
-        projectLogEntity.setContent(projectApproveDto.getComment());
-        projectLogDao.persist(projectLogEntity);
-        projectEntity.getProjectLogs().add(projectLogEntity);
+        createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, projectApproveDto.getComment());
     }
 
     //TODO Only Project Members can invite other users!
     public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
         emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
-    }
-
-    public void sendJoinRequisitionToManagers(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
-        List<UserEntity> projectManagers = projectMemberDao.findProjectManagers(projectEntity.getId());
-        for (UserEntity manager : projectManagers) {
-            emailService.sendJoinRequisitionToManagersEmail(manager.getEmail(), user.getUsername(), projectEntity.getName(), membershipEntity.getAcceptanceToken());
-        }
     }
 
     public ProjectsPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
@@ -238,26 +224,11 @@ public class ProjectBean implements Serializable {
         }
     }
 
-    public void askToJoinProject(ProjectAskJoinDto projectAskJoinDto, SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+    @Transactional
+    public void updateProject(long projectId, ProjectUpdateDto projectUpdateDto, SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+        // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-        ProjectEntity projectEntity = projectDao.findProjectById(projectAskJoinDto.getProjectId());
-        if (projectEntity != null && userEntity != null) {
-            ProjectMembershipEntity projectMembershipEntity = new ProjectMembershipEntity();
-            projectMembershipEntity.setProject(projectEntity);
-            projectMembershipEntity.setUser(userEntity);
-            projectMembershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
-            projectMembershipEntity.setAccepted(false);
-            projectMembershipEntity.setAcceptanceToken(UUID.randomUUID().toString());
-            projectMemberDao.persist(projectMembershipEntity);
-            sendJoinRequisitionToManagers(projectMembershipEntity, userEntity, projectEntity);
-        } else {
-            throw new EntityNotFoundException("Project or User not found");
-        }
-    }
-
-    @Transactional
-    public void updateProject(long projectId, ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
         // Find existing project
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
@@ -310,6 +281,20 @@ public class ProjectBean implements Serializable {
                 }
             }
         }
+        // Create a Project Log
+        createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, "Project details updated");
+    }
+
+    // Create a Project Log
+    public void createProjectLog(ProjectEntity projectEntity, UserEntity userEntity, LogTypeEnum type, String content) {
+        ProjectLogEntity projectLogEntity = new ProjectLogEntity();
+        projectLogEntity.setProject(projectEntity);
+        projectLogEntity.setUser(userEntity);
+        projectLogEntity.setCreationDate(Instant.now());
+        projectLogEntity.setType(type);
+        projectLogEntity.setContent(content);
+        projectLogDao.persist(projectLogEntity);
+        projectEntity.getProjectLogs().add(projectLogEntity);
     }
 
     public ProjectGetDto convertProjectEntityToProjectDto(ProjectEntity projectEntity) {
