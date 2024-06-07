@@ -92,8 +92,6 @@ public class ProjectService {
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
     public void updateProjectRole(@PathParam("projectId") long projectId, @Valid ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
-        System.out.println("You've entered on Service Layer");
-        System.out.println("ProjectRoleUpdateDto: " + projectRoleUpdateDto);
         projectBean.updateProjectMembershipRole(projectId, projectRoleUpdateDto);
     }
 

@@ -4,12 +4,10 @@ package aor.fpbackend.filters;
 import aor.fpbackend.bean.ConfigurationBean;
 import aor.fpbackend.dao.ProjectMembershipDao;
 import aor.fpbackend.dto.AuthUserDto;
-import aor.fpbackend.dto.ProjectRoleUpdateDto;
 import aor.fpbackend.entity.ProjectMembershipEntity;
 import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.utils.JwtKeyProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.Priority;
 import jakarta.ejb.EJB;
@@ -19,18 +17,18 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import aor.fpbackend.bean.UserBean;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 
 
 @Provider
@@ -171,31 +169,20 @@ public class AuthorizationFilter implements ContainerRequestFilter {
         }
         if (method.isAnnotationPresent(RequiresProjectRolePermission.class)) {
             ProjectRoleEnum requiredRole = method.getAnnotation(RequiresProjectRolePermission.class).value();
-            System.out.println("requiredRole: " + requiredRole);
-            // Read the request body to extract the ProjectRoleUpdateDto
-            ProjectRoleUpdateDto projectRoleUpdateDto = readRequestBody(requestContext);
-            if (projectRoleUpdateDto == null) {
-                requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST).entity("Invalid request body").build());
+            // Get the path parameters
+            MultivaluedMap<String, String> pathParams = requestContext.getUriInfo().getPathParameters();
+            // Get the project ID from the path parameters
+            List<String> projectIdList = pathParams.get("projectId");
+            if (projectIdList == null || projectIdList.isEmpty()) {
+                requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST).entity("Project ID is missing").build());
                 return;
             }
-            long projectId = projectRoleUpdateDto.getProjectId();
+            long projectId = Long.parseLong(projectIdList.get(0));
             ProjectMembershipEntity membership = projectMembershipDao.findProjectMembershipByUserIdAndProjectId(projectId, authUserDto.getUserId());
-            System.out.println("membership: " + membership.getRole());
             if (membership == null || !membership.getRole().equals(requiredRole)) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
             }
         }
-    }
-
-    private ProjectRoleUpdateDto readRequestBody(ContainerRequestContext requestContext) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(requestContext.getEntityStream()));
-        StringBuilder requestBody = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            requestBody.append(line);
-        }
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(requestBody.toString(), ProjectRoleUpdateDto.class);
     }
 
     private void abortUnauthorized(ContainerRequestContext requestContext) {
