@@ -200,11 +200,12 @@ public class ProjectBean implements Serializable {
         projectEntity.getProjectLogs().add(projectLogEntity);
     }
 
+    //TODO Only Project Members can invite other users!
     public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
         emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
     }
 
-    public void sendJoinRequisitionToManagers(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) throws UserNotFoundException, InputValidationException {
+    public void sendJoinRequisitionToManagers(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
         List<UserEntity> projectManagers = projectMemberDao.findProjectManagers(projectEntity.getId());
         for (UserEntity manager : projectManagers) {
             emailService.sendJoinRequisitionToManagersEmail(manager.getEmail(), user.getUsername(), projectEntity.getName(), membershipEntity.getAcceptanceToken());
@@ -256,7 +257,7 @@ public class ProjectBean implements Serializable {
     }
 
     @Transactional
-    public void updateProject(ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
+    public void updateProject(long projectId, ProjectUpdateDto projectUpdateDto) throws EntityNotFoundException, InputValidationException {
         // Validate DTO
         if (projectUpdateDto == null) {
             throw new InputValidationException("Invalid DTO");
@@ -270,15 +271,19 @@ public class ProjectBean implements Serializable {
             throw new EntityNotFoundException("Laboratory not found with ID: " + projectUpdateDto.getLaboratoryId());
         }
         // Find existing project
-        ProjectEntity projectEntity = projectDao.findProjectById(projectUpdateDto.getId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
-            throw new EntityNotFoundException("Project not found with ID: " + projectUpdateDto.getId());
+            throw new EntityNotFoundException("Project not found with ID: " + projectId);
         }
         // Check for duplicate project name, if updating the project name
         if (!projectEntity.getName().equals(projectUpdateDto.getName())) {
             if (projectDao.checkProjectNameExist(projectUpdateDto.getName())) {
                 throw new InputValidationException("Duplicated project name");
             }
+        }
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState==ProjectStateEnum.CANCELLED){
+            return;
         }
         // Update fields
         projectEntity.setName(projectUpdateDto.getName());
@@ -287,11 +292,11 @@ public class ProjectBean implements Serializable {
         projectEntity.setConclusionDate(projectUpdateDto.getConclusionDate());
         projectEntity.setLaboratory(laboratoryEntity);
         // Validate state and handle state transitions
-        if (projectUpdateDto.getState() != null) {
-            ProjectStateEnum newState = projectUpdateDto.getState();
-            boolean approved = projectEntity.isApproved();
+        ProjectStateEnum newState = projectUpdateDto.getState();
+        boolean approved = projectEntity.isApproved();
+        if (currentState != newState) {
             if (!approved) {
-                if (newState == ProjectStateEnum.READY || newState == ProjectStateEnum.CANCELLED) {
+                if (newState == ProjectStateEnum.PLANNING || newState == ProjectStateEnum.READY || newState == ProjectStateEnum.CANCELLED) {
                     projectEntity.setState(newState);
                 } else {
                     throw new InputValidationException("Invalid state transition: Project is not approved");

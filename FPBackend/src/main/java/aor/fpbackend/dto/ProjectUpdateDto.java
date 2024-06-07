@@ -14,11 +14,6 @@ import java.time.Instant;
 public class ProjectUpdateDto implements Serializable {
 
     @XmlElement
-    @NotNull(message = "Project Id cannot be null")
-    @Min(value = 1, message = "Id must be greater than 0")
-    private Long id;
-
-    @XmlElement
     @NotNull
     @Size(min = 2, max = 255, message = "Project name must be between 2 and 255 characters")
     private String name;
@@ -50,8 +45,7 @@ public class ProjectUpdateDto implements Serializable {
     }
 
     // Parameterized constructor
-    public ProjectUpdateDto(Long id, String name, String description, String motivation, ProjectStateEnum state, Long laboratoryId, Instant conclusionDate) {
-        this.id = id;
+    public ProjectUpdateDto(String name, String description, String motivation, ProjectStateEnum state, Long laboratoryId, Instant conclusionDate) {
         this.name = name;
         this.description = description;
         this.motivation = motivation;
@@ -61,13 +55,6 @@ public class ProjectUpdateDto implements Serializable {
     }
 
     // Getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

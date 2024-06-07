@@ -113,8 +113,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 || path.contains("/projects/all")
                 || path.contains("/info/project-states")
                 || path.contains("/info/project-roles")
-                //|| path.contains("/enum/roles")
-                //|| path.contains("/enum/states")
+                || path.contains("/enum/roles") //TODO Avaliar que métodos são necessários para user não autenticado
+                || path.contains("/enum/states") //TODO Avaliar que métodos são necessários para user não autenticado
                 || path.contains("/configurations/all"); //TODO terá de sair daqui quando houver permissões específicas
     }
 
@@ -180,6 +180,21 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             long projectId = Long.parseLong(projectIdList.get(0));
             ProjectMembershipEntity membership = projectMembershipDao.findProjectMembershipByUserIdAndProjectId(projectId, authUserDto.getUserId());
             if (membership == null || !membership.getRole().equals(requiredRole)) {
+                requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+            }
+        }
+        if (method.isAnnotationPresent(RequiresProjectMemberPermission.class)) {
+            // Get the path parameters
+            MultivaluedMap<String, String> pathParams = requestContext.getUriInfo().getPathParameters();
+            // Get the project ID from the path parameters
+            List<String> projectIdList = pathParams.get("projectId");
+            if (projectIdList == null || projectIdList.isEmpty()) {
+                requestContext.abortWith(Response.status(Response.Status.BAD_REQUEST).entity("Project ID is missing").build());
+                return;
+            }
+            long projectId = Long.parseLong(projectIdList.get(0));
+            ProjectMembershipEntity membership = projectMembershipDao.findProjectMembershipByUserIdAndProjectId(projectId, authUserDto.getUserId());
+            if (membership == null) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
             }
         }
