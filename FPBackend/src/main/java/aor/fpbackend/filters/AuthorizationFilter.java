@@ -3,18 +3,11 @@ package aor.fpbackend.filters;
 
 import aor.fpbackend.bean.ConfigurationBean;
 import aor.fpbackend.dao.ProjectMembershipDao;
-import aor.fpbackend.dao.RoleDao;
-import aor.fpbackend.dao.SessionDao;
-import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.dto.ProjectRoleUpdateDto;
 import aor.fpbackend.entity.ProjectMembershipEntity;
-import aor.fpbackend.entity.RoleEntity;
-import aor.fpbackend.entity.UserEntity;
-import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.exception.InvalidCredentialsException;
-import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.utils.JwtKeyProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
@@ -26,15 +19,15 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import aor.fpbackend.bean.UserBean;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.net.UnknownHostException;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.Date;
@@ -195,8 +188,14 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     }
 
     private ProjectRoleUpdateDto readRequestBody(ContainerRequestContext requestContext) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(requestContext.getEntityStream()));
+        StringBuilder requestBody = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            requestBody.append(line);
+        }
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(requestContext.getEntityStream(), ProjectRoleUpdateDto.class);
+        return mapper.readValue(requestBody.toString(), ProjectRoleUpdateDto.class);
     }
 
     private void abortUnauthorized(ContainerRequestContext requestContext) {
