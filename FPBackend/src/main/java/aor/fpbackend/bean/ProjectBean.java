@@ -263,9 +263,9 @@ public class ProjectBean implements Serializable {
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found with ID: " + projectId);
         }
-        // Don't update CANCELLED projects
+        // Don't update CANCELLED or FINISHED projects
         ProjectStateEnum currentState = projectEntity.getState();
-        if (currentState == ProjectStateEnum.CANCELLED) {
+        if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
             return;
         }
         // Validate DTO
