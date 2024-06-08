@@ -141,7 +141,6 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
         userBean.updatePassword(updatedPassword, securityContext);
-
     }
 
     @PUT

@@ -222,6 +222,8 @@ public class ProjectBean implements Serializable {
         } else {
             throw new EntityNotFoundException("Project Membership not found");
         }
+        String content = "User " + userEntity.getUsername() + " updated project role to " + projectRoleUpdateDto.getNewRole();
+        createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
     }
 
     @Transactional
