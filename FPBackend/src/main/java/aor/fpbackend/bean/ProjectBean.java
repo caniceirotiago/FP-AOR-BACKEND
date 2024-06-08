@@ -87,17 +87,18 @@ public class ProjectBean implements Serializable {
         projectDao.persist(projectEntity);
         // Define relations on the persisted Project
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
+        createProjectLog(projectEntity,user,LogTypeEnum.GENERAL_PROJECT_DATA, "Project " + projectEntity.getName() + " was created");
         addRelationsToProject(projectCreateDto, persistedProject, user);
     }
 
     private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException {
         // Define relations for project members (Users)
-        userBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true);
+        userBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator.getUsername());
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
             // Add creator to project
             for (String username : usernames) {
-                userBean.addUserToProject(username, projectEntity.getId(), true, false);
+                userBean.addUserToProject(username, projectEntity.getId(), true, false, userCreator.getUsername());
             }
         }
         // Define relations for project Skills
@@ -158,6 +159,22 @@ public class ProjectBean implements Serializable {
             projectRoleEnums.add(projectRoleEnum);
         }
         return projectRoleEnums;
+    }
+
+    public List<ProjectLogGetDto> getListProjectLogs(long projectId) {
+        List<ProjectLogEntity> projectLogEntities = projectLogDao.findProjectLogsByProjectId(projectId);
+        List<ProjectLogGetDto> projectLogGetDtos = new ArrayList<>();
+        for (ProjectLogEntity pl : projectLogEntities) {
+            ProjectLogGetDto projectLogDto = new ProjectLogGetDto();
+            projectLogDto.setId(pl.getId());
+            projectLogDto.setCreationDate(pl.getCreationDate());
+            projectLogDto.setContent(pl.getContent());
+            projectLogDto.setType(pl.getType());
+            projectLogDto.setUsername(pl.getUser().getUsername());
+            projectLogDto.setProjectName(pl.getProject().getName());
+            projectLogGetDtos.add(projectLogDto);
+        }
+        return projectLogGetDtos;
     }
 
     public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
@@ -313,7 +330,7 @@ public class ProjectBean implements Serializable {
         projectGetDto.setApproved(projectEntity.isApproved());
         projectGetDto.setLaboratory(laboratoryBean.convertLaboratoryEntityToLaboratoryDto(projectEntity.getLaboratory()));
         projectGetDto.setCreatedBy(userBean.convertUserEntetyToUserBasicInfoDto(projectEntity.getCreatedBy()));
-        projectGetDto.setMembers(convertProjectMembershipsEntityToDto(projectEntity.getMembers()));
+        projectGetDto.setMembers(convertProjectMembershipEntityListToDto(projectEntity.getMembers()));
         return projectGetDto;
     }
 
@@ -337,7 +354,7 @@ public class ProjectBean implements Serializable {
         return projectMembershipDto;
     }
 
-    public ArrayList<ProjectMembershipDto> convertProjectMembershipsEntityToDto(Set<ProjectMembershipEntity> projectMemberships) {
+    public ArrayList<ProjectMembershipDto> convertProjectMembershipEntityListToDto(Set<ProjectMembershipEntity> projectMemberships) {
         ArrayList<ProjectMembershipDto> projectMembershipDtos = new ArrayList<>();
         for (ProjectMembershipEntity p : projectMemberships) {
             ProjectMembershipDto projectMembershipDto = convertProjectMembershipEntityToDto(p);

@@ -391,10 +391,6 @@ public class UserBean implements Serializable {
     public void updatePassword(PasswordUpdateDto passwordUpdateDto, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-        if (userEntity == null) {
-            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " Attempt to update user with invalid token");
-            throw new InvalidPasswordRequestException("User not found");
-        }
         if (!oldPasswordConfirmation(userEntity, passwordUpdateDto)) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + "Attempt to update password with invalid old password or password should not be the same at: " + LocalDate.now());
             throw new InvalidPasswordRequestException("Invalid old password or password should not be the same");
@@ -422,7 +418,7 @@ public class UserBean implements Serializable {
     }
 
     @Transactional
-    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, String authUsername) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
@@ -458,12 +454,14 @@ public class UserBean implements Serializable {
         // Add the user to the project's users
         projectEntity.getMembers().add(membershipEntity);
         if (!createHasAccepted) projectBean.sendInviteToUser(membershipEntity, userEntity, projectEntity);
-        String content = "User " + userEntity.getUsername() + "added to project: " + projectEntity.getName();
+        String content = "User " + userEntity.getUsername() + ", was added to project: " + projectEntity.getName() + ", by " + authUsername;
         projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
     }
 
     @Transactional
-    public void removeUserFromProject(String username, long projectId) throws EntityNotFoundException {
+    public void removeUserFromProject(String username, long projectId, SecurityContext securityContext) throws EntityNotFoundException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
@@ -491,7 +489,7 @@ public class UserBean implements Serializable {
         } else {
             throw new IllegalStateException("Project does not have the specified user");
         }
-        String content = "User " + userEntity.getUsername() + "removed from project: " + projectEntity.getName();
+        String content = "User " + userEntity.getUsername() + ", was removed from project " + projectEntity.getName() + ", by " + authUserEntity.getUsername();
         projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
     }
 
