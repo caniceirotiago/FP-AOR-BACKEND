@@ -122,7 +122,7 @@ public class EmailService {
         }
     }
 
-    public void sendJoinRequisitionToManagersEmail(String toEmail, String username, String projectName, String acceptanceToken) {
+    public void sendJoinRequisitionToManagersEmail(String approverEmail, String approverUsername, String username, String projectName, String acceptanceToken) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -138,10 +138,10 @@ public class EmailService {
         try {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress("antnestservice@gmail.com")); // Sender e-mail
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // Receiver e-mail
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(approverEmail)); // Receiver e-mail
             message.setSubject(username + " asked to join to " + projectName + " project! "); // E-mail subject
-            String acceptUrl = "http://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=true";
-            String rejectUrl = "http://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=false";
+            String acceptUrl = "http://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=true&approver=" + approverUsername;
+            String rejectUrl = "http://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=false&approver=" + approverUsername;
             String emailContent = "<html><body>"
                     + "<h1>Project Join Requisition</h1>"
                     + "<p>The user: " + username + " asked to join the project: " + projectName + ". Please click one of the buttons below to accept or reject this request:</p>"

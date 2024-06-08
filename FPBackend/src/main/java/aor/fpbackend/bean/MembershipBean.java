@@ -86,12 +86,11 @@ public class MembershipBean implements Serializable {
     public void sendJoinRequisitionToManagers(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
         List<UserEntity> projectManagers = projectMemberDao.findProjectManagers(projectEntity.getId());
         for (UserEntity manager : projectManagers) {
-            emailService.sendJoinRequisitionToManagersEmail(manager.getEmail(), user.getUsername(), projectEntity.getName(), membershipEntity.getAcceptanceToken());
+            emailService.sendJoinRequisitionToManagersEmail(manager.getEmail(), manager.getUsername(), user.getUsername(), projectEntity.getName(), membershipEntity.getAcceptanceToken());
         }
     }
 
-    // TODO avaliar se queremos e como fazer para colocar nome do validador no Project Log
-    public void confirmProjectInvite(String token, boolean approve) throws EntityNotFoundException {
+    public void confirmProjectInvite(String token, boolean approve, String approverUsername) throws EntityNotFoundException {
         ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
         if (membershipEntity == null) {
             throw new EntityNotFoundException("Project membership not found");
@@ -99,9 +98,11 @@ public class MembershipBean implements Serializable {
         if (approve) {
             membershipEntity.setAccepted(true);
             membershipEntity.setAcceptanceToken(null);
-            String content = "User " + membershipEntity.getUser().getUsername() + "added to project: " + membershipEntity.getProject().getName();
+            String content = "User " + membershipEntity.getUser().getUsername() + ", added to project: " + membershipEntity.getProject().getName() + ", approved by " + approverUsername;
             projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
         } else {
+            String content = "Application of user " + membershipEntity.getUser().getUsername() + ", to project: " + membershipEntity.getProject().getName() + ", rejected by " + approverUsername;
+            projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
             projectMemberDao.remove(membershipEntity);
         }
     }

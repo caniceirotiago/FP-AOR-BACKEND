@@ -32,8 +32,8 @@ public class MembershipService {
     @Path("/confirm/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void confirmProjectInvite(@QueryParam("token") String token, @QueryParam("approve") boolean approve) throws EntityNotFoundException {
-        memberBean.confirmProjectInvite(token, approve);
+    public void confirmProjectInvite(@QueryParam("token") String token, @QueryParam("approve") boolean approve, @QueryParam("approver") String approverUsername) throws EntityNotFoundException {
+        memberBean.confirmProjectInvite(token, approve, approverUsername);
     }
 
 }
