@@ -74,6 +74,14 @@ public class ProjectService {
         return projectBean.getEnumListProjectRoles();
     }
 
+    @GET
+    @Path("/logs/{projectId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresProjectMemberPermission()
+    public List<ProjectLogGetDto> getProjectLogs(@PathParam("projectId") long projectId) {
+        return projectBean.getListProjectLogs(projectId);
+    }
+
     @PUT
     @Path("/approve")
     @Consumes(MediaType.APPLICATION_JSON)

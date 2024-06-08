@@ -2,6 +2,7 @@ package aor.fpbackend.dto;
 
 import aor.fpbackend.entity.ProjectMembershipEntity;
 import aor.fpbackend.entity.UserEntity;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -29,6 +30,7 @@ public class ProjectGetDto implements Serializable {
     private String motivation;
 
     @XmlElement
+    @Enumerated
     private ProjectStateEnum state;
 
     @XmlElement

@@ -7,6 +7,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.entity.TaskEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.LogTypeEnum;
 import aor.fpbackend.enums.TaskStateEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -16,6 +17,7 @@ import java.time.temporal.ChronoUnit;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,6 +37,8 @@ public class TaskBean implements Serializable {
     ProjectDao projectDao;
     @EJB
     UserDao userDao;
+    @EJB
+    ProjectBean projectBean;
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LogManager.getLogger(TaskBean.class);
@@ -146,7 +150,9 @@ public class TaskBean implements Serializable {
         prerequisites.add(mainTaskEntity);
     }
 
-    public void updateTask(TaskUpdateDto taskUpdateDto) throws InputValidationException, EntityNotFoundException {
+    public void updateTask(TaskUpdateDto taskUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         if (taskUpdateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
@@ -164,10 +170,10 @@ public class TaskBean implements Serializable {
             throw new InputValidationException("Cannot plan end date if planned start date is missing");
         }
         // Validate state and handle state transitions
-        if (taskUpdateDto.getState() != null) {
+
             TaskStateEnum newState = taskUpdateDto.getState();
             TaskStateEnum currentState = taskEntity.getState();
-
+        if (newState != currentState) {
             // Handle state transitions
             if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.IN_PROGRESS) {
                 taskEntity.setStartDate(Instant.now()); // Set startDate to current date
@@ -185,6 +191,8 @@ public class TaskBean implements Serializable {
                 }
             }
             taskEntity.setState(newState);
+            String content = "Task state updated from " + currentState + " to " + newState + ", by " + authUserEntity.getUsername();
+            projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
         }
         taskEntity.setDescription(taskUpdateDto.getDescription());
         taskEntity.setPlannedStartDate(taskUpdateDto.getPlannedStartDate());

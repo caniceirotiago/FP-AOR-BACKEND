@@ -1,7 +1,9 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.UserBean;
+import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.*;
+import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.exception.*;
@@ -23,6 +25,9 @@ import java.util.List;
 public class UserService {
     @EJB
     UserBean userBean;
+
+    @EJB
+    UserDao userDao;
 
     @POST
     @Path("/register")
@@ -161,16 +166,18 @@ public class UserService {
     @Path("/add/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
-        userBean.addUserToProject(username, projectId, false, false);
+    public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
+        userBean.addUserToProject(username, projectId, false, false, authUserEntity.getUsername());
     }
 
     @PUT
     @Path("/remove/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId) throws EntityNotFoundException {
-        userBean.removeUserFromProject(username, projectId);
+    public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException {
+        userBean.removeUserFromProject(username, projectId, securityContext);
     }
 
     @GET

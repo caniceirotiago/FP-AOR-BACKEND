@@ -9,7 +9,9 @@ import aor.fpbackend.filters.RequiresMethodPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
 
@@ -72,7 +74,7 @@ public class TaskService {
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.TASK_UPDATE)
-    public void updateTask(@Valid TaskUpdateDto taskUpdateDto) throws EntityNotFoundException, InputValidationException {
-        taskBean.updateTask(taskUpdateDto);
+    public void updateTask(@Valid TaskUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+        taskBean.updateTask(taskUpdateDto, securityContext);
     }
 }
