@@ -6,7 +6,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.InterestTypeEnum;
-import aor.fpbackend.exception.AttributeAlreadyExistsException;
+import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -34,7 +34,7 @@ public class InterestBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(InterestBean.class);
 
     @Transactional
-    public void addInterest(InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws AttributeAlreadyExistsException, InputValidationException {
+    public void addInterest(InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, InputValidationException {
         if (interestAddDto==null){
             throw new InputValidationException("Invalid Dto");
         }
@@ -54,7 +54,7 @@ public class InterestBean implements Serializable {
             userInterests.add(interestEntity);
             userEntity.setUserInterests(userInterests);
         } else {
-            throw new AttributeAlreadyExistsException("User already has the specified interest");
+            throw new DuplicatedAttributeException("User already has the specified interest");
         }
         // Add the user to the interest's users
         Set<UserEntity> interestUsers = interestEntity.getUsers();
@@ -65,7 +65,7 @@ public class InterestBean implements Serializable {
             interestUsers.add(userEntity);
             interestEntity.setUsers(interestUsers);
         } else {
-            throw new AttributeAlreadyExistsException("Interest already has the specified user");
+            throw new DuplicatedAttributeException("Interest already has the specified user");
         }
     }
 

@@ -1,7 +1,7 @@
 package aor.fpbackend.exception.mapper;
 
 import aor.fpbackend.dto.Error;
-import aor.fpbackend.exception.AttributeAlreadyExistsException;
+import aor.fpbackend.exception.DuplicatedAttributeException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -10,15 +10,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Provider
-public class AttributeAlreadyExistsExceptionMapper implements ExceptionMapper<AttributeAlreadyExistsException> {
-    private static final Logger LOGGER = LogManager.getLogger(AttributeAlreadyExistsException.class);
+public class DuplicatedAttributeExceptionMapper implements ExceptionMapper<DuplicatedAttributeException> {
+    private static final Logger LOGGER = LogManager.getLogger(DuplicatedAttributeException.class);
 
     @Override
-    public Response toResponse(AttributeAlreadyExistsException e) {
+    public Response toResponse(DuplicatedAttributeException e) {
         Error error = new Error(e.getMessage());
         LOGGER.warn("Attribute Already Exists: " + error.getErrorMessage());
         return Response
-                .status(Response.Status.FOUND)
+                .status(Response.Status.CONFLICT)
                 .entity(error)
                 .type(MediaType.APPLICATION_JSON)
                 .build();

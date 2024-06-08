@@ -121,6 +121,7 @@ public class EmailService {
             throw new RuntimeException("Failed to send invitation email", e);
         }
     }
+
     public void sendJoinRequisitionToManagersEmail(String toEmail, String username, String projectName, String acceptanceToken) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -139,19 +140,23 @@ public class EmailService {
             message.setFrom(new InternetAddress("antnestservice@gmail.com")); // Sender e-mail
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // Receiver e-mail
             message.setSubject(username + " asked to join to " + projectName + " project! "); // E-mail subject
-            String responseUrl = "http://localhost:3000/accept-project?token=" + acceptanceToken;
-            String confirmButton = "<html><body>"
+            String acceptUrl = "http://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=true";
+            String rejectUrl = "http://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=false";
+            String emailContent = "<html><body>"
                     + "<h1>Project Join Requisition</h1>"
-                    + "<p>The user: " + username + " asked to join the project: " + projectName + ". Please click the button below to accept or ignore this email:</p>"
+                    + "<p>The user: " + username + " asked to join the project: " + projectName + ". Please click one of the buttons below to accept or reject this request:</p>"
                     + "<table cellspacing=\"0\" cellpadding=\"0\"><tr><td>"
-                    + "<a href='" + responseUrl + "' style='background-color:#007bff;border:1px solid #007bff;border-radius:5px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;line-height:44px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;mso-hide:all;'>Accept the user</a>"
+                    + "<a href='" + acceptUrl + "' style='background-color:#007bff;border:1px solid #007bff;border-radius:5px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;line-height:44px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;mso-hide:all;'>Accept</a>"
+                    + "</td><td style='width:20px;'></td><td>"
+                    + "<a href='" + rejectUrl + "' style='background-color:#ff0000;border:1px solid #ff0000;border-radius:5px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;line-height:44px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;mso-hide:all;'>Reject</a>"
                     + "</td></tr></table>"
                     + "</body></html>";
-            message.setContent(confirmButton, "text/html; charset=utf-8");
+            message.setContent(emailContent, "text/html; charset=utf-8");
             Transport.send(message);
         } catch (MessagingException e) {
             LOGGER.error("Failed to send requisition email", e);
             throw new RuntimeException("Failed to send requisition email", e);
         }
     }
+
 }
