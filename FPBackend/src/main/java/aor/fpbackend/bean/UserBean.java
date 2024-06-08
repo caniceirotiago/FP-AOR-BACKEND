@@ -385,17 +385,7 @@ public class UserBean implements Serializable {
         if (userEntity.isPrivate() && !authUserDto.getUserId().equals(userEntity.getId())) {
             throw new ForbiddenAccessException("User is private");
         }
-        UserProfileDto userProfileDto = new UserProfileDto();
-        userProfileDto.setId(userEntity.getId());
-        userProfileDto.setEmail(userEntity.getEmail());
-        userProfileDto.setUsername(userEntity.getUsername());
-        userProfileDto.setFirstName(userEntity.getFirstName());
-        userProfileDto.setLastName(userEntity.getLastName());
-        userProfileDto.setPhoto(userEntity.getPhoto());
-        userProfileDto.setBiography(userEntity.getBiography());
-        userProfileDto.setLaboratoryId(userEntity.getLaboratory().getId());
-        userProfileDto.setPrivate(userEntity.isPrivate());
-        return userProfileDto;
+        return convertUserEntitytoUserProfileDto(userEntity);
     }
 
     public void updatePassword(PasswordUpdateDto passwordUpdateDto, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
@@ -518,26 +508,19 @@ public class UserBean implements Serializable {
         return userEntity;
     }
 
-//    public UserProfileDto convertUserEntitytoUserProfileDto(UserEntity userEntity) {
-//        UserProfileDto userRegisterDto = new UserProfileDto();
-//        UserProfileDto.setEmail(userEntity.getEmail());
-//        UserProfileDto.setUsername(userEntity.getUsername());
-//        UserProfileDto.setFirstName(userEntity.getFirstName());
-//        UserProfileDto.setLastName(userEntity.getLastName());
-//        UserProfileDto.setLaboratoryId(userEntity.getLaboratory().getId());
-//        return userRegisterDto;
-//    }
-//
-//    UserProfileDto userProfileDto = new UserProfileDto();
-//        userProfileDto.setId(userEntity.getId());
-//        userProfileDto.setEmail(userEntity.getEmail());
-//        userProfileDto.setUsername(userEntity.getUsername());
-//        userProfileDto.setFirstName(userEntity.getFirstName());
-//        userProfileDto.setLastName(userEntity.getLastName());
-//        userProfileDto.setPhoto(userEntity.getPhoto());
-//        userProfileDto.setBiography(userEntity.getBiography());
-//        userProfileDto.setLaboratoryId(userEntity.getLaboratory().getId());
-//        userProfileDto.setPrivate(userEntity.isPrivate());
+    public UserProfileDto convertUserEntitytoUserProfileDto(UserEntity userEntity) {
+        UserProfileDto userProfileDto = new UserProfileDto();
+        userProfileDto.setId(userEntity.getId());
+        userProfileDto.setEmail(userEntity.getEmail());
+        userProfileDto.setUsername(userEntity.getUsername());
+        userProfileDto.setFirstName(userEntity.getFirstName());
+        userProfileDto.setLastName(userEntity.getLastName());
+        userProfileDto.setPhoto(userEntity.getPhoto());
+        userProfileDto.setBiography(userEntity.getBiography());
+        userProfileDto.setLaboratoryId(userEntity.getLaboratory().getId());
+        userProfileDto.setPrivate(userEntity.isPrivate());
+        return userProfileDto;
+    }
 
     public UserBasicInfoDto convertUserEntitytoUserBasicInfoDto(UserEntity userEntity) {
         UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
