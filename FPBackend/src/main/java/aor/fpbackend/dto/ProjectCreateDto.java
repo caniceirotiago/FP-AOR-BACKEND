@@ -49,6 +49,9 @@ public class ProjectCreateDto implements Serializable {
     @XmlElement
     private Set<UsernameDto> users;
 
+    @XmlElement
+    private Set<AssetAddDto> assets;
+
 
     public ProjectCreateDto() {
     }
@@ -62,6 +65,7 @@ public class ProjectCreateDto implements Serializable {
         this.skills = new HashSet<>();
         this.keywords = new HashSet<>();
         this.users = new HashSet<>();
+        this.assets = new HashSet<>();
     }
 
     public String getName() {
@@ -126,5 +130,13 @@ public class ProjectCreateDto implements Serializable {
 
     public void setUsers(Set<UsernameDto> users) {
         this.users = users;
+    }
+
+    public Set<AssetAddDto> getAssets() {
+        return assets;
+    }
+
+    public void setAssets(Set<AssetAddDto> assets) {
+        this.assets = assets;
     }
 }

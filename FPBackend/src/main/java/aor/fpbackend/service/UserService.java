@@ -157,6 +157,8 @@ public class UserService {
         userBean.updateRole(updatedRole);
     }
 
+
+    //TODO verificar para que serve este método
     @GET
     @Path("/session/check")
     @Produces(MediaType.APPLICATION_JSON)

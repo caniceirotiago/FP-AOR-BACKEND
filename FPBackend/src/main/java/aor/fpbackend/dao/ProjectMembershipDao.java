@@ -26,9 +26,9 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
     @PersistenceContext
     private EntityManager em;
 
-    public ProjectMembershipEntity findProjectMembershipId(long id) {
+    public ProjectMembershipEntity findProjectMembershipById(long id) {
         try {
-            return (ProjectMembershipEntity) em.createNamedQuery("ProjectMembership.findProjectMembershipId")
+            return (ProjectMembershipEntity) em.createNamedQuery("ProjectMembership.findProjectMembershipById")
                     .setParameter("id", id)
                     .getSingleResult();
         } catch (NoResultException e) {

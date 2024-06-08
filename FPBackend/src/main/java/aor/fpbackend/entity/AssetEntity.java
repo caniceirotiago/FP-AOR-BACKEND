@@ -31,8 +31,8 @@ public class AssetEntity implements Serializable {
     @Column(name = "description", nullable = false, length = 2048)
     private String description;
 
-    @Column(name = "quantity", nullable = false)
-    private int quantity;
+    @Column(name = "stock_quantity", nullable = false)
+    private int stockQuantity;
 
     @Column(name = "part_number", nullable = false)
     private String partNumber;
@@ -51,11 +51,11 @@ public class AssetEntity implements Serializable {
 
     public AssetEntity() {}
 
-    public AssetEntity(String name, AssetTypeEnum type, String description, int quantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
+    public AssetEntity(String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
         this.name = name;
         this.type = type;
         this.description = description;
-        this.quantity = quantity;
+        this.stockQuantity = stockQuantity;
         this.partNumber = partNumber;
         this.manufacturer = manufacturer;
         this.manufacturerPhone = manufacturerPhone;
@@ -96,12 +96,12 @@ public class AssetEntity implements Serializable {
         this.description = description;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getStockQuantity() {
+        return stockQuantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setStockQuantity(int quantity) {
+        this.stockQuantity = quantity;
     }
 
     public String getPartNumber() {
@@ -154,7 +154,7 @@ public class AssetEntity implements Serializable {
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", description='" + description + '\'' +
-                ", quantity=" + quantity +
+                ", quantity=" + stockQuantity +
                 ", partNumber='" + partNumber + '\'' +
                 ", manufacturer='" + manufacturer + '\'' +
                 ", manufacturerPhone='" + manufacturerPhone + '\'' +
