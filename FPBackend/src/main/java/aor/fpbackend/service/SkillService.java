@@ -8,6 +8,7 @@ import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresMethodPermission;
+import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -89,7 +90,7 @@ public class SkillService {
     @PUT
     @Path("/remove/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.REMOVE_SKILL_PROJECT)
+    @RequiresProjectMemberPermission()
     public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException, InputValidationException {
         skillBean.removeSkillProject(skillRemoveProjectDto);
     }

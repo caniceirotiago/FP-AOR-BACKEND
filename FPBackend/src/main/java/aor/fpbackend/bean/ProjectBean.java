@@ -29,9 +29,16 @@ public class ProjectBean implements Serializable {
 
     @EJB
     ProjectDao projectDao;
-
     @EJB
     LaboratoryDao labDao;
+    @EJB
+    TaskDao taskDao;
+    @EJB
+    UserDao userDao;
+    @EJB
+    ProjectLogDao projectLogDao;
+    @EJB
+    ProjectMembershipDao projectMemberDao;
     @EJB
     UserBean userBean;
     @EJB
@@ -39,18 +46,11 @@ public class ProjectBean implements Serializable {
     @EJB
     KeywordBean keywordBean;
     @EJB
-    TaskDao taskDao;
-    @EJB
-    EmailService emailService;
-    @EJB
-    UserDao userDao;
-    @EJB
-    ProjectMembershipDao projectMemberDao;
+    AssetBean assetBean;
     @EJB
     LaboratoryBean laboratoryBean;
-
     @EJB
-    ProjectLogDao projectLogDao;
+    EmailService emailService;
 
 
     @Transactional
@@ -59,7 +59,7 @@ public class ProjectBean implements Serializable {
             throw new InputValidationException("Invalid Dto");
         }
         if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
-            throw new IllegalArgumentException("Conclusion date cannot be in the past");
+            throw new InputValidationException("Conclusion date cannot be in the past");
         }
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity user = userDao.findUserById(authUserDto.getUserId());
@@ -87,16 +87,18 @@ public class ProjectBean implements Serializable {
         projectDao.persist(projectEntity);
         // Define relations on the persisted Project
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
-        createProjectLog(projectEntity,user,LogTypeEnum.GENERAL_PROJECT_DATA, "Project " + projectEntity.getName() + " was created");
+        String content = "Project " + projectEntity.getName() + " was created by " + user.getUsername();
+        createProjectLog(projectEntity, user, LogTypeEnum.GENERAL_PROJECT_DATA, content);
         addRelationsToProject(projectCreateDto, persistedProject, user);
     }
 
     private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException {
-        // Define relations for project members (Users)
+        // Add creator to project
+
         userBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator.getUsername());
+        // Define relations for project members (Users)
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
-            // Add creator to project
             for (String username : usernames) {
                 userBean.addUserToProject(username, projectEntity.getId(), true, false, userCreator.getUsername());
             }
@@ -116,6 +118,23 @@ public class ProjectBean implements Serializable {
             for (KeywordAddDto keyword : keywords) {
                 String keywordName = keyword.getName();
                 keywordBean.addKeyword(keywordName, projectEntity.getId());
+            }
+        }
+        // Define relations for project Assets
+        if (projectCreateDto.getAssets() != null && !projectCreateDto.getAssets().isEmpty()) {
+            Set<AssetAddDto> assets = projectCreateDto.getAssets().stream().collect(Collectors.toSet());
+            for (AssetAddDto asset : assets) {
+                String assetName = asset.getName();
+                AssetTypeEnum assetType = asset.getType();
+                String assetDescription = asset.getDescription();
+                int assetStockQt = asset.getStockQuantity();
+                String assetPartNumber = asset.getPartNumber();
+                String assetManufacturer = asset.getManufacturer();
+                String assetManufacturerPhone = asset.getManufacturerPhone();
+                String assetObservations = asset.getObservations();
+                int assetUsedQuantity = asset.getUsedQuantity();
+                assetBean.addAsset(assetName, assetType, assetDescription, assetStockQt, assetPartNumber, assetManufacturer, assetManufacturerPhone, assetObservations,
+                        projectEntity.getId(), assetUsedQuantity);
             }
         }
         // Define default final Task

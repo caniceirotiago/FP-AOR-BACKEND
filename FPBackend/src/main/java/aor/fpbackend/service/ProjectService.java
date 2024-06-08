@@ -54,7 +54,7 @@ public class ProjectService {
     @GET
     @Path("/info/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.PROJECT_BY_ID)
+    @RequiresProjectMemberPermission()
     public ProjectGetDto getProjectDetails(@PathParam("projectId") long projectId) throws EntityNotFoundException {
         return projectBean.getProjectDetailsById(projectId);
     }

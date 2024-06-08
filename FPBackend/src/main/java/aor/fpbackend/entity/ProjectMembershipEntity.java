@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "project_membership")
 
-@NamedQuery(name = "ProjectMembership.findProjectMembershipId", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.id = :id")
+@NamedQuery(name = "ProjectMembership.findProjectMembershipById", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.id = :id")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipsByProject", query = "SELECT new aor.fpbackend.dto.ProjectMembershipDto(" +
         "p.id, u.id, pr.id, p.role, p.isAccepted, new aor.fpbackend.dto.UserBasicInfoDto(u.id, u.username, u.photo, u.role.id)) " +
         "FROM ProjectMembershipEntity p JOIN p.user u JOIN p.project pr WHERE pr.id = :projectId")

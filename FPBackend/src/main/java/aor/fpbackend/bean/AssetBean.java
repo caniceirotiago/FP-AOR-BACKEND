@@ -6,7 +6,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.AssetEntity;
 import aor.fpbackend.entity.ProjectAssetEntity;
 import aor.fpbackend.entity.ProjectEntity;
-import aor.fpbackend.entity.SkillEntity;
+import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -32,30 +32,19 @@ public class AssetBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(AssetBean.class);
 
     @Transactional
-    public void addAsset(AssetAddDto assetAddDto) throws EntityNotFoundException {
+    public void addAsset(String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer,
+                         String manufacturerPhone, String observations, long projectId, int usedQuantity) throws EntityNotFoundException {
         // Check if the asset already exists, creating it if necessary
-        AssetEntity assetEntity;
-        if (!assetDao.checkAssetExist(assetAddDto.getName())) {
-            assetEntity = new AssetEntity(assetAddDto.getName(), assetAddDto.getType(),
-                    assetAddDto.getDescription(), assetAddDto.getQuantity(),
-                    assetAddDto.getPartNumber(), assetAddDto.getManufacturer(),
-                    assetAddDto.getManufacturerPhone(), assetAddDto.getObservations());
+        AssetEntity assetEntity = assetDao.findAssetByName(name);
+        if (assetEntity == null) {
+            assetEntity = new AssetEntity(name, type, description, stockQuantity,
+                    partNumber, manufacturer, manufacturerPhone, observations);
             assetDao.persist(assetEntity);
-        } else {
-            assetEntity = assetDao.findAssetByName(assetAddDto.getName());
-        }
-        // Ensure the projectAssets set is initialized for the assetEntity
-        if (assetEntity.getProjectAssets() == null) {
-            assetEntity.setProjectAssets(new HashSet<>());
         }
         // Find the project by id
-        ProjectEntity projectEntity = projectDao.findProjectById(assetAddDto.getProjectId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
-        }
-        // Ensure the projectAssets set is initialized
-        if (projectEntity.getProjectAssetsForProject() == null) {
-            projectEntity.setProjectAssetsForProject(new HashSet<>());
         }
         // Check if the asset is already associated with the project
         for (ProjectAssetEntity existingProjectAsset : projectEntity.getProjectAssetsForProject()) {
@@ -67,7 +56,7 @@ public class AssetBean implements Serializable {
         ProjectAssetEntity projectAssetEntity = new ProjectAssetEntity();
         projectAssetEntity.setAsset(assetEntity);
         projectAssetEntity.setProject(projectEntity);
-        projectAssetEntity.setUsedQuantity(assetAddDto.getQuantity());
+        projectAssetEntity.setUsedQuantity(usedQuantity);
         // Add the ProjectAssetEntity to the project's projectAssets set
         projectEntity.getProjectAssetsForProject().add(projectAssetEntity);
         // Add the ProjectAssetEntity to the asset's projectAssets set
@@ -113,12 +102,11 @@ public class AssetBean implements Serializable {
                 break;
             }
         }
-        if (projectAssetToRemove != null) {
-            projectAssets.remove(projectAssetToRemove);
-            projectEntity.setProjectAssetsForProject(projectAssets);
-        } else {
+        if (projectAssetToRemove == null) {
             throw new IllegalStateException("Project does not have the specified asset");
         }
+        projectAssets.remove(projectAssetToRemove);
+        projectEntity.setProjectAssetsForProject(projectAssets);
         // Remove the ProjectAssetEntity from the asset's projectAssets set
         Set<ProjectAssetEntity> assetProjects = assetEntity.getProjectAssets();
         ProjectAssetEntity assetProjectToRemove = null;
@@ -128,12 +116,11 @@ public class AssetBean implements Serializable {
                 break;
             }
         }
-        if (assetProjectToRemove != null) {
-            assetProjects.remove(assetProjectToRemove);
-            assetEntity.setProjectAssets(assetProjects);
-        } else {
+        if (assetProjectToRemove == null) {
             throw new IllegalStateException("Asset does not have the specified project");
         }
+        assetProjects.remove(assetProjectToRemove);
+        assetEntity.setProjectAssets(assetProjects);
     }
 
     public AssetGetDto convertAssetEntityToAssetDto(AssetEntity assetEntity) {
@@ -142,7 +129,7 @@ public class AssetBean implements Serializable {
         assetGetDto.setName(assetEntity.getName());
         assetGetDto.setType(assetEntity.getType());
         assetGetDto.setDescription(assetEntity.getDescription());
-        assetGetDto.setQuantity(assetEntity.getQuantity());
+        assetGetDto.setQuantity(assetEntity.getStockQuantity());
         assetGetDto.setPartNumber(assetEntity.getPartNumber());
         assetGetDto.setManufacturer(assetEntity.getManufacturer());
         assetGetDto.setManufacturerPhone(assetEntity.getManufacturerPhone());

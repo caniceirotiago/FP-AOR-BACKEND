@@ -2,10 +2,7 @@ package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.AssetTypeEnum;
 import jakarta.persistence.Enumerated;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -29,7 +26,12 @@ public class AssetAddDto implements Serializable {
     private String description;
 
     @XmlElement
-    private int quantity;
+    @Min(value = 1, message = "quantity must be greater than 0")
+    private int stockQuantity;
+
+    @XmlElement
+    @Min(value = 0, message = "quantity must be greater than 0")
+    private int usedQuantity;
 
     @XmlElement
     private String partNumber;
@@ -44,17 +46,19 @@ public class AssetAddDto implements Serializable {
     private String observations;
 
     @XmlElement
+    @Min(value = 1, message = "ID must be greater than 0")
     private long projectId;
 
 
     public AssetAddDto() {
     }
 
-    public AssetAddDto(String name, AssetTypeEnum type, String description, int quantity, String partNumber, String manufacturer, String manufacturerPhone, String observations, long projectId) {
+    public AssetAddDto(String name, AssetTypeEnum type, String description, int stockQuantity, int usedQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations, long projectId) {
         this.name = name;
         this.type = type;
         this.description = description;
-        this.quantity = quantity;
+        this.stockQuantity = stockQuantity;
+        this.usedQuantity = usedQuantity;
         this.partNumber = partNumber;
         this.manufacturer = manufacturer;
         this.manufacturerPhone = manufacturerPhone;
@@ -86,12 +90,20 @@ public class AssetAddDto implements Serializable {
         this.description = description;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getStockQuantity() {
+        return stockQuantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public int getUsedQuantity() {
+        return usedQuantity;
+    }
+
+    public void setUsedQuantity(int usedQuantity) {
+        this.usedQuantity = usedQuantity;
     }
 
     public String getPartNumber() {
