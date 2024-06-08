@@ -77,18 +77,16 @@ public class MembershipBean implements Serializable {
         }
     }
 
-    // TODO fazer verificação se pedido já foi aceite (Testar no Postman)
-    public void confirmProjectInvite(String token, boolean approve, SecurityContext securityContext) throws EntityNotFoundException {
+    // TODO avaliar se queremos e como fazer para colocar nome do validador no Project Log
+    public void confirmProjectInvite(String token, boolean approve) throws EntityNotFoundException {
         ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
         if (membershipEntity == null) {
             throw new EntityNotFoundException("Project membership not found");
         }
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity approvalEntity = userDao.findUserById(authUserDto.getUserId());
         if (approve) {
             membershipEntity.setAccepted(true);
             membershipEntity.setAcceptanceToken(null);
-            String content = "User " + membershipEntity.getUser().getUsername() + "added to project: " + membershipEntity.getProject().getName() + " by " + approvalEntity.getUsername();
+            String content = "User " + membershipEntity.getUser().getUsername() + "added to project: " + membershipEntity.getProject().getName();
             projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
         } else {
             projectMemberDao.remove(membershipEntity);

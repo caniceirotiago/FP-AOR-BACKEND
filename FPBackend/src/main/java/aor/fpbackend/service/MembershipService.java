@@ -29,12 +29,13 @@ public class MembershipService {
         memberBean.askToJoinProject(projectAskJoinDto, securityContext);
     }
 
+    // TODO enviar valor do boleano para dizer se aceita ou rejeita
     @PUT
     @Path("/confirm/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void confirmProjectInvite(@QueryParam("token") String token, boolean approve, @Context SecurityContext securityContext) throws EntityNotFoundException {
-        memberBean.confirmProjectInvite(token, approve, securityContext);
+    public void confirmProjectInvite(@QueryParam("token") String token) throws EntityNotFoundException {
+        memberBean.confirmProjectInvite(token, true);
     }
 
 }
