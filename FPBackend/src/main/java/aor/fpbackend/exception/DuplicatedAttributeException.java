@@ -4,8 +4,8 @@ import jakarta.ejb.ApplicationException;
 
 
 @ApplicationException(rollback = true)
-public class AttributeAlreadyExistsException extends Exception {
-    public AttributeAlreadyExistsException(String message) {
+public class DuplicatedAttributeException extends Exception {
+    public DuplicatedAttributeException(String message) {
         super(message);
     }
 }

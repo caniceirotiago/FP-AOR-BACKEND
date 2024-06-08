@@ -54,7 +54,7 @@ public class ProjectBean implements Serializable {
 
 
     @Transactional
-    public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, AttributeAlreadyExistsException, InputValidationException, UserNotFoundException {
+    public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException {
         if (projectCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
@@ -90,7 +90,7 @@ public class ProjectBean implements Serializable {
         addRelationsToProject(projectCreateDto, persistedProject, user);
     }
 
-    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, AttributeAlreadyExistsException, UserNotFoundException, InputValidationException {
+    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException {
         // Define relations for project members (Users)
         userBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true);
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {

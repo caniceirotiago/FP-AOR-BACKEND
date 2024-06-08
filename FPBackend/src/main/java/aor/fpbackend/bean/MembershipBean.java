@@ -50,12 +50,25 @@ public class MembershipBean implements Serializable {
     ProjectBean projectBean;
     @EJB
     ProjectMembershipDao projectMemberDao;
+    @EJB
+    ConfigurationBean configurationBean;
 
-    // TODO verificar se já é membro
-    public void askToJoinProject(ProjectAskJoinDto projectAskJoinDto, SecurityContext securityContext) throws EntityNotFoundException {
+
+    public void askToJoinProject(long projectId, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-        ProjectEntity projectEntity = projectDao.findProjectById(projectAskJoinDto.getProjectId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        // Check if the current number of project members has reached the maximum limit
+        int maxProjectElements = configurationBean.getConfigValueByKey("maxProjectMembers");
+        if (projectEntity.getMembers().size() >= maxProjectElements) {
+            throw new IllegalStateException("Project member's limit is reached");
+        }
+        // Check if User is already a project member
+        for (ProjectMembershipEntity pm : projectEntity.getMembers()){
+            if (pm.getUser().getId()==userEntity.getId()){
+                throw new DuplicatedAttributeException("User is already member of the project");
+            }
+        }
         if (projectEntity != null && userEntity != null) {
             ProjectMembershipEntity projectMembershipEntity = new ProjectMembershipEntity();
             projectMembershipEntity.setProject(projectEntity);

@@ -1,14 +1,13 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.MembershipBean;
-import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
+import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectRolePermission;
 import jakarta.ejb.EJB;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -22,20 +21,19 @@ public class MembershipService {
     MembershipBean memberBean;
 
     @PUT
-    @Path("/ask/join")
+    @Path("/ask/join/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASK_TO_JOIN)
-    public void askToJoinProject(@Valid ProjectAskJoinDto projectAskJoinDto, @Context SecurityContext securityContext) throws EntityNotFoundException {
-        memberBean.askToJoinProject(projectAskJoinDto, securityContext);
+    public void askToJoinProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException {
+        memberBean.askToJoinProject(projectId, securityContext);
     }
 
-    // TODO enviar valor do boleano para dizer se aceita ou rejeita
     @PUT
     @Path("/confirm/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void confirmProjectInvite(@QueryParam("token") String token) throws EntityNotFoundException {
-        memberBean.confirmProjectInvite(token, true);
+    public void confirmProjectInvite(@QueryParam("token") String token, @QueryParam("approve") boolean approve) throws EntityNotFoundException {
+        memberBean.confirmProjectInvite(token, approve);
     }
 
 }
