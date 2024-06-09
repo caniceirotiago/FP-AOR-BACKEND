@@ -20,7 +20,7 @@ public class MembershipService {
     @EJB
     MembershipBean memberBean;
 
-    @PUT
+    @POST
     @Path("/ask/join/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASK_TO_JOIN)
@@ -32,8 +32,8 @@ public class MembershipService {
     @Path("/confirm/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void confirmProjectInvite(@QueryParam("token") String token, @QueryParam("approve") boolean approve, @QueryParam("approver") String approverUsername) throws EntityNotFoundException {
-        memberBean.confirmProjectInvite(token, approve, approverUsername);
+    public void confirmAskToJoinProjectInvite(@QueryParam("token") String token, @QueryParam("approve") boolean approve, @QueryParam("approver") String approverUsername) throws EntityNotFoundException {
+        memberBean.confirmAskToJoinProjectInvite(token, approve, approverUsername);
     }
 
 }

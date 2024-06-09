@@ -33,22 +33,15 @@ public class TaskCreateDto implements Serializable {
     @Min(value = 1, message = "ID must be greater than 0")
     private long responsibleId;
 
-    @XmlElement
-    @NotNull
-    @Min(value = 1, message = "ID must be greater than 0")
-    private long projectId;
-
     public TaskCreateDto() {
     }
 
-    public TaskCreateDto(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId,
-                         Set<UsernameDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, long projectId) {
+    public TaskCreateDto(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId) {
         this.title = title;
         this.description = description;
         this.plannedStartDate = plannedStartDate;
         this.plannedEndDate = plannedEndDate;
         this.responsibleId = responsibleId;
-        this.projectId = projectId;
     }
 
     public String getTitle() {
@@ -89,13 +82,5 @@ public class TaskCreateDto implements Serializable {
 
     public void setResponsibleId(long responsibleId) {
         this.responsibleId = responsibleId;
-    }
-
-    public long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(long projectId) {
-        this.projectId = projectId;
     }
 }

@@ -454,8 +454,10 @@ public class UserBean implements Serializable {
         // Add the user to the project's users
         projectEntity.getMembers().add(membershipEntity);
         if (!createHasAccepted) projectBean.sendInviteToUser(membershipEntity, userEntity, projectEntity);
-        String content = "User " + userEntity.getUsername() + ", was added to project: " + projectEntity.getName() + ", by " + authUsername;
-        projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
+        if (!userEntity.getUsername().equals(authUsername)) {
+            String content = "User " + userEntity.getUsername() + ", was added to project: " + projectEntity.getName() + ", by " + authUsername;
+            projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
+        }
     }
 
     @Transactional
