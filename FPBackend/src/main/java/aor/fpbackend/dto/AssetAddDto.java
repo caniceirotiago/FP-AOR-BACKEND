@@ -45,10 +45,15 @@ public class AssetAddDto implements Serializable {
     @XmlElement
     private String observations;
 
+    @XmlElement
+    @Min(value = 1, message = "ID must be greater than 0")
+    private long projectId;
+
+
     public AssetAddDto() {
     }
 
-    public AssetAddDto(String name, AssetTypeEnum type, String description, int stockQuantity, int usedQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
+    public AssetAddDto(String name, AssetTypeEnum type, String description, int stockQuantity, int usedQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations, long projectId) {
         this.name = name;
         this.type = type;
         this.description = description;
@@ -58,6 +63,7 @@ public class AssetAddDto implements Serializable {
         this.manufacturer = manufacturer;
         this.manufacturerPhone = manufacturerPhone;
         this.observations = observations;
+        this.projectId = projectId;
     }
 
     public String getName() {
@@ -132,6 +138,11 @@ public class AssetAddDto implements Serializable {
         this.observations = observations;
     }
 
+    public long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
+    }
 }
-
-

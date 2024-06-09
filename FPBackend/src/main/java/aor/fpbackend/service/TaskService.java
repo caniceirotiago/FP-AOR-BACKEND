@@ -48,14 +48,15 @@ public class TaskService {
     }
 
     @POST
-    @Path("/add/project/{projectId}")
+    @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void addTaskToProject(@PathParam("projectId") long projectId, @Valid TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
+    public void addTaskToProject(@Valid TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
         if (taskCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
-        taskBean.addTask(taskCreateDto.getTitle(), taskCreateDto.getDescription(), taskCreateDto.getPlannedStartDate(), taskCreateDto.getPlannedEndDate(), taskCreateDto.getResponsibleId(), projectId);
+        taskBean.addTask(taskCreateDto.getTitle(), taskCreateDto.getDescription(), taskCreateDto.getPlannedStartDate(),
+                taskCreateDto.getPlannedEndDate(), taskCreateDto.getResponsibleId(), taskCreateDto.getProjectId());
     }
 
     @PUT

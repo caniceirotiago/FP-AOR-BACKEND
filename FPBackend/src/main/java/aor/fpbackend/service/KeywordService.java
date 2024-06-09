@@ -24,12 +24,12 @@ public class KeywordService {
     KeywordBean keywordBean;
 
     @POST
-    @Path("/add/project/{projectId}")
+    @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_KEYWORD)
-    public void addKeyword(@PathParam("projectId") long projectId, @Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, InputValidationException {
+    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, InputValidationException {
         if (keywordAddDto != null) {
-            keywordBean.addKeyword(keywordAddDto.getName(), projectId);
+            keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
         } else {
             throw new InputValidationException("Invalid Dto");
         }
