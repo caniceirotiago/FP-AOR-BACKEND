@@ -18,11 +18,18 @@ public class KeywordAddDto implements Serializable {
     @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
     private String name;
 
+
+    @XmlElement
+    @Min(value = 1, message = "ID must be greater than 0")
+    private long projectId;
+
+
     public KeywordAddDto() {
     }
 
     public KeywordAddDto(String name, long projectId) {
         this.name = name;
+        this.projectId = projectId;
     }
 
     public String getName() {
@@ -33,5 +40,12 @@ public class KeywordAddDto implements Serializable {
         this.name = name;
     }
 
+    public long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
+    }
 }
 

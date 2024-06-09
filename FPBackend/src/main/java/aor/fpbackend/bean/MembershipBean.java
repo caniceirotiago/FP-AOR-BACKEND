@@ -64,8 +64,8 @@ public class MembershipBean implements Serializable {
             throw new IllegalStateException("Project member's limit is reached");
         }
         // Check if User is already a project member
-        for (ProjectMembershipEntity pm : projectEntity.getMembers()){
-            if (pm.getUser().getId()==userEntity.getId()){
+        for (ProjectMembershipEntity pm : projectEntity.getMembers()) {
+            if (pm.getUser().getId() == userEntity.getId()) {
                 throw new DuplicatedAttributeException("User is already member of the project");
             }
         }
@@ -98,10 +98,31 @@ public class MembershipBean implements Serializable {
         if (approve) {
             membershipEntity.setAccepted(true);
             membershipEntity.setAcceptanceToken(null);
-            String content = "User " + membershipEntity.getUser().getUsername() + ", added to project: " + membershipEntity.getProject().getName() + ", approved by " + approverUsername;
+            String content = "User " + membershipEntity.getUser().getUsername() + ", added to project by " + approverUsername;
             projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
         } else {
-            String content = "Application of user " + membershipEntity.getUser().getUsername() + ", to project: " + membershipEntity.getProject().getName() + ", rejected by " + approverUsername;
+            String content = "Application of user " + membershipEntity.getUser().getUsername() + ", to project, rejected by " + approverUsername;
+            projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
+            projectMemberDao.remove(membershipEntity);
+        }
+    }
+
+    public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
+        emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
+    }
+
+    public void acceptProjectInvite(String token, boolean approve) throws EntityNotFoundException {
+        ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
+        if (membershipEntity == null) {
+            throw new EntityNotFoundException("Project membership not found");
+        }
+        if (approve) {
+            membershipEntity.setAccepted(true);
+            membershipEntity.setAcceptanceToken(null);
+            String content = "User " + membershipEntity.getUser().getUsername() + ", accepted become project member";
+            projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
+        } else {
+            String content = "User " + membershipEntity.getUser().getUsername() + ", refused become project member";
             projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
             projectMemberDao.remove(membershipEntity);
         }

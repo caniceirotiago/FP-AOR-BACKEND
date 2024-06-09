@@ -229,11 +229,6 @@ public class ProjectBean implements Serializable {
         createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, projectApproveDto.getComment());
     }
 
-    //TODO Only Project Members can invite other users!
-    public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
-        emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
-    }
-
     public ProjectsPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
         List<ProjectEntity> projectEntities = projectDao.findFilteredProjects(page, pageSize, uriInfo);
         long totalProjects = projectDao.countFilteredProjects(uriInfo);
