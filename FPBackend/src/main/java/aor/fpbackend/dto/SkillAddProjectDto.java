@@ -19,7 +19,6 @@ public class SkillAddProjectDto implements Serializable {
 
     @XmlElement
     @Enumerated
-    @NotNull
     private SkillTypeEnum type;
 
     @XmlElement

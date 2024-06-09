@@ -22,7 +22,6 @@ public class InterestAddDto implements Serializable {
 
     @XmlElement
     @Enumerated
-    @NotNull
     private InterestTypeEnum type;
 
     public InterestAddDto() {
