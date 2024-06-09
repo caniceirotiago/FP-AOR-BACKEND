@@ -292,6 +292,8 @@ public class ProjectBean implements Serializable {
         if (laboratoryEntity == null) {
             throw new EntityNotFoundException("Laboratory not found with ID: " + projectUpdateDto.getLaboratoryId());
         }
+        // Save the original state of the project
+        ProjectEntity originalProject = copyProjectEntity(projectEntity);
         // Update fields
         projectEntity.setName(projectUpdateDto.getName());
         projectEntity.setDescription(projectUpdateDto.getDescription());
@@ -311,13 +313,52 @@ public class ProjectBean implements Serializable {
             } else {
                 if (newState == ProjectStateEnum.FINISHED || newState == ProjectStateEnum.CANCELLED) {
                     projectEntity.setState(newState);
+                    projectEntity.setFinalDate(Instant.now());
                 } else {
                     throw new InputValidationException("Invalid state transition: Project is approved");
                 }
             }
         }
-        // Create a Project Log
-        createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, "Project details updated");
+        // Compare old and new project states and create project logs
+        compareAndLogChanges(originalProject, projectEntity, userEntity);
+    }
+
+    private ProjectEntity copyProjectEntity(ProjectEntity projectEntity) {
+        ProjectEntity originalProject = new ProjectEntity();
+        originalProject.setName(projectEntity.getName());
+        originalProject.setDescription(projectEntity.getDescription());
+        originalProject.setMotivation(projectEntity.getMotivation());
+        originalProject.setConclusionDate(projectEntity.getConclusionDate());
+        originalProject.setLaboratory(projectEntity.getLaboratory());
+        originalProject.setState(projectEntity.getState());
+        return originalProject;
+    }
+
+    private void compareAndLogChanges(ProjectEntity oldProject, ProjectEntity newProject, UserEntity userEntity) {
+        if (!Objects.equals(oldProject.getName(), newProject.getName())) {
+            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Name", oldProject.getName(), newProject.getName());
+            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+        }
+        if (!Objects.equals(oldProject.getDescription(), newProject.getDescription())) {
+            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Description", oldProject.getDescription(), newProject.getDescription());
+            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+        }
+        if (!Objects.equals(oldProject.getMotivation(), newProject.getMotivation())) {
+            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Motivation", oldProject.getMotivation(), newProject.getMotivation());
+            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+        }
+        if (!Objects.equals(oldProject.getConclusionDate(), newProject.getConclusionDate())) {
+            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Conclusion Date", oldProject.getConclusionDate().toString(), newProject.getConclusionDate().toString());
+            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+        }
+        if (!Objects.equals(oldProject.getLaboratory().getId(), newProject.getLaboratory().getId())) {
+            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Laboratory", oldProject.getLaboratory().getLocation(), newProject.getLaboratory().getLocation());
+            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+        }
+        if (!Objects.equals(oldProject.getState(), newProject.getState())) {
+            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "State", oldProject.getState(), newProject.getState());
+            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+        }
     }
 
     // Create a Project Log
