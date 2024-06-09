@@ -5,6 +5,8 @@ import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.UnauthorizedAccessException;
+import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectRolePermission;
 import jakarta.ejb.EJB;
@@ -28,12 +30,10 @@ public class MembershipService {
         memberBean.askToJoinProject(projectId, securityContext);
     }
 
-    // TODO verificar se este filtro está a funcionar ou se está numa excepção
     @PUT
     @Path("/confirm/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void confirmAskToJoinProjectInvite(@QueryParam("token") String token, @QueryParam("approve") boolean approve, @QueryParam("approver") String approverUsername) throws EntityNotFoundException {
+    public void confirmAskToJoinProjectInvite(@QueryParam("token") String token, @QueryParam("approve") boolean approve, @QueryParam("approver") String approverUsername) throws EntityNotFoundException, UserNotFoundException, UnauthorizedAccessException {
         memberBean.confirmAskToJoinProjectInvite(token, approve, approverUsername);
     }
 
