@@ -50,6 +50,8 @@ public class ProjectBean implements Serializable {
     @EJB
     LaboratoryBean laboratoryBean;
     @EJB
+    TaskBean taskBean;
+    @EJB
     EmailService emailService;
 
 
@@ -138,12 +140,13 @@ public class ProjectBean implements Serializable {
             }
         }
         // Define default final Task
-        TaskEntity defaultTask = new TaskEntity("Final Presentation nº" + projectEntity.getId(), "Presentation of project: " + projectEntity.getName(),
-                Instant.now(), 1, TaskStateEnum.PLANNED, projectEntity, userCreator);
+        String title = "Final Presentation nº" + projectEntity.getId();
+        String description = "Presentation of project: " + projectEntity.getName();
+        TaskEntity defaultTask = new TaskEntity(title, description, Instant.now(), 1, TaskStateEnum.PLANNED, projectEntity, userCreator);
         taskDao.persist(defaultTask);
-        Set<TaskEntity> projectTasks = new HashSet<>();
+        Set<TaskEntity> projectTasks = projectEntity.getTasks();
         projectTasks.add(defaultTask);
-        projectEntity.setTasks(projectTasks);
+        userCreator.getResponsibleTasks().add(defaultTask);
     }
 
     public ArrayList<ProjectGetDto> getAllProjects() {

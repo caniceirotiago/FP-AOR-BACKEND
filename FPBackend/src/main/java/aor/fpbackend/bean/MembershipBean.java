@@ -90,7 +90,7 @@ public class MembershipBean implements Serializable {
         }
     }
 
-    public void confirmProjectInvite(String token, boolean approve, String approverUsername) throws EntityNotFoundException {
+    public void confirmAskToJoinProjectInvite(String token, boolean approve, String approverUsername) throws EntityNotFoundException {
         ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
         if (membershipEntity == null) {
             throw new EntityNotFoundException("Project membership not found");

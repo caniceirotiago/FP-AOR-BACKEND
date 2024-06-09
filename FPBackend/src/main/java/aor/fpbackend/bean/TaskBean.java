@@ -57,39 +57,36 @@ public class TaskBean implements Serializable {
     }
 
     @Transactional
-    public void addTask(TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
-        if (taskCreateDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void addTask( String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException {
         // Find the project by id
-        ProjectEntity projectEntity = projectDao.findProjectById(taskCreateDto.getProjectId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
-        UserEntity taskResponsible = userDao.findUserById(taskCreateDto.getResponsibleId());
+        UserEntity taskResponsible = userDao.findUserById(responsibleId);
         if (taskResponsible == null) {
             throw new EntityNotFoundException("User not found");
         }
         // Avoid duplicate titles
-        if (taskDao.checkTitleExist(taskCreateDto.getTitle())) {
+        if (taskDao.checkTitleExist(title)) {
             throw new InputValidationException("Duplicated title");
         }
         // Validate planned dates if both are present
-        if (taskCreateDto.getPlannedStartDate() != null && taskCreateDto.getPlannedEndDate() != null) {
-            if (taskCreateDto.getPlannedEndDate().isBefore(taskCreateDto.getPlannedStartDate())) {
+        if (plannedStartDate != null && plannedEndDate != null) {
+            if (plannedEndDate.isBefore(plannedStartDate)) {
                 throw new InputValidationException("Planned end date cannot be before planned start date");
             }
-        } else if (taskCreateDto.getPlannedStartDate() == null && taskCreateDto.getPlannedEndDate() != null) {
+        } else if (plannedStartDate == null && plannedEndDate != null) {
             // Planned end date is present but planned start date is missing
             throw new InputValidationException("Cannot plan end date if planned start date is missing");
         }
         // Create a new task entity
         TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setTitle(taskCreateDto.getTitle());
-        taskEntity.setDescription(taskCreateDto.getDescription());
-        taskEntity.setPlannedStartDate(taskCreateDto.getPlannedStartDate());
+        taskEntity.setTitle(title);
+        taskEntity.setDescription(description);
+        taskEntity.setPlannedStartDate(plannedStartDate);
         taskEntity.setCreationDate(Instant.now());
-        taskEntity.setPlannedEndDate(taskCreateDto.getPlannedEndDate());
+        taskEntity.setPlannedEndDate(plannedEndDate);
         taskEntity.setState(TaskStateEnum.PLANNED); // Default state
         // Set the responsible user for the task
         taskEntity.setResponsibleUser(taskResponsible);

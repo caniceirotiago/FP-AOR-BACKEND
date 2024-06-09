@@ -35,12 +35,12 @@ public class SkillService {
 
     // Add Skill to project's skills
     @POST
-    @Path("/add/project")
+    @Path("/add/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_SKILL_PROJECT)
-    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException, InputValidationException {
+    public void addSkill(@PathParam("projectId") long projectId, @Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException, InputValidationException {
         if (skillAddProjectDto != null) {
-            skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), skillAddProjectDto.getProjectId());
+            skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), projectId);
         } else{
             throw new InputValidationException("Invalid Dto");
         }

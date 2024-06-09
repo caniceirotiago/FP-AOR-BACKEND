@@ -20,14 +20,14 @@ public class AssetService {
 
 
     @POST
-    @Path("/add/project")
+    @Path("/add/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_ASSET)
-    public void createAsset(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException, InputValidationException {
+    public void createAsset(@PathParam("projectId") long projectId, @Valid AssetAddDto assetAddDto) throws EntityNotFoundException, InputValidationException {
         if (assetAddDto != null) {
             assetBean.addAsset(assetAddDto.getName(), assetAddDto.getType(), assetAddDto.getDescription(), assetAddDto.getStockQuantity(),
                     assetAddDto.getPartNumber(), assetAddDto.getManufacturer(), assetAddDto.getManufacturerPhone(),
-                    assetAddDto.getObservations(), assetAddDto.getProjectId(), assetAddDto.getUsedQuantity());
+                    assetAddDto.getObservations(), projectId, assetAddDto.getUsedQuantity());
         } else {
             throw new InputValidationException("Invalid Dto");
         }
