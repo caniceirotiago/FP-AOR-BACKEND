@@ -41,9 +41,11 @@ public class UserBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(UserBean.class);
 
     @EJB
-    UserDao userDao;
-    @EJB
     PassEncoder passEncoder;
+    @EJB
+    EmailService emailService;
+    @EJB
+    UserDao userDao;
     @EJB
     SessionDao sessionDao;
     @EJB
@@ -51,17 +53,17 @@ public class UserBean implements Serializable {
     @EJB
     LaboratoryDao labDao;
     @EJB
-    EmailService emailService;
-    @EJB
-    ConfigurationBean configurationBean;
-    @EJB
     ProjectDao projectDao;
     @EJB
     ProjectMembershipDao projectMemberDao;
     @EJB
+    ConfigurationBean configurationBean;
+    @EJB
     ProjectBean projectBean;
     @EJB
     UserBean userBean;
+    @EJB
+    MembershipBean memberBean;
 
 
     public void createDefaultUserIfNotExistent(String username, String photo, long roleId, long labId) throws DatabaseOperationException {
@@ -444,18 +446,22 @@ public class UserBean implements Serializable {
         membershipEntity.setProject(projectEntity);
         if (isTheCreator) {
             membershipEntity.setRole(ProjectRoleEnum.PROJECT_MANAGER);
-        } else membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
+        } else {
+            membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
+        }
         membershipEntity.setAccepted(createHasAccepted);
-        String acceptanceToken = userBean.generateNewToken();
-        membershipEntity.setAcceptanceToken(acceptanceToken);
+        if (!createHasAccepted) {
+            String acceptanceToken = userBean.generateNewToken();
+            membershipEntity.setAcceptanceToken(acceptanceToken);
+        }
         projectMemberDao.persist(membershipEntity);
         // Add the membership to the user's projects
         userEntity.getProjects().add(membershipEntity);
         // Add the user to the project's users
         projectEntity.getMembers().add(membershipEntity);
-        if (!createHasAccepted) projectBean.sendInviteToUser(membershipEntity, userEntity, projectEntity);
+        if (!createHasAccepted) memberBean.sendInviteToUser(membershipEntity, userEntity, projectEntity);
         if (!userEntity.getUsername().equals(authUsername)) {
-            String content = "User " + userEntity.getUsername() + ", was added to project: " + projectEntity.getName() + ", by " + authUsername;
+            String content = "User " + userEntity.getUsername() + ", was added to project, by " + authUsername;
             projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
         }
     }

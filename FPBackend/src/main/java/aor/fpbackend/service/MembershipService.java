@@ -28,12 +28,20 @@ public class MembershipService {
         memberBean.askToJoinProject(projectId, securityContext);
     }
 
+    // TODO verificar se este filtro está a funcionar ou se está numa excepção
     @PUT
     @Path("/confirm/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
     public void confirmAskToJoinProjectInvite(@QueryParam("token") String token, @QueryParam("approve") boolean approve, @QueryParam("approver") String approverUsername) throws EntityNotFoundException {
         memberBean.confirmAskToJoinProjectInvite(token, approve, approverUsername);
+    }
+
+    @PUT
+    @Path("/accept/project")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void acceptProjectInvite(@QueryParam("token") String token, @QueryParam("approve") boolean approve) throws EntityNotFoundException {
+        memberBean.acceptProjectInvite(token, approve);
     }
 
 }
