@@ -199,7 +199,7 @@ public class ProjectBean implements Serializable {
         return projectLogGetDtos;
     }
 
-    public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+    public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
         // Validate input DTO
         if (projectApproveDto == null) {
             throw new InputValidationException("Invalid DTO");
@@ -212,9 +212,6 @@ public class ProjectBean implements Serializable {
         // Retrieve the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-        if (userEntity == null) {
-            throw new UserNotFoundException("User with this Id not found");
-        }
         // Validate project state
         ProjectStateEnum currentState = projectEntity.getState();
         if (currentState != ProjectStateEnum.READY) {
@@ -244,10 +241,12 @@ public class ProjectBean implements Serializable {
         return new ProjectsPaginatedDto(projectGetDtos, totalProjects);
     }
 
-    public void updateProjectMembershipRole(long projectId, ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
+    public void updateProjectMembershipRole(long projectId, ProjectRoleUpdateDto projectRoleUpdateDto, SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
         if (projectRoleUpdateDto == null) {
             throw new InputValidationException("Invalid DTO");
         }
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectId(projectId, projectRoleUpdateDto.getUserId());
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         UserEntity userEntity = userDao.findUserById(projectRoleUpdateDto.getUserId());
@@ -261,8 +260,8 @@ public class ProjectBean implements Serializable {
         } else {
             throw new EntityNotFoundException("Project Membership not found");
         }
-        String content = "User " + userEntity.getUsername() + " updated project role to " + projectRoleUpdateDto.getNewRole();
-        createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
+        String content = "User " + userEntity.getUsername() + " has new project role: " + projectRoleUpdateDto.getNewRole();
+        createProjectLog(projectEntity, authUserEntity, LogTypeEnum.PROJECT_MEMBERS, content);
     }
 
     @Transactional

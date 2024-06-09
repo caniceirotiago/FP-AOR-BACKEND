@@ -86,7 +86,7 @@ public class ProjectService {
     @Path("/approve")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.PROJECT_APPROVE)
-    public void approveProject(@Valid ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+    public void approveProject(@Valid ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
         projectBean.approveProject(projectApproveDto, securityContext);
     }
 
@@ -94,8 +94,8 @@ public class ProjectService {
     @Path("/role/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void updateProjectRole(@PathParam("projectId") long projectId, @Valid ProjectRoleUpdateDto projectRoleUpdateDto) throws EntityNotFoundException, InputValidationException {
-        projectBean.updateProjectMembershipRole(projectId, projectRoleUpdateDto);
+    public void updateProjectRole(@PathParam("projectId") long projectId, @Valid ProjectRoleUpdateDto projectRoleUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+        projectBean.updateProjectMembershipRole(projectId, projectRoleUpdateDto, securityContext);
     }
 
     @PUT
