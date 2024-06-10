@@ -52,6 +52,8 @@ public class MembershipBean implements Serializable {
     ProjectMembershipDao projectMemberDao;
     @EJB
     ConfigurationBean configurationBean;
+    @EJB
+    UserBean userBean;
 
 
     public void askToJoinProject(long projectId, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException {
@@ -99,8 +101,7 @@ public class MembershipBean implements Serializable {
         if (approverEntity == null) {
             throw new UserNotFoundException("User not found");
         }
-        ProjectMembershipEntity approverMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectId(membershipEntity.getProject().getId(), approverEntity.getId());
-        if (approverMembershipEntity.getRole()!=ProjectRoleEnum.PROJECT_MANAGER){
+        if (projectMemberDao.isUserProjectManager(membershipEntity.getProject().getId(), approverEntity.getId())){
             throw new UnauthorizedAccessException("Approver is not a Project Manager");
         }
         if (approve) {
@@ -119,6 +120,53 @@ public class MembershipBean implements Serializable {
         emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
     }
 
+    @Transactional
+    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, String authUsername) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+        // Find the project by Id
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found");
+        }
+        // Find user by username
+        UserEntity userEntity = userDao.findUserByUsername(username);
+        if (userEntity == null) {
+            throw new EntityNotFoundException("User not found");
+        }
+        // Check if the current number of project members has reached the maximum limit
+        int maxProjectElements = configurationBean.getConfigValueByKey("maxProjectMembers");
+        if (projectEntity.getMembers().size() >= maxProjectElements) {
+            throw new IllegalStateException("Project member's limit is reached");
+        }
+        // Check if the user is already a member of the project
+        if (projectDao.isProjectMember(projectId, userEntity.getId())) {
+            throw new IllegalStateException("User is already a member of the project");
+        }
+        // Create a new ProjectMembershipEntity with the default role NORMAL_USER
+        ProjectMembershipEntity membershipEntity = new ProjectMembershipEntity();
+        membershipEntity.setUser(userEntity);
+        membershipEntity.setProject(projectEntity);
+        if (isTheCreator) {
+            membershipEntity.setRole(ProjectRoleEnum.PROJECT_MANAGER);
+        } else {
+            membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
+        }
+        membershipEntity.setAccepted(createHasAccepted);
+        if (!createHasAccepted) {
+            String acceptanceToken = userBean.generateNewToken();
+            membershipEntity.setAcceptanceToken(acceptanceToken);
+        }
+        projectMemberDao.persist(membershipEntity);
+        // Add the membership to the user's projects
+        userEntity.getProjects().add(membershipEntity);
+        // Add the user to the project's users
+        projectEntity.getMembers().add(membershipEntity);
+        if (!createHasAccepted) sendInviteToUser(membershipEntity, userEntity, projectEntity);
+        if (!userEntity.getUsername().equals(authUsername)) {
+            String content = "User " + userEntity.getUsername() + ", added to project by " + authUsername;
+            projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
+        }
+    }
+
     public void acceptProjectInvite(String token, boolean approve) throws EntityNotFoundException {
         ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
         if (membershipEntity == null) {
@@ -134,5 +182,40 @@ public class MembershipBean implements Serializable {
             projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
             projectMemberDao.remove(membershipEntity);
         }
+    }
+
+    @Transactional
+    public void removeUserFromProject(String username, long projectId, SecurityContext securityContext) throws EntityNotFoundException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
+        // Find the project by Id
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found");
+        }
+        // Find user by username
+        UserEntity userEntity = userDao.findUserByUsername(username);
+        if (userEntity == null) {
+            throw new EntityNotFoundException("User not found");
+        }
+        if (projectEntity.getCreatedBy().equals(userEntity)) {
+            throw new IllegalStateException("User is the creator of the project");
+        }
+        ProjectMembershipEntity userMembership = null;
+        // Check if the user is a member of the project
+        for (ProjectMembershipEntity membership : projectEntity.getMembers()) {
+            if (membership.getUser().equals(userEntity)) {
+                userMembership = membership;
+                break;
+            }
+        }
+        // Remove the membership from the user's projects
+        if (userMembership != null) {
+            projectMemberDao.remove(userMembership);
+        } else {
+            throw new IllegalStateException("Project does not have the specified user");
+        }
+        String content = "User " + userEntity.getUsername() + ", was removed from project " + projectEntity.getName() + ", by " + authUserEntity.getUsername();
+        projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
     }
 }
