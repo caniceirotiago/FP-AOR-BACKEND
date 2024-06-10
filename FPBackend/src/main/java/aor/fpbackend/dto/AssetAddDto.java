@@ -20,7 +20,7 @@ public class AssetAddDto implements Serializable {
 
     @XmlElement
     @NotNull
-    @Min(value = 0, message = "quantity must be greater than 0")
+    @Min(value = 1, message = "quantity must be greater than 0")
     private int usedQuantity;
 
     @XmlElement

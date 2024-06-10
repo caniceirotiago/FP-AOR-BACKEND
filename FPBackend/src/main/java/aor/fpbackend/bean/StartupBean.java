@@ -225,5 +225,7 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.USERS_BY_PROJECT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSET_ENUMS);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASSET_ENUMS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.CREATE_ASSET);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.CREATE_ASSET);
     }
 }
