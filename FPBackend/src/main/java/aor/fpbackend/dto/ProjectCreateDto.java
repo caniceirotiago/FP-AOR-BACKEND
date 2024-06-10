@@ -33,6 +33,7 @@ public class ProjectCreateDto implements Serializable {
     private String motivation;
 
     @XmlElement
+    @NotNull (message = "Conclusion date cannot be empty")
     private Instant conclusionDate;
 
     @XmlElement

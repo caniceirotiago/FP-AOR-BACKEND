@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -142,11 +143,9 @@ public class ProjectBean implements Serializable {
         // Define default final Task
         String title = "Final Presentation nº" + projectEntity.getId();
         String description = "Presentation of project: " + projectEntity.getName();
-        TaskEntity defaultTask = new TaskEntity(title, description, Instant.now(), 1, TaskStateEnum.PLANNED, projectEntity, userCreator);
-        taskDao.persist(defaultTask);
-        Set<TaskEntity> projectTasks = projectEntity.getTasks();
-        projectTasks.add(defaultTask);
-        userCreator.getResponsibleTasks().add(defaultTask);
+        Instant plannedEndDate = projectEntity.getConclusionDate();
+        Instant plannedStartDate = plannedEndDate.minus(1, ChronoUnit.DAYS);
+        taskBean.addTask(title, description, plannedStartDate, plannedEndDate, userCreator.getId(), projectEntity.getId());
     }
 
     public ArrayList<ProjectGetDto> getAllProjects() {
