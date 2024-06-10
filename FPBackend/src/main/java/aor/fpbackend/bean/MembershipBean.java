@@ -99,9 +99,9 @@ public class MembershipBean implements Serializable {
         if (approverEntity == null) {
             throw new UserNotFoundException("User not found");
         }
-        ProjectMembershipEntity approverMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectId(membershipEntity.getId(), approverEntity.getId());
+        ProjectMembershipEntity approverMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectId(membershipEntity.getProject().getId(), approverEntity.getId());
         if (approverMembershipEntity.getRole()!=ProjectRoleEnum.PROJECT_MANAGER){
-            throw new UnauthorizedAccessException("Approver in not a Project Manager");
+            throw new UnauthorizedAccessException("Approver is not a Project Manager");
         }
         if (approve) {
             membershipEntity.setAccepted(true);
