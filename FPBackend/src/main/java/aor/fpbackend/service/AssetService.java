@@ -5,6 +5,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresMethodPermission;
@@ -22,17 +23,22 @@ public class AssetService {
 
 
     @POST
+    @Path("/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.CREATE_ASSET)
+    public void createAsset(@Valid AssetCreateDto assetCreateDto) throws EntityNotFoundException, InputValidationException, DuplicatedAttributeException {
+        assetBean.createAsset(assetCreateDto);
+    }
+
+    @POST
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_ASSET)
-    public void createAsset(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException, InputValidationException {
-        if (assetAddDto != null) {
-            assetBean.addAsset(assetAddDto.getName(), assetAddDto.getType(), assetAddDto.getDescription(), assetAddDto.getStockQuantity(),
-                    assetAddDto.getPartNumber(), assetAddDto.getManufacturer(), assetAddDto.getManufacturerPhone(),
-                    assetAddDto.getObservations(), assetAddDto.getProjectId(), assetAddDto.getUsedQuantity());
-        } else {
+    public void addAssetToProject(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException, InputValidationException {
+        if (assetAddDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
+        assetBean.addAssetToProject(assetAddDto.getName(), assetAddDto.getProjectId(), assetAddDto.getUsedQuantity());
     }
 
     @GET

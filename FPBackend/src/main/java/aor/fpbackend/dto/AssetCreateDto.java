@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class AssetAddDto implements Serializable {
+public class AssetCreateDto implements Serializable {
 
     @XmlElement
     @NotBlank
@@ -20,50 +20,45 @@ public class AssetAddDto implements Serializable {
 
     @XmlElement
     @Enumerated
+    @NotNull
     private AssetTypeEnum type;
 
     @XmlElement
+    @NotNull
     private String description;
 
     @XmlElement
+    @NotNull
     @Min(value = 1, message = "quantity must be greater than 0")
     private int stockQuantity;
 
     @XmlElement
-    @Min(value = 0, message = "quantity must be greater than 0")
-    private int usedQuantity;
-
-    @XmlElement
+    @NotNull
     private String partNumber;
 
     @XmlElement
+    @NotNull
     private String manufacturer;
 
     @XmlElement
+    @NotNull
     private String manufacturerPhone;
 
     @XmlElement
     private String observations;
 
-    @XmlElement
-    @Min(value = 1, message = "ID must be greater than 0")
-    private long projectId;
-
-
-    public AssetAddDto() {
+    public AssetCreateDto() {
     }
 
-    public AssetAddDto(String name, AssetTypeEnum type, String description, int stockQuantity, int usedQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations, long projectId) {
+    public AssetCreateDto(String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
         this.name = name;
         this.type = type;
         this.description = description;
         this.stockQuantity = stockQuantity;
-        this.usedQuantity = usedQuantity;
         this.partNumber = partNumber;
         this.manufacturer = manufacturer;
         this.manufacturerPhone = manufacturerPhone;
         this.observations = observations;
-        this.projectId = projectId;
     }
 
     public String getName() {
@@ -98,14 +93,6 @@ public class AssetAddDto implements Serializable {
         this.stockQuantity = stockQuantity;
     }
 
-    public int getUsedQuantity() {
-        return usedQuantity;
-    }
-
-    public void setUsedQuantity(int usedQuantity) {
-        this.usedQuantity = usedQuantity;
-    }
-
     public String getPartNumber() {
         return partNumber;
     }
@@ -136,13 +123,5 @@ public class AssetAddDto implements Serializable {
 
     public void setObservations(String observations) {
         this.observations = observations;
-    }
-
-    public long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(long projectId) {
-        this.projectId = projectId;
     }
 }

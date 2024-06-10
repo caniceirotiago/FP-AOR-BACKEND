@@ -1,6 +1,7 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.AssetDao;
+import aor.fpbackend.dao.ProjectAssetDao;
 import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.AssetEntity;
@@ -8,7 +9,9 @@ import aor.fpbackend.entity.ProjectAssetEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -28,19 +31,32 @@ public class AssetBean implements Serializable {
     AssetDao assetDao;
     @EJB
     ProjectDao projectDao;
+    @EJB
+    ProjectAssetDao projectAssetDao;
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LogManager.getLogger(AssetBean.class);
 
+
+    public void createAsset(AssetCreateDto assetCreateDto) throws EntityNotFoundException, InputValidationException, DuplicatedAttributeException {
+        if (assetCreateDto == null) {
+            throw new InputValidationException("Invalid Dto");
+        }
+        // Check if the asset already exists to avoid duplicate entries
+        if (assetDao.checkAssetExist(assetCreateDto.getName())) {
+            throw new DuplicatedAttributeException("Asset already exists");
+        }
+        AssetEntity assetEntity = new AssetEntity(assetCreateDto.getName(), assetCreateDto.getType(), assetCreateDto.getDescription(), assetCreateDto.getStockQuantity(),
+                assetCreateDto.getPartNumber(), assetCreateDto.getManufacturer(), assetCreateDto.getManufacturerPhone(), assetCreateDto.getObservations());
+        assetDao.persist(assetEntity);
+    }
+
     @Transactional
-    public void addAsset(String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer,
-                         String manufacturerPhone, String observations, long projectId, int usedQuantity) throws EntityNotFoundException {
-        // Check if the asset already exists, creating it if necessary
+    public void addAssetToProject(String name, long projectId, int usedQuantity) throws EntityNotFoundException {
+        // Find the Asset entity by name
         AssetEntity assetEntity = assetDao.findAssetByName(name);
         if (assetEntity == null) {
-            assetEntity = new AssetEntity(name, type, description, stockQuantity,
-                    partNumber, manufacturer, manufacturerPhone, observations);
-            assetDao.persist(assetEntity);
+            throw new EntityNotFoundException("Asset not found");
         }
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
@@ -58,6 +74,7 @@ public class AssetBean implements Serializable {
         projectAssetEntity.setAsset(assetEntity);
         projectAssetEntity.setProject(projectEntity);
         projectAssetEntity.setUsedQuantity(usedQuantity);
+        projectAssetDao.persist(projectAssetEntity);
         // Add the ProjectAssetEntity to the project's projectAssets set
         projectEntity.getProjectAssetsForProject().add(projectAssetEntity);
         // Add the ProjectAssetEntity to the asset's projectAssets set
