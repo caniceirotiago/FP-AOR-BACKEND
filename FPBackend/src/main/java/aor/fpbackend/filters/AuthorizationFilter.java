@@ -112,8 +112,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 || path.contains("/password/reset")
                 || path.contains("/labs")
                 || path.contains("/projects/all")
-                || path.contains("/info/project-states")
-                || path.contains("/info/project-roles")
+                || path.contains("/info/project/states")
+                || path.contains("/info/project/roles")
                 || path.contains("/enum/roles") //TODO Avaliar que métodos são necessários para user não autenticado
                 || path.contains("/enum/states") //TODO Avaliar que métodos são necessários para user não autenticado
                 || path.contains("/configurations/all"); //TODO terá de sair daqui quando houver permissões específicas
