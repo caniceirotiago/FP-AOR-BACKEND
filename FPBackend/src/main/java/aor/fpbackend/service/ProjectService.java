@@ -61,7 +61,7 @@ public class ProjectService {
     @GET
     @Path("/enum/states")
     @Produces(MediaType.APPLICATION_JSON)
-
+    @RequiresMethodPermission(MethodEnum.PROJECT_ENUMS)
     public List<ProjectStateEnum> getProjectStates() {
         return projectBean.getEnumListProjectStates();
     }

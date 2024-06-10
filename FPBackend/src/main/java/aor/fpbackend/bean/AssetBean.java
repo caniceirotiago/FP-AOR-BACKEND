@@ -7,6 +7,7 @@ import aor.fpbackend.entity.AssetEntity;
 import aor.fpbackend.entity.ProjectAssetEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.enums.AssetTypeEnum;
+import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -79,6 +80,14 @@ public class AssetBean implements Serializable {
         String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
         List<AssetEntity> assetEntities = assetDao.getAssetsByFirstLetter(lowerCaseFirstLetter);
         return convertAssetEntityListToAssetDtoList(assetEntities);
+    }
+
+    public List<AssetTypeEnum> getEnumListAssetTypes() {
+        List<AssetTypeEnum> assetTypeEnums = new ArrayList<>();
+        for (AssetTypeEnum assetTypeEnum : AssetTypeEnum.values()) {
+            assetTypeEnums.add(assetTypeEnum);
+        }
+        return assetTypeEnums;
     }
 
     @Transactional

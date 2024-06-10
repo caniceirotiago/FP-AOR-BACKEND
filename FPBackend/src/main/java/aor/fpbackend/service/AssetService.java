@@ -2,7 +2,9 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.AssetBean;
 import aor.fpbackend.dto.*;
+import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresMethodPermission;
@@ -55,6 +57,14 @@ public class AssetService {
     @RequiresMethodPermission(MethodEnum.ASSETS_FIRST_LETTER)
     public List<AssetGetDto> getAssetsFirstLetter(@QueryParam("value") String firstLetter) {
         return assetBean.getAssetsByFirstLetter(firstLetter);
+    }
+
+    @GET
+    @Path("/enum/types")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.ASSET_ENUMS)
+    public List<AssetTypeEnum> getAssetTypes() {
+        return assetBean.getEnumListAssetTypes();
     }
 
     @PUT
