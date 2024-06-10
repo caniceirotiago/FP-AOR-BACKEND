@@ -130,16 +130,8 @@ public class ProjectBean implements Serializable {
             Set<AssetAddDto> assets = projectCreateDto.getAssets().stream().collect(Collectors.toSet());
             for (AssetAddDto asset : assets) {
                 String assetName = asset.getName();
-                AssetTypeEnum assetType = asset.getType();
-                String assetDescription = asset.getDescription();
-                int assetStockQt = asset.getStockQuantity();
-                String assetPartNumber = asset.getPartNumber();
-                String assetManufacturer = asset.getManufacturer();
-                String assetManufacturerPhone = asset.getManufacturerPhone();
-                String assetObservations = asset.getObservations();
                 int assetUsedQuantity = asset.getUsedQuantity();
-                assetBean.addAsset(assetName, assetType, assetDescription, assetStockQt, assetPartNumber, assetManufacturer, assetManufacturerPhone, assetObservations,
-                        projectEntity.getId(), assetUsedQuantity);
+                assetBean.addAssetToProject(assetName, projectEntity.getId(), assetUsedQuantity);
             }
         }
         // Define default final Task

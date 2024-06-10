@@ -125,6 +125,7 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_PROJECTS, "get all projects", MethodEnum.ALL_PROJECTS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_BY_ID, "get project by projectId", MethodEnum.PROJECT_BY_ID.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ADD_ASSET, "add asset to project's list", MethodEnum.ADD_ASSET.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.CREATE_ASSET, "create a new asset entity", MethodEnum.CREATE_ASSET.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_ASSET, "remove asset from project's list", MethodEnum.REMOVE_ASSET.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_ASSETS, "get all assets", MethodEnum.ALL_ASSETS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ASSETS_FIRST_LETTER, "get assets by first letter", MethodEnum.ASSETS_FIRST_LETTER.getValue());
@@ -141,6 +142,7 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_APPROVE, "approve a project in READY state", MethodEnum.PROJECT_APPROVE.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ASK_TO_JOIN, "ask to join a project", MethodEnum.ASK_TO_JOIN.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.USERS_BY_PROJECT, "get all users by project", MethodEnum.USERS_BY_PROJECT.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ASSET_ENUMS, "retrieve all asset enum elements", MethodEnum.ASSET_ENUMS.getValue());
     }
 
     @Transactional
@@ -221,5 +223,9 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASK_TO_JOIN);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.USERS_BY_PROJECT);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.USERS_BY_PROJECT);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSET_ENUMS);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASSET_ENUMS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.CREATE_ASSET);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.CREATE_ASSET);
     }
 }

@@ -2,10 +2,14 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.AssetBean;
 import aor.fpbackend.dto.*;
+import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresMethodPermission;
+import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -20,17 +24,22 @@ public class AssetService {
 
 
     @POST
+    @Path("/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.CREATE_ASSET)
+    public void createAsset(@Valid AssetCreateDto assetCreateDto) throws EntityNotFoundException, InputValidationException, DuplicatedAttributeException {
+        assetBean.createAsset(assetCreateDto);
+    }
+
+    @POST
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ADD_ASSET)
-    public void createAsset(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException, InputValidationException {
-        if (assetAddDto != null) {
-            assetBean.addAsset(assetAddDto.getName(), assetAddDto.getType(), assetAddDto.getDescription(), assetAddDto.getStockQuantity(),
-                    assetAddDto.getPartNumber(), assetAddDto.getManufacturer(), assetAddDto.getManufacturerPhone(),
-                    assetAddDto.getObservations(), assetAddDto.getProjectId(), assetAddDto.getUsedQuantity());
-        } else {
+    @RequiresProjectMemberPermission()
+    public void addAssetToProject(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException, InputValidationException {
+        if (assetAddDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
+        assetBean.addAssetToProject(assetAddDto.getName(), assetAddDto.getProjectId(), assetAddDto.getUsedQuantity());
     }
 
     @GET
@@ -57,10 +66,18 @@ public class AssetService {
         return assetBean.getAssetsByFirstLetter(firstLetter);
     }
 
+    @GET
+    @Path("/enum/types")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.ASSET_ENUMS)
+    public List<AssetTypeEnum> getAssetTypes() {
+        return assetBean.getEnumListAssetTypes();
+    }
+
     @PUT
     @Path("/remove/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.REMOVE_ASSET)
+    @RequiresProjectMemberPermission()
     public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException {
         assetBean.removeAsset(assetRemoveDto);
     }

@@ -39,7 +39,9 @@ public enum MethodEnum {
     TASK_UPDATE(36L),
     PROJECT_APPROVE(37L),
     ASK_TO_JOIN(38L),
-    USERS_BY_PROJECT(39L);
+    USERS_BY_PROJECT(39L),
+    ASSET_ENUMS(40L),
+    CREATE_ASSET(41L);
 
     private final long value;
 
