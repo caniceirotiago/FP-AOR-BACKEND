@@ -53,6 +53,8 @@ public class ProjectBean implements Serializable {
     @EJB
     TaskBean taskBean;
     @EJB
+    MembershipBean memberBean;
+    @EJB
     EmailService emailService;
 
 
@@ -98,12 +100,12 @@ public class ProjectBean implements Serializable {
     private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException {
         // Add creator to project
 
-        userBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator.getUsername());
+        memberBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator.getUsername());
         // Define relations for project members (Users)
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
             for (String username : usernames) {
-                userBean.addUserToProject(username, projectEntity.getId(), true, false, userCreator.getUsername());
+                memberBean.addUserToProject(username, projectEntity.getId(), true, false, userCreator.getUsername());
             }
         }
         // Define relations for project Skills
@@ -198,7 +200,7 @@ public class ProjectBean implements Serializable {
         return projectLogGetDtos;
     }
 
-    public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+    public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UnauthorizedAccessException {
         // Validate input DTO
         if (projectApproveDto == null) {
             throw new InputValidationException("Invalid DTO");
@@ -211,6 +213,9 @@ public class ProjectBean implements Serializable {
         // Retrieve the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        if (projectDao.isProjectMember(projectEntity.getId(), userEntity.getId())){
+            throw new UnauthorizedAccessException("Project member cannot approve own project");
+        }
         // Validate project state
         ProjectStateEnum currentState = projectEntity.getState();
         if (currentState != ProjectStateEnum.READY) {

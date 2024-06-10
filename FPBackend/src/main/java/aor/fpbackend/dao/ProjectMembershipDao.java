@@ -57,6 +57,19 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
         }
     }
 
+    public boolean isUserProjectManager(long projectId, long userId) {
+        try {
+            em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserIdAndRole", ProjectMembershipEntity.class)
+                    .setParameter("projectId", projectId)
+                    .setParameter("userId", userId)
+                    .setParameter("role", "PROJECT_MANAGER")
+                    .getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
     public List<UserEntity> findProjectManagers(long projectId) {
         return em.createNamedQuery("ProjectMembership.findProjectManagers")
                 .setParameter("projectId", projectId)

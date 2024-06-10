@@ -86,7 +86,7 @@ public class ProjectService {
     @Path("/approve")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.PROJECT_APPROVE)
-    public void approveProject(@Valid ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+    public void approveProject(@Valid ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UnauthorizedAccessException {
         projectBean.approveProject(projectApproveDto, securityContext);
     }
 

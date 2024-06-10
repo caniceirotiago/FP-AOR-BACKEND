@@ -26,9 +26,6 @@ public class UserService {
     @EJB
     UserBean userBean;
 
-    @EJB
-    UserDao userDao;
-
     @POST
     @Path("/register")
     @Produces(MediaType.APPLICATION_JSON)
@@ -157,30 +154,10 @@ public class UserService {
         userBean.updateRole(updatedRole);
     }
 
-
-    //TODO verificar para que serve este método
     @GET
     @Path("/session/check")
     @Produces(MediaType.APPLICATION_JSON)
     public void checkSession() {}
-
-    @POST
-    @Path("/add/{username}/{projectId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
-        userBean.addUserToProject(username, projectId, false, false, authUserEntity.getUsername());
-    }
-
-    @PUT
-    @Path("/remove/{username}/{projectId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException {
-        userBean.removeUserFromProject(username, projectId, securityContext);
-    }
 
     @GET
     @Path("/project/{projectId}")
