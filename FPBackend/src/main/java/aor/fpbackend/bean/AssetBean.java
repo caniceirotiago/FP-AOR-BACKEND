@@ -44,7 +44,7 @@ public class AssetBean implements Serializable {
         }
         // Check if the asset already exists to avoid duplicate entries
         if (assetDao.checkAssetExist(assetCreateDto.getName())) {
-            throw new DuplicatedAttributeException("Asset already exists");
+            throw new DuplicatedAttributeException("Asset name already exists");
         }
         AssetEntity assetEntity = new AssetEntity(assetCreateDto.getName(), assetCreateDto.getType(), assetCreateDto.getDescription(), assetCreateDto.getStockQuantity(),
                 assetCreateDto.getPartNumber(), assetCreateDto.getManufacturer(), assetCreateDto.getManufacturerPhone(), assetCreateDto.getObservations());
