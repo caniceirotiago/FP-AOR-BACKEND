@@ -6,22 +6,17 @@ import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.AssetTypeEnum;
-import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -183,7 +178,7 @@ public class AssetBean implements Serializable {
         assetGetDto.setName(assetEntity.getName());
         assetGetDto.setType(assetEntity.getType());
         assetGetDto.setDescription(assetEntity.getDescription());
-        assetGetDto.setQuantity(assetEntity.getStockQuantity());
+        assetGetDto.setStockQuantity(assetEntity.getStockQuantity());
         assetGetDto.setPartNumber(assetEntity.getPartNumber());
         assetGetDto.setManufacturer(assetEntity.getManufacturer());
         assetGetDto.setManufacturerPhone(assetEntity.getManufacturerPhone());

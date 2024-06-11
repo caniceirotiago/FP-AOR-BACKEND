@@ -22,7 +22,7 @@ public class AssetGetDto implements Serializable {
     private String description;
 
     @XmlElement
-    private int quantity;
+    private int stockQuantity;
 
     @XmlElement
     private String partNumber;
@@ -40,12 +40,12 @@ public class AssetGetDto implements Serializable {
     public AssetGetDto() {
     }
 
-    public AssetGetDto(long id, String name, AssetTypeEnum type, String description, int quantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
+    public AssetGetDto(long id, String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.description = description;
-        this.quantity = quantity;
+        this.stockQuantity = stockQuantity;
         this.partNumber = partNumber;
         this.manufacturer = manufacturer;
         this.manufacturerPhone = manufacturerPhone;
@@ -84,12 +84,12 @@ public class AssetGetDto implements Serializable {
         this.description = description;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getStockQuantity() {
+        return stockQuantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 
     public String getPartNumber() {
