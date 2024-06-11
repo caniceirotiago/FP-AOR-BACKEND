@@ -10,6 +10,7 @@ import java.util.Set;
 @Table(name = "asset")
 
 @NamedQuery(name = "Asset.countAssetByName", query = "SELECT COUNT(a) FROM AssetEntity a WHERE LOWER(a.name) = LOWER(:name)")
+@NamedQuery(name = "Asset.countAssetByPartNumber", query = "SELECT COUNT(a) FROM AssetEntity a WHERE LOWER(a.partNumber) = LOWER(:partNumber)")
 @NamedQuery(name = "Asset.findAssetByName", query = "SELECT a FROM AssetEntity a WHERE LOWER(a.name) = LOWER(:name)")
 @NamedQuery(name = "Asset.findAssetById", query = "SELECT a FROM AssetEntity a WHERE a.id = :assetId")
 

@@ -60,11 +60,6 @@ public class StartupBean implements Serializable {
 
         // Define permissions
         addPermissions();
-
-        // Create a test project where the test user is a manager
-
-        // Create a test task in the test project
-
     }
 
     @Transactional
@@ -145,6 +140,7 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ASSET_ENUMS, "retrieve all asset enum elements", MethodEnum.ASSET_ENUMS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.INTEREST_ENUMS, "retrieve all interest enum elements", MethodEnum.INTEREST_ENUMS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.SKILL_ENUMS, "retrieve all skill enum elements", MethodEnum.SKILL_ENUMS.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ASSET_UPDATE, "retrieve all skill enum elements", MethodEnum.ASSET_UPDATE.getValue());
     }
 
     @Transactional
@@ -233,5 +229,7 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.INTEREST_ENUMS);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.SKILL_ENUMS);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILL_ENUMS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSET_UPDATE);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASSET_UPDATE);
     }
 }

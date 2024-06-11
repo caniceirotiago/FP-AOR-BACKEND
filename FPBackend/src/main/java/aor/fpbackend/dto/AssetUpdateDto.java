@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class AssetCreateDto implements Serializable {
+public class AssetUpdateDto implements Serializable {
 
     @XmlElement
     @NotBlank
@@ -47,10 +47,10 @@ public class AssetCreateDto implements Serializable {
     @XmlElement
     private String observations;
 
-    public AssetCreateDto() {
+    public AssetUpdateDto() {
     }
 
-    public AssetCreateDto(String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
+    public AssetUpdateDto(String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
         this.name = name;
         this.type = type;
         this.description = description;

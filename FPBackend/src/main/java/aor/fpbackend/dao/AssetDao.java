@@ -20,10 +20,21 @@ import java.util.List;
             super(AssetEntity.class);
         }
 
-        public boolean checkAssetExist(String name) {
+        public boolean checkAssetExistByName(String name) {
             try {
                 Long count = (Long) em.createNamedQuery("Asset.countAssetByName")
                         .setParameter("name", name)
+                        .getSingleResult();
+                return count > 0;
+            } catch (NoResultException e) {
+                return false;
+            }
+        }
+
+        public boolean checkAssetExistByPartNumber(String partNumber) {
+            try {
+                Long count = (Long) em.createNamedQuery("Asset.countAssetByPartNumber")
+                        .setParameter("partNumber", partNumber)
                         .getSingleResult();
                 return count > 0;
             } catch (NoResultException e) {
