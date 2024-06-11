@@ -43,7 +43,8 @@ public enum MethodEnum {
     ASSET_ENUMS(40L),
     CREATE_ASSET(41L),
     SKILL_ENUMS(42L),
-    INTEREST_ENUMS(43L);
+    INTEREST_ENUMS(43L),
+    ASSET_UPDATE(44L);
 
     private final long value;
 

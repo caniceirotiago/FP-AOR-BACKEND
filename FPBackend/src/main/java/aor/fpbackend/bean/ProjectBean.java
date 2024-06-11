@@ -275,7 +275,7 @@ public class ProjectBean implements Serializable {
             throw new InputValidationException("Invalid DTO");
         }
         // When updates project name, check for duplicates
-        if (!projectEntity.getName().equals(projectUpdateDto.getName())) {
+        if (!projectEntity.getName().equalsIgnoreCase(projectUpdateDto.getName())) {
             if (projectDao.checkProjectNameExist(projectUpdateDto.getName())) {
                 throw new InputValidationException("Duplicated project name");
             }

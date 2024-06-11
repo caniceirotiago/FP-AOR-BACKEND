@@ -4,11 +4,8 @@ import aor.fpbackend.dao.AssetDao;
 import aor.fpbackend.dao.ProjectAssetDao;
 import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dto.*;
-import aor.fpbackend.entity.AssetEntity;
-import aor.fpbackend.entity.ProjectAssetEntity;
-import aor.fpbackend.entity.ProjectEntity;
+import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.AssetTypeEnum;
-import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -20,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,12 +34,12 @@ public class AssetBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(AssetBean.class);
 
 
-    public void createAsset(AssetCreateDto assetCreateDto) throws EntityNotFoundException, InputValidationException, DuplicatedAttributeException {
+    public void createAsset(AssetCreateDto assetCreateDto) throws InputValidationException, DuplicatedAttributeException {
         if (assetCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
-        // Check if the asset already exists to avoid duplicate entries
-        if (assetDao.checkAssetExist(assetCreateDto.getName())) {
+        // Check if the asset name already exists to avoid duplicate entries
+        if (assetDao.checkAssetExistByName(assetCreateDto.getName())) {
             throw new DuplicatedAttributeException("Asset name already exists");
         }
         AssetEntity assetEntity = new AssetEntity(assetCreateDto.getName(), assetCreateDto.getType(), assetCreateDto.getDescription(), assetCreateDto.getStockQuantity(),
@@ -149,13 +145,40 @@ public class AssetBean implements Serializable {
         assetEntity.setProjectAssets(assetProjects);
     }
 
+    public void updateAsset(long assetId, AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
+        // Find existing Asset
+        AssetEntity assetEntity = assetDao.findAssetById(assetId);
+        if (assetEntity == null) {
+            throw new EntityNotFoundException("Asset not found with ID: " + assetId);
+        }
+         // Validate DTO
+        if (assetUpdateDto == null) {
+            throw new InputValidationException("Invalid DTO");
+        }
+        // When updates project name, check for duplicates
+        if (!assetEntity.getName().equalsIgnoreCase(assetUpdateDto.getName())) {
+            if (assetDao.checkAssetExistByName(assetUpdateDto.getName())) {
+                throw new InputValidationException("Duplicated asset name");
+            }
+        }
+        // Update fields
+        assetEntity.setName(assetUpdateDto.getName());
+        assetEntity.setType(assetUpdateDto.getType());
+        assetEntity.setDescription(assetUpdateDto.getDescription());
+        assetEntity.setStockQuantity(assetUpdateDto.getStockQuantity());
+        assetEntity.setPartNumber(assetUpdateDto.getPartNumber());
+        assetEntity.setManufacturer(assetUpdateDto.getManufacturer());
+        assetEntity.setManufacturerPhone(assetUpdateDto.getManufacturerPhone());
+        assetEntity.setObservations(assetUpdateDto.getObservations());
+    }
+
     public AssetGetDto convertAssetEntityToAssetDto(AssetEntity assetEntity) {
         AssetGetDto assetGetDto = new AssetGetDto();
         assetGetDto.setId(assetEntity.getId());
         assetGetDto.setName(assetEntity.getName());
         assetGetDto.setType(assetEntity.getType());
         assetGetDto.setDescription(assetEntity.getDescription());
-        assetGetDto.setQuantity(assetEntity.getStockQuantity());
+        assetGetDto.setStockQuantity(assetEntity.getStockQuantity());
         assetGetDto.setPartNumber(assetEntity.getPartNumber());
         assetGetDto.setManufacturer(assetEntity.getManufacturer());
         assetGetDto.setManufacturerPhone(assetEntity.getManufacturerPhone());

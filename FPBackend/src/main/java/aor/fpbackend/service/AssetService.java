@@ -13,7 +13,9 @@ import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
 
@@ -80,5 +82,13 @@ public class AssetService {
     @RequiresProjectMemberPermission()
     public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException {
         assetBean.removeAsset(assetRemoveDto);
+    }
+
+    @PUT
+    @Path("/{assetId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.ASSET_UPDATE)
+    public void updateAsset(@PathParam("assetId") long assetId, @Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
+        assetBean.updateAsset(assetId, assetUpdateDto);
     }
 }

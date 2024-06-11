@@ -1,47 +1,56 @@
 package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.AssetTypeEnum;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 
+
 @XmlRootElement
-public class AssetGetDto implements Serializable {
+public class AssetUpdateDto implements Serializable {
 
     @XmlElement
-    private long id;
-
-    @XmlElement
+    @NotBlank
+    @Size(min = 2, max = 25, message = "Name must be between 2 and 25 characters")
+    @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
     private String name;
 
     @XmlElement
+    @Enumerated
+    @NotNull
     private AssetTypeEnum type;
 
     @XmlElement
+    @NotNull
     private String description;
 
     @XmlElement
+    @NotNull
+    @Min(value = 1, message = "quantity must be greater than 0")
     private int stockQuantity;
 
     @XmlElement
+    @NotNull
     private String partNumber;
 
     @XmlElement
+    @NotNull
     private String manufacturer;
 
     @XmlElement
+    @NotNull
     private String manufacturerPhone;
 
     @XmlElement
     private String observations;
 
-
-    public AssetGetDto() {
+    public AssetUpdateDto() {
     }
 
-    public AssetGetDto(long id, String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
-        this.id = id;
+    public AssetUpdateDto(String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
         this.name = name;
         this.type = type;
         this.description = description;
@@ -50,14 +59,6 @@ public class AssetGetDto implements Serializable {
         this.manufacturer = manufacturer;
         this.manufacturerPhone = manufacturerPhone;
         this.observations = observations;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getName() {
