@@ -7,6 +7,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
@@ -138,6 +139,14 @@ public class SkillBean implements Serializable {
 
         List<SkillEntity> skillEntities = skillDao.getSkillsByProjectId(projectId);
         return convertSkillEntityListToSkillDtoList(skillEntities);
+    }
+
+    public List<SkillTypeEnum> getEnumListSkillTypes() {
+        List<SkillTypeEnum> skillTypeEnums = new ArrayList<>();
+        for (SkillTypeEnum skillTypeEnum : SkillTypeEnum.values()) {
+            skillTypeEnums.add(skillTypeEnum);
+        }
+        return skillTypeEnums;
     }
 
     @Transactional
