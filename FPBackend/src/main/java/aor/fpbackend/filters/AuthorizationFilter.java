@@ -111,6 +111,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 || path.contains("/accept/project")
                 || path.contains("/password/reset")
                 || path.contains("/labs")
+                || path.contains("/assets")
                 || path.contains("/projects/all")
                 || path.contains("/info/project/states")
                 || path.contains("/info/project/roles")
