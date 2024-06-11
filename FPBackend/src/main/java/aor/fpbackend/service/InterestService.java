@@ -4,6 +4,8 @@ import aor.fpbackend.bean.InterestBean;
 import aor.fpbackend.dto.InterestAddDto;
 import aor.fpbackend.dto.InterestGetDto;
 import aor.fpbackend.dto.InterestRemoveDto;
+import aor.fpbackend.enums.InterestTypeEnum;
+import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -32,7 +34,6 @@ public class InterestService {
     @RequiresMethodPermission(MethodEnum.ADD_INTEREST)
     public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, InputValidationException {
         interestBean.addInterest(interestAddDto, securityContext);
-
     }
 
     @GET
@@ -57,6 +58,14 @@ public class InterestService {
     @RequiresMethodPermission(MethodEnum.INTERESTS_FIRST_LETTER)
     public List<InterestGetDto> getAllInterestsByFirstLetter(@QueryParam("value") String firstLetter) {
         return interestBean.getInterestsByFirstLetter(firstLetter);
+    }
+
+    @GET
+    @Path("/enum/types")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.INTEREST_ENUMS)
+    public List<InterestTypeEnum> getInterestTypes() {
+        return interestBean.getEnumListInterestTypes();
     }
 
     @PUT

@@ -2,7 +2,9 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.SkillBean;
 import aor.fpbackend.dto.*;
+import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -76,6 +78,14 @@ public class SkillService {
     @RequiresMethodPermission(MethodEnum.SKILLS_FIRST_LETTER)
     public List<SkillGetDto> getAllSkillsByFirstLetter(@QueryParam("value") String firstLetter) {
         return skillBean.getSkillsByFirstLetter(firstLetter);
+    }
+
+    @GET
+    @Path("/enum/types")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.SKILL_ENUMS)
+    public List<SkillTypeEnum> getSkillTypes() {
+        return skillBean.getEnumListSkillTypes();
     }
 
     @PUT

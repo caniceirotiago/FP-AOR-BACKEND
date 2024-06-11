@@ -41,7 +41,9 @@ public enum MethodEnum {
     ASK_TO_JOIN(38L),
     USERS_BY_PROJECT(39L),
     ASSET_ENUMS(40L),
-    CREATE_ASSET(41L);
+    CREATE_ASSET(41L),
+    SKILL_ENUMS(42L),
+    INTEREST_ENUMS(43L);
 
     private final long value;
 

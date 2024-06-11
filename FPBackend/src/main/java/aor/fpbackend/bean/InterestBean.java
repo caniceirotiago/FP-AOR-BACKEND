@@ -6,6 +6,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.InterestTypeEnum;
+import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -94,6 +95,14 @@ public class InterestBean implements Serializable {
         String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
         List<InterestEntity> interestEntities = interestDao.getInterestsByFirstLetter(lowerCaseFirstLetter);
         return convertInterestEntityListToInterestDtoList(interestEntities);
+    }
+
+    public List<InterestTypeEnum> getEnumListInterestTypes() {
+        List<InterestTypeEnum> interestTypeEnums = new ArrayList<>();
+        for (InterestTypeEnum interestTypeEnum : InterestTypeEnum.values()) {
+            interestTypeEnums.add(interestTypeEnum);
+        }
+        return interestTypeEnums;
     }
 
     @Transactional
