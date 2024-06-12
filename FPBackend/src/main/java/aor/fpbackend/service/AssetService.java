@@ -86,10 +86,10 @@ public class AssetService {
     }
 
     @PUT
-    @Path("/{assetId}")
+    @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASSET_UPDATE)
-    public void updateAsset(@PathParam("assetId") long assetId, @Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
-        assetBean.updateAsset(assetId, assetUpdateDto);
+    public void updateAsset(@Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
+        assetBean.updateAsset(assetUpdateDto);
     }
 }

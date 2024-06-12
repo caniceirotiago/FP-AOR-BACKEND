@@ -145,11 +145,11 @@ public class AssetBean implements Serializable {
         assetEntity.setProjectAssets(assetProjects);
     }
 
-    public void updateAsset(long assetId, AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
+    public void updateAsset(AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
         // Find existing Asset
-        AssetEntity assetEntity = assetDao.findAssetById(assetId);
+        AssetEntity assetEntity = assetDao.findAssetById(assetUpdateDto.getId());
         if (assetEntity == null) {
-            throw new EntityNotFoundException("Asset not found with ID: " + assetId);
+            throw new EntityNotFoundException("Asset not found with ID: " + assetUpdateDto.getId());
         }
          // Validate DTO
         if (assetUpdateDto == null) {
