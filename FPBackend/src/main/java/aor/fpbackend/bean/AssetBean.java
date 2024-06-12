@@ -12,6 +12,7 @@ import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.UriInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -89,6 +90,13 @@ public class AssetBean implements Serializable {
         return convertAssetEntityToAssetDto(assetDao.findAssetById(assetId));
     }
 
+    public AssetsPaginatedDto getFilteredAssets(int page, int pageSize, UriInfo uriInfo) {
+        List<AssetEntity> assetEntities = assetDao.findFilteredAssets(page, pageSize, uriInfo);
+        long totalAssets = assetDao.countFilteredAssets(uriInfo);
+        List<AssetGetDto> assetGetDtos = convertAssetEntityListToAssetDtoList(assetEntities);
+        return new AssetsPaginatedDto(assetGetDtos, totalAssets);
+    }
+
     public List<AssetGetDto> getAssetsByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
             LOGGER.error("Invalid first letter: " + firstLetter);
@@ -155,7 +163,7 @@ public class AssetBean implements Serializable {
         if (assetEntity == null) {
             throw new EntityNotFoundException("Asset not found with ID: " + assetUpdateDto.getId());
         }
-         // Validate DTO
+        // Validate DTO
         if (assetUpdateDto == null) {
             throw new InputValidationException("Invalid DTO");
         }

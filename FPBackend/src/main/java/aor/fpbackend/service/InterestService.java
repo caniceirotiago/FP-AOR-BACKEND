@@ -31,7 +31,7 @@ public class InterestService {
     @POST
     @Path("/add/user")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ADD_INTEREST)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_INTERESTS)
     public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, InputValidationException {
         interestBean.addInterest(interestAddDto, securityContext);
     }
@@ -39,7 +39,7 @@ public class InterestService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ALL_INTERESTS)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_INTERESTS)
     public List<InterestGetDto> getAllInterests() {
         return interestBean.getInterests();
     }
@@ -47,7 +47,7 @@ public class InterestService {
     @GET
     @Path("/user/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.INTERESTS_BY_USER)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_INTERESTS)
     public List<InterestGetDto> getAllInterestsByUser(@PathParam("username") String username) {
         return interestBean.getInterestsByUser(username);
     }
@@ -55,7 +55,7 @@ public class InterestService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.INTERESTS_FIRST_LETTER)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_INTERESTS)
     public List<InterestGetDto> getAllInterestsByFirstLetter(@QueryParam("value") String firstLetter) {
         return interestBean.getInterestsByFirstLetter(firstLetter);
     }
@@ -63,7 +63,7 @@ public class InterestService {
     @GET
     @Path("/enum/types")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.INTEREST_ENUMS)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_INTERESTS)
     public List<InterestTypeEnum> getInterestTypes() {
         return interestBean.getEnumListInterestTypes();
     }
@@ -71,7 +71,7 @@ public class InterestService {
     @PUT
     @Path("/remove/user")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.REMOVE_INTEREST)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_INTERESTS)
     public void removeInterest(@Valid InterestRemoveDto interestRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         interestBean.removeInterest(interestRemoveDto, securityContext);
     }

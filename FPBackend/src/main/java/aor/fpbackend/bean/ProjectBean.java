@@ -225,11 +225,11 @@ public class ProjectBean implements Serializable {
         createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, projectApproveDto.getComment());
     }
 
-    public ProjectsPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
+    public ProjectPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
         List<ProjectEntity> projectEntities = projectDao.findFilteredProjects(page, pageSize, uriInfo);
         long totalProjects = projectDao.countFilteredProjects(uriInfo);
         List<ProjectGetDto> projectGetDtos = convertProjectEntityListToProjectDtoList(new ArrayList<>(projectEntities));
-        return new ProjectsPaginatedDto(projectGetDtos, totalProjects);
+        return new ProjectPaginatedDto(projectGetDtos, totalProjects);
     }
 
     public void updateProjectMembershipRole(long projectId, ProjectRoleUpdateDto projectRoleUpdateDto, SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
