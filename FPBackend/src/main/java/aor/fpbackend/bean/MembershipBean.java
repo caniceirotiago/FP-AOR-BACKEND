@@ -5,33 +5,16 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.LogTypeEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
-import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
-import aor.fpbackend.utils.JwtKeyProvider;
-import io.jsonwebtoken.*;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.NewCookie;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.security.Key;
-import java.security.SecureRandom;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Stateless
@@ -221,5 +204,21 @@ public class MembershipBean implements Serializable {
     public List<Long> getProjectIdsByUserId(SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         return projectMemberDao.findProjectIdsByUserId(authUserDto.getUserId());
+    }
+    public List<UserBasicInfoDto> getUsersBasicInfoByFirstLetter (String firstLetter, long projectId) {
+        if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
+            LOGGER.error("Invalid first letter: " + firstLetter);
+            return new ArrayList<>();
+        }
+        String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
+        System.out.println("lowerCaseFirstLetter: " + lowerCaseFirstLetter + " projectId: " + projectId);
+
+        List<UserEntity> users = projectMemberDao.findUsersByFirstLetterAndProjId(lowerCaseFirstLetter, projectId);
+        System.out.println("users: " + users.size() + " projectId: " + projectId);
+        List<UserBasicInfoDto> userBasicInfoDtos = new ArrayList<>();
+        for (UserEntity user : users) {
+            userBasicInfoDtos.add(new UserBasicInfoDto(user.getId(), user.getUsername(), user.getPhoto(), user.getRole().getId()));
+        }
+        return userBasicInfoDtos;
     }
 }

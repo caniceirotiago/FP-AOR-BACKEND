@@ -16,7 +16,6 @@ import java.util.Set;
 @NamedQuery(name = "Project.findProjectByName", query = "SELECT p FROM ProjectEntity p WHERE LOWER(p.name) = LOWER(:name)")
 @NamedQuery(name = "Project.findAllProjects", query = "SELECT p FROM ProjectEntity p")
 @NamedQuery(name = "Project.getAllProjectsIds", query = "SELECT p.id FROM ProjectEntity p")
-
 public class ProjectEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
