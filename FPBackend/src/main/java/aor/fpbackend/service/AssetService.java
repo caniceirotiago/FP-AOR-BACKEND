@@ -19,6 +19,7 @@ import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
 
+
 @Path("/assets")
 public class AssetService {
     @EJB
