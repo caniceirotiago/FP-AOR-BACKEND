@@ -13,6 +13,10 @@ import java.io.Serializable;
 public class AssetUpdateDto implements Serializable {
 
     @XmlElement
+    @NotNull
+    private long id;
+
+    @XmlElement
     @NotBlank
     @Size(min = 2, max = 25, message = "Name must be between 2 and 25 characters")
     @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
@@ -50,7 +54,8 @@ public class AssetUpdateDto implements Serializable {
     public AssetUpdateDto() {
     }
 
-    public AssetUpdateDto(String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
+    public AssetUpdateDto(long id, String name, AssetTypeEnum type, String description, int stockQuantity, String partNumber, String manufacturer, String manufacturerPhone, String observations) {
+        this.id=id;
         this.name = name;
         this.type = type;
         this.description = description;
@@ -59,6 +64,14 @@ public class AssetUpdateDto implements Serializable {
         this.manufacturer = manufacturer;
         this.manufacturerPhone = manufacturerPhone;
         this.observations = observations;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {

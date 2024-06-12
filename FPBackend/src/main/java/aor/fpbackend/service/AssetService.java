@@ -4,7 +4,6 @@ import aor.fpbackend.bean.AssetBean;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.MethodEnum;
-import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -13,11 +12,10 @@ import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
+
 
 @Path("/assets")
 public class AssetService {
@@ -29,7 +27,7 @@ public class AssetService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.CREATE_ASSET)
-    public void createAsset(@Valid AssetCreateDto assetCreateDto) throws EntityNotFoundException, InputValidationException, DuplicatedAttributeException {
+    public void createAsset(@Valid AssetCreateDto assetCreateDto) throws InputValidationException, DuplicatedAttributeException {
         assetBean.createAsset(assetCreateDto);
     }
 
@@ -61,6 +59,14 @@ public class AssetService {
     }
 
     @GET
+    @Path("/id/{assetId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.ASSETS_BY_PROJECT)
+    public AssetGetDto getAssetById(@PathParam("assetId") long assetId) {
+        return assetBean.getAssetById(assetId);
+    }
+
+    @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASSETS_FIRST_LETTER)
@@ -85,10 +91,10 @@ public class AssetService {
     }
 
     @PUT
-    @Path("/{assetId}")
+    @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASSET_UPDATE)
-    public void updateAsset(@PathParam("assetId") long assetId, @Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
-        assetBean.updateAsset(assetId, assetUpdateDto);
+    public void updateAsset(@Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
+        assetBean.updateAsset(assetUpdateDto);
     }
 }
