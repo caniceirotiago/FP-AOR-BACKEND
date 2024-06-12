@@ -91,6 +91,7 @@ public class UserService {
     @GET
     @Path("/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_USERS)
     public UserBasicInfoDto getBasicInfo(@Context SecurityContext securityContext) {
         return userBean.getUserBasicInfo(securityContext);
     }
@@ -98,6 +99,7 @@ public class UserService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_USERS)
     public List<UserBasicInfoDto> getBasicInfoByFirstLetter(@QueryParam("value") String firstLetter) {
         return userBean.getUsersBasicInfoByFirstLetter(firstLetter);
     }
@@ -113,6 +115,7 @@ public class UserService {
     @GET
     @Path("info/{usernameProfile}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_USERS)
     public UserProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException, ForbiddenAccessException {
         return userBean.getProfileDto(usernameProfile, securityContext);
     }
@@ -120,6 +123,7 @@ public class UserService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_USERS)
     public List<UsernameDto> getAllUsers() {
         return userBean.getAllRegUsers();
     }
@@ -133,6 +137,7 @@ public class UserService {
     @Path("/profile")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_USERS)
     public void editUserData(@Valid UserUpdateDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, UnknownHostException {
         userBean.updateUserProfile(securityContext, updatedUser);
     }
@@ -141,6 +146,7 @@ public class UserService {
     @Path("/password")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_USERS)
     public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
         userBean.updatePassword(updatedPassword, securityContext);
     }
@@ -149,7 +155,7 @@ public class UserService {
     @Path("/role")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.UPDATE_ROLE)
+    @RequiresMethodPermission(MethodEnum.ADMIN_LEVEL_USERS)
     public void updateUserRole(@Valid UserUpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
         userBean.updateRole(updatedRole);
     }
@@ -162,7 +168,7 @@ public class UserService {
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.USERS_BY_PROJECT)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_USERS)
     public List<ProjectMembershipDto> getUsersByProject(@PathParam("projectId") long projectId) {
         return userBean.getUsersByProject(projectId);
     }

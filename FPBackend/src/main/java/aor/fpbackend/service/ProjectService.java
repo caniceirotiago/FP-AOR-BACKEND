@@ -27,7 +27,7 @@ public class ProjectService {
     @POST
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ADD_PROJECT)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_PROJECTS)
     public void createProject(@Valid ProjectCreateDto projectCreateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException {
         projectBean.createProject(projectCreateDto, securityContext);
     }
@@ -35,14 +35,14 @@ public class ProjectService {
     @GET
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ALL_PROJECTS)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_PROJECTS)
     public List<ProjectGetDto> getAllProjects() {
         return projectBean.getAllProjects();
     }
     @GET
     @Path("/all/ids")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ALL_PROJECTS)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_PROJECTS)
     public List<Long> getAllProjectsIds() {
         return projectBean.getAllProjectsIds();
     }
@@ -50,8 +50,8 @@ public class ProjectService {
     @GET
     @Path("/all/filter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ALL_PROJECTS)
-    public ProjectsPaginatedDto getFilteredProjects(
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_PROJECTS)
+    public ProjectPaginatedDto getFilteredProjects(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("pageSize") @DefaultValue("10") int pageSize,
             @Context UriInfo uriInfo) {
@@ -68,7 +68,7 @@ public class ProjectService {
     @GET
     @Path("/enum/states")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.PROJECT_ENUMS)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_PROJECTS)
     public List<ProjectStateEnum> getProjectStates() {
         return projectBean.getEnumListProjectStates();
     }
@@ -76,7 +76,7 @@ public class ProjectService {
     @GET
     @Path("/enum/roles")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.PROJECT_ENUMS)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_PROJECTS)
     public List<ProjectRoleEnum> getProjectRoles() {
         return projectBean.getEnumListProjectRoles();
     }
@@ -92,7 +92,7 @@ public class ProjectService {
     @PUT
     @Path("/approve")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.PROJECT_APPROVE)
+    @RequiresMethodPermission(MethodEnum.ADMIN_LEVEL_PROJECTS)
     public void approveProject(@Valid ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UnauthorizedAccessException {
         projectBean.approveProject(projectApproveDto, securityContext);
     }

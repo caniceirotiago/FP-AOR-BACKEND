@@ -27,7 +27,7 @@ public class TaskService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ALL_TASKS)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_TASKS)
     public List<TaskGetDto> getAllTasks() {
         return taskBean.getTasks();
     }
@@ -43,7 +43,7 @@ public class TaskService {
     @GET
     @Path("/{taskId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresProjectMemberPermission()
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_TASKS)
     public TaskGetDto getTaskById(@PathParam("taskId") long taskId) {
         return taskBean.getTasksById(taskId);
     }
@@ -56,7 +56,6 @@ public class TaskService {
         if (taskCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
-        System.out.println(taskCreateDto);
         taskBean.addTask(taskCreateDto.getTitle(), taskCreateDto.getDescription(), taskCreateDto.getPlannedStartDate(),
                 taskCreateDto.getPlannedEndDate(), taskCreateDto.getResponsibleId(), taskCreateDto.getProjectId());
     }
@@ -64,7 +63,7 @@ public class TaskService {
     @PUT
     @Path("/add/executor")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.TASK_USER)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_TASKS)
     public void addUserToTask(@Valid TaskAddUserDto taskAddUserDto) throws EntityNotFoundException, InputValidationException {
         taskBean.addUserTask(taskAddUserDto);
     }

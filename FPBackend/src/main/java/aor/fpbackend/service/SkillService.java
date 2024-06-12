@@ -30,7 +30,7 @@ public class SkillService {
     @POST
     @Path("/add/user")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ADD_SKILL_USER)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_SKILLS)
     public void addSkill(@Valid SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, InputValidationException {
         skillBean.addSkillUser(skillAddUserDto, securityContext);
     }
@@ -39,7 +39,7 @@ public class SkillService {
     @POST
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ADD_SKILL_PROJECT)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_SKILLS)
     public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException, InputValidationException {
         if (skillAddProjectDto != null) {
             skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), skillAddProjectDto.getProjectId());
@@ -51,7 +51,7 @@ public class SkillService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ALL_SKILLS)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_SKILLS)
     public List<SkillGetDto> getAllSkills() {
         return skillBean.getSkills();
     }
@@ -59,7 +59,7 @@ public class SkillService {
     @GET
     @Path("/user/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.SKILLS_BY_USER)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_SKILLS)
     public List<SkillGetDto> getAllSkillsByUser(@PathParam("username") String username) throws EntityNotFoundException {
         return skillBean.getSkillsByUser(username);
     }
@@ -67,7 +67,7 @@ public class SkillService {
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.SKILLS_BY_PROJECT)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_SKILLS)
     public List<SkillGetDto> getAllSkillsByProject(@PathParam("projectId") long projectId) {
         return skillBean.getSkillsByProject(projectId);
     }
@@ -75,7 +75,7 @@ public class SkillService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.SKILLS_FIRST_LETTER)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_SKILLS)
     public List<SkillGetDto> getAllSkillsByFirstLetter(@QueryParam("value") String firstLetter) {
         return skillBean.getSkillsByFirstLetter(firstLetter);
     }
@@ -83,7 +83,7 @@ public class SkillService {
     @GET
     @Path("/enum/types")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.SKILL_ENUMS)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_SKILLS)
     public List<SkillTypeEnum> getSkillTypes() {
         return skillBean.getEnumListSkillTypes();
     }
@@ -91,7 +91,7 @@ public class SkillService {
     @PUT
     @Path("/remove/user")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.REMOVE_SKILL_USER)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_SKILLS)
     public void removeSkillFromUser(@Valid SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException, InputValidationException {
         skillBean.removeSkillUser(skillRemoveUserDto, securityContext);
 

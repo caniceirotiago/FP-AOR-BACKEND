@@ -7,13 +7,16 @@ import java.io.Serializable;
 import java.util.List;
 
 @XmlRootElement
-public class ProjectsPaginatedDto implements Serializable {
+public class ProjectPaginatedDto implements Serializable {
     @XmlElement
     private List<ProjectGetDto> projectsForAPage;
     @XmlElement
     private long totalProjects;
 
-    public ProjectsPaginatedDto(List<ProjectGetDto> projectsForAPage, long totalProjects) {
+    public ProjectPaginatedDto() {
+    }
+
+    public ProjectPaginatedDto(List<ProjectGetDto> projectsForAPage, long totalProjects) {
         this.projectsForAPage = projectsForAPage;
         this.totalProjects = totalProjects;
     }

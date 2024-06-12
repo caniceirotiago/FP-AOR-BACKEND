@@ -30,7 +30,7 @@ public class MembershipService {
     @POST
     @Path("/ask/join/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ASK_TO_JOIN)
+    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_MEMBERSHIPS)
     public void askToJoinProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException {
         memberBean.askToJoinProject(projectId, securityContext);
     }
@@ -76,7 +76,6 @@ public class MembershipService {
     @Path("/first/letter/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<UserBasicInfoDto> getBasicInfoByFirstLetter(@QueryParam("value") String firstLetter, @PathParam("projectId") long projectId) {
-        System.out.println("firstLetter: " + firstLetter + " projectId: " + projectId);
         return memberBean.getUsersBasicInfoByFirstLetter(firstLetter, projectId);
     }
 
