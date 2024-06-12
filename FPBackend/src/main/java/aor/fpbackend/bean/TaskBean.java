@@ -59,7 +59,9 @@ public class TaskBean implements Serializable {
     @Transactional
     public void addTask( String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException {
         // Find the project by id
+        System.out.println(projectId);
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        System.out.println(projectEntity);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }

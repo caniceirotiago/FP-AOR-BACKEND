@@ -55,6 +55,7 @@ public class TaskService {
         if (taskCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
+        System.out.println(taskCreateDto);
         taskBean.addTask(taskCreateDto.getTitle(), taskCreateDto.getDescription(), taskCreateDto.getPlannedStartDate(),
                 taskCreateDto.getPlannedEndDate(), taskCreateDto.getResponsibleId(), taskCreateDto.getProjectId());
     }
