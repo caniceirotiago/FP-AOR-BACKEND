@@ -356,6 +356,9 @@ public class ProjectBean implements Serializable {
             createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
         }
     }
+    public List<Long> getAllProjectsIds() {
+        return projectDao.getAllProjectsIds();
+    }
 
     // Create a Project Log
     public void createProjectLog(ProjectEntity projectEntity, UserEntity userEntity, LogTypeEnum type, String content) {

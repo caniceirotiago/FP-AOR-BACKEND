@@ -39,6 +39,13 @@ public class ProjectService {
     public List<ProjectGetDto> getAllProjects() {
         return projectBean.getAllProjects();
     }
+    @GET
+    @Path("/all/ids")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.ALL_PROJECTS)
+    public List<Long> getAllProjectsIds() {
+        return projectBean.getAllProjectsIds();
+    }
 
     @GET
     @Path("/all/filter")

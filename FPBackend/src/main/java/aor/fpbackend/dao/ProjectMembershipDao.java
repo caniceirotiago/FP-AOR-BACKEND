@@ -75,4 +75,9 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
                 .setParameter("projectId", projectId)
                 .getResultList();
     }
+    public List<Long> findProjectIdsByUserId(long userId) {
+        return em.createNamedQuery("ProjectMembership.findProjectIdsByUserId")
+                .setParameter("userId", userId)
+                .getResultList();
+    }
 }

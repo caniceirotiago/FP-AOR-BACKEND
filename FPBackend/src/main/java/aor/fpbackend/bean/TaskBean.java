@@ -15,6 +15,7 @@ import aor.fpbackend.exception.InputValidationException;
 import java.time.temporal.ChronoUnit;
 
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
@@ -148,6 +149,33 @@ public class TaskBean implements Serializable {
         Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
         prerequisites.add(mainTaskEntity);
     }
+    @Transactional
+    public void removeDependencyTask(TaskAddDependencyDto addDependencyDto) throws
+            InputValidationException, EntityNotFoundException {
+        if (addDependencyDto == null) {
+            throw new InputValidationException("Invalid Dto");
+        }
+        TaskEntity mainTaskEntity = taskDao.findTaskById(addDependencyDto.getMainTaskId());
+        TaskEntity dependentTaskEntity = taskDao.findTaskById(addDependencyDto.getDependentTaskId());
+        if (mainTaskEntity == null || dependentTaskEntity == null) {
+            throw new EntityNotFoundException("Task not found");
+        }
+        removeDependency(mainTaskEntity, dependentTaskEntity);
+    }
+
+    private void removeDependency(TaskEntity mainTaskEntity, TaskEntity dependentTaskEntity) {
+        // Remove dependent task from main task's dependentTasks
+        Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
+        dependentTasks.remove(dependentTaskEntity);
+
+        // Remove main task from dependent task's prerequisites
+        Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
+        prerequisites.remove(mainTaskEntity);
+    }
+
+
+
+
 
     public void updateTask(TaskUpdateDto taskUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
