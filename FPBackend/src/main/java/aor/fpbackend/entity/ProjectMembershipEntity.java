@@ -8,6 +8,9 @@ import java.io.Serializable;
 @Entity
 @Table(name = "project_membership")
 
+@NamedQuery(name="ProjectMembership.findUsersByFirstLetterAndProjId",
+        query="SELECT u FROM ProjectMembershipEntity p JOIN p.user u WHERE p.project.id = :projectId AND u.username LIKE :firstLetter || '%'")
+
 @NamedQuery(name = "ProjectMembership.findProjectIdsByUserId", query = "SELECT p.project.id FROM ProjectMembershipEntity p WHERE p.user.id = :userId")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipById", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.id = :id")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipsByProject", query = "SELECT new aor.fpbackend.dto.ProjectMembershipDto(" +

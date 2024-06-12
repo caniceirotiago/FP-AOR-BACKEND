@@ -3,6 +3,7 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.MembershipBean;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
+import aor.fpbackend.dto.UserBasicInfoDto;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
@@ -71,6 +72,14 @@ public class MembershipService {
     public List<Long> getProjectIdsByUserId(@Context SecurityContext securityContext) {
         return memberBean.getProjectIdsByUserId(securityContext);
     }
+    @GET
+    @Path("/first/letter/{projectId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<UserBasicInfoDto> getBasicInfoByFirstLetter(@QueryParam("value") String firstLetter, @PathParam("projectId") long projectId) {
+        System.out.println("firstLetter: " + firstLetter + " projectId: " + projectId);
+        return memberBean.getUsersBasicInfoByFirstLetter(firstLetter, projectId);
+    }
+
 
 
 
