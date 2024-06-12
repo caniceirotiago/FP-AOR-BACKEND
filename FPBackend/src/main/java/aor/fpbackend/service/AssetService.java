@@ -4,7 +4,6 @@ import aor.fpbackend.bean.AssetBean;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.MethodEnum;
-import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -13,9 +12,7 @@ import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
 
@@ -30,7 +27,7 @@ public class AssetService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.CREATE_ASSET)
-    public void createAsset(@Valid AssetCreateDto assetCreateDto) throws EntityNotFoundException, InputValidationException, DuplicatedAttributeException {
+    public void createAsset(@Valid AssetCreateDto assetCreateDto) throws InputValidationException, DuplicatedAttributeException {
         assetBean.createAsset(assetCreateDto);
     }
 
@@ -59,6 +56,14 @@ public class AssetService {
     @RequiresMethodPermission(MethodEnum.ASSETS_BY_PROJECT)
     public List<AssetGetDto> getAssetsByProject(@PathParam("projectId") long projectId) {
         return assetBean.getAssetsByProject(projectId);
+    }
+
+    @GET
+    @Path("/id/{assetId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.ASSETS_BY_PROJECT)
+    public AssetGetDto getAssetById(@PathParam("assetId") long assetId) {
+        return assetBean.getAssetById(assetId);
     }
 
     @GET

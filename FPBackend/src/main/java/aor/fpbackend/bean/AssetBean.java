@@ -85,6 +85,10 @@ public class AssetBean implements Serializable {
         return convertAssetEntityListToAssetDtoList(assetDao.getAssetsByProjectId(projectId));
     }
 
+    public AssetGetDto getAssetById(long assetId) {
+        return convertAssetEntityToAssetDto(assetDao.findAssetById(assetId));
+    }
+
     public List<AssetGetDto> getAssetsByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
             LOGGER.error("Invalid first letter: " + firstLetter);
