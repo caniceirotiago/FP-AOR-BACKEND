@@ -8,6 +8,7 @@ import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
+import jakarta.ejb.Remove;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -48,7 +49,7 @@ public class TaskService {
     }
 
     @POST
-    @Path("/add/project")
+    @Path("/add/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
     public void addTaskToProject(@Valid TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
@@ -69,15 +70,23 @@ public class TaskService {
     }
 
     @PUT
-    @Path("/add/dependency")
+    @Path("/add/dependency/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
     public void addDependencyToTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, InputValidationException {
         taskBean.addDependencyTask(addDependencyDto);
     }
+    @DELETE
+    @Path("/dependency/{projectId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresProjectMemberPermission()
+    public void removeDependencyFromTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, InputValidationException {
+        System.out.println(addDependencyDto);
+        taskBean.removeDependencyTask(addDependencyDto);
+    }
 
     @PUT
-    @Path("")
+    @Path("{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
     public void updateTask(@Valid TaskUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {

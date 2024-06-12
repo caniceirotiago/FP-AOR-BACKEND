@@ -15,6 +15,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 
+import java.util.List;
+
 
 @Path("/memberships")
 public class MembershipService {
@@ -63,5 +65,14 @@ public class MembershipService {
     public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException {
         memberBean.removeUserFromProject(username, projectId, securityContext);
     }
+    @GET
+    @Path("/projectids-byuserid/securitycontext")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Long> getProjectIdsByUserId(@Context SecurityContext securityContext) {
+        return memberBean.getProjectIdsByUserId(securityContext);
+    }
+
+
+
 
 }

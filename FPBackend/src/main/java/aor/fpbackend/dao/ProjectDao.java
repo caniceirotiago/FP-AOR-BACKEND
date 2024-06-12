@@ -37,6 +37,13 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
             return false;
         }
     }
+    public List<Long> getAllProjectsIds() {
+        try {
+            return (List<Long>) em.createNamedQuery("Project.getAllProjectsIds").getResultList();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
 
     public boolean isProjectMember(long projectId, long userId) {
         TypedQuery<Long> query = em.createQuery(
@@ -181,6 +188,7 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         query.setParameter("configKey", configKey);
         return query.getSingleResult();
     }
+
 
 
 }
