@@ -222,7 +222,6 @@ public class ProjectBean implements Serializable {
             comment = "Rejects with justification: " + projectApproveDto.getComment();
         }
         // Create a Project Log
-
         createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, comment);
     }
 

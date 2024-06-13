@@ -24,7 +24,6 @@ public class AssetService {
     @EJB
     AssetBean assetBean;
 
-
     @POST
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -58,7 +57,7 @@ public class AssetService {
     @RequiresMethodPermission(MethodEnum.FILTER_ASSETS)
     public AssetsPaginatedDto getFilteredAssets(
             @QueryParam("page") @DefaultValue("1") int page,
-            @QueryParam("pageSize") @DefaultValue("10") int pageSize,
+            @QueryParam("pageSize") @DefaultValue("6") int pageSize,
             @Context UriInfo uriInfo) {
         return assetBean.getFilteredAssets(page, pageSize, uriInfo);
     }
