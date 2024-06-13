@@ -47,7 +47,7 @@ public class TaskGetDto implements Serializable {
     private TaskStateEnum state;
 
     @XmlElement
-    private long responsibleId;
+    private UserBasicInfoDto responsibleId;
 
     @XmlElement
     private Set<UserBasicInfoDto> registeredExecutors;
@@ -68,7 +68,7 @@ public class TaskGetDto implements Serializable {
     }
 
     public TaskGetDto(long id, String title, String description, Instant creationDate, Instant plannedStartDate,
-                      Instant startDate, Instant plannedEndDate, Instant endDate, long duration, TaskStateEnum state, long responsibleId,
+                      Instant startDate, Instant plannedEndDate, Instant endDate, long duration, TaskStateEnum state, UserBasicInfoDto responsibleId,
                       Set<UserBasicInfoDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, Set<Long> prerequisites, long projectId) {
         this.id = id;
         this.title = title;
@@ -168,11 +168,11 @@ public class TaskGetDto implements Serializable {
         this.state = state;
     }
 
-    public long getResponsibleId() {
+    public UserBasicInfoDto getResponsibleId() {
         return responsibleId;
     }
 
-    public void setResponsibleId(long responsibleId) {
+    public void setResponsibleId(UserBasicInfoDto responsibleId) {
         this.responsibleId = responsibleId;
     }
 

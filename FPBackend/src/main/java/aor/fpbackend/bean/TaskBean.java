@@ -35,6 +35,8 @@ public class TaskBean implements Serializable {
     @EJB
     TaskDao taskDao;
     @EJB
+    UserBean userBean;
+    @EJB
     ProjectDao projectDao;
     @EJB
     UserDao userDao;
@@ -238,7 +240,7 @@ public class TaskBean implements Serializable {
         taskGetDto.setEndDate(taskEntity.getEndDate());
         taskGetDto.setDuration(taskEntity.getDuration());
         taskGetDto.setState(taskEntity.getState());
-        taskGetDto.setResponsibleId(taskEntity.getResponsibleUser().getId());
+        taskGetDto.setResponsibleId(userBean.convertUserEntitytoUserBasicInfoDto(taskEntity.getResponsibleUser()));
         taskGetDto.setNonRegisteredExecutors(taskEntity.getAdditionalExecutors());
         taskGetDto.setProjectId(taskEntity.getProject().getId());
 
@@ -275,5 +277,13 @@ public class TaskBean implements Serializable {
             taskGetDtos.add(taskGetDto);
         }
         return taskGetDtos;
+    }
+    public List<TaskStateEnum> getEnumListTaskStates ()
+    {
+        List<TaskStateEnum> taskStateEnums = new ArrayList<>();
+        for (TaskStateEnum taskStateEnum : TaskStateEnum.values()) {
+            taskStateEnums.add(taskStateEnum);
+        }
+        return taskStateEnums;
     }
 }
