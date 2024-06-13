@@ -92,7 +92,7 @@ public class ProjectBean implements Serializable {
         projectDao.persist(projectEntity);
         // Define relations on the persisted Project
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
-        String content = "Project " + projectEntity.getName() + " was created by " + user.getUsername();
+        String content = projectEntity.getName() + " was created by " + user.getUsername();
         createProjectLog(projectEntity, user, LogTypeEnum.GENERAL_PROJECT_DATA, content);
         addRelationsToProject(projectCreateDto, persistedProject, user);
     }
@@ -216,10 +216,10 @@ public class ProjectBean implements Serializable {
             projectEntity.setApproved(true);
             projectEntity.setState(ProjectStateEnum.IN_PROGRESS);
             projectEntity.setInitialDate(Instant.now());
-            comment = "Approves with justification: " + projectApproveDto.getComment();
+            comment = "Approved with justification: " + projectApproveDto.getComment();
         } else {
             projectEntity.setState(ProjectStateEnum.PLANNING);
-            comment = "Rejects with justification: " + projectApproveDto.getComment();
+            comment = "Rejected with justification: " + projectApproveDto.getComment();
         }
         // Create a Project Log
         createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, comment);
