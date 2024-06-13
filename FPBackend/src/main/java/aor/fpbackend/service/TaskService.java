@@ -27,7 +27,7 @@ public class TaskService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_TASKS)
+    @RequiresProjectMemberPermission()
     public List<TaskGetDto> getAllTasks() {
         return taskBean.getTasks();
     }
@@ -43,7 +43,7 @@ public class TaskService {
     @GET
     @Path("/{taskId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_TASKS)
+    @RequiresMethodPermission(MethodEnum.TASKS_BY_ID)
     public TaskGetDto getTaskById(@PathParam("taskId") long taskId) {
         return taskBean.getTasksById(taskId);
     }
@@ -63,7 +63,7 @@ public class TaskService {
     @PUT
     @Path("/add/executor")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_TASKS)
+    @RequiresProjectMemberPermission()
     public void addUserToTask(@Valid TaskAddUserDto taskAddUserDto) throws EntityNotFoundException, InputValidationException {
         taskBean.addUserTask(taskAddUserDto);
     }

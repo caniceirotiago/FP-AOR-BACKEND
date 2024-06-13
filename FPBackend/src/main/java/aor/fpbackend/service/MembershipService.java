@@ -30,7 +30,7 @@ public class MembershipService {
     @POST
     @Path("/ask/join/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_MEMBERSHIPS)
+    @RequiresMethodPermission(MethodEnum.ASK_TO_JOIN)
     public void askToJoinProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException {
         memberBean.askToJoinProject(projectId, securityContext);
     }

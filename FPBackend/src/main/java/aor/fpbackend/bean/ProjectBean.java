@@ -205,24 +205,25 @@ public class ProjectBean implements Serializable {
         // Retrieve the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-        if (projectDao.isProjectMember(projectEntity.getId(), userEntity.getId())){
-            throw new UnauthorizedAccessException("Project member cannot approve own project");
-        }
         // Validate project state
         ProjectStateEnum currentState = projectEntity.getState();
         if (currentState != ProjectStateEnum.READY) {
             return;
         }
+        String comment = "";
         // Handle admin decision and state transitions
         if (projectApproveDto.isConfirm()) {
             projectEntity.setApproved(true);
             projectEntity.setState(ProjectStateEnum.IN_PROGRESS);
             projectEntity.setInitialDate(Instant.now());
+            comment = "Approves with justification: " + projectApproveDto.getComment();
         } else {
             projectEntity.setState(ProjectStateEnum.PLANNING);
+            comment = "Rejects with justification: " + projectApproveDto.getComment();
         }
         // Create a Project Log
-        createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, projectApproveDto.getComment());
+
+        createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, comment);
     }
 
     public ProjectPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
