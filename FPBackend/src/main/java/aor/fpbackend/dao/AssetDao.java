@@ -97,18 +97,15 @@ public class AssetDao extends AbstractDao<AssetEntity> {
         List<Predicate> predicates = createPredicates(uriInfo, cb, assetRoot);
         query.where(cb.and(predicates.toArray(new Predicate[0])));
         // Adding logic for sorting
-        // Extract sorting parameters from query
         String orderBy = uriInfo.getQueryParameters().getFirst("orderBy");
         String sortBy = uriInfo.getQueryParameters().getFirst("sortBy");
-        // Apply sorting if 'orderBy' parameter is provided
-        if (orderBy != null && !orderBy.isEmpty()) {
-            Order order = null;
-            if ("desc".equalsIgnoreCase(sortBy)) {
-                // Set to descending order
-                order = cb.desc(assetRoot.get(orderBy));
+        // Apply sorting if 'sortBy' parameter is provided
+        if (sortBy != null && !sortBy.isEmpty()) {
+            Order order;
+            if ("desc".equalsIgnoreCase(orderBy)) {
+                order = cb.desc(assetRoot.get(sortBy));
             } else {
-                // Set to ascending order by default
-                order = cb.asc(assetRoot.get(orderBy));
+                order = cb.asc(assetRoot.get(sortBy));
             }
             query.orderBy(order);
         }
