@@ -418,6 +418,10 @@ public class UserBean implements Serializable {
         RoleEntity newRole = roleDao.findRoleById(userUpdateRoleDto.getRoleId());
         u.setRole(newRole);
     }
+    public UserBasicInfoDto getUserBasicInfoById(long userId) {
+        UserEntity userEntity = userDao.findUserById(userId);
+        return convertUserEntitytoUserBasicInfoDto(userEntity);
+    }
 
     public List<ProjectMembershipDto> getUsersByProject(long projectId) {
         return userDao.getUsersByProject(projectId);

@@ -3,6 +3,7 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.TaskBean;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.enums.TaskStateEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresMethodPermission;
@@ -91,4 +92,18 @@ public class TaskService {
     public void updateTask(@Valid TaskUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
         taskBean.updateTask(taskUpdateDto, securityContext);
     }
+    @PUT
+    @Path("/detailed/{projectId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresProjectMemberPermission()
+    public void updateTaskDetailed(@Valid TaskDetailedUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+        taskBean.taskDetailedUpdate(taskUpdateDto, securityContext);
+    }
+    @GET
+    @Path("/states")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<TaskStateEnum> getTaskStates() {
+        return taskBean.getEnumListTaskStates();
+    }
+
 }

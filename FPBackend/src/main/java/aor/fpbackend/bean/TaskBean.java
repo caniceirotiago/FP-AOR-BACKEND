@@ -1,6 +1,7 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.ProjectDao;
+import aor.fpbackend.dao.ProjectMembershipDao;
 import aor.fpbackend.dao.TaskDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.*;
@@ -35,11 +36,17 @@ public class TaskBean implements Serializable {
     @EJB
     TaskDao taskDao;
     @EJB
+    UserBean userBean;
+    @EJB
     ProjectDao projectDao;
     @EJB
     UserDao userDao;
     @EJB
     ProjectBean projectBean;
+    @EJB
+    MembershipBean projectMemberbean;
+    @EJB
+    ProjectMembershipDao projectMemberDao;
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LogManager.getLogger(TaskBean.class);
@@ -225,6 +232,114 @@ public class TaskBean implements Serializable {
         taskEntity.setPlannedStartDate(taskUpdateDto.getPlannedStartDate());
         taskEntity.setPlannedEndDate(taskUpdateDto.getPlannedEndDate());
     }
+    @Transactional
+    public void taskDetailedUpdate(TaskDetailedUpdateDto taskDetailedUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
+        if (taskDetailedUpdateDto == null) {
+            throw new InputValidationException("Invalid Dto");
+        }
+        TaskEntity taskEntity = taskDao.findTaskById(taskDetailedUpdateDto.getTaskId());
+        if (taskEntity == null) {
+            throw new EntityNotFoundException("Task not found");
+        }
+
+        // Validate planned dates if both are present
+        if (taskDetailedUpdateDto.getPlannedStartDate() != null && taskDetailedUpdateDto.getPlannedEndDate() != null) {
+            if (taskDetailedUpdateDto.getPlannedEndDate().isBefore(taskDetailedUpdateDto.getPlannedStartDate())) {
+                throw new InputValidationException("Planned end date cannot be before planned start date");
+            }
+        } else if (taskDetailedUpdateDto.getPlannedStartDate() == null && taskDetailedUpdateDto.getPlannedEndDate() != null) {
+            throw new InputValidationException("Cannot plan end date if planned start date is missing");
+        }
+
+        //ValidateIfNewDatesAreCompatibleWithDependencies
+        // Validate if new dates are compatible with dependencies and prerequisites
+        if (taskDetailedUpdateDto.getPlannedStartDate() != null) {
+            for (TaskEntity dependentTask : taskEntity.getDependentTasks()) {
+                if (dependentTask.getPlannedStartDate() != null && dependentTask.getPlannedStartDate().isBefore(taskDetailedUpdateDto.getPlannedStartDate())) {
+                    throw new InputValidationException("Planned start date is not compatible with dependent task: " + dependentTask.getTitle());
+                }
+            }
+            for (TaskEntity prerequisite : taskEntity.getPrerequisites()) {
+                if (prerequisite.getPlannedEndDate() != null && prerequisite.getPlannedEndDate().isAfter(taskDetailedUpdateDto.getPlannedStartDate())) {
+                    throw new InputValidationException("Planned start date is not compatible with prerequisite task: " + prerequisite.getTitle());
+                }
+            }
+        }
+        if (taskDetailedUpdateDto.getPlannedEndDate() != null) {
+            for (TaskEntity dependentTask : taskEntity.getDependentTasks()) {
+                if (dependentTask.getPlannedEndDate() != null && dependentTask.getPlannedEndDate().isBefore(taskDetailedUpdateDto.getPlannedEndDate())) {
+                    throw new InputValidationException("Planned end date is not compatible with dependent task: " + dependentTask.getTitle());
+                }
+            }
+            for (TaskEntity prerequisite : taskEntity.getPrerequisites()) {
+                if (prerequisite.getPlannedStartDate() != null && prerequisite.getPlannedStartDate().isAfter(taskDetailedUpdateDto.getPlannedEndDate())) {
+                    throw new InputValidationException("Planned end date is not compatible with prerequisite task: " + prerequisite.getTitle());
+                }
+            }
+        }
+
+
+
+
+        // Validate and update state
+        TaskStateEnum newState = taskDetailedUpdateDto.getState();
+        TaskStateEnum currentState = taskEntity.getState();
+        if (newState != currentState) {
+            if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.IN_PROGRESS) {
+                taskEntity.setStartDate(Instant.now());
+            } else if (currentState == TaskStateEnum.IN_PROGRESS && newState == TaskStateEnum.FINISHED) {
+                taskEntity.setEndDate(Instant.now());
+            } else if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.FINISHED) {
+                taskEntity.setStartDate(Instant.now());
+                taskEntity.setEndDate(Instant.now());
+            }
+            if (taskEntity.getEndDate() != null) {
+                long duration = ChronoUnit.DAYS.between(taskEntity.getStartDate(), taskEntity.getEndDate());
+                taskEntity.setDuration(duration);
+            }
+            taskEntity.setState(newState);
+            String content = "Task state updated from " + currentState + " to " + newState + ", by " + authUserEntity.getUsername();
+            projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
+        }
+
+        // Update basic fields
+        taskEntity.setTitle(taskDetailedUpdateDto.getTitle());
+        taskEntity.setDescription(taskDetailedUpdateDto.getDescription());
+        taskEntity.setPlannedStartDate(taskDetailedUpdateDto.getPlannedStartDate());
+        taskEntity.setPlannedEndDate(taskDetailedUpdateDto.getPlannedEndDate());
+
+        // Update responsible user
+        UserEntity newResponsibleUser = userDao.findUserById(taskDetailedUpdateDto.getResponsibleUserId());
+        if (newResponsibleUser == null) {
+            throw new EntityNotFoundException("Responsible user not found");
+        }
+        if (!projectMemberDao.isUserProjectMember(taskEntity.getProject().getId(), newResponsibleUser.getId())) {
+            throw new InputValidationException("Responsible user is not a member of the project");
+        }
+        taskEntity.setResponsibleUser(newResponsibleUser);
+
+        // Update registered executors
+        Set<UserEntity> newRegisteredExecutors = new HashSet<>();
+        for (Long executorId : taskDetailedUpdateDto.getRegisteredExecutors()) {
+            UserEntity executor = userDao.findUserById(executorId);
+            if (executor == null) {
+                throw new EntityNotFoundException("Registered executor not found");
+            }
+            if (!projectMemberDao.isUserProjectMember(taskEntity.getProject().getId(), executorId)) {
+                throw new InputValidationException("Executor with ID " + executorId + " is not a member of the project");
+            }
+            newRegisteredExecutors.add(executor);
+        }
+        taskEntity.setRegisteredExecutors(newRegisteredExecutors);
+
+        // Update non-registered executors
+        taskEntity.setAdditionalExecutors(taskDetailedUpdateDto.getNonRegisteredExecutors());
+
+    }
+
+
 
     public TaskGetDto convertTaskEntityToTaskDto(TaskEntity taskEntity) {
         TaskGetDto taskGetDto = new TaskGetDto();
@@ -238,7 +353,7 @@ public class TaskBean implements Serializable {
         taskGetDto.setEndDate(taskEntity.getEndDate());
         taskGetDto.setDuration(taskEntity.getDuration());
         taskGetDto.setState(taskEntity.getState());
-        taskGetDto.setResponsibleId(taskEntity.getResponsibleUser().getId());
+        taskGetDto.setResponsibleId(userBean.convertUserEntitytoUserBasicInfoDto(taskEntity.getResponsibleUser()));
         taskGetDto.setNonRegisteredExecutors(taskEntity.getAdditionalExecutors());
         taskGetDto.setProjectId(taskEntity.getProject().getId());
 
@@ -275,5 +390,13 @@ public class TaskBean implements Serializable {
             taskGetDtos.add(taskGetDto);
         }
         return taskGetDtos;
+    }
+    public List<TaskStateEnum> getEnumListTaskStates ()
+    {
+        List<TaskStateEnum> taskStateEnums = new ArrayList<>();
+        for (TaskStateEnum taskStateEnum : TaskStateEnum.values()) {
+            taskStateEnums.add(taskStateEnum);
+        }
+        return taskStateEnums;
     }
 }
