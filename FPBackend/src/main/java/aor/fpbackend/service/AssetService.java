@@ -28,7 +28,7 @@ public class AssetService {
     @POST
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_ASSETS)
+    @RequiresMethodPermission(MethodEnum.CREATE_ASSET)
     public void createAsset(@Valid AssetCreateDto assetCreateDto) throws InputValidationException, DuplicatedAttributeException {
         assetBean.createAsset(assetCreateDto);
     }
@@ -47,7 +47,7 @@ public class AssetService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_ASSETS)
+    @RequiresMethodPermission(MethodEnum.ALL_ASSETS)
     public List<AssetGetDto> getAllAssets() {
         return assetBean.getAllAssets();
     }
@@ -55,6 +55,7 @@ public class AssetService {
     @GET
     @Path("/all/filter")
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.FILTER_ASSETS)
     public AssetsPaginatedDto getFilteredAssets(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("pageSize") @DefaultValue("10") int pageSize,
@@ -73,7 +74,7 @@ public class AssetService {
     @GET
     @Path("/id/{assetId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_ASSETS)
+    @RequiresMethodPermission(MethodEnum.ASSETS_BY_PROJECT)
     public AssetGetDto getAssetById(@PathParam("assetId") long assetId) {
         return assetBean.getAssetById(assetId);
     }
@@ -81,7 +82,7 @@ public class AssetService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_ASSETS)
+    @RequiresMethodPermission(MethodEnum.ASSETS_FIRST_LETTER)
     public List<AssetGetDto> getAssetsFirstLetter(@QueryParam("value") String firstLetter) {
         return assetBean.getAssetsByFirstLetter(firstLetter);
     }
@@ -89,7 +90,7 @@ public class AssetService {
     @GET
     @Path("/enum/types")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_ASSETS)
+    @RequiresMethodPermission(MethodEnum.ASSET_ENUMS)
     public List<AssetTypeEnum> getAssetTypes() {
         return assetBean.getEnumListAssetTypes();
     }
@@ -105,7 +106,7 @@ public class AssetService {
     @PUT
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_ASSETS)
+    @RequiresMethodPermission(MethodEnum.ASSET_UPDATE)
     public void updateAsset(@Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
         assetBean.updateAsset(assetUpdateDto);
     }
