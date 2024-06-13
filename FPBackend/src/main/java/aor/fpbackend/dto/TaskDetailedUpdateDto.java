@@ -9,10 +9,10 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Set;
+import java.util.List;
 
 @XmlRootElement
-public class TaskUpdateDto implements Serializable {
+public class TaskDetailedUpdateDto implements Serializable {
 
     @XmlElement
     @NotNull
@@ -21,8 +21,13 @@ public class TaskUpdateDto implements Serializable {
 
     @XmlElement
     @NotNull
+    private String title;
+
+    @XmlElement
+    @NotNull
     private String description;
 
+    @XmlElement
     private Instant plannedStartDate;
 
     @XmlElement
@@ -33,16 +38,34 @@ public class TaskUpdateDto implements Serializable {
     @NotNull
     private TaskStateEnum state;
 
-    public TaskUpdateDto() {
+    @XmlElement
+    private long responsibleUserId;
+
+    @XmlElement
+    private List<Long> registeredExecutors;
+
+    @XmlElement
+    private String nonRegisteredExecutors;
+
+
+
+    public TaskDetailedUpdateDto() {
     }
 
-    public TaskUpdateDto(long taskId, String description, Instant plannedStartDate, Instant plannedEndDate, TaskStateEnum state) {
+    public TaskDetailedUpdateDto(long taskId, String title, String description, Instant plannedStartDate, Instant plannedEndDate, TaskStateEnum state, long responsibleUserId, List<Long> registeredExecutors, String nonRegisteredExecutors) {
         this.taskId = taskId;
+        this.title = title;
         this.description = description;
         this.plannedStartDate = plannedStartDate;
         this.plannedEndDate = plannedEndDate;
         this.state = state;
+        this.responsibleUserId = responsibleUserId;
+        this.registeredExecutors = registeredExecutors;
+        this.nonRegisteredExecutors = nonRegisteredExecutors;
+
     }
+
+    // Getters and Setters
 
     public long getTaskId() {
         return taskId;
@@ -50,6 +73,14 @@ public class TaskUpdateDto implements Serializable {
 
     public void setTaskId(long taskId) {
         this.taskId = taskId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -83,5 +114,30 @@ public class TaskUpdateDto implements Serializable {
     public void setState(TaskStateEnum state) {
         this.state = state;
     }
+
+    public long getResponsibleUserId() {
+        return responsibleUserId;
+    }
+
+    public void setResponsibleUserId(long responsibleUserId) {
+        this.responsibleUserId = responsibleUserId;
+    }
+
+    public List<Long> getRegisteredExecutors() {
+        return registeredExecutors;
+    }
+
+    public void setRegisteredExecutors(List<Long> registeredExecutors) {
+        this.registeredExecutors = registeredExecutors;
+    }
+
+    public String getNonRegisteredExecutors() {
+        return nonRegisteredExecutors;
+    }
+
+    public void setNonRegisteredExecutors(String nonRegisteredExecutors) {
+        this.nonRegisteredExecutors = nonRegisteredExecutors;
+    }
+
 
 }

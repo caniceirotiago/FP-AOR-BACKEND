@@ -74,6 +74,17 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
                 .setParameter("userId", userId)
                 .getResultList();
     }
+    public boolean isUserProjectMember(long projectId, long userId) {
+        try {
+            em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserId", ProjectMembershipEntity.class)
+                    .setParameter("projectId", projectId)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
     public List<UserEntity> findUsersByFirstLetterAndProjId(String firstLetter, long projectId) {
         System.out.println("firstLetter: " + firstLetter + " projectId: " + projectId);
         return em.createNamedQuery("ProjectMembership.findUsersByFirstLetterAndProjId", UserEntity.class)

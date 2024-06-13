@@ -92,6 +92,13 @@ public class TaskService {
     public void updateTask(@Valid TaskUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
         taskBean.updateTask(taskUpdateDto, securityContext);
     }
+    @PUT
+    @Path("/detailed/{projectId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresProjectMemberPermission()
+    public void updateTaskDetailed(@Valid TaskDetailedUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+        taskBean.taskDetailedUpdate(taskUpdateDto, securityContext);
+    }
     @GET
     @Path("/states")
     @Produces(MediaType.APPLICATION_JSON)
