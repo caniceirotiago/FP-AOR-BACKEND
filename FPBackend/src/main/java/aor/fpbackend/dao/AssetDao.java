@@ -93,20 +93,23 @@ public class AssetDao extends AbstractDao<AssetEntity> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<AssetEntity> query = cb.createQuery(AssetEntity.class);
         Root<AssetEntity> assetRoot = query.from(AssetEntity.class);
+        // Create predicates based on query parameters
         List<Predicate> predicates = createPredicates(uriInfo, cb, assetRoot);
         query.where(cb.and(predicates.toArray(new Predicate[0])));
         // Adding logic for sorting
+        String orderBy = uriInfo.getQueryParameters().getFirst("orderBy");
         String sortBy = uriInfo.getQueryParameters().getFirst("sortBy");
+        // Apply sorting if 'sortBy' parameter is provided
         if (sortBy != null && !sortBy.isEmpty()) {
-            switch (sortBy) {
-                case "name":
-                    query.orderBy(cb.asc(assetRoot.get("name")));
-                    break;
-                case "type":
-                    query.orderBy(cb.asc(assetRoot.get("type")));
-                    break;
+            Order order;
+            if ("desc".equalsIgnoreCase(orderBy)) {
+                order = cb.desc(assetRoot.get(sortBy));
+            } else {
+                order = cb.asc(assetRoot.get(sortBy));
             }
+            query.orderBy(order);
         }
+        // Create a typed query with pagination
         TypedQuery<AssetEntity> typedQuery = em.createQuery(query)
                 .setFirstResult((page - 1) * pageSize)
                 .setMaxResults(pageSize);
@@ -129,7 +132,7 @@ public class AssetDao extends AbstractDao<AssetEntity> {
         Map<String, List<String>> filters = uriInfo.getQueryParameters()
                 .entrySet()
                 .stream()
-                .filter(entry -> !entry.getKey().equals("page") && !entry.getKey().equals("pageSize") && !entry.getKey().equals("sortBy"))
+                .filter(entry -> !entry.getKey().equals("page") && !entry.getKey().equals("pageSize") && !entry.getKey().equals("orderBy") && !entry.getKey().equals("sortBy"))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         filters.forEach((key, values) -> {
@@ -148,8 +151,15 @@ public class AssetDao extends AbstractDao<AssetEntity> {
                         throw new BadRequestException("Invalid value for asset type: " + values.get(0));
                     }
                     break;
+                case "manufacturer":
+                    predicates.add(cb.like(cb.lower(assetRoot.get("manufacturer")), "%" + values.get(0).toLowerCase() + "%"));
+                    break;
+                case "partNumber":
+                    predicates.add(cb.like(cb.lower(assetRoot.get("partNumber")), "%" + values.get(0).toLowerCase() + "%"));
+                    break;
             }
         });
         return predicates;
     }
+
 }
