@@ -36,7 +36,7 @@ public class AssetService {
     @POST
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresProjectMemberPermission()
+    @RequiresMethodPermission(MethodEnum.ADD_ASSET)
     public void addAssetToProject(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException, InputValidationException {
         if (assetAddDto == null) {
             throw new InputValidationException("Invalid Dto");
@@ -66,7 +66,7 @@ public class AssetService {
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresProjectMemberPermission()
+    @RequiresMethodPermission(MethodEnum.ASSETS_BY_PROJECT)
     public List<AssetGetDto> getAssetsByProject(@PathParam("projectId") long projectId) {
         return assetBean.getAssetsByProject(projectId);
     }
@@ -74,7 +74,7 @@ public class AssetService {
     @GET
     @Path("/id/{assetId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ASSETS_BY_PROJECT)
+    @RequiresMethodPermission(MethodEnum.ASSETS_BY_ID)
     public AssetGetDto getAssetById(@PathParam("assetId") long assetId) {
         return assetBean.getAssetById(assetId);
     }

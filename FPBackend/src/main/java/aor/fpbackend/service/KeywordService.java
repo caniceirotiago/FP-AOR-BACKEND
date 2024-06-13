@@ -26,7 +26,7 @@ public class KeywordService {
     @POST
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_KEYWORDS)
+    @RequiresMethodPermission(MethodEnum.ADD_KEYWORD)
     public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, InputValidationException {
         if (keywordAddDto != null) {
             keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
@@ -38,7 +38,7 @@ public class KeywordService {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_KEYWORDS)
+    @RequiresMethodPermission(MethodEnum.ALL_KEYWORDS)
     public List<KeywordGetDto> getAllKeywords() {
         return keywordBean.getKeywords();
     }
@@ -46,7 +46,7 @@ public class KeywordService {
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_KEYWORDS)
+    @RequiresMethodPermission(MethodEnum.KEYWORDS_BY_PROJECT)
     public List<KeywordGetDto> getAllKeywordsByProject(@PathParam("projectId") long projectId) {
         return keywordBean.getKeywordsByProject(projectId);
     }
@@ -54,7 +54,7 @@ public class KeywordService {
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.STANDARD_LEVEL_KEYWORDS)
+    @RequiresMethodPermission(MethodEnum.KEYWORDS_FIRST_LETTER)
     public List<KeywordGetDto> getAllKeywordsByFirstLetter(@QueryParam("value") String firstLetter) {
         return keywordBean.getKeywordsByFirstLetter(firstLetter);
     }

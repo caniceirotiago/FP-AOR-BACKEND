@@ -104,7 +104,6 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.SKILLS_BY_USER, "all skills by userId", MethodEnum.SKILLS_BY_USER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.SKILLS_FIRST_LETTER, "all skills by first letter", MethodEnum.SKILLS_FIRST_LETTER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_SKILL_USER, "remove skill from user's list", MethodEnum.REMOVE_SKILL_USER.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_SKILL_PROJECT, "remove skill from project's list", MethodEnum.REMOVE_SKILL_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ADD_INTEREST, "add interest to user's list", MethodEnum.ADD_INTEREST.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_INTERESTS, "retrieves all persisted interests", MethodEnum.ALL_INTERESTS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.INTERESTS_BY_USER, "all interests by userId", MethodEnum.INTERESTS_BY_USER.getValue());
@@ -114,7 +113,6 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_KEYWORDS, "retrieves all persisted keywords", MethodEnum.ALL_KEYWORDS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.KEYWORDS_BY_PROJECT, "all keywords by userId", MethodEnum.KEYWORDS_BY_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.KEYWORDS_FIRST_LETTER, "all keywords by first letter", MethodEnum.KEYWORDS_FIRST_LETTER.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_KEYWORD, "remove keyword from user's list", MethodEnum.REMOVE_KEYWORD.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.SKILLS_BY_PROJECT, "all skills by projectId", MethodEnum.SKILLS_BY_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ADD_PROJECT, "create a new project", MethodEnum.ADD_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_PROJECTS, "get all projects", MethodEnum.ALL_PROJECTS.getValue());
@@ -123,22 +121,18 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_ASSETS, "get all assets", MethodEnum.ALL_ASSETS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ASSETS_FIRST_LETTER, "get assets by first letter", MethodEnum.ASSETS_FIRST_LETTER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ASSETS_BY_PROJECT, "get assets by project id", MethodEnum.ASSETS_BY_PROJECT.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.ADD_USER, "add an user to the project", MethodEnum.ADD_USER.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_USER, "remove an user from the project", MethodEnum.REMOVE_USER.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.ADD_TASK, "add a task to the project", MethodEnum.ADD_TASK.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.ALL_TASKS, "retrieves all persisted tasks", MethodEnum.ALL_TASKS.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.TASKS_BY_PROJECT, "all tasks by projectId", MethodEnum.TASKS_BY_PROJECT.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.TASK_USER, "add executor users to task", MethodEnum.TASK_USER.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.TASK_DEPENDENCY, "add task dependency to task", MethodEnum.TASK_DEPENDENCY.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.TASK_UPDATE, "update task elements", MethodEnum.TASK_UPDATE.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.TASKS_BY_ID, "all tasks by Id", MethodEnum.TASKS_BY_ID.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_ENUMS, "retrieve all project enum elements", MethodEnum.PROJECT_ENUMS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_APPROVE, "approve a project in READY state", MethodEnum.PROJECT_APPROVE.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ASK_TO_JOIN, "ask to join a project", MethodEnum.ASK_TO_JOIN.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.USERS_BY_PROJECT, "get all users by project", MethodEnum.USERS_BY_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ASSET_ENUMS, "retrieve all asset enum elements", MethodEnum.ASSET_ENUMS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.INTEREST_ENUMS, "retrieve all interest enum elements", MethodEnum.INTEREST_ENUMS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.SKILL_ENUMS, "retrieve all skill enum elements", MethodEnum.SKILL_ENUMS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ASSET_UPDATE, "retrieve all skill enum elements", MethodEnum.ASSET_UPDATE.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ASSETS_BY_ID, "retrieve all assets by Id", MethodEnum.ASSETS_BY_ID.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ADD_ASSET, "add asset to project", MethodEnum.ADD_ASSET.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.FILTER_ASSETS, "get assets filtered", MethodEnum.FILTER_ASSETS.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.USERS_FIRST_LETTER, "get users by first letter", MethodEnum.USERS_FIRST_LETTER.getValue());
     }
 
     @Transactional
@@ -156,8 +150,6 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILLS_FIRST_LETTER);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_SKILL_USER);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_SKILL_USER);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_SKILL_PROJECT);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_SKILL_PROJECT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_INTEREST);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_INTEREST);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ALL_INTERESTS);
@@ -176,8 +168,6 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.KEYWORDS_BY_PROJECT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.KEYWORDS_FIRST_LETTER);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.KEYWORDS_FIRST_LETTER);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_KEYWORD);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_KEYWORD);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.SKILLS_BY_PROJECT);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILLS_BY_PROJECT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_PROJECT);
@@ -192,29 +182,13 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASSETS_FIRST_LETTER);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSETS_BY_PROJECT);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASSETS_BY_PROJECT);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_USER);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_USER);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_USER);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_USER);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_TASK);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_TASK);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.TASKS_BY_PROJECT);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASKS_BY_PROJECT);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ALL_TASKS);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ALL_TASKS);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.TASK_USER);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASK_USER);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.TASK_DEPENDENCY);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASK_DEPENDENCY);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.TASK_UPDATE);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASK_UPDATE);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.TASKS_BY_ID);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.TASKS_BY_ID);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_ENUMS);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.PROJECT_ENUMS);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_APPROVE);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASK_TO_JOIN);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASK_TO_JOIN);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.USERS_BY_PROJECT);
-        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.USERS_BY_PROJECT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSET_ENUMS);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASSET_ENUMS);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.CREATE_ASSET);
@@ -225,5 +199,13 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.SKILL_ENUMS);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSET_UPDATE);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASSET_UPDATE);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSETS_BY_ID);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASSETS_BY_ID);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ADD_ASSET);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ADD_ASSET);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.FILTER_ASSETS);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.FILTER_ASSETS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.USERS_FIRST_LETTER);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.USERS_FIRST_LETTER);
     }
 }
