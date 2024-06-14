@@ -104,7 +104,7 @@ public class MembershipBean implements Serializable {
     }
 
     @Transactional
-    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, String authUsername) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, UserEntity authUser) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
@@ -144,9 +144,9 @@ public class MembershipBean implements Serializable {
         // Add the user to the project's users
         projectEntity.getMembers().add(membershipEntity);
         if (!createHasAccepted) sendInviteToUser(membershipEntity, userEntity, projectEntity);
-        if (!userEntity.getUsername().equals(authUsername)) {
-            String content = "User " + userEntity.getUsername() + ", added to project by " + authUsername;
-            projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
+        if (!userEntity.getUsername().equals(authUser.getUsername())) {
+            String content = "User " + userEntity.getUsername() + " added to project";
+            projectBean.createProjectLog(projectEntity, authUser, LogTypeEnum.PROJECT_MEMBERS, content);
         }
     }
 
