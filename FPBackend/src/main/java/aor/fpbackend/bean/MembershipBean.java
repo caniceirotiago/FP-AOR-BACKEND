@@ -84,7 +84,7 @@ public class MembershipBean implements Serializable {
         if (approverEntity == null) {
             throw new UserNotFoundException("User not found");
         }
-        if (projectMemberDao.isUserProjectManager(membershipEntity.getProject().getId(), approverEntity.getId())){
+        if (!projectMemberDao.isUserProjectManager(membershipEntity.getProject().getId(), approverEntity.getId())){
             throw new UnauthorizedAccessException("Approver is not a Project Manager");
         }
         if (approve) {
@@ -211,10 +211,7 @@ public class MembershipBean implements Serializable {
             return new ArrayList<>();
         }
         String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
-        System.out.println("lowerCaseFirstLetter: " + lowerCaseFirstLetter + " projectId: " + projectId);
-
         List<UserEntity> users = projectMemberDao.findUsersByFirstLetterAndProjId(lowerCaseFirstLetter, projectId);
-        System.out.println("users: " + users.size() + " projectId: " + projectId);
         List<UserBasicInfoDto> userBasicInfoDtos = new ArrayList<>();
         for (UserEntity user : users) {
             userBasicInfoDtos.add(new UserBasicInfoDto(user.getId(), user.getUsername(), user.getPhoto(), user.getRole().getId()));
