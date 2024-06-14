@@ -11,6 +11,8 @@ import java.io.Serializable;
 public class ProjectAssetGetDto implements Serializable {
 
     @XmlElement
+    private long id;
+    @XmlElement
     private String name;
 
     @XmlElement
@@ -20,9 +22,18 @@ public class ProjectAssetGetDto implements Serializable {
     public ProjectAssetGetDto() {
     }
 
-    public ProjectAssetGetDto(String name, int usedQuantity) {
+    public ProjectAssetGetDto(long id, String name, int usedQuantity) {
+        this.id = id;
         this.name = name;
         this.usedQuantity = usedQuantity;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -40,5 +51,4 @@ public class ProjectAssetGetDto implements Serializable {
     public void setUsedQuantity(int usedQuantity) {
         this.usedQuantity = usedQuantity;
     }
-
 }

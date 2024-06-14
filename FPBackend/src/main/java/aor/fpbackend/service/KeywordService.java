@@ -58,8 +58,9 @@ public class KeywordService {
         return keywordBean.getKeywordsByFirstLetter(firstLetter);
     }
 
+    // /{projectId} just for filter validation
     @PUT
-    @Path("/remove/project")
+    @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
     public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException, InputValidationException {
