@@ -2,6 +2,7 @@ package aor.fpbackend.dao;
 
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.enums.QueryParams;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
@@ -93,28 +94,34 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         query.where(cb.and(predicates.toArray(new Predicate[0])));
 
         // Adding logic for sorting
-        String sortBy = uriInfo.getQueryParameters().getFirst("sortBy");
+        String orderBy = uriInfo.getQueryParameters().getFirst(QueryParams.ORDER_BY);
+        String sortBy = uriInfo.getQueryParameters().getFirst(QueryParams.SORT_BY);
+
+        // Apply sorting if 'sortBy' parameter is provided
         if (sortBy != null && !sortBy.isEmpty()) {
+            Order order;
             switch (sortBy) {
-                case "creationDate":
-                    query.orderBy(cb.asc(projectRoot.get("creationDate")));
+                case QueryParams.CREATION_DATE:
+                    order = QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(projectRoot.get(QueryParams.CREATION_DATE)) : cb.asc(projectRoot.get(QueryParams.CREATION_DATE));
                     break;
-                case "openPositions":
+                case QueryParams.OPEN_POSITIONS:
                     Subquery<Long> subquery = query.subquery(Long.class);
                     Root<ProjectMembershipEntity> subRoot = subquery.from(ProjectMembershipEntity.class);
                     subquery.select(cb.count(subRoot.get("id"))).where(cb.equal(subRoot.get("project"), projectRoot));
                     Expression<Integer> maxMembersExpr = cb.literal(getMaxProjectMembers());
                     Expression<Long> currentMembersExpr = cb.coalesce(subquery.getSelection(), 0L);
                     Expression<Integer> openPositionsExpr = cb.diff(maxMembersExpr, currentMembersExpr.as(Integer.class));
-                    query.orderBy(cb.asc(openPositionsExpr));
+                    order = QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(openPositionsExpr) : cb.asc(openPositionsExpr);
                     break;
-                case "state":
-                    query.orderBy(cb.asc(projectRoot.get("state")));
+                case QueryParams.STATE:
+                    order = QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(projectRoot.get(QueryParams.STATE)) : cb.asc(projectRoot.get(QueryParams.STATE));
                     break;
                 default:
-                    // Default sorting, if any
+                    // Default sorting
+                    order = cb.asc(projectRoot.get(QueryParams.CREATION_DATE));
                     break;
             }
+            query.orderBy(order);
         }
 
         TypedQuery<ProjectEntity> typedQuery = em.createQuery(query)
@@ -140,42 +147,42 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
 
     private List<Predicate> createPredicates(UriInfo uriInfo, CriteriaBuilder cb, Root<ProjectEntity> projectRoot) {
         List<Predicate> predicates = new ArrayList<>();
-
         Map<String, List<String>> filters = uriInfo.getQueryParameters()
                 .entrySet()
                 .stream()
-                .filter(entry -> !entry.getKey().equals("page") && !entry.getKey().equals("pageSize") && !entry.getKey().equals("sortBy"))
+                .filter(entry -> !entry.getKey().equals(QueryParams.PAGE) &&
+                        !entry.getKey().equals(QueryParams.PAGE_SIZE) &&
+                        !entry.getKey().equals(QueryParams.ORDER_BY) &&
+                        !entry.getKey().equals(QueryParams.SORT_BY))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
         filters.forEach((key, values) -> {
             if (values == null || values.isEmpty() || values.get(0).isEmpty()) {
                 return;
             }
             switch (key) {
-                case "name":
-                    predicates.add(cb.like(cb.lower(projectRoot.get("name")), "%" + values.get(0).toLowerCase() + "%"));
+                case QueryParams.NAME:
+                    predicates.add(cb.like(cb.lower(projectRoot.get(QueryParams.NAME)), "%" + values.get(0).toLowerCase() + "%"));
                     break;
-                case "state":
+                case QueryParams.STATE:
                     try {
                         ProjectStateEnum state = ProjectStateEnum.valueOf(values.get(0).toUpperCase());
-                        predicates.add(cb.equal(projectRoot.get("state"), state));
+                        predicates.add(cb.equal(projectRoot.get(QueryParams.STATE), state));
                     } catch (IllegalArgumentException e) {
                         throw new BadRequestException("Invalid value for project state: " + values.get(0));
                     }
                     break;
-                case "keywords":
+                case QueryParams.KEYWORDS:
                     Join<ProjectEntity, KeywordEntity> keywordJoin = projectRoot.join("projectKeywords");
                     predicates.add(cb.like(cb.lower(keywordJoin.get("name")), "%" + values.get(0).toLowerCase() + "%"));
                     break;
-                case "skills":
+                case QueryParams.SKILLS:
                     Join<ProjectEntity, SkillEntity> skillJoin = projectRoot.join("projectSkills");
                     predicates.add(cb.like(cb.lower(skillJoin.get("name")), "%" + values.get(0).toLowerCase() + "%"));
                     break;
-                case "laboratory":
+                case QueryParams.LABORATORY:
                     Join<ProjectEntity, LaboratoryEntity> labJoin = projectRoot.join("laboratory");
                     predicates.add(cb.equal(labJoin.get("id"), Long.parseLong(values.get(0))));
                     break;
-                // Add more filters as needed
             }
         });
 

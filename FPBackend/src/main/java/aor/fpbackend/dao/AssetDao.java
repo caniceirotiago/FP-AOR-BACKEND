@@ -3,6 +3,7 @@ package aor.fpbackend.dao;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.enums.QueryParams;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -97,12 +98,12 @@ public class AssetDao extends AbstractDao<AssetEntity> {
         List<Predicate> predicates = createPredicates(uriInfo, cb, assetRoot);
         query.where(cb.and(predicates.toArray(new Predicate[0])));
         // Adding logic for sorting
-        String orderBy = uriInfo.getQueryParameters().getFirst("orderBy");
-        String sortBy = uriInfo.getQueryParameters().getFirst("sortBy");
+        String orderBy = uriInfo.getQueryParameters().getFirst(QueryParams.ORDER_BY);
+        String sortBy = uriInfo.getQueryParameters().getFirst(QueryParams.SORT_BY);
         // Apply sorting if 'sortBy' parameter is provided
         if (sortBy != null && !sortBy.isEmpty()) {
             Order order;
-            if ("desc".equalsIgnoreCase(orderBy)) {
+            if (QueryParams.DESC.equalsIgnoreCase(orderBy)) {
                 order = cb.desc(assetRoot.get(sortBy));
             } else {
                 order = cb.asc(assetRoot.get(sortBy));
@@ -132,7 +133,10 @@ public class AssetDao extends AbstractDao<AssetEntity> {
         Map<String, List<String>> filters = uriInfo.getQueryParameters()
                 .entrySet()
                 .stream()
-                .filter(entry -> !entry.getKey().equals("page") && !entry.getKey().equals("pageSize") && !entry.getKey().equals("orderBy") && !entry.getKey().equals("sortBy"))
+                .filter(entry -> !entry.getKey().equals(QueryParams.PAGE) &&
+                        !entry.getKey().equals(QueryParams.PAGE_SIZE) &&
+                        !entry.getKey().equals(QueryParams.ORDER_BY) &&
+                        !entry.getKey().equals(QueryParams.SORT_BY))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         filters.forEach((key, values) -> {
@@ -140,22 +144,22 @@ public class AssetDao extends AbstractDao<AssetEntity> {
                 return;
             }
             switch (key) {
-                case "name":
-                    predicates.add(cb.like(cb.lower(assetRoot.get("name")), "%" + values.get(0).toLowerCase() + "%"));
+                case QueryParams.NAME:
+                    predicates.add(cb.like(cb.lower(assetRoot.get(QueryParams.NAME)), "%" + values.get(0).toLowerCase() + "%"));
                     break;
-                case "type":
+                case QueryParams.TYPE:
                     try {
                         AssetTypeEnum type = AssetTypeEnum.valueOf(values.get(0).toUpperCase());
-                        predicates.add(cb.equal(assetRoot.get("type"), type));
+                        predicates.add(cb.equal(assetRoot.get(QueryParams.TYPE), type));
                     } catch (IllegalArgumentException e) {
                         throw new BadRequestException("Invalid value for asset type: " + values.get(0));
                     }
                     break;
-                case "manufacturer":
-                    predicates.add(cb.like(cb.lower(assetRoot.get("manufacturer")), "%" + values.get(0).toLowerCase() + "%"));
+                case QueryParams.MANUFACTURER:
+                    predicates.add(cb.like(cb.lower(assetRoot.get(QueryParams.MANUFACTURER)), "%" + values.get(0).toLowerCase() + "%"));
                     break;
-                case "partNumber":
-                    predicates.add(cb.like(cb.lower(assetRoot.get("partNumber")), "%" + values.get(0).toLowerCase() + "%"));
+                case QueryParams.PART_NUMBER:
+                    predicates.add(cb.like(cb.lower(assetRoot.get(QueryParams.PART_NUMBER)), "%" + values.get(0).toLowerCase() + "%"));
                     break;
             }
         });

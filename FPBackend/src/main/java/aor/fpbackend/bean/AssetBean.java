@@ -90,7 +90,13 @@ public class AssetBean implements Serializable {
         return convertAssetEntityToAssetDto(assetDao.findAssetById(assetId));
     }
 
-    public AssetsPaginatedDto getFilteredAssets(int page, int pageSize, UriInfo uriInfo) {
+    public AssetsPaginatedDto getFilteredAssets(int page, int pageSize, UriInfo uriInfo) throws InputValidationException {
+        if (page <= 0) {
+            throw new InputValidationException("Page must be greater than 0.");
+        }
+        if (pageSize <= 0) {
+            throw new InputValidationException("Page size must be greater than 0.");
+        }
         List<AssetEntity> assetEntities = assetDao.findFilteredAssets(page, pageSize, uriInfo);
         long totalAssets = assetDao.countFilteredAssets(uriInfo);
         List<AssetGetDto> assetGetDtos = convertAssetEntityListToAssetDtoList(assetEntities);

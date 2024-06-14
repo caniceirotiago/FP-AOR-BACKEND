@@ -225,7 +225,13 @@ public class ProjectBean implements Serializable {
         createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, comment);
     }
 
-    public ProjectPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
+    public ProjectPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) throws InputValidationException {
+        if (page <= 0) {
+            throw new InputValidationException("Page must be greater than 0.");
+        }
+        if (pageSize <= 0) {
+            throw new InputValidationException("Page size must be greater than 0.");
+        }
         List<ProjectEntity> projectEntities = projectDao.findFilteredProjects(page, pageSize, uriInfo);
         long totalProjects = projectDao.countFilteredProjects(uriInfo);
         List<ProjectGetDto> projectGetDtos = convertProjectEntityListToProjectDtoList(new ArrayList<>(projectEntities));

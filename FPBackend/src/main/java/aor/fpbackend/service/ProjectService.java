@@ -51,8 +51,8 @@ public class ProjectService {
     @Produces(MediaType.APPLICATION_JSON)
     public ProjectPaginatedDto getFilteredProjects(
             @QueryParam("page") @DefaultValue("1") int page,
-            @QueryParam("pageSize") @DefaultValue("10") int pageSize,
-            @Context UriInfo uriInfo) {
+            @QueryParam("pageSize") @DefaultValue("8") int pageSize,
+            @Context UriInfo uriInfo) throws InputValidationException {
         return projectBean.getFilteredProjects(page, pageSize, uriInfo);
     }
 
