@@ -4,6 +4,7 @@ import aor.fpbackend.bean.AssetBean;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.exception.DatabaseOperationException;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -36,11 +37,11 @@ public class AssetService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_ASSET)
-    public void addAssetToProject(@Valid AssetAddDto assetAddDto) throws EntityNotFoundException, InputValidationException {
-        if (assetAddDto == null) {
+    public void addAssetToProject(@Valid ProjectAssetCreateDto projectAssetCreateDto) throws EntityNotFoundException, InputValidationException {
+        if (projectAssetCreateDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
-        assetBean.addAssetToProject(assetAddDto.getName(), assetAddDto.getProjectId(), assetAddDto.getUsedQuantity());
+        assetBean.addProjectAssetToProject(projectAssetCreateDto.getName(), projectAssetCreateDto.getProjectId(), projectAssetCreateDto.getUsedQuantity());
     }
 
     @GET
@@ -66,8 +67,8 @@ public class AssetService {
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASSETS_BY_PROJECT)
-    public List<AssetGetDto> getAssetsByProject(@PathParam("projectId") long projectId) {
-        return assetBean.getAssetsByProject(projectId);
+    public List<ProjectAssetGetDto> getProjectAssetsByProject(@PathParam("projectId") long projectId) {
+        return assetBean.getProjectAssetsByProject(projectId);
     }
 
     @GET
@@ -94,12 +95,21 @@ public class AssetService {
         return assetBean.getEnumListAssetTypes();
     }
 
+    @DELETE
+    @Path("")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.ASSET_REMOVE)
+    public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
+        assetBean.removeAsset(assetRemoveDto);
+    }
+
+    // /{projectId} just for filter validation
     @PUT
-    @Path("/remove/project")
+    @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException {
-        assetBean.removeAsset(assetRemoveDto);
+    public void removeProjectAssetFromProject(@Valid ProjectAssetRemoveDto projectAssetRemoveDto) throws EntityNotFoundException, InputValidationException {
+        assetBean.removeProjectAssetFromProject(projectAssetRemoveDto);
     }
 
     @PUT

@@ -81,7 +81,6 @@ public class TaskService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
     public void removeDependencyFromTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, InputValidationException {
-        System.out.println(addDependencyDto);
         taskBean.removeDependencyTask(addDependencyDto);
     }
 

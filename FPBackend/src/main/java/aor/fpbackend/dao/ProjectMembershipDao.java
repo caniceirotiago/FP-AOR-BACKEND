@@ -2,6 +2,7 @@ package aor.fpbackend.dao;
 
 import aor.fpbackend.entity.ProjectMembershipEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.ProjectRoleEnum;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -56,7 +57,7 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
             em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserIdAndRole", ProjectMembershipEntity.class)
                     .setParameter("projectId", projectId)
                     .setParameter("userId", userId)
-                    .setParameter("role", "PROJECT_MANAGER")
+                    .setParameter("role", ProjectRoleEnum.PROJECT_MANAGER)
                     .getSingleResult();
             return true;
         } catch (NoResultException e) {

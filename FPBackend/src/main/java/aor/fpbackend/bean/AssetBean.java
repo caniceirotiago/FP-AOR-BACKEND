@@ -6,6 +6,7 @@ import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.AssetTypeEnum;
+import aor.fpbackend.exception.DatabaseOperationException;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -49,7 +50,7 @@ public class AssetBean implements Serializable {
     }
 
     @Transactional
-    public void addAssetToProject(String name, long projectId, int usedQuantity) throws EntityNotFoundException {
+    public void addProjectAssetToProject(String name, long projectId, int usedQuantity) throws EntityNotFoundException {
         // Find the Asset entity by name
         AssetEntity assetEntity = assetDao.findAssetByName(name);
         if (assetEntity == null) {
@@ -82,8 +83,8 @@ public class AssetBean implements Serializable {
         return convertAssetEntityListToAssetDtoList(assetDao.getAllAssets());
     }
 
-    public List<AssetGetDto> getAssetsByProject(long projectId) {
-        return convertAssetEntityListToAssetDtoList(assetDao.getAssetsByProjectId(projectId));
+    public List<ProjectAssetGetDto> getProjectAssetsByProject(long projectId) {
+        return convertProjectAssetEntityListToProjectAssetDtoList(projectAssetDao.findProjectAssetsByProjectId(projectId));
     }
 
     public AssetGetDto getAssetById(long assetId) {
@@ -121,15 +122,36 @@ public class AssetBean implements Serializable {
         return assetTypeEnums;
     }
 
+    public void removeAsset(AssetRemoveDto assetRemoveDto) throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
+        // Validate DTO
+        if (assetRemoveDto == null) {
+            throw new InputValidationException("Invalid DTO");
+        }
+        // If Asset is in use in any project, cannot delete it
+        if (projectAssetDao.checkAssetInUse(assetRemoveDto.getAssetId())) {
+            throw new DatabaseOperationException("Asset is associated in existing Project Asset Entity");
+        }
+        // Find the asset by Id
+        AssetEntity assetEntity = assetDao.findAssetById(assetRemoveDto.getAssetId());
+        if (assetEntity == null) {
+            throw new EntityNotFoundException("Asset not found");
+        }
+        assetDao.remove(assetEntity);
+    }
+
     @Transactional
-    public void removeAsset(AssetRemoveDto assetRemoveDto) throws EntityNotFoundException {
+    public void removeProjectAssetFromProject(ProjectAssetRemoveDto projectAssetRemoveDto) throws EntityNotFoundException, InputValidationException {
+        // Validate DTO
+        if (projectAssetRemoveDto == null) {
+            throw new InputValidationException("Invalid DTO");
+        }
         // Find the project by Id
-        ProjectEntity projectEntity = projectDao.findProjectById(assetRemoveDto.getProjectId());
+        ProjectEntity projectEntity = projectDao.findProjectById(projectAssetRemoveDto.getProjectId());
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
-        // Find the asset by Id
-        AssetEntity assetEntity = assetDao.findAssetById(assetRemoveDto.getId());
+        // Find the asset by Name
+        AssetEntity assetEntity = assetDao.findAssetByName(projectAssetRemoveDto.getName());
         if (assetEntity == null) {
             throw new EntityNotFoundException("Asset not found");
         }
@@ -164,14 +186,14 @@ public class AssetBean implements Serializable {
     }
 
     public void updateAsset(AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
+        // Validate DTO
+        if (assetUpdateDto == null) {
+            throw new InputValidationException("Invalid DTO");
+        }
         // Find existing Asset
         AssetEntity assetEntity = assetDao.findAssetById(assetUpdateDto.getId());
         if (assetEntity == null) {
             throw new EntityNotFoundException("Asset not found with ID: " + assetUpdateDto.getId());
-        }
-        // Validate DTO
-        if (assetUpdateDto == null) {
-            throw new InputValidationException("Invalid DTO");
         }
         // When updates project name, check for duplicates
         if (!assetEntity.getName().equalsIgnoreCase(assetUpdateDto.getName())) {
@@ -211,6 +233,22 @@ public class AssetBean implements Serializable {
             assetGetDtos.add(assetGetDto);
         }
         return assetGetDtos;
+    }
+
+    public ProjectAssetGetDto convertProjectAssetEntityToProjectAssetDto(ProjectAssetEntity projectAssetEntity) {
+        ProjectAssetGetDto projectAssetGetDto = new ProjectAssetGetDto();
+        projectAssetGetDto.setName(projectAssetEntity.getAsset().getName());
+        projectAssetGetDto.setUsedQuantity(projectAssetEntity.getUsedQuantity());
+        return projectAssetGetDto;
+    }
+
+    public List<ProjectAssetGetDto> convertProjectAssetEntityListToProjectAssetDtoList(List<ProjectAssetEntity> projectAssetEntities) {
+        List<ProjectAssetGetDto> projectAssetGetDtos = new ArrayList<>();
+        for (ProjectAssetEntity projectAssetEntity : projectAssetEntities) {
+            ProjectAssetGetDto projectAssetGetDto = convertProjectAssetEntityToProjectAssetDto(projectAssetEntity);
+            projectAssetGetDtos.add(projectAssetGetDto);
+        }
+        return projectAssetGetDtos;
     }
 
 }

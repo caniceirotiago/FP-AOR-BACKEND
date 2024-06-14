@@ -7,8 +7,9 @@ import java.io.Serializable;
 @Entity
 @Table(name = "project_asset")
 
-@NamedQuery(name = "ProjectAsset.findProjectAssetById", query = "SELECT p FROM ProjectAssetEntity p WHERE p.id = :id")
-@NamedQuery(name = "ProjectAsset.findProjectAssetsByProjectId", query = "SELECT p FROM ProjectAssetEntity p WHERE p.project.id = :projectId")
+@NamedQuery(name = "ProjectAsset.findProjectAssetById", query = "SELECT pa FROM ProjectAssetEntity pa WHERE pa.id = :id")
+@NamedQuery(name = "ProjectAsset.findProjectAssetsByProjectId", query = "SELECT pa FROM ProjectAssetEntity pa WHERE pa.project.id = :projectId")
+@NamedQuery(name = "ProjectAsset.countProjectAssetsByAssetId", query = "SELECT COUNT(pa) FROM ProjectAssetEntity pa WHERE pa.asset.id = :assetId")
 
 public class ProjectAssetEntity implements Serializable {
     private static final long serialVersionUID = 1L;

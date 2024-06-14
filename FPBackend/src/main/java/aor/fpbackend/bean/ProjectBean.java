@@ -92,7 +92,7 @@ public class ProjectBean implements Serializable {
         projectDao.persist(projectEntity);
         // Define relations on the persisted Project
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
-        String content = projectEntity.getName() + " was created by " + user.getUsername();
+        String content = "Creation of " + projectEntity.getName();
         createProjectLog(projectEntity, user, LogTypeEnum.GENERAL_PROJECT_DATA, content);
         addRelationsToProject(projectCreateDto, persistedProject, user);
     }
@@ -100,12 +100,12 @@ public class ProjectBean implements Serializable {
     private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException {
         // Add creator to project
 
-        memberBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator.getUsername());
+        memberBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator);
         // Define relations for project members (Users)
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
             for (String username : usernames) {
-                memberBean.addUserToProject(username, projectEntity.getId(), true, false, userCreator.getUsername());
+                memberBean.addUserToProject(username, projectEntity.getId(), true, false, userCreator);
             }
         }
         // Define relations for project Skills
@@ -125,13 +125,13 @@ public class ProjectBean implements Serializable {
                 keywordBean.addKeyword(keywordName, projectEntity.getId());
             }
         }
-        // Define relations for project Assets
+        // Define relations for project ProjectAssets
         if (projectCreateDto.getAssets() != null && !projectCreateDto.getAssets().isEmpty()) {
-            Set<AssetAddDto> assets = projectCreateDto.getAssets().stream().collect(Collectors.toSet());
-            for (AssetAddDto asset : assets) {
+            Set<ProjectAssetCreateDto> assets = projectCreateDto.getAssets().stream().collect(Collectors.toSet());
+            for (ProjectAssetCreateDto asset : assets) {
                 String assetName = asset.getName();
                 int assetUsedQuantity = asset.getUsedQuantity();
-                assetBean.addAssetToProject(assetName, projectEntity.getId(), assetUsedQuantity);
+                assetBean.addProjectAssetToProject(assetName, projectEntity.getId(), assetUsedQuantity);
             }
         }
         // Define default final Task
