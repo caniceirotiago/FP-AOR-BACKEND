@@ -28,11 +28,10 @@ public class KeywordService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_KEYWORD)
     public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, InputValidationException {
-        if (keywordAddDto != null) {
-            keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
-        } else {
+        if (keywordAddDto == null) {
             throw new InputValidationException("Invalid Dto");
         }
+        keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
     }
 
     @GET
@@ -59,8 +58,9 @@ public class KeywordService {
         return keywordBean.getKeywordsByFirstLetter(firstLetter);
     }
 
+    // /{projectId} just for filter validation
     @PUT
-    @Path("/remove/project")
+    @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
     public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException, InputValidationException {

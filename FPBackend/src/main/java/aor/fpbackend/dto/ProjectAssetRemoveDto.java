@@ -10,10 +10,9 @@ import java.io.Serializable;
 public class ProjectAssetRemoveDto implements Serializable {
 
     @XmlElement
-    @NotBlank
-    @Size(min = 2, max = 25, message = "Name must be between 2 and 25 characters")
-    @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
-    private String name;
+    @NotNull
+    @Min(value = 1, message = "ID must be greater than 0")
+    private long id;
 
     @XmlElement
     @NotNull
@@ -23,17 +22,17 @@ public class ProjectAssetRemoveDto implements Serializable {
     public ProjectAssetRemoveDto() {
     }
 
-    public ProjectAssetRemoveDto(String name, long projectId) {
-        this.name = name;
+    public ProjectAssetRemoveDto(long id, long projectId) {
+        this.id = id;
         this.projectId = projectId;
     }
 
-    public String getName() {
-        return name;
+    public long getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public long getProjectId() {

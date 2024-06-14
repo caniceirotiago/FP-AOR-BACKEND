@@ -87,7 +87,6 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
         }
     }
     public List<UserEntity> findUsersByFirstLetterAndProjId(String firstLetter, long projectId) {
-        System.out.println("firstLetter: " + firstLetter + " projectId: " + projectId);
         return em.createNamedQuery("ProjectMembership.findUsersByFirstLetterAndProjId", UserEntity.class)
                 .setParameter("firstLetter", firstLetter.toLowerCase() + "%")
                 .setParameter("projectId", projectId)

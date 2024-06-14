@@ -151,7 +151,7 @@ public class AssetBean implements Serializable {
             throw new EntityNotFoundException("Project not found");
         }
         // Find the asset by Name
-        AssetEntity assetEntity = assetDao.findAssetByName(projectAssetRemoveDto.getName());
+        AssetEntity assetEntity = assetDao.findAssetById(projectAssetRemoveDto.getId());
         if (assetEntity == null) {
             throw new EntityNotFoundException("Asset not found");
         }
@@ -237,6 +237,7 @@ public class AssetBean implements Serializable {
 
     public ProjectAssetGetDto convertProjectAssetEntityToProjectAssetDto(ProjectAssetEntity projectAssetEntity) {
         ProjectAssetGetDto projectAssetGetDto = new ProjectAssetGetDto();
+        projectAssetGetDto.setId(projectAssetEntity.getAsset().getId());
         projectAssetGetDto.setName(projectAssetEntity.getAsset().getName());
         projectAssetGetDto.setUsedQuantity(projectAssetEntity.getUsedQuantity());
         return projectAssetGetDto;

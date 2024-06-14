@@ -97,8 +97,9 @@ public class SkillService {
 
     }
 
+    // /{projectId} just for filter validation
     @PUT
-    @Path("/remove/project")
+    @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
     public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException, InputValidationException {
