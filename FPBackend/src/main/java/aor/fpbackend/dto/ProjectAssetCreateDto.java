@@ -1,7 +1,5 @@
 package aor.fpbackend.dto;
 
-import aor.fpbackend.enums.AssetTypeEnum;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -10,7 +8,7 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class AssetAddDto implements Serializable {
+public class ProjectAssetCreateDto implements Serializable {
 
     @XmlElement
     @NotBlank
@@ -19,8 +17,6 @@ public class AssetAddDto implements Serializable {
     private String name;
 
     @XmlElement
-    @NotNull
-    @Min(value = 1, message = "quantity must be greater than 0")
     private int usedQuantity;
 
     @XmlElement
@@ -29,10 +25,10 @@ public class AssetAddDto implements Serializable {
     private long projectId;
 
 
-    public AssetAddDto() {
+    public ProjectAssetCreateDto() {
     }
 
-    public AssetAddDto(String name, int usedQuantity, long projectId) {
+    public ProjectAssetCreateDto(String name, int usedQuantity, long projectId) {
         this.name = name;
         this.usedQuantity = usedQuantity;
         this.projectId = projectId;

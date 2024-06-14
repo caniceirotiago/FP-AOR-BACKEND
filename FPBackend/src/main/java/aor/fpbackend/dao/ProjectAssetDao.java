@@ -29,10 +29,21 @@ public class ProjectAssetDao extends AbstractDao<ProjectAssetEntity> {
         }
     }
 
-
     public List<ProjectAssetEntity> findProjectAssetsByProjectId(long projectId) {
         return em.createNamedQuery("ProjectAsset.findProjectAssetsByProjectId")
                 .setParameter("projectId", projectId)
                 .getResultList();
     }
+
+    public boolean checkAssetInUse(long assetId) {
+        try {
+            Long count = (Long) em.createNamedQuery("ProjectAsset.countProjectAssetsByAssetId")
+                    .setParameter("assetId", assetId)
+                    .getSingleResult();
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
 }

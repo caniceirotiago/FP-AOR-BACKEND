@@ -133,6 +133,7 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ADD_ASSET, "add asset to project", MethodEnum.ADD_ASSET.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.FILTER_ASSETS, "get assets filtered", MethodEnum.FILTER_ASSETS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.USERS_FIRST_LETTER, "get users by first letter", MethodEnum.USERS_FIRST_LETTER.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ASSET_REMOVE, "remove asset from inventory list", MethodEnum.ASSET_REMOVE.getValue());
     }
 
     @Transactional
@@ -207,5 +208,7 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.FILTER_ASSETS);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.USERS_FIRST_LETTER);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.USERS_FIRST_LETTER);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSET_REMOVE);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.ASSET_REMOVE);
     }
 }

@@ -92,7 +92,7 @@ public class ProjectBean implements Serializable {
         projectDao.persist(projectEntity);
         // Define relations on the persisted Project
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
-        String content = projectEntity.getName() + " was created by " + user.getUsername();
+        String content = "Creation of " + projectEntity.getName();
         createProjectLog(projectEntity, user, LogTypeEnum.GENERAL_PROJECT_DATA, content);
         addRelationsToProject(projectCreateDto, persistedProject, user);
     }
@@ -125,13 +125,13 @@ public class ProjectBean implements Serializable {
                 keywordBean.addKeyword(keywordName, projectEntity.getId());
             }
         }
-        // Define relations for project Assets
+        // Define relations for project ProjectAssets
         if (projectCreateDto.getAssets() != null && !projectCreateDto.getAssets().isEmpty()) {
-            Set<AssetAddDto> assets = projectCreateDto.getAssets().stream().collect(Collectors.toSet());
-            for (AssetAddDto asset : assets) {
+            Set<ProjectAssetCreateDto> assets = projectCreateDto.getAssets().stream().collect(Collectors.toSet());
+            for (ProjectAssetCreateDto asset : assets) {
                 String assetName = asset.getName();
                 int assetUsedQuantity = asset.getUsedQuantity();
-                assetBean.addAssetToProject(assetName, projectEntity.getId(), assetUsedQuantity);
+                assetBean.addProjectAssetToProject(assetName, projectEntity.getId(), assetUsedQuantity);
             }
         }
         // Define default final Task

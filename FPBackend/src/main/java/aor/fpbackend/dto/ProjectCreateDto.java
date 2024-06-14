@@ -2,7 +2,6 @@ package aor.fpbackend.dto;
 
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -51,7 +50,7 @@ public class ProjectCreateDto implements Serializable {
     private Set<UsernameDto> users;
 
     @XmlElement
-    private Set<AssetAddDto> assets;
+    private Set<ProjectAssetCreateDto> assets;
 
 
     public ProjectCreateDto() {
@@ -133,11 +132,11 @@ public class ProjectCreateDto implements Serializable {
         this.users = users;
     }
 
-    public Set<AssetAddDto> getAssets() {
+    public Set<ProjectAssetCreateDto> getAssets() {
         return assets;
     }
 
-    public void setAssets(Set<AssetAddDto> assets) {
+    public void setAssets(Set<ProjectAssetCreateDto> assets) {
         this.assets = assets;
     }
 }
