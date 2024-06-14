@@ -49,7 +49,7 @@ public class MembershipService {
     public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
-        memberBean.addUserToProject(username, projectId, false, false, authUserEntity.getUsername());
+        memberBean.addUserToProject(username, projectId, false, false, authUserEntity);
     }
 
     @PUT

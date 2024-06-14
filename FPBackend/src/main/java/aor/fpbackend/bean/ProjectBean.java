@@ -100,12 +100,12 @@ public class ProjectBean implements Serializable {
     private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException {
         // Add creator to project
 
-        memberBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator.getUsername());
+        memberBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator);
         // Define relations for project members (Users)
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
             for (String username : usernames) {
-                memberBean.addUserToProject(username, projectEntity.getId(), true, false, userCreator.getUsername());
+                memberBean.addUserToProject(username, projectEntity.getId(), true, false, userCreator);
             }
         }
         // Define relations for project Skills
