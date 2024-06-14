@@ -57,8 +57,8 @@ public class AssetService {
     @RequiresMethodPermission(MethodEnum.FILTER_ASSETS)
     public AssetsPaginatedDto getFilteredAssets(
             @QueryParam("page") @DefaultValue("1") int page,
-            @QueryParam("pageSize") @DefaultValue("6") int pageSize,
-            @Context UriInfo uriInfo) {
+            @QueryParam("pageSize") @DefaultValue("8") int pageSize,
+            @Context UriInfo uriInfo) throws InputValidationException {
         return assetBean.getFilteredAssets(page, pageSize, uriInfo);
     }
 
