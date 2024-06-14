@@ -33,7 +33,6 @@ public class SessionBean implements Serializable {
                 if (session.isActive()) {
                     session.setActive(false);
                     sessionDao.merge(session);
-                    System.out.println("Session inactivated: " + session.getId());
                     LOGGER.info("Session inactivated: " + session.getId());
                 }
             } else  {
