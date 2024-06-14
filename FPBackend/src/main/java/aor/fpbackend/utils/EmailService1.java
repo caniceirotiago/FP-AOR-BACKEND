@@ -48,7 +48,6 @@ import java.util.Properties;
                 message.setText(body);
                 // Send message
                 Transport.send(message);
-                System.out.println("Confirmation email sent successfully.");
             } catch (MessagingException mex) {
                 mex.printStackTrace();
             }
