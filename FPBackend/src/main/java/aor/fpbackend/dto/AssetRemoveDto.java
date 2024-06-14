@@ -13,29 +13,22 @@ public class AssetRemoveDto implements Serializable {
     @XmlElement
     @NotNull
     @Min(value = 1, message = "ID must be greater than 0")
-    private long id;
-
-    @XmlElement
-    @NotNull
-    @Min(value = 1, message = "ID must be greater than 0")
-    private long projectId;
+    private long assetId;
 
     public AssetRemoveDto() {
     }
 
-    public long getId() {
-        return id;
+    public AssetRemoveDto(long assetId) {
+        this.assetId = assetId;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public long getAssetId() {
+        return assetId;
     }
 
-    public long getProjectId() {
-        return projectId;
+    public void setAssetId(long assetId) {
+        this.assetId = assetId;
     }
 
-    public void setProjectId(long projectId) {
-        this.projectId = projectId;
-    }
+
 }
