@@ -1,5 +1,6 @@
 package aor.fpbackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -8,6 +9,7 @@ import java.io.Serializable;
 
 
 @XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectAssetCreateDto implements Serializable {
 
     @XmlElement
