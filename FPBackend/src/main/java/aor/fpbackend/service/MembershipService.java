@@ -67,7 +67,7 @@ public class MembershipService {
         memberBean.removeUserFromProject(username, projectId, securityContext);
     }
     @GET
-    @Path("/projectids-byuserid/securitycontext")
+    @Path("/projectIds/byUserId/securityContext")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Long> getProjectIdsByUserId(@Context SecurityContext securityContext) {
         return memberBean.getProjectIdsByUserId(securityContext);
