@@ -35,10 +35,7 @@ public class InterestBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(InterestBean.class);
 
     @Transactional
-    public void addInterest(InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, InputValidationException {
-        if (interestAddDto==null){
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void addInterest(InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException {
         // Ensure the interest exists, creating it if necessary
         checkInterestExist(interestAddDto.getName(), interestAddDto.getType());
         // Find the interest by name

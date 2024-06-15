@@ -6,10 +6,7 @@ import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.AssetTypeEnum;
-import aor.fpbackend.exception.DatabaseOperationException;
-import aor.fpbackend.exception.DuplicatedAttributeException;
-import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.InputValidationException;
+import aor.fpbackend.exception.*;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -36,10 +33,7 @@ public class AssetBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(AssetBean.class);
 
 
-    public void createAsset(AssetCreateDto assetCreateDto) throws InputValidationException, DuplicatedAttributeException {
-        if (assetCreateDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void createAsset(AssetCreateDto assetCreateDto) throws DuplicatedAttributeException {
         // Check if the asset name already exists to avoid duplicate entries
         if (assetDao.checkAssetExistByName(assetCreateDto.getName())) {
             throw new DuplicatedAttributeException("Asset name already exists");
@@ -50,7 +44,7 @@ public class AssetBean implements Serializable {
     }
 
     @Transactional
-    public void addProjectAssetToProject(String name, long projectId, int usedQuantity) throws EntityNotFoundException {
+    public void addProjectAssetToProject(String name, long projectId, int usedQuantity) throws EntityNotFoundException, ElementAssociationException {
         // Find the Asset entity by name
         AssetEntity assetEntity = assetDao.findAssetByName(name);
         if (assetEntity == null) {
@@ -64,7 +58,7 @@ public class AssetBean implements Serializable {
         // Check if the asset is already associated with the project
         for (ProjectAssetEntity existingProjectAsset : projectEntity.getProjectAssetsForProject()) {
             if (existingProjectAsset.getAsset().equals(assetEntity)) {
-                throw new IllegalStateException("Asset is already associated with the project");
+                throw new ElementAssociationException("Asset is already associated with the project");
             }
         }
         // Create a new ProjectAssetEntity
@@ -122,14 +116,10 @@ public class AssetBean implements Serializable {
         return assetTypeEnums;
     }
 
-    public void removeAsset(AssetRemoveDto assetRemoveDto) throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
-        // Validate DTO
-        if (assetRemoveDto == null) {
-            throw new InputValidationException("Invalid DTO");
-        }
+    public void removeAsset(AssetRemoveDto assetRemoveDto) throws EntityNotFoundException, ElementAssociationException {
         // If Asset is in use in any project, cannot delete it
         if (projectAssetDao.checkAssetInUse(assetRemoveDto.getAssetId())) {
-            throw new DatabaseOperationException("Asset is associated in existing Project Asset Entity");
+            throw new ElementAssociationException("Asset is associated in existing Project Asset Entity");
         }
         // Find the asset by Id
         AssetEntity assetEntity = assetDao.findAssetById(assetRemoveDto.getAssetId());
@@ -140,11 +130,7 @@ public class AssetBean implements Serializable {
     }
 
     @Transactional
-    public void removeProjectAssetFromProject(ProjectAssetRemoveDto projectAssetRemoveDto) throws EntityNotFoundException, InputValidationException {
-        // Validate DTO
-        if (projectAssetRemoveDto == null) {
-            throw new InputValidationException("Invalid DTO");
-        }
+    public void removeProjectAssetFromProject(ProjectAssetRemoveDto projectAssetRemoveDto) throws EntityNotFoundException {
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectAssetRemoveDto.getProjectId());
         if (projectEntity == null) {
@@ -186,10 +172,6 @@ public class AssetBean implements Serializable {
     }
 
     public void updateAsset(AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
-        // Validate DTO
-        if (assetUpdateDto == null) {
-            throw new InputValidationException("Invalid DTO");
-        }
         // Find existing Asset
         AssetEntity assetEntity = assetDao.findAssetById(assetUpdateDto.getId());
         if (assetEntity == null) {

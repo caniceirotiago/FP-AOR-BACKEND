@@ -105,10 +105,7 @@ public class TaskBean implements Serializable {
     }
 
     @Transactional
-    public void addUserTask(TaskAddUserDto taskAddUserDto) throws InputValidationException, EntityNotFoundException {
-        if (taskAddUserDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void addUserTask(TaskAddUserDto taskAddUserDto) throws EntityNotFoundException {
         TaskEntity taskEntity = taskDao.findTaskById(taskAddUserDto.getTaskId());
         if (taskEntity == null) {
             throw new EntityNotFoundException("Task not found");
@@ -133,11 +130,7 @@ public class TaskBean implements Serializable {
     }
 
     @Transactional
-    public void addDependencyTask(TaskAddDependencyDto addDependencyDto) throws
-            InputValidationException, EntityNotFoundException {
-        if (addDependencyDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void addDependencyTask(TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
         TaskEntity mainTaskEntity = taskDao.findTaskById(addDependencyDto.getMainTaskId());
         TaskEntity dependentTaskEntity = taskDao.findTaskById(addDependencyDto.getDependentTaskId());
         if (mainTaskEntity == null || dependentTaskEntity == null) {
@@ -155,11 +148,7 @@ public class TaskBean implements Serializable {
         prerequisites.add(mainTaskEntity);
     }
     @Transactional
-    public void removeDependencyTask(TaskAddDependencyDto addDependencyDto) throws
-            InputValidationException, EntityNotFoundException {
-        if (addDependencyDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void removeDependencyTask(TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
         TaskEntity mainTaskEntity = taskDao.findTaskById(addDependencyDto.getMainTaskId());
         TaskEntity dependentTaskEntity = taskDao.findTaskById(addDependencyDto.getDependentTaskId());
         if (mainTaskEntity == null || dependentTaskEntity == null) {
@@ -185,9 +174,6 @@ public class TaskBean implements Serializable {
     public void updateTask(TaskUpdateDto taskUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
-        if (taskUpdateDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
         TaskEntity taskEntity = taskDao.findTaskById(taskUpdateDto.getTaskId());
         if (taskEntity == null) {
             throw new EntityNotFoundException("Task not found");
@@ -234,9 +220,6 @@ public class TaskBean implements Serializable {
     public void taskDetailedUpdate(TaskDetailedUpdateDto taskDetailedUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
-        if (taskDetailedUpdateDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
         TaskEntity taskEntity = taskDao.findTaskById(taskDetailedUpdateDto.getTaskId());
         if (taskEntity == null) {
             throw new EntityNotFoundException("Task not found");

@@ -31,7 +31,7 @@ public class SkillService {
     @Path("/add/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_SKILL_USER)
-    public void addSkill(@Valid SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, InputValidationException {
+    public void addSkill(@Valid SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException {
         skillBean.addSkillUser(skillAddUserDto, securityContext);
     }
 
@@ -40,12 +40,9 @@ public class SkillService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_SKILL_PROJECT)
-    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException, InputValidationException {
-        if (skillAddProjectDto != null) {
-            skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), skillAddProjectDto.getProjectId());
-        } else{
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException {
+        skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), skillAddProjectDto.getProjectId());
+
     }
 
     @GET
@@ -92,7 +89,7 @@ public class SkillService {
     @Path("/remove/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.REMOVE_SKILL_USER)
-    public void removeSkillFromUser(@Valid SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException, InputValidationException {
+    public void removeSkillFromUser(@Valid SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         skillBean.removeSkillUser(skillRemoveUserDto, securityContext);
 
     }
@@ -102,7 +99,7 @@ public class SkillService {
     @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException, InputValidationException {
+    public void removeSkillFromProject(@Valid SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException {
         skillBean.removeSkillProject(skillRemoveProjectDto);
     }
 

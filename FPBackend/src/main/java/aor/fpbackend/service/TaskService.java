@@ -9,7 +9,6 @@ import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
-import jakarta.ejb.Remove;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -54,9 +53,6 @@ public class TaskService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
     public void addTaskToProject(@Valid TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException {
-        if (taskCreateDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
         taskBean.addTask(taskCreateDto.getTitle(), taskCreateDto.getDescription(), taskCreateDto.getPlannedStartDate(),
                 taskCreateDto.getPlannedEndDate(), taskCreateDto.getResponsibleId(), taskCreateDto.getProjectId());
     }
@@ -65,7 +61,7 @@ public class TaskService {
     @Path("/add/executor")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void addUserToTask(@Valid TaskAddUserDto taskAddUserDto) throws EntityNotFoundException, InputValidationException {
+    public void addUserToTask(@Valid TaskAddUserDto taskAddUserDto) throws EntityNotFoundException {
         taskBean.addUserTask(taskAddUserDto);
     }
 
@@ -73,14 +69,14 @@ public class TaskService {
     @Path("/add/dependency/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void addDependencyToTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, InputValidationException {
+    public void addDependencyToTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
         taskBean.addDependencyTask(addDependencyDto);
     }
     @DELETE
     @Path("/dependency/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void removeDependencyFromTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, InputValidationException {
+    public void removeDependencyFromTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
         taskBean.removeDependencyTask(addDependencyDto);
     }
 
