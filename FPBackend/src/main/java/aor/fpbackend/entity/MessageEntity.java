@@ -77,4 +77,6 @@ public abstract class MessageEntity implements Serializable {
     public void setViewed(boolean viewed) {
         isViewed = viewed;
     }
+
+
 }

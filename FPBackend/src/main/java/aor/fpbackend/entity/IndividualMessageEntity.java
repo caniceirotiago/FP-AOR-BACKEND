@@ -42,4 +42,5 @@ public class IndividualMessageEntity extends MessageEntity implements Serializab
     public void setSubject(String subject) {
         this.subject = subject;
     }
+
 }
