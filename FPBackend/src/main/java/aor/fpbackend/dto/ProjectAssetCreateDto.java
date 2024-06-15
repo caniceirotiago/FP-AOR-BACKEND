@@ -9,7 +9,6 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-//@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectAssetCreateDto implements Serializable {
 
     @XmlElement
