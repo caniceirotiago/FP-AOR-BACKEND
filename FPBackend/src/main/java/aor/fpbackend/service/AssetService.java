@@ -4,10 +4,7 @@ import aor.fpbackend.bean.AssetBean;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.MethodEnum;
-import aor.fpbackend.exception.DatabaseOperationException;
-import aor.fpbackend.exception.DuplicatedAttributeException;
-import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.InputValidationException;
+import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
@@ -37,7 +34,7 @@ public class AssetService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_ASSET)
-    public void addAssetToProject(@Valid ProjectAssetCreateDto projectAssetCreateDto) throws EntityNotFoundException {
+    public void addAssetToProject(@Valid ProjectAssetCreateDto projectAssetCreateDto) throws EntityNotFoundException, ElementAssociationException {
         assetBean.addProjectAssetToProject(projectAssetCreateDto.getName(), projectAssetCreateDto.getProjectId(), projectAssetCreateDto.getUsedQuantity());
     }
 
@@ -96,7 +93,7 @@ public class AssetService {
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASSET_REMOVE)
-    public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException, DatabaseOperationException {
+    public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException, ElementAssociationException {
         assetBean.removeAsset(assetRemoveDto);
     }
 

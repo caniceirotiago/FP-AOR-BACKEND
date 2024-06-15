@@ -59,7 +59,7 @@ public class ProjectBean implements Serializable {
 
 
     @Transactional
-    public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException {
+    public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException, ElementAssociationException {
         if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new InputValidationException("Conclusion date cannot be in the past");
         }
@@ -94,7 +94,7 @@ public class ProjectBean implements Serializable {
         addRelationsToProject(projectCreateDto, persistedProject, user);
     }
 
-    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException {
+    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException, ElementAssociationException {
         // Add creator to project
         memberBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator);
         // Define relations for project members (Users)
