@@ -1,9 +1,6 @@
 package aor.fpbackend.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -20,6 +17,7 @@ public class KeywordAddDto implements Serializable {
 
 
     @XmlElement
+    @NotNull
     @Min(value = 1, message = "ID must be greater than 0")
     private long projectId;
 

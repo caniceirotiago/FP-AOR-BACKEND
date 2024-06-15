@@ -7,6 +7,7 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 
@@ -91,6 +92,13 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
                 .setParameter("firstLetter", firstLetter.toLowerCase() + "%")
                 .setParameter("projectId", projectId)
                 .getResultList();
+    }
+
+    public List<UserEntity> findProjectMembersByProjectId(Long projectId) {
+        TypedQuery<UserEntity> query = em.createQuery("SELECT pm.user FROM ProjectMembershipEntity pm " +
+                        "WHERE pm.project.id = :projectId", UserEntity.class);
+        query.setParameter("projectId", projectId);
+        return query.getResultList();
     }
 
 }
