@@ -59,10 +59,7 @@ public class ProjectBean implements Serializable {
 
 
     @Transactional
-    public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException {
-        if (projectCreateDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException, ElementAssociationException {
         if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new InputValidationException("Conclusion date cannot be in the past");
         }
@@ -97,9 +94,8 @@ public class ProjectBean implements Serializable {
         addRelationsToProject(projectCreateDto, persistedProject, user);
     }
 
-    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException {
+    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException, ElementAssociationException {
         // Add creator to project
-
         memberBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator);
         // Define relations for project members (Users)
         if (projectCreateDto.getUsers() != null && !projectCreateDto.getUsers().isEmpty()) {
@@ -192,11 +188,7 @@ public class ProjectBean implements Serializable {
         return projectLogGetDtos;
     }
 
-    public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UnauthorizedAccessException {
-        // Validate input DTO
-        if (projectApproveDto == null) {
-            throw new InputValidationException("Invalid DTO");
-        }
+    public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException {
         // Retrieve the project entity
         ProjectEntity projectEntity = projectDao.findProjectById(projectApproveDto.getProjectId());
         if (projectEntity == null) {
@@ -239,9 +231,6 @@ public class ProjectBean implements Serializable {
     }
 
     public void updateProjectMembershipRole(long projectId, ProjectRoleUpdateDto projectRoleUpdateDto, SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
-        if (projectRoleUpdateDto == null) {
-            throw new InputValidationException("Invalid DTO");
-        }
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         ProjectMembershipEntity projectMembershipEntity = projectMemberDao.findProjectMembershipByUserIdAndProjectId(projectId, projectRoleUpdateDto.getUserId());
@@ -275,10 +264,6 @@ public class ProjectBean implements Serializable {
         ProjectStateEnum currentState = projectEntity.getState();
         if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
             return;
-        }
-        // Validate DTO
-        if (projectUpdateDto == null) {
-            throw new InputValidationException("Invalid DTO");
         }
         // When updates project name, check for duplicates
         if (!projectEntity.getName().equalsIgnoreCase(projectUpdateDto.getName())) {
