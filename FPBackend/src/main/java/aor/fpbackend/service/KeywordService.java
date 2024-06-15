@@ -27,10 +27,7 @@ public class KeywordService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_KEYWORD)
-    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, InputValidationException {
-        if (keywordAddDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException {
         keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
     }
 
@@ -63,7 +60,7 @@ public class KeywordService {
     @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException, InputValidationException {
+    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {
         keywordBean.removeKeyword(keywordRemoveDto);
     }
 

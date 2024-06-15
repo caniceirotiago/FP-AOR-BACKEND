@@ -29,7 +29,7 @@ public class AssetService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.CREATE_ASSET)
-    public void createAsset(@Valid AssetCreateDto assetCreateDto) throws InputValidationException, DuplicatedAttributeException {
+    public void createAsset(@Valid AssetCreateDto assetCreateDto) throws DuplicatedAttributeException {
         assetBean.createAsset(assetCreateDto);
     }
 
@@ -37,10 +37,7 @@ public class AssetService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_ASSET)
-    public void addAssetToProject(@Valid ProjectAssetCreateDto projectAssetCreateDto) throws EntityNotFoundException, InputValidationException {
-        if (projectAssetCreateDto == null) {
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void addAssetToProject(@Valid ProjectAssetCreateDto projectAssetCreateDto) throws EntityNotFoundException {
         assetBean.addProjectAssetToProject(projectAssetCreateDto.getName(), projectAssetCreateDto.getProjectId(), projectAssetCreateDto.getUsedQuantity());
     }
 
@@ -99,7 +96,7 @@ public class AssetService {
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASSET_REMOVE)
-    public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
+    public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException, DatabaseOperationException {
         assetBean.removeAsset(assetRemoveDto);
     }
 
@@ -108,7 +105,7 @@ public class AssetService {
     @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void removeProjectAssetFromProject(@Valid ProjectAssetRemoveDto projectAssetRemoveDto) throws EntityNotFoundException, InputValidationException {
+    public void removeProjectAssetFromProject(@Valid ProjectAssetRemoveDto projectAssetRemoveDto) throws EntityNotFoundException {
         assetBean.removeProjectAssetFromProject(projectAssetRemoveDto);
     }
 

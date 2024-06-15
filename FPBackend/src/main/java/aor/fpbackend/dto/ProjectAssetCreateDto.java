@@ -9,7 +9,6 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectAssetCreateDto implements Serializable {
 
     @XmlElement
@@ -19,6 +18,8 @@ public class ProjectAssetCreateDto implements Serializable {
     private String name;
 
     @XmlElement
+    @NotNull
+    @Min(value = 1, message = "quantity must be greater than 0")
     private int usedQuantity;
 
     @XmlElement

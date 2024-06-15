@@ -39,10 +39,7 @@ public class SkillBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SkillBean.class);
 
     @Transactional
-    public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, InputValidationException {
-        if(skillAddUserDto==null){
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException {
         // Ensure the skill exists, creating it if necessary
         checkSkillExist(skillAddUserDto.getName(), skillAddUserDto.getType());
         // Find the skill by name
@@ -150,10 +147,7 @@ public class SkillBean implements Serializable {
     }
 
     @Transactional
-    public void removeSkillUser(SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException, InputValidationException {
-        if(skillRemoveUserDto==null){
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void removeSkillUser(SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -181,10 +175,7 @@ public class SkillBean implements Serializable {
     }
 
     @Transactional
-    public void removeSkillProject(SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException, InputValidationException {
-        if(skillRemoveProjectDto==null){
-            throw new InputValidationException("Invalid Dto");
-        }
+    public void removeSkillProject(SkillRemoveProjectDto skillRemoveProjectDto) throws EntityNotFoundException {
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(skillRemoveProjectDto.getProjectId());
         if (projectEntity == null) {
