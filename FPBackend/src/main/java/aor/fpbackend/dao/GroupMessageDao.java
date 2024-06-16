@@ -26,7 +26,7 @@ public class GroupMessageDao extends AbstractDao<GroupMessageEntity> {
         super(GroupMessageEntity.class);
     }
 
-    public List<GroupMessageEntity> getGroupMessagesByProjectId(long projectId, long userId) {
+    public List<GroupMessageEntity> getGroupMessagesByProjectId(long projectId) {
         TypedQuery<GroupMessageEntity> query = em.createQuery(
                 "SELECT gm FROM GroupMessageEntity gm WHERE gm.group.id = :projectId ORDER BY gm.sentTime",
                 GroupMessageEntity.class

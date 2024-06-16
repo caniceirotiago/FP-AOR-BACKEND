@@ -47,18 +47,14 @@ public class GroupMessageBean {
             throw new EntityNotFoundException("Project not found with this Id");
         }
         // Retrieve all project members based on groupId
-        List<UserEntity> projectMembers = projectMemberDao.findProjectMembersByProjectId(groupMessageSendDto.getGroupId());
-        if (projectMembers == null || projectMembers.isEmpty()) {
-            throw new UserNotFoundException("Invalid groupId or no members found for the project");
-        }
-        // Create and persist group messages for each project member
-        for (UserEntity member : projectMembers) {
-            GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
-            groupMessageDao.persist(groupMessageEntity);
-            //member.getReceivedMessages().add(groupMessageEntity);
-        }
-        GroupMessageEntity sentMessage = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
-        senderEntity.getSentMessages().add(sentMessage);
+//        List<UserEntity> projectMembers = projectMemberDao.findProjectMembersByProjectId(groupMessageSendDto.getGroupId());
+//        if (projectMembers == null || projectMembers.isEmpty()) {
+//            throw new UserNotFoundException("Invalid groupId or no members found for the project");
+//        }
+        GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
+        groupMessageDao.persist(groupMessageEntity);
+        groupMessageEntity.setViewed(false);
+        projectEntity.getGroupMessages().add(groupMessageEntity);
     }
 
     private GroupMessageEntity createGroupMessageEntity(String messageContent, UserEntity sender, ProjectEntity projectEntity) {
@@ -66,14 +62,12 @@ public class GroupMessageBean {
         groupMessageEntity.setContent(messageContent);
         groupMessageEntity.setSender(sender);
         groupMessageEntity.setSentTime(Instant.now());
-        groupMessageEntity.setViewed(false);
         groupMessageEntity.setGroup(projectEntity);
         return groupMessageEntity;
     }
 
-    public List<GroupMessageGetDto> getGroupMessages(long projectId, SecurityContext securityContext) {
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        List<GroupMessageEntity> groupMessageEntities = groupMessageDao.getGroupMessagesByProjectId(projectId, authUserDto.getUserId());
+    public List<GroupMessageGetDto> getGroupMessages(long projectId) {
+        List<GroupMessageEntity> groupMessageEntities = groupMessageDao.getGroupMessagesByProjectId(projectId);
         List<GroupMessageGetDto> groupMessageGetDtos = convertGroupMessageEntityListToGroupMessageGetDtoList(groupMessageEntities);
         return groupMessageGetDtos;
     }
