@@ -19,19 +19,13 @@ public class GroupMessageSendDto implements Serializable {
     @XmlElement
     @NotNull
     @Min(value = 1, message = "ID must be greater than 0")
-    private Long senderId;
-
-    @XmlElement
-    @NotNull
-    @Min(value = 1, message = "ID must be greater than 0")
-    private Long groupId;
+    private long groupId;
 
     public GroupMessageSendDto() {
     }
 
-    public GroupMessageSendDto(String content, Long senderId, Long groupId) {
+    public GroupMessageSendDto(String content, long groupId) {
         this.content = content;
-        this.senderId = senderId;
         this.groupId = groupId;
     }
 
@@ -45,19 +39,11 @@ public class GroupMessageSendDto implements Serializable {
         this.content = content;
     }
 
-    public Long getSenderId() {
-        return senderId;
-    }
-
-    public void setSenderId(Long senderId) {
-        this.senderId = senderId;
-    }
-
-    public Long getGroupId() {
+    public long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(Long groupId) {
+    public void setGroupId(long groupId) {
         this.groupId = groupId;
     }
 }

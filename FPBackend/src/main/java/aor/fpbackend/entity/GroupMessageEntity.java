@@ -21,6 +21,10 @@ public class GroupMessageEntity extends MessageEntity implements Serializable {
 
     public GroupMessageEntity() {}
 
+    public GroupMessageEntity(ProjectEntity group) {
+        this.group = group;
+    }
+
     public GroupMessageEntity(String content, UserEntity sender, Instant sentTime, ProjectEntity group) {
         super(content, sender, sentTime);
         this.group = group;

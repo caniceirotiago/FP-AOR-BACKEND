@@ -8,6 +8,7 @@ import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,11 +34,13 @@ public class GroupMessageBean {
 
 
     @Transactional
-    public void sendGroupMessage(GroupMessageSendDto groupMessageSendDto) throws UserNotFoundException, EntityNotFoundException {
-        // Find the sender user by id
-        UserEntity senderUser = userDao.findUserById(groupMessageSendDto.getSenderId());
-        if (senderUser == null) {
-            throw new UserNotFoundException("No user found for this id");
+    public void sendGroupMessage(GroupMessageSendDto groupMessageSendDto, SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+        // Find the authenticated sender user by their ID
+
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity senderEntity = userDao.findUserById(authUserDto.getUserId());
+        if (senderEntity == null) {
+            throw new UserNotFoundException("User with Id: " + authUserDto.getUserId() + " not found");
         }
         // Find the project entity based on groupId
         ProjectEntity projectEntity = projectDao.findProjectById(groupMessageSendDto.getGroupId());
@@ -51,15 +54,15 @@ public class GroupMessageBean {
         }
         // Create and persist group messages for each project member
         for (UserEntity member : projectMembers) {
-            GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), member, projectEntity);
+            GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
             groupMessageDao.persist(groupMessageEntity);
         }
     }
 
-    private GroupMessageEntity createGroupMessageEntity(String messageContent, UserEntity recipient, ProjectEntity projectEntity) {
+    private GroupMessageEntity createGroupMessageEntity(String messageContent, UserEntity sender, ProjectEntity projectEntity) {
         GroupMessageEntity groupMessageEntity = new GroupMessageEntity();
         groupMessageEntity.setContent(messageContent);
-        groupMessageEntity.setSender(recipient);
+        groupMessageEntity.setSender(sender);
         groupMessageEntity.setSentTime(Instant.now());
         groupMessageEntity.setViewed(false);
         groupMessageEntity.setGroup(projectEntity);
@@ -82,14 +85,14 @@ public class GroupMessageBean {
     }
 
     public GroupMessageGetDto convertGroupMessageEntityToGroupMessageGetDto(GroupMessageEntity groupMessageEntity) {
-        GroupMessageGetDto groupMessageGetDto = new GroupMessageGetDto();
-        groupMessageGetDto.setId(groupMessageEntity.getId());
-        groupMessageGetDto.setContent(groupMessageEntity.getContent());
-        groupMessageGetDto.setSenderId(groupMessageEntity.getSender().getId());
-        groupMessageGetDto.setSentTime(groupMessageEntity.getSentTime());
-        groupMessageGetDto.setViewed(groupMessageEntity.isViewed());
-        groupMessageGetDto.setGroupId(groupMessageEntity.getGroup().getId());
-        return groupMessageGetDto;
+        return new GroupMessageGetDto(
+                groupMessageEntity.getId(),
+                groupMessageEntity.getContent(),
+                groupMessageEntity.getSender().getId(),
+                groupMessageEntity.getSentTime(),
+                groupMessageEntity.isViewed(),
+                groupMessageEntity.getGroup().getId()
+        );
     }
 
     public List<GroupMessageGetDto> convertGroupMessageEntityListToGroupMessageGetDtoList(List<GroupMessageEntity> groupMessageEntities) {

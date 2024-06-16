@@ -27,13 +27,15 @@ public class GroupMessageDao extends AbstractDao<GroupMessageEntity> {
     }
 
 
-
     public List<GroupMessageEntity> getGroupMessagesByProjectId(long projectId) {
-        TypedQuery<GroupMessageEntity> query = em.createQuery("SELECT gm FROM GroupMessageEntity gm JOIN gm.group p " +
-                "WHERE p = :projectId ORDER BY gm.sentTime", GroupMessageEntity.class);
+        TypedQuery<GroupMessageEntity> query = em.createQuery(
+                "SELECT gm FROM GroupMessageEntity gm WHERE gm.group.id = :projectId ORDER BY gm.sentTime",
+                GroupMessageEntity.class
+        );
         query.setParameter("projectId", projectId);
         return query.getResultList();
     }
+
 
     public GroupMessageEntity findGroupMessageById(long messageId) {
         try {
