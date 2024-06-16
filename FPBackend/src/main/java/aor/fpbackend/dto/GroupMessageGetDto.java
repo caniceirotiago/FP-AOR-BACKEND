@@ -10,13 +10,13 @@ import java.time.Instant;
 public class GroupMessageGetDto implements Serializable {
 
     @XmlElement
-    private Long id;
+    private long messageId;
 
     @XmlElement
     private String content;
 
     @XmlElement
-    private Long senderId;
+    private long senderId;
 
     @XmlElement
     private Instant sentTime;
@@ -25,14 +25,14 @@ public class GroupMessageGetDto implements Serializable {
     private boolean isViewed;
 
     @XmlElement
-    private Long groupId;
+    private long groupId;
 
 
     public GroupMessageGetDto() {
     }
 
-    public GroupMessageGetDto(Long id, String content, Long senderId, Instant sentTime, boolean isViewed, Long groupId) {
-        this.id = id;
+    public GroupMessageGetDto(long messageId, String content, long senderId, Instant sentTime, boolean isViewed, long groupId) {
+        this.messageId = messageId;
         this.content = content;
         this.senderId = senderId;
         this.sentTime = sentTime;
@@ -43,12 +43,12 @@ public class GroupMessageGetDto implements Serializable {
     // Getters and setters
 
 
-    public Long getId() {
-        return id;
+    public long getMessageId() {
+        return messageId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
     }
 
     public String getContent() {
@@ -59,11 +59,11 @@ public class GroupMessageGetDto implements Serializable {
         this.content = content;
     }
 
-    public Long getSenderId() {
+    public long getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(Long senderId) {
+    public void setSenderId(long senderId) {
         this.senderId = senderId;
     }
 
@@ -83,11 +83,11 @@ public class GroupMessageGetDto implements Serializable {
         isViewed = viewed;
     }
 
-    public Long getGroupId() {
+    public long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(Long groupId) {
+    public void setGroupId(long groupId) {
         this.groupId = groupId;
     }
 }

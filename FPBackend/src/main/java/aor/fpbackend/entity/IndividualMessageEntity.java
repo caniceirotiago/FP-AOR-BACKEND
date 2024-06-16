@@ -1,14 +1,15 @@
 package aor.fpbackend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.Instant;
 
 @Entity
+@Table(name = "individual_message")
+
+@NamedQuery(name = "IndividualMessage.findIndividualMessageById", query = "SELECT im FROM IndividualMessageEntity im WHERE im.id = :messageId")
+
 public class IndividualMessageEntity extends MessageEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Column(name = "subject",nullable = true)

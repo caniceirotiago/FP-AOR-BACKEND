@@ -1,25 +1,28 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
-import aor.fpbackend.dto.GroupMessageGetDto;
-import aor.fpbackend.dto.GroupMessageSendDto;
-import aor.fpbackend.dto.IndividualMessageGetDto;
-import aor.fpbackend.dto.IndividualMessageSendDto;
-import aor.fpbackend.entity.GroupMessageEntity;
-import aor.fpbackend.entity.IndividualMessageEntity;
-import aor.fpbackend.entity.ProjectEntity;
-import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.dto.*;
+import aor.fpbackend.entity.*;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.SecurityContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Stateless
 public class GroupMessageBean {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = LogManager.getLogger(UserBean.class);
+
     @EJB
     UserDao userDao;
     @EJB
@@ -31,11 +34,13 @@ public class GroupMessageBean {
 
 
     @Transactional
-    public void sendGroupMessage(GroupMessageSendDto groupMessageSendDto) throws UserNotFoundException, EntityNotFoundException {
-        // Find the sender user by id
-        UserEntity senderUser = userDao.findUserById(groupMessageSendDto.getSenderId());
-        if (senderUser == null) {
-            throw new UserNotFoundException("No user found for this id");
+    public void sendGroupMessage(GroupMessageSendDto groupMessageSendDto, SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+        // Find the authenticated sender user by their ID
+
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity senderEntity = userDao.findUserById(authUserDto.getUserId());
+        if (senderEntity == null) {
+            throw new UserNotFoundException("User with Id: " + authUserDto.getUserId() + " not found");
         }
         // Find the project entity based on groupId
         ProjectEntity projectEntity = projectDao.findProjectById(groupMessageSendDto.getGroupId());
@@ -49,15 +54,15 @@ public class GroupMessageBean {
         }
         // Create and persist group messages for each project member
         for (UserEntity member : projectMembers) {
-            GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), member, projectEntity);
+            GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
             groupMessageDao.persist(groupMessageEntity);
         }
     }
 
-    private GroupMessageEntity createGroupMessageEntity(String messageContent, UserEntity recipient, ProjectEntity projectEntity) {
+    private GroupMessageEntity createGroupMessageEntity(String messageContent, UserEntity sender, ProjectEntity projectEntity) {
         GroupMessageEntity groupMessageEntity = new GroupMessageEntity();
         groupMessageEntity.setContent(messageContent);
-        groupMessageEntity.setSender(recipient);
+        groupMessageEntity.setSender(sender);
         groupMessageEntity.setSentTime(Instant.now());
         groupMessageEntity.setViewed(false);
         groupMessageEntity.setGroup(projectEntity);
@@ -65,7 +70,37 @@ public class GroupMessageBean {
     }
 
     public List<GroupMessageGetDto> getGroupMessages(long projectId) {
-        return null;
+        List<GroupMessageEntity> groupMessageEntities = groupMessageDao.getGroupMessagesByProjectId(projectId);
+        List<GroupMessageGetDto> groupMessageGetDtos = convertGroupMessageEntityListToGroupMessageGetDtoList(groupMessageEntities);
+        return groupMessageGetDtos;
     }
 
+    public void markMessageAsRead(GroupMessageMarkReadDto groupMessageMarkReadDto) {
+        List<GroupMessageEntity> previousMessages = groupMessageDao.findPreviousGroupMessages(groupMessageMarkReadDto.getGroupId(), groupMessageMarkReadDto.getSentTime());
+        // Mark all previous messages as read
+        for (GroupMessageEntity previousMessage : previousMessages) {
+            previousMessage.setViewed(true);
+        }
+        LOGGER.warn("Group Messages marked as read until " + groupMessageMarkReadDto.getSentTime());
+    }
+
+    public GroupMessageGetDto convertGroupMessageEntityToGroupMessageGetDto(GroupMessageEntity groupMessageEntity) {
+        return new GroupMessageGetDto(
+                groupMessageEntity.getId(),
+                groupMessageEntity.getContent(),
+                groupMessageEntity.getSender().getId(),
+                groupMessageEntity.getSentTime(),
+                groupMessageEntity.isViewed(),
+                groupMessageEntity.getGroup().getId()
+        );
+    }
+
+    public List<GroupMessageGetDto> convertGroupMessageEntityListToGroupMessageGetDtoList(List<GroupMessageEntity> groupMessageEntities) {
+        List<GroupMessageGetDto> groupMessageGetDtos = new ArrayList<>();
+        for (GroupMessageEntity groupMessageEntity : groupMessageEntities) {
+            GroupMessageGetDto groupMessageGetDto = convertGroupMessageEntityToGroupMessageGetDto(groupMessageEntity);
+            groupMessageGetDtos.add(groupMessageGetDto);
+        }
+        return groupMessageGetDtos;
+    }
 }
