@@ -25,7 +25,18 @@ public class IndividualMessageService {
     }
     @GET
     @Path("/{senderId}/{recipientId}")
-    public List<IndividualMessageGetDto> getIndividualMessages(@PathParam("senderId") String senderId, @PathParam("recipientId") String recipientId){
+    public List<IndividualMessageGetDto> getIndividualMessages(@PathParam("senderId") String senderId, @PathParam("recipientId") String recipientId) throws UserNotFoundException {
         return individualMessageBean.getIndividualMessages(senderId, recipientId);
+    }
+    @GET
+    @Path("/received/{userId}")
+    public List<IndividualMessageGetDto> getReceivedMessages(@PathParam("userId") String userId) throws UserNotFoundException {
+        return individualMessageBean.getReceivedMessages(userId);
+    }
+
+    @GET
+    @Path("/sent/{userId}")
+    public List<IndividualMessageGetDto> getSentMessages(@PathParam("userId") String userId) throws UserNotFoundException {
+        return individualMessageBean.getSentMessages(userId);
     }
 }
