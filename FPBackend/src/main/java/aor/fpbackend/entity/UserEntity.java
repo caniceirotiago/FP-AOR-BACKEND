@@ -12,13 +12,12 @@ import java.util.Set;
 @NamedQuery(name = "User.findUserByToken", query = "SELECT u FROM UserEntity u JOIN u.sessions s WHERE s.authToken = :token AND u.isDeleted = false")
 @NamedQuery(name = "User.findUserByConfirmationToken", query = "SELECT u FROM UserEntity u WHERE u.confirmationToken = :confirmationToken")
 @NamedQuery(name = "User.findUserByResetPasswordToken", query = "SELECT u FROM UserEntity u WHERE u.resetPasswordToken = :resetPasswordToken")
-@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
+@NamedQuery(name = "User.findUserById", query = "SELECT u FROM UserEntity u WHERE u.id = :userId")
 @NamedQuery(name = "User.findUserByUsername", query = "SELECT u FROM UserEntity u WHERE u.username = :username")
 @NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u WHERE u.email = :email")
+@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
 @NamedQuery(name = "User.countUserByEmail", query = "SELECT COUNT(u) FROM UserEntity u WHERE LOWER(u.email) = LOWER(:email)")
 @NamedQuery(name = "User.countUserByUsername", query = "SELECT COUNT(u) FROM UserEntity u WHERE LOWER(u.username) = LOWER(:username)")
-@NamedQuery(name = "User.findUserById", query = "SELECT u FROM UserEntity u WHERE u.id = :userId")
-
 
 public class UserEntity implements Serializable {
     private static final long serialVersionUID = 1L;
