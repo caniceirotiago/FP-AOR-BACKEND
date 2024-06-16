@@ -36,7 +36,6 @@ public class GroupMessageBean {
     @Transactional
     public void sendGroupMessage(GroupMessageSendDto groupMessageSendDto, SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         // Find the authenticated sender user by their ID
-
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity senderEntity = userDao.findUserById(authUserDto.getUserId());
         if (senderEntity == null) {
@@ -56,7 +55,10 @@ public class GroupMessageBean {
         for (UserEntity member : projectMembers) {
             GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
             groupMessageDao.persist(groupMessageEntity);
+            member.getReceivedMessages().add(groupMessageEntity);
         }
+        GroupMessageEntity sentMessage = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
+        senderEntity.getSentMessages().add(sentMessage);
     }
 
     private GroupMessageEntity createGroupMessageEntity(String messageContent, UserEntity sender, ProjectEntity projectEntity) {
@@ -69,8 +71,9 @@ public class GroupMessageBean {
         return groupMessageEntity;
     }
 
-    public List<GroupMessageGetDto> getGroupMessages(long projectId) {
-        List<GroupMessageEntity> groupMessageEntities = groupMessageDao.getGroupMessagesByProjectId(projectId);
+    public List<GroupMessageGetDto> getGroupMessages(long projectId, SecurityContext securityContext) {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        List<GroupMessageEntity> groupMessageEntities = groupMessageDao.getGroupMessagesByProjectId(projectId, authUserDto.getUserId());
         List<GroupMessageGetDto> groupMessageGetDtos = convertGroupMessageEntityListToGroupMessageGetDtoList(groupMessageEntities);
         return groupMessageGetDtos;
     }
