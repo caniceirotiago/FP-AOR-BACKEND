@@ -113,7 +113,7 @@ public class UserEntity implements Serializable {
     private Set<MessageEntity> sentMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "recipient")
-    private Set<MessageEntity> receivedMessages = new HashSet<>();
+    private Set<IndividualMessageEntity> receivedMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();
@@ -330,11 +330,11 @@ public class UserEntity implements Serializable {
         this.sentMessages = sentMessages;
     }
 
-    public Set<MessageEntity> getReceivedMessages() {
+    public Set<IndividualMessageEntity> getReceivedMessages() {
         return receivedMessages;
     }
 
-    public void setReceivedMessages(Set<MessageEntity> receivedMessages) {
+    public void setReceivedMessages(Set<IndividualMessageEntity> receivedMessages) {
         this.receivedMessages = receivedMessages;
     }
 

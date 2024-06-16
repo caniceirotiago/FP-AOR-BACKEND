@@ -55,7 +55,7 @@ public class GroupMessageBean {
         for (UserEntity member : projectMembers) {
             GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
             groupMessageDao.persist(groupMessageEntity);
-            member.getReceivedMessages().add(groupMessageEntity);
+            //member.getReceivedMessages().add(groupMessageEntity);
         }
         GroupMessageEntity sentMessage = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
         senderEntity.getSentMessages().add(sentMessage);
