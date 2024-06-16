@@ -32,7 +32,7 @@ public class GroupMessageService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public List<GroupMessageGetDto> getGroupMessages(@PathParam("projectId") long projectId){
+    public List<GroupMessageGetDto> getGroupMessages(@PathParam("projectId") long projectId) {
         return groupMessageBean.getGroupMessages(projectId);
     }
 

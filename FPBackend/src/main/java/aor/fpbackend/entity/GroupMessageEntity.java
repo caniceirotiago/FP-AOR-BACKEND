@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "group_message")
@@ -15,6 +17,7 @@ import java.time.Instant;
 
 public class GroupMessageEntity extends MessageEntity implements Serializable {
     private static final long serialVersionUID = 1L;
+
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = false)
     private ProjectEntity group;
