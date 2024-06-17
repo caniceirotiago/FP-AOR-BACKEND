@@ -33,7 +33,6 @@ public class GroupMessageBean {
     ProjectDao projectDao;
 
 
-    @Transactional
     public void sendGroupMessage(GroupMessageSendDto groupMessageSendDto, SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         // Find the authenticated sender user by their ID
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
