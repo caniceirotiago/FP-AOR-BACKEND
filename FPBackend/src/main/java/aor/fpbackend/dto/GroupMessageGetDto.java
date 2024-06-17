@@ -16,7 +16,7 @@ public class GroupMessageGetDto implements Serializable {
     private String content;
 
     @XmlElement
-    private long senderId;
+    private UserBasicInfoDto sender;
 
     @XmlElement
     private Instant sentTime;
@@ -31,10 +31,10 @@ public class GroupMessageGetDto implements Serializable {
     public GroupMessageGetDto() {
     }
 
-    public GroupMessageGetDto(long messageId, String content, long senderId, Instant sentTime, boolean isViewed, long groupId) {
+    public GroupMessageGetDto(long messageId, String content, UserBasicInfoDto sender, Instant sentTime, boolean isViewed, long groupId) {
         this.messageId = messageId;
         this.content = content;
-        this.senderId = senderId;
+        this.sender = sender;
         this.sentTime = sentTime;
         this.isViewed = isViewed;
         this.groupId = groupId;
@@ -59,12 +59,12 @@ public class GroupMessageGetDto implements Serializable {
         this.content = content;
     }
 
-    public long getSenderId() {
-        return senderId;
+    public UserBasicInfoDto getSender() {
+        return sender;
     }
 
-    public void setSenderId(long senderId) {
-        this.senderId = senderId;
+    public void setSender(UserBasicInfoDto sender) {
+        this.sender = sender;
     }
 
     public Instant getSentTime() {

@@ -5,6 +5,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
+import aor.fpbackend.websocket.GroupMessageWebSocket;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -24,6 +25,8 @@ public class GroupMessageBean {
     private static final Logger LOGGER = LogManager.getLogger(UserBean.class);
 
     @EJB
+    UserBean userBean;
+    @EJB
     UserDao userDao;
     @EJB
     GroupMessageDao groupMessageDao;
@@ -31,6 +34,9 @@ public class GroupMessageBean {
     ProjectMembershipDao projectMemberDao;
     @EJB
     ProjectDao projectDao;
+
+    @EJB
+    GroupMessageWebSocket groupMessageWebSocket;
 
 
     public void sendGroupMessage(GroupMessageSendDto groupMessageSendDto, SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
@@ -45,15 +51,11 @@ public class GroupMessageBean {
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found with this Id");
         }
-        // Retrieve all project members based on groupId
-//        List<UserEntity> projectMembers = projectMemberDao.findProjectMembersByProjectId(groupMessageSendDto.getGroupId());
-//        if (projectMembers == null || projectMembers.isEmpty()) {
-//            throw new UserNotFoundException("Invalid groupId or no members found for the project");
-//        }
         GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
         groupMessageDao.persist(groupMessageEntity);
         groupMessageEntity.getReadByUsers().add(senderEntity); // Mark the sender as having read the message
         projectEntity.getGroupMessages().add(groupMessageEntity);
+        GroupMessageWebSocket.broadcastGroupMessage(groupMessageEntity);
     }
 
     private GroupMessageEntity createGroupMessageEntity(String messageContent, UserEntity sender, ProjectEntity projectEntity) {
@@ -95,7 +97,7 @@ public class GroupMessageBean {
         return new GroupMessageGetDto(
                 groupMessageEntity.getId(),
                 groupMessageEntity.getContent(),
-                groupMessageEntity.getSender().getId(),
+                userBean.convertUserEntetyToUserBasicInfoDto(groupMessageEntity.getSender()),
                 groupMessageEntity.getSentTime(),
                 groupMessageEntity.isViewed(),
                 groupMessageEntity.getGroup().getId()

@@ -6,6 +6,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
+import aor.fpbackend.websocket.GroupMessageWebSocket;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
