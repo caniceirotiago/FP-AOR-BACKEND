@@ -40,7 +40,7 @@ public class GroupMessageService {
     @Path("/read/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void markMessagesAsRead(GroupMessageMarkReadDto groupMessageMarkReadDto) throws EntityNotFoundException {
+    public void markMessagesAsRead(GroupMessageMarkReadDto groupMessageMarkReadDto) {
         groupMessageBean.markMessageAsRead(groupMessageMarkReadDto);
     }
 }
