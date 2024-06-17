@@ -32,6 +32,13 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
         }
     }
 
+    public List<UserEntity> findProjectMembersByProjectId(Long projectId) {
+        TypedQuery<UserEntity> query = em.createQuery("SELECT pm.user FROM ProjectMembershipEntity pm " +
+                "WHERE pm.project.id = :projectId", UserEntity.class);
+        query.setParameter("projectId", projectId);
+        return query.getResultList();
+    }
+
     public ProjectMembershipEntity findProjectMembershipByAcceptanceToken(String acceptanceToken) {
         try {
             return (ProjectMembershipEntity) em.createNamedQuery("ProjectMembership.findProjectMembershipByAcceptanceToken")
@@ -71,11 +78,13 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
                 .setParameter("projectId", projectId)
                 .getResultList();
     }
+
     public List<Long> findProjectIdsByUserId(long userId) {
         return em.createNamedQuery("ProjectMembership.findProjectIdsByUserId")
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
     public boolean isUserProjectMember(long projectId, long userId) {
         try {
             em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserId", ProjectMembershipEntity.class)
@@ -87,18 +96,12 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
             return false;
         }
     }
+
     public List<UserEntity> findUsersByFirstLetterAndProjId(String firstLetter, long projectId) {
         return em.createNamedQuery("ProjectMembership.findUsersByFirstLetterAndProjId", UserEntity.class)
                 .setParameter("firstLetter", firstLetter.toLowerCase() + "%")
                 .setParameter("projectId", projectId)
                 .getResultList();
-    }
-
-    public List<UserEntity> findProjectMembersByProjectId(Long projectId) {
-        TypedQuery<UserEntity> query = em.createQuery("SELECT pm.user FROM ProjectMembershipEntity pm " +
-                        "WHERE pm.project.id = :projectId", UserEntity.class);
-        query.setParameter("projectId", projectId);
-        return query.getResultList();
     }
 
 }
