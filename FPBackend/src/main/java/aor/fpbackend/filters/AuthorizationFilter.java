@@ -107,6 +107,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     private boolean isPublicEndpoint(String path) {
         return path.endsWith("/login")
                 || path.endsWith("/individualMessage") //temporário
+                || path.endsWith("/individual/message/filter") //temporário
                 || path.endsWith("/register")
                 || path.contains("/confirm")
                 || path.contains("/accept/project")

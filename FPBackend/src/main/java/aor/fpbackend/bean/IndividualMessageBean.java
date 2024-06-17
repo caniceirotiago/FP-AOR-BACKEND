@@ -3,6 +3,7 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.IndividualMessageDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.IndividualMessageGetDto;
+import aor.fpbackend.dto.IndividualMessageGetPaginatedDto;
 import aor.fpbackend.dto.IndividualMessageSendDto;
 import aor.fpbackend.dto.UserBasicInfoDto;
 import aor.fpbackend.entity.IndividualMessageEntity;
@@ -10,9 +11,11 @@ import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.ws.rs.core.UriInfo;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Stateless
 public class IndividualMessageBean {
@@ -25,9 +28,7 @@ public class IndividualMessageBean {
 
 
     public void sendIndividualMessage(IndividualMessageSendDto individualMessageSendDto) throws UserNotFoundException {
-        if (individualMessageSendDto == null) {
-            throw new IllegalArgumentException("Invalid Dto");
-        }
+
         IndividualMessageEntity individualMessageEntity = convertToEntity(individualMessageSendDto);
         individualMessageEntity.setSentTime(Instant.now());
         individualMessageEntity.setViewed(false);
@@ -47,23 +48,37 @@ public class IndividualMessageBean {
     private List<IndividualMessageGetDto> convertToDtos(List<IndividualMessageEntity> individualMessageEntities) {
         return individualMessageEntities.stream().map(this::convertToDto).toList();
     }
-    public List<IndividualMessageGetDto> getReceivedMessages(String userId) throws UserNotFoundException {
+    public IndividualMessageGetPaginatedDto getFilteredMessages(String userId, String type, int page, int pageSize, UriInfo uriInfo) throws UserNotFoundException {
         boolean userExists = userDao.confirmUserIdExists(userId);
         if (!userExists) {
             throw new UserNotFoundException("Invalid user id");
         }
-        List<IndividualMessageEntity> receivedMessages = individualMessageDao.getReceivedMessages(userId);
-        return convertToDtos(receivedMessages);
+
+        List<IndividualMessageEntity> messageEntities;
+        long totalMessages;
+
+        if ("sent".equalsIgnoreCase(type)) {
+            messageEntities = individualMessageDao.findSentMessages(userId, page, pageSize, uriInfo);
+            totalMessages = individualMessageDao.countSentMessages(userId, uriInfo);
+        } else if ("inbox".equalsIgnoreCase(type)) {
+            messageEntities = individualMessageDao.findReceivedMessages(userId, page, pageSize, uriInfo);
+            totalMessages = individualMessageDao.countReceivedMessages(userId, uriInfo);
+        } else {
+            throw new IllegalArgumentException("Invalid message type: " + type);
+        }
+
+        List<IndividualMessageGetDto> messageDtos = messageEntities.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        IndividualMessageGetPaginatedDto paginatedMessagesDto = new IndividualMessageGetPaginatedDto();
+        paginatedMessagesDto.setMessages(messageDtos);
+        paginatedMessagesDto.setTotalMessages(totalMessages);
+
+        return paginatedMessagesDto;
     }
 
-    public List<IndividualMessageGetDto> getSentMessages(String userId) throws UserNotFoundException {
-        boolean userExists = userDao.confirmUserIdExists(userId);
-        if (!userExists) {
-            throw new UserNotFoundException("Invalid user id");
-        }
-        List<IndividualMessageEntity> sentMessages = individualMessageDao.getSentMessages(userId);
-        return convertToDtos(sentMessages);
-    }
+
 
     private IndividualMessageGetDto convertToDto(IndividualMessageEntity individualMessageEntity) {
         IndividualMessageGetDto individualMessageGetDto = new IndividualMessageGetDto();
@@ -73,15 +88,14 @@ public class IndividualMessageBean {
         individualMessageGetDto.setSentAt(individualMessageEntity.getSentTime());
         individualMessageGetDto.setSubject(individualMessageEntity.getSubject());
         individualMessageGetDto.setViewed(individualMessageEntity.isViewed());
+        individualMessageGetDto.setId(individualMessageEntity.getId());
         return individualMessageGetDto;
     }
+
     private IndividualMessageEntity convertToEntity(IndividualMessageSendDto individualMessageSendDto) throws UserNotFoundException {
-        UserEntity sender = null;
-        UserEntity recipient = null;
-        try {
-            sender = userDao.find(individualMessageSendDto.getSenderId());
-            recipient = userDao.find(individualMessageSendDto.getRecipientId());
-        } catch (Exception e) {
+        UserEntity sender = userDao.find(individualMessageSendDto.getSenderId());
+        UserEntity recipient = userDao.find(individualMessageSendDto.getRecipientId());
+        if (sender == null || recipient == null) {
             throw new UserNotFoundException("Invalid sender or recipient id");
         }
         IndividualMessageEntity individualMessageEntity = new IndividualMessageEntity();

@@ -14,7 +14,7 @@ public abstract class MessageEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(name = "content",nullable = false)
+    @Column(name = "content",nullable = false, length = 5000)
     private String content;
 
     @ManyToOne
