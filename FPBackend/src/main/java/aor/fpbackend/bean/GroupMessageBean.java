@@ -8,6 +8,7 @@ import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.websocket.GroupMessageWebSocket;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +35,8 @@ public class GroupMessageBean {
     ProjectMembershipDao projectMemberDao;
     @EJB
     ProjectDao projectDao;
-    
+    @Inject
+    GroupMessageWebSocket groupMessageWebSocket;
 
     public void sendGroupMessage(GroupMessageSendDto groupMessageSendDto, SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         // Find the authenticated sender user by their ID
@@ -52,7 +54,7 @@ public class GroupMessageBean {
         groupMessageDao.persist(groupMessageEntity);
         groupMessageEntity.getReadByUsers().add(senderEntity); // Mark the sender as having read the message
         projectEntity.getGroupMessages().add(groupMessageEntity);
-        GroupMessageWebSocket.broadcastGroupMessage(groupMessageEntity);
+        groupMessageWebSocket.broadcastGroupMessage(groupMessageEntity);
     }
 
     private GroupMessageEntity createGroupMessageEntity(String messageContent, UserEntity sender, ProjectEntity projectEntity) {

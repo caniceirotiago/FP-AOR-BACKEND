@@ -33,7 +33,7 @@ public class GroupMessageWebSocket {
     private static final ConcurrentHashMap<Long, String> userSessions = new ConcurrentHashMap<>();
     static Gson gson = GsonSetup.createGson();
     @EJB
-    private static SessionDao sessionDao;
+    private SessionDao sessionDao;
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
@@ -74,7 +74,7 @@ public class GroupMessageWebSocket {
         }
     }
 
-    public static void broadcastGroupMessage(GroupMessageEntity message) {
+    public void broadcastGroupMessage(GroupMessageEntity message) {
         Long groupId = message.getGroup().getId();
         List<SessionEntity> groupSessions = sessionDao.findActiveSessionsByProjectId(groupId);
 
