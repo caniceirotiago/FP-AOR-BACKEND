@@ -3,8 +3,6 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
-import aor.fpbackend.enums.LogTypeEnum;
-import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
@@ -13,7 +11,6 @@ import io.jsonwebtoken.*;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.*;
 import org.apache.logging.log4j.LogManager;
@@ -257,13 +254,49 @@ public class UserBean implements Serializable {
         return base64Encoder.encodeToString(randomBytes);
     }
 
-    public AuthUserDto validateTokenAndGetUserDetails(String token) throws InvalidCredentialsException {
+    public AuthUserDto validateAuthTokenAndGetUserDetails(String token) throws InvalidCredentialsException {
         try {
             Key secretKey = JwtKeyProvider.getKey();
             if (secretKey == null) {
                 throw new IllegalStateException("Secret key not configured");
             }
             SessionEntity se = sessionDao.findSessionByAuthToken(token);
+            if (se == null) {
+                throw new InvalidCredentialsException("Invalid token");
+            }
+            if (!se.isActive()) {
+                throw new InvalidCredentialsException("Token inativated");
+            }
+            if (se.getTokenExpiration().isBefore(Instant.now())) {
+                throw new InvalidCredentialsException("Token expired");
+            }
+            Jws<Claims> jwsClaims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
+            Claims claims = jwsClaims.getBody();
+            Long userId = Long.parseLong(claims.getSubject());
+
+            UserEntity user = userDao.findUserById(userId);
+            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()), token);
+            return authUserDto;
+
+
+        } catch (ExpiredJwtException e) {
+            throw new InvalidCredentialsException("Token expired: " + e.getMessage());
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new InvalidCredentialsException("Invalid token: " + e.getMessage());
+        } catch (Exception e) {
+            throw new InvalidCredentialsException("Error processing token: " + e.getMessage());
+        }
+    }
+    public AuthUserDto validateSessionTokenAndGetUserDetails(String token) throws InvalidCredentialsException {
+        try {
+            Key secretKey = JwtKeyProvider.getKey();
+            if (secretKey == null) {
+                throw new IllegalStateException("Secret key not configured");
+            }
+            SessionEntity se = sessionDao.findSessionBySessionToken(token);
             if (se == null) {
                 throw new InvalidCredentialsException("Invalid token");
             }

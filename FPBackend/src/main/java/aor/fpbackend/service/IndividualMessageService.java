@@ -19,11 +19,11 @@ public class IndividualMessageService {
     @EJB
     IndividualMessageBean individualMessageBean;
 
-    @POST
-    @Path("")
-    public void sendIndividualMessage(@Valid IndividualMessageSendDto individualMessageSendDto) throws UserNotFoundException {
-        individualMessageBean.sendIndividualMessage(individualMessageSendDto);
-    }
+//    @POST
+//    @Path("")
+//    public void sendIndividualMessage(@Valid IndividualMessageSendDto individualMessageSendDto) throws UserNotFoundException {
+//        individualMessageBean.sendIndividualMessage(individualMessageSendDto);
+//    }
     @GET
     @Path("/{senderId}/{recipientId}")
     public List<IndividualMessageGetDto> getIndividualMessages(@PathParam("senderId") String senderId, @PathParam("recipientId") String recipientId) throws UserNotFoundException {
