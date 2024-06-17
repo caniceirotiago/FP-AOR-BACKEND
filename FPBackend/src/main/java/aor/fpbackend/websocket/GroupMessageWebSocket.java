@@ -5,6 +5,8 @@ import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.dto.WebSocketMessageDto;
 import aor.fpbackend.entity.GroupMessageEntity;
 import aor.fpbackend.entity.SessionEntity;
+import aor.fpbackend.enums.QueryParams;
+import aor.fpbackend.enums.WebSocketMessageType;
 import aor.fpbackend.utils.GsonSetup;
 import aor.fpbackend.utils.JwtKeyProvider;
 import com.google.gson.Gson;
@@ -63,8 +65,8 @@ public class GroupMessageWebSocket {
     public void onMessage(String message, Session session) {
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
-            String type = json.get("type").getAsString();
-            if (type.equals("group_Message")) {
+            String type = json.get(QueryParams.TYPE).getAsString();
+            if (type.equals(WebSocketMessageType.GROUP_MESSAGE)) {
                 System.out.println("group_Message");
             }
         } catch (Exception e) {
@@ -80,7 +82,7 @@ public class GroupMessageWebSocket {
             Session session = sessions.get(sessionEntity.getSessionToken());
             if (session != null && session.isOpen()) {
                 try {
-                    String jsonResponse = gson.toJson(new WebSocketMessageDto("newMessage", message));
+                    String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.GROUP_MESSAGE, message));
                     session.getBasicRemote().sendText(jsonResponse);
                 } catch (IOException e) {
                     e.printStackTrace();

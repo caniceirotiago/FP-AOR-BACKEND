@@ -4,6 +4,8 @@ package aor.fpbackend.websocket;
 import aor.fpbackend.dto.WebSocketMessageDto;
 import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.dao.SessionDao;
+import aor.fpbackend.enums.QueryParams;
+import aor.fpbackend.enums.WebSocketMessageType;
 import aor.fpbackend.utils.GsonSetup;
 import aor.fpbackend.utils.JwtKeyProvider;
 import com.google.gson.Gson;
@@ -34,11 +36,8 @@ public class GlobalWebSocket {
     public void onOpen(Session session, EndpointConfig config) {
         String query = session.getQueryString();
         String sessionToken = query.split("=")[1];
-        System.out.println("Received session token: " + sessionToken);
-
         if (isValidSessionToken(sessionToken)) {
             sessions.put(sessionToken, session);
-            System.out.println("WebSocket opened for session token: " + sessionToken);
         } else {
             try {
                 session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Invalid session token"));
@@ -53,19 +52,16 @@ public class GlobalWebSocket {
         String query = session.getQueryString();
         String sessionToken = query.split("=")[1];
         sessions.remove(sessionToken);
-        System.out.println("reason: " + reason.getReasonPhrase());
-        System.out.println("WebSocket closed for session token: " + sessionToken);
     }
 
     @OnMessage
     public void onMessage(String message, Session session) {
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
-            String type = json.get("type").getAsString();
-            if (type.equals("forcedLogoutFailed")) {
+            String type = json.get(QueryParams.TYPE).getAsString();
+            if (type.equals(WebSocketMessageType.FORCED_LOGOUT_FAILED)) {
                 System.out.println("Forced logout failed for session token: " + session.getQueryString().split("=")[1]);
             }
-
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
         }
@@ -75,9 +71,8 @@ public class GlobalWebSocket {
         Session session = sessions.get(sessionEntity.getSessionToken());
         if (session != null && session.isOpen()) {
             try {
-                String jsonResponse = gson.toJson(new WebSocketMessageDto("forcedLogout", null));
+                String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.FORCED_LOGOUT, null));
                 session.getBasicRemote().sendText(jsonResponse);
-
                 System.out.println("Logout message sent to session token: " + sessionEntity.getSessionToken());
             } catch (IOException e) {
                 e.printStackTrace();

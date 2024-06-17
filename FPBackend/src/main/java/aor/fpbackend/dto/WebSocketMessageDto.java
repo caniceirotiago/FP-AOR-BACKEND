@@ -1,5 +1,7 @@
 package aor.fpbackend.dto;
 
+import aor.fpbackend.enums.WebSocketMessageType;
+import jakarta.persistence.Enumerated;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -8,7 +10,8 @@ import java.io.Serializable;
 @XmlRootElement
 public class WebSocketMessageDto implements Serializable {
     @XmlElement
-    private String type;
+    @Enumerated
+    private WebSocketMessageType type;
 
     @XmlElement
     private Object data;
@@ -16,12 +19,12 @@ public class WebSocketMessageDto implements Serializable {
     public WebSocketMessageDto() {
     }
 
-    public WebSocketMessageDto(String type, Object data) {
+    public WebSocketMessageDto(WebSocketMessageType type, Object data) {
         this.type = type;
         this.data = data;
     }
 
-    public String getType() {
+    public WebSocketMessageType getType() {
         return type;
     }
 
@@ -29,7 +32,7 @@ public class WebSocketMessageDto implements Serializable {
         return data;
     }
 
-    public void setType(String type) {
+    public void setType(WebSocketMessageType type) {
         this.type = type;
     }
 

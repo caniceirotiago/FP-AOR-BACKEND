@@ -34,10 +34,7 @@ public class GroupMessageBean {
     ProjectMembershipDao projectMemberDao;
     @EJB
     ProjectDao projectDao;
-
-    @EJB
-    GroupMessageWebSocket groupMessageWebSocket;
-
+    
 
     public void sendGroupMessage(GroupMessageSendDto groupMessageSendDto, SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         // Find the authenticated sender user by their ID
