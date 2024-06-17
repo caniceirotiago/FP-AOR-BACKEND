@@ -6,7 +6,9 @@ import aor.fpbackend.websocket.GlobalWebSocket;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Schedule;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import org.apache.logging.log4j.LogManager;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -35,7 +37,7 @@ public class SessionBean implements Serializable {
                     sessionDao.merge(session);
                     LOGGER.info("Session inactivated: " + session.getId());
                 }
-            } else  {
+            } else {
                 if (session.isActive()) {
                     GlobalWebSocket.sendForcedLogoutRequest(session);
                     LOGGER.info("Forced logout sent for session: " + session.getId());
