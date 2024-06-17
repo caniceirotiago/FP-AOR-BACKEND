@@ -64,7 +64,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             return;
         }
         try {
-            AuthUserDto authUserDto = userBean.validateTokenAndGetUserDetails(token);
+            AuthUserDto authUserDto = userBean.validateAuthTokenAndGetUserDetails(token);
             if (authUserDto == null) {
                 abortUnauthorized(requestContext);
                 return;

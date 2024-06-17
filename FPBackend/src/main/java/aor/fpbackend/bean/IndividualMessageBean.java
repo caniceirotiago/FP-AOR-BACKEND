@@ -27,12 +27,13 @@ public class IndividualMessageBean {
     UserBean userBean;
 
 
-    public void sendIndividualMessage(IndividualMessageSendDto individualMessageSendDto) throws UserNotFoundException {
+    public IndividualMessageEntity sendIndividualMessage(IndividualMessageSendDto individualMessageSendDto) throws UserNotFoundException {
 
         IndividualMessageEntity individualMessageEntity = convertToEntity(individualMessageSendDto);
         individualMessageEntity.setSentTime(Instant.now());
         individualMessageEntity.setViewed(false);
         individualMessageDao.persist(individualMessageEntity);
+        return individualMessageEntity;
     }
     public List<IndividualMessageGetDto> getIndividualMessages(String senderId, String recipientId) throws UserNotFoundException {
         boolean senderExists = userDao.confirmUserIdExists(senderId);
@@ -80,7 +81,7 @@ public class IndividualMessageBean {
 
 
 
-    private IndividualMessageGetDto convertToDto(IndividualMessageEntity individualMessageEntity) {
+    public IndividualMessageGetDto convertToDto(IndividualMessageEntity individualMessageEntity) {
         IndividualMessageGetDto individualMessageGetDto = new IndividualMessageGetDto();
         individualMessageGetDto.setContent(individualMessageEntity.getContent());
         individualMessageGetDto.setRecipient(userBean.convertUserEntetyToUserBasicInfoDto(individualMessageEntity.getRecipient()));
