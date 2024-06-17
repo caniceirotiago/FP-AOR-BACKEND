@@ -119,6 +119,8 @@ public class UserEntity implements Serializable {
     @OneToMany(mappedBy = "user")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();
 
+    @ManyToMany(mappedBy = "readByUsers")
+    private Set<GroupMessageEntity> readMessages = new HashSet<>();
 
     public UserEntity() {}
 
@@ -369,6 +371,14 @@ public class UserEntity implements Serializable {
 
     public void setProjectsCreated(Set<ProjectEntity> projectsCreated) {
         this.projectsCreated = projectsCreated;
+    }
+
+    public Set<GroupMessageEntity> getReadMessages() {
+        return readMessages;
+    }
+
+    public void setReadMessages(Set<GroupMessageEntity> readMessages) {
+        this.readMessages = readMessages;
     }
 
     @Override

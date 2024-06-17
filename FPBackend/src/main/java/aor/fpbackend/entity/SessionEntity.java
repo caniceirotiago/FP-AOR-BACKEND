@@ -9,10 +9,8 @@ import java.time.Instant;
 
 @NamedQuery(name = "Session.findSessionByAuthToken", query = "SELECT s FROM SessionEntity s WHERE s.authToken = :tokenValue")
 @NamedQuery(name = "Session.findSessionBySessionToken", query = "SELECT s FROM SessionEntity s WHERE s.sessionToken = :tokenValue")
-
-@NamedQuery(name = "Session.findValidSessionByToken",query =
-        "SELECT s FROM SessionEntity s WHERE s.authToken = :tokenValue AND s.tokenExpiration > CURRENT_TIMESTAMP")
-@NamedQuery(name = "Session.findAllSessionsByUserId", query = "SELECT s FROM SessionEntity s WHERE s.user.id = :userId")
+@NamedQuery(name = "Session.findActiveSessionsByProjectId",
+        query = "SELECT s FROM SessionEntity s JOIN s.user u JOIN u.projects p WHERE p.id = :projectId AND s.isActive = true")
 @NamedQuery(name = "Session.findSessionsExpiringInACertainAmountOfSeconds", query = "SELECT s FROM SessionEntity s WHERE s.tokenExpiration <= :expirationTime AND s.isActive = true")
 
 

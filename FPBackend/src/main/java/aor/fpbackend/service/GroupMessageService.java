@@ -6,6 +6,7 @@ import aor.fpbackend.dto.*;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
+import aor.fpbackend.websocket.GroupMessageWebSocket;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -40,7 +41,7 @@ public class GroupMessageService {
     @Path("/read/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void markMessagesAsRead(GroupMessageMarkReadDto groupMessageMarkReadDto) {
-        groupMessageBean.markMessageAsRead(groupMessageMarkReadDto);
+    public void markMessagesAsRead(@Valid GroupMessageMarkReadDto groupMessageMarkReadDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+        groupMessageBean.markMessageAsRead(groupMessageMarkReadDto, securityContext);
     }
 }

@@ -1,9 +1,10 @@
-// src/main/java/aor/fpbackend/websocket/GlobalWebSocket.java
+
 package aor.fpbackend.websocket;
 
-import aor.fpbackend.dto.WebSocketMessageDto;
-import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.dao.SessionDao;
+import aor.fpbackend.dto.WebSocketMessageDto;
+import aor.fpbackend.entity.GroupMessageEntity;
+import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.enums.QueryParams;
 import aor.fpbackend.enums.WebSocketMessageType;
 import aor.fpbackend.utils.GsonSetup;
@@ -20,14 +21,16 @@ import jakarta.websocket.server.ServerEndpoint;
 
 import java.io.IOException;
 import java.security.Key;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 @ApplicationScoped
-@ServerEndpoint("/ws")
-public class GlobalWebSocket {
+@ServerEndpoint("/ws/group/messages")
+public class GroupMessageWebSocket {
 
     private static final ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Long, String> userSessions = new ConcurrentHashMap<>();
     static Gson gson = GsonSetup.createGson();
     @EJB
     private static SessionDao sessionDao;
@@ -38,6 +41,8 @@ public class GlobalWebSocket {
         String sessionToken = query.split("=")[1];
         if (isValidSessionToken(sessionToken)) {
             sessions.put(sessionToken, session);
+            Long userId = getUserIdFromSessionToken(sessionToken);
+            userSessions.put(userId, sessionToken);
         } else {
             try {
                 session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Invalid session token"));
@@ -52,6 +57,8 @@ public class GlobalWebSocket {
         String query = session.getQueryString();
         String sessionToken = query.split("=")[1];
         sessions.remove(sessionToken);
+        Long userId = getUserIdFromSessionToken(sessionToken);
+        userSessions.remove(userId);
     }
 
     @OnMessage
@@ -59,29 +66,28 @@ public class GlobalWebSocket {
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
-            if (type.equals(WebSocketMessageType.FORCED_LOGOUT_FAILED)) {
-                System.out.println("Forced logout failed for session token: " + session.getQueryString().split("=")[1]);
+            if (type.equals(WebSocketMessageType.GROUP_MESSAGE)) {
+                System.out.println("group_Message");
             }
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
         }
     }
 
-    public static void sendForcedLogoutRequest(SessionEntity sessionEntity) {
-        Session session = sessions.get(sessionEntity.getSessionToken());
-        if (session != null && session.isOpen()) {
-            try {
-                String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.FORCED_LOGOUT, null));
-                session.getBasicRemote().sendText(jsonResponse);
-                System.out.println("Logout message sent to session token: " + sessionEntity.getSessionToken());
-            } catch (IOException e) {
-                e.printStackTrace();
+    public static void broadcastGroupMessage(GroupMessageEntity message) {
+        Long groupId = message.getGroup().getId();
+        List<SessionEntity> groupSessions = sessionDao.findActiveSessionsByProjectId(groupId);
+
+        for (SessionEntity sessionEntity : groupSessions) {
+            Session session = sessions.get(sessionEntity.getSessionToken());
+            if (session != null && session.isOpen()) {
+                try {
+                    String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.GROUP_MESSAGE, message));
+                    session.getBasicRemote().sendText(jsonResponse);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        } else {
-            //Se sessão global não estiver ligada ao WebSocket, desativar sessão
-            sessionEntity.setActive(false);
-            sessionDao.merge(sessionEntity);
-            System.out.println("Session token not found or closed: " + sessionEntity.getSessionToken());
         }
     }
 
@@ -95,5 +101,11 @@ public class GlobalWebSocket {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private Long getUserIdFromSessionToken(String sessionToken) {
+        Key key = JwtKeyProvider.getKey();
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(sessionToken).getBody();
+        return Long.parseLong(claims.getSubject());
     }
 }
