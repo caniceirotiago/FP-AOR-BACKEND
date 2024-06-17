@@ -2,14 +2,15 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.IndividualMessageBean;
 import aor.fpbackend.dto.IndividualMessageGetDto;
+import aor.fpbackend.dto.IndividualMessageGetPaginatedDto;
 import aor.fpbackend.dto.IndividualMessageSendDto;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.UriInfo;
 
 import java.util.List;
 
@@ -29,14 +30,14 @@ public class IndividualMessageService {
         return individualMessageBean.getIndividualMessages(senderId, recipientId);
     }
     @GET
-    @Path("/received/{userId}")
-    public List<IndividualMessageGetDto> getReceivedMessages(@PathParam("userId") String userId) throws UserNotFoundException {
-        return individualMessageBean.getReceivedMessages(userId);
-    }
-
-    @GET
-    @Path("/sent/{userId}")
-    public List<IndividualMessageGetDto> getSentMessages(@PathParam("userId") String userId) throws UserNotFoundException {
-        return individualMessageBean.getSentMessages(userId);
+    @Path("/filter")
+    @Produces(MediaType.APPLICATION_JSON)
+    public IndividualMessageGetPaginatedDto getFilteredMessages(
+            @QueryParam("userId") String userId,
+            @QueryParam("type") String type,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("pageSize") @DefaultValue("8") int pageSize,
+            @Context UriInfo uriInfo) throws UserNotFoundException {
+        return individualMessageBean.getFilteredMessages(userId, type, page, pageSize, uriInfo);
     }
 }
