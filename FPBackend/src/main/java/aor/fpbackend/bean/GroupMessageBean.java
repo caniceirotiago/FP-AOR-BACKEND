@@ -52,7 +52,7 @@ public class GroupMessageBean {
 //        }
         GroupMessageEntity groupMessageEntity = createGroupMessageEntity(groupMessageSendDto.getContent(), senderEntity, projectEntity);
         groupMessageDao.persist(groupMessageEntity);
-        groupMessageEntity.setViewed(false);
+        groupMessageEntity.getReadByUsers().add(senderEntity); // Mark the sender as having read the message
         projectEntity.getGroupMessages().add(groupMessageEntity);
     }
 
@@ -71,13 +71,24 @@ public class GroupMessageBean {
         return groupMessageGetDtos;
     }
 
-    public void markMessageAsRead(GroupMessageMarkReadDto groupMessageMarkReadDto) {
-        List<GroupMessageEntity> previousMessages = groupMessageDao.findPreviousGroupMessages(groupMessageMarkReadDto.getGroupId(), groupMessageMarkReadDto.getSentTime());
-        // Mark all previous messages as read
-        for (GroupMessageEntity previousMessage : previousMessages) {
-            previousMessage.setViewed(true);
+    public void markMessageAsRead(GroupMessageMarkReadDto groupMessageMarkReadDto, SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+        // Find the authenticated sender user by their ID
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        if (userEntity == null) {
+            throw new UserNotFoundException("User with Id: " + authUserDto.getUserId() + " not found");
         }
-        LOGGER.warn("Group Messages marked as read until " + groupMessageMarkReadDto.getSentTime());
+        GroupMessageEntity messageEntity = groupMessageDao.findGroupMessageById(groupMessageMarkReadDto.getMessageId());
+        if (messageEntity == null) {
+            throw new EntityNotFoundException("Message not found with this Id");
+        }
+        messageEntity.getReadByUsers().add(userEntity);
+        // Check if all users in the group have read the message
+        List<UserEntity> groupMembers = projectMemberDao.findProjectMembersByProjectId(groupMessageMarkReadDto.getGroupId());
+        if (groupMembers.stream().allMatch(user -> messageEntity.getReadByUsers().contains(user))) {
+            messageEntity.setViewed(true);
+            LOGGER.warn("Group Messages marked as read");
+        }
     }
 
     public GroupMessageGetDto convertGroupMessageEntityToGroupMessageGetDto(GroupMessageEntity groupMessageEntity) {

@@ -60,6 +60,18 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
         }
     }
 
+    public boolean isUserProjectMember(long projectId, long userId) {
+        try {
+            em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserId", ProjectMembershipEntity.class)
+                    .setParameter("projectId", projectId)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
     public boolean isUserProjectManager(long projectId, long userId) {
         try {
             em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserIdAndRole", ProjectMembershipEntity.class)
@@ -83,18 +95,6 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
         return em.createNamedQuery("ProjectMembership.findProjectIdsByUserId")
                 .setParameter("userId", userId)
                 .getResultList();
-    }
-
-    public boolean isUserProjectMember(long projectId, long userId) {
-        try {
-            em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserId", ProjectMembershipEntity.class)
-                    .setParameter("projectId", projectId)
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-            return true;
-        } catch (NoResultException e) {
-            return false;
-        }
     }
 
     public List<UserEntity> findUsersByFirstLetterAndProjId(String firstLetter, long projectId) {

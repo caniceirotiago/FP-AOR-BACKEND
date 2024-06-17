@@ -13,7 +13,8 @@ public class GroupMessageMarkReadDto implements Serializable {
 
     @XmlElement
     @NotNull
-    private Instant sentTime;
+    @Min(value = 1, message = "ID must be greater than 0")
+    private long messageId;
 
     @XmlElement
     @NotNull
@@ -24,19 +25,20 @@ public class GroupMessageMarkReadDto implements Serializable {
     public GroupMessageMarkReadDto() {
     }
 
-    public GroupMessageMarkReadDto( Instant sentTime, long groupId) {
-        this.sentTime = sentTime;
+    public GroupMessageMarkReadDto( long messageId, long groupId) {
+        this.messageId = messageId;
         this.groupId = groupId;
     }
 
     // Getters and setters
 
-    public Instant getSentTime() {
-        return sentTime;
+
+    public long getMessageId() {
+        return messageId;
     }
 
-    public void setSentTime(Instant sentTime) {
-        this.sentTime = sentTime;
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
     }
 
     public long getGroupId() {

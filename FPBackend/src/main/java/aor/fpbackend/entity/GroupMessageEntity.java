@@ -22,6 +22,14 @@ public class GroupMessageEntity extends MessageEntity implements Serializable {
     @JoinColumn(name = "group_id", nullable = false)
     private ProjectEntity group;
 
+    @ManyToMany
+    @JoinTable(
+            name = "group_message_read_receipts",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<UserEntity> readByUsers = new HashSet<>();
+
     public GroupMessageEntity() {}
 
     public GroupMessageEntity(ProjectEntity group) {
@@ -41,5 +49,13 @@ public class GroupMessageEntity extends MessageEntity implements Serializable {
 
     public void setGroup(ProjectEntity group) {
         this.group = group;
+    }
+
+    public Set<UserEntity> getReadByUsers() {
+        return readByUsers;
+    }
+
+    public void setReadByUsers(Set<UserEntity> readByUsers) {
+        this.readByUsers = readByUsers;
     }
 }
