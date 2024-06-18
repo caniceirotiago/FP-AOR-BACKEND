@@ -123,4 +123,14 @@ public class IndividualMessageDao extends AbstractDao<IndividualMessageEntity> {
         return predicates;
     }
 
+    public boolean markMessagesAsRead (List<Long> messageIds) {
+        return em.createQuery("UPDATE IndividualMessageEntity m SET m.isViewed = true WHERE m.id IN :messageIds")
+                .setParameter("messageIds", messageIds)
+                .executeUpdate() > 0;
+    }
+    public List<IndividualMessageEntity> getMessagesByIds(List<Long> messageIds) {
+        return em.createQuery("SELECT m FROM IndividualMessageEntity m WHERE m.id IN :messageIds", IndividualMessageEntity.class)
+                .setParameter("messageIds", messageIds)
+                .getResultList();
+    }
 }

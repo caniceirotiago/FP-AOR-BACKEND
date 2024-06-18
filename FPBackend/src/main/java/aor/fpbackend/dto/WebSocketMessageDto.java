@@ -10,8 +10,7 @@ import java.io.Serializable;
 @XmlRootElement
 public class WebSocketMessageDto implements Serializable {
     @XmlElement
-    @Enumerated
-    private WebSocketMessageType type;
+    private String type;
 
     @XmlElement
     private Object data;
@@ -19,25 +18,29 @@ public class WebSocketMessageDto implements Serializable {
     public WebSocketMessageDto() {
     }
 
-    public WebSocketMessageDto(WebSocketMessageType type, Object data) {
+    public WebSocketMessageDto(String type, Object data) {
         this.type = type;
         this.data = data;
     }
 
-    public WebSocketMessageType getType() {
-        return type;
-    }
+
 
     public Object getData() {
         return data;
     }
 
-    public void setType(WebSocketMessageType type) {
-        this.type = type;
-    }
+
 
     public void setData(Object data) {
         this.data = data;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override

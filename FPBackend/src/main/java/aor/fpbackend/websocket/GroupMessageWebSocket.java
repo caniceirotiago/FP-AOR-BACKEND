@@ -92,7 +92,7 @@ public class GroupMessageWebSocket {
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
-            if (type.equals(WebSocketMessageType.GROUP_MESSAGE)) {
+            if (type.equals(WebSocketMessageType.GROUP_MESSAGE.toString())) {
                 System.out.println("group_Message");
                 broadcastGroupMessage(session, json);
             } else if (type.equals(WebSocketMessageType.MARK_AS_READ)) {
