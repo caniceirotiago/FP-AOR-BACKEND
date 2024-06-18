@@ -92,6 +92,7 @@ public class IndividualMessageWebSocket {
         //On message receive two types of messages: markAsRead and sendMessage
         //markAsRead: mark messages as read
         //sendMessage: persists message in database and sends it to the receiver if the receiver is online
+        System.out.println("Received message: " + message);
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get("type").getAsString();
