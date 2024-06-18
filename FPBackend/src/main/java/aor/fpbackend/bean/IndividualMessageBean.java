@@ -78,6 +78,16 @@ public class IndividualMessageBean {
 
         return paginatedMessagesDto;
     }
+    public boolean markMessagesAsRead(List<Long> messageIds) {
+        return individualMessageDao.markMessagesAsRead(messageIds);
+    }
+    public List<IndividualMessageGetDto> getMessagesByIds(List<Long> messageIds) {
+        List<IndividualMessageEntity> messages = individualMessageDao.getMessagesByIds(messageIds);
+        return messages.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+    }
 
 
 

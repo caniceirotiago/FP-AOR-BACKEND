@@ -66,7 +66,7 @@ public class GroupMessageWebSocket {
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
-            if (type.equals(WebSocketMessageType.GROUP_MESSAGE)) {
+            if (type.equals(WebSocketMessageType.GROUP_MESSAGE.toString())) {
                 System.out.println("group_Message");
             }
         } catch (Exception e) {
@@ -82,7 +82,7 @@ public class GroupMessageWebSocket {
             Session session = sessions.get(sessionEntity.getSessionToken());
             if (session != null && session.isOpen()) {
                 try {
-                    String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.GROUP_MESSAGE, message));
+                    String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.GROUP_MESSAGE.toString(), message));
                     session.getBasicRemote().sendText(jsonResponse);
                 } catch (IOException e) {
                     e.printStackTrace();
