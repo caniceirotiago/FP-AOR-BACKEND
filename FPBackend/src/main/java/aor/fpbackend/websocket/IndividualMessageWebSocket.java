@@ -130,7 +130,7 @@ public class IndividualMessageWebSocket {
 //            }
 //        }
 //    }
-    public void receiveSendMessage(Session session, JsonObject json) throws IOException, UserNotFoundException, UserNotFoundException {
+    public void receiveSendMessage(Session session, JsonObject json) throws IOException, UserNotFoundException {
         JsonObject data = json.getAsJsonObject("data");
         IndividualMessageSendDto msg = gson.fromJson(data, IndividualMessageSendDto.class);
         if (data != null) {
