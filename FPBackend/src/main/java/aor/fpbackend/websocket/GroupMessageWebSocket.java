@@ -111,7 +111,7 @@ public class GroupMessageWebSocket {
             GroupMessageGetDto savedGroupMessageGetDto = groupMessageBean.convertGroupMessageEntityToGroupMessageGetDto(savedGroupMessage);
             System.out.println("Group Message saved: " + savedGroupMessageGetDto);
             if (savedGroupMessage != null) {
-                String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.NEW_GROUP_MESSAGE, savedGroupMessageGetDto));
+                String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.NEW_GROUP_MESSAGE.toString(), savedGroupMessageGetDto));
                 List<Session> groupSessions = userSessions.get(savedGroupMessage.getGroup().getId());
                 List<Session> senderSessions = userSessions.get(savedGroupMessage.getSender().getId());
                 if (groupSessions != null && !groupSessions.isEmpty()) {
