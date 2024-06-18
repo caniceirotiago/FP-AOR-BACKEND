@@ -42,9 +42,9 @@ public class GroupMessageBean {
         // Find the sender user by their ID
         UserEntity senderEntity = userDao.findUserById(groupMessageSendDto.getSenderId());
         if (senderEntity == null) {
-            throw new UserNotFoundException("User with Id: " + groupMessageSendDto.getSenderId() + " not found");
+            throw new UserNotFoundException("Esta a falhar no bean com User with Id: " + groupMessageSendDto.getSenderId() + " not found");
         }
-        // Find the project entity based on groupId
+        // Find the project entity based on groupId\
         ProjectEntity projectEntity = projectDao.findProjectById(groupMessageSendDto.getGroupId());
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found with this Id");

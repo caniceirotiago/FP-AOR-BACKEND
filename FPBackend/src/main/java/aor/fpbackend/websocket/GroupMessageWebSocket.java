@@ -52,7 +52,7 @@ public class GroupMessageWebSocket {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("projectId") Long projectId) {
-        System.out.println("GroupChat WebSocket connection opened");
+        System.out.println("GroupChat WebSocket connection opened on project Id nº" + projectId);
         try {
             AuthUserDto user = userBean.validateSessionTokenAndGetUserDetails(sessionToken);
             if (!projectMembershipDao.isUserProjectMember(projectId, user.getUserId())) {
@@ -64,6 +64,22 @@ public class GroupMessageWebSocket {
                 session.getUserProperties().put("token", sessionToken);
                 userSessions.computeIfAbsent(user.getUserId(), k -> new CopyOnWriteArrayList<>()).add(session);
                 System.out.println("GroupChat WebSocket connection opened for user: " + user.getUserId() + " and project id: " + projectId);
+
+                // Iterate over the userSessions map just for debugging
+                userSessions.forEach((userId, sessions) -> {
+                    // Print userId
+                    System.out.println("User ID: " + userId);
+
+                    // Iterate over the sessions list and print each session
+                    sessions.forEach(session1 -> {
+                        System.out.println("Session Id: " + session1.getId());
+                        // You can print more details of the session if needed
+                    });
+
+                    // Add a separator between different users for clarity
+                    System.out.println("---");
+                });
+
             } else {
                 session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized"));
             }
@@ -92,11 +108,12 @@ public class GroupMessageWebSocket {
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
-            if (type.equals(WebSocketMessageType.GROUP_MESSAGE.toString())) {
+            if (type.equals(WebSocketMessageType.NEW_GROUP_MESSAGE.toString())) {
                 System.out.println("group_Message");
                 broadcastGroupMessage(session, json);
             } else if (type.equals(WebSocketMessageType.MARK_AS_READ.toString())) {
                 System.out.println("Implement mark as read method()");
+                //markAsRead(json);
             }
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
@@ -106,6 +123,7 @@ public class GroupMessageWebSocket {
     public void broadcastGroupMessage(Session session, JsonObject json) throws IOException, UserNotFoundException, EntityNotFoundException {
         JsonObject data = json.getAsJsonObject("data");
         GroupMessageSendDto msg = gson.fromJson(data, GroupMessageSendDto.class);
+        System.out.println("Send Dto " + msg);
         if (data != null) {
             GroupMessageEntity savedGroupMessage = groupMessageBean.sendGroupMessage(msg);
             GroupMessageGetDto savedGroupMessageGetDto = groupMessageBean.convertGroupMessageEntityToGroupMessageGetDto(savedGroupMessage);
