@@ -4,6 +4,7 @@ package aor.fpbackend.websocket;
 import aor.fpbackend.bean.GroupMessageBean;
 import aor.fpbackend.bean.IndividualMessageBean;
 import aor.fpbackend.bean.UserBean;
+import aor.fpbackend.dao.ProjectMembershipDao;
 import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.GroupMessageEntity;
@@ -13,6 +14,7 @@ import aor.fpbackend.enums.QueryParams;
 import aor.fpbackend.enums.WebSocketMessageType;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InvalidCredentialsException;
+import aor.fpbackend.exception.UnauthorizedAccessException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.utils.GsonSetup;
 import aor.fpbackend.utils.JwtKeyProvider;
@@ -45,12 +47,17 @@ public class GroupMessageWebSocket {
     private GroupMessageBean groupMessageBean;
     @EJB
     private UserBean userBean;
+    @EJB
+    private ProjectMembershipDao projectMembershipDao;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("projectId") Long projectId) {
         System.out.println("GroupChat WebSocket connection opened");
         try {
             AuthUserDto user = userBean.validateSessionTokenAndGetUserDetails(sessionToken);
+            if (!projectMembershipDao.isUserProjectMember(projectId, user.getUserId())) {
+                throw new UnauthorizedAccessException("User is not a project member");
+            }
             if (user != null) {
                 session.getUserProperties().put("projectId", projectId);
                 session.getUserProperties().put("userId", user.getUserId());
@@ -102,7 +109,7 @@ public class GroupMessageWebSocket {
         if (data != null) {
             GroupMessageEntity savedGroupMessage = groupMessageBean.sendGroupMessage(msg);
             GroupMessageGetDto savedGroupMessageGetDto = groupMessageBean.convertGroupMessageEntityToGroupMessageGetDto(savedGroupMessage);
-            System.out.println("Message saved: " + savedGroupMessageGetDto);
+            System.out.println("Group Message saved: " + savedGroupMessageGetDto);
             if (savedGroupMessage != null) {
                 String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.NEW_GROUP_MESSAGE, savedGroupMessageGetDto));
                 List<Session> groupSessions = userSessions.get(savedGroupMessage.getGroup().getId());
