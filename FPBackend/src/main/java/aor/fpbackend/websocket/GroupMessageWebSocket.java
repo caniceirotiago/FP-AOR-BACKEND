@@ -123,7 +123,8 @@ public class GroupMessageWebSocket {
     public void broadcastGroupMessage(Session session, JsonObject json) throws IOException, UserNotFoundException, EntityNotFoundException {
         JsonObject data = json.getAsJsonObject("data");
         GroupMessageSendDto msg = gson.fromJson(data, GroupMessageSendDto.class);
-        System.out.println("Send Dto " + msg);
+        System.out.println("Send Dto " + msg.getGroupId() + msg.getContent() + msg.getSenderId());
+
         if (data != null) {
             GroupMessageEntity savedGroupMessage = groupMessageBean.sendGroupMessage(msg);
             GroupMessageGetDto savedGroupMessageGetDto = groupMessageBean.convertGroupMessageEntityToGroupMessageGetDto(savedGroupMessage);
