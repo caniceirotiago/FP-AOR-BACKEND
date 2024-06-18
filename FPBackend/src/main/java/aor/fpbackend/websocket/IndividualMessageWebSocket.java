@@ -107,12 +107,9 @@ public class IndividualMessageWebSocket {
         }
     }
     public void markAsRead(JsonObject json) throws IOException {
-        System.out.println(json);
         JsonElement dataElement = json.get("data");
-        System.out.println(dataElement);
         Type listType = new TypeToken<List<Long>>() {}.getType();
         List<Long> messageIds = gson.fromJson(dataElement, listType);
-        System.out.println(messageIds);
         boolean success = individualMessageBean.markMessagesAsRead(messageIds);
         if (success) {
             System.out.println("Messages marked as read: " + messageIds);
@@ -124,6 +121,14 @@ public class IndividualMessageWebSocket {
                 for (Session receiverSession : receiverSessions) {
                     if (receiverSession.isOpen()) {
                         receiverSession.getBasicRemote().sendText(jsonResponse);
+                    }
+                }
+            }
+            List<Session> senderSessions = userSessions.get(messages.get(0).getSender().getId());
+            if (senderSessions != null) {
+                for (Session senderSession : senderSessions) {
+                    if (senderSession.isOpen()) {
+                        senderSession.getBasicRemote().sendText(jsonResponse);
                     }
                 }
             }
@@ -154,7 +159,7 @@ public class IndividualMessageWebSocket {
                 }
                 if (senderSessions != null && !senderSessions.isEmpty()) {
                     for (Session senderSession : senderSessions) {
-                        if (senderSession.isOpen() && senderSession != session) {
+                        if (senderSession.isOpen()) {
                             senderSession.getBasicRemote().sendText(jsonResponse);
                         }
                     }
