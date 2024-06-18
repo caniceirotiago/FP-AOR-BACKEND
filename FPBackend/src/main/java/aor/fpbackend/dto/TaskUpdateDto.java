@@ -9,7 +9,6 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Set;
 
 @XmlRootElement
 public class TaskUpdateDto implements Serializable {

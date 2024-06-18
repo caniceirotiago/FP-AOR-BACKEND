@@ -1,8 +1,6 @@
 package aor.fpbackend.dao;
 
 import aor.fpbackend.entity.LaboratoryEntity;
-import aor.fpbackend.entity.RoleEntity;
-import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.LocationEnum;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -10,7 +8,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Stateless
 public class LaboratoryDao extends AbstractDao<LaboratoryEntity> {

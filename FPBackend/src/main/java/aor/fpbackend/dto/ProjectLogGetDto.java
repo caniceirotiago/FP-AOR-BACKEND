@@ -1,14 +1,12 @@
 package aor.fpbackend.dto;
 
 import aor.fpbackend.enums.LogTypeEnum;
-import aor.fpbackend.enums.ProjectStateEnum;
 import jakarta.persistence.Enumerated;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 
 @XmlRootElement
 public class ProjectLogGetDto implements Serializable {

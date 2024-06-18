@@ -1,7 +1,5 @@
 package aor.fpbackend.dto;
 
-import aor.fpbackend.enums.WebSocketMessageType;
-import jakarta.persistence.Enumerated;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 

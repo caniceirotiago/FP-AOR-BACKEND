@@ -16,7 +16,6 @@ import aor.fpbackend.exception.InputValidationException;
 import java.time.temporal.ChronoUnit;
 
 import jakarta.ejb.EJB;
-import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;

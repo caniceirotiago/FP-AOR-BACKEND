@@ -2,10 +2,6 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.LaboratoryBean;
 import aor.fpbackend.dto.LaboratoryDto;
-import aor.fpbackend.enums.LocationEnum;
-import aor.fpbackend.enums.MethodEnum;
-import aor.fpbackend.exception.DatabaseOperationException;
-import aor.fpbackend.filters.RequiresMethodPermission;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

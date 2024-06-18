@@ -1,6 +1,5 @@
 package aor.fpbackend.entity;
 
-import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.SkillTypeEnum;
 import jakarta.persistence.*;
 

@@ -1,14 +1,10 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.UserBean;
-import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.*;
-import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.MethodEnum;
-import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresMethodPermission;
-import aor.fpbackend.filters.RequiresProjectRolePermission;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;

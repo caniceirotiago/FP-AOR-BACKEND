@@ -1,6 +1,5 @@
 package aor.fpbackend.filters;
 
-import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
 
 import java.lang.annotation.ElementType;
