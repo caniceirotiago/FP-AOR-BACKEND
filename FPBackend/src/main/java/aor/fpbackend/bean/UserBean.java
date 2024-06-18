@@ -290,6 +290,7 @@ public class UserBean implements Serializable {
             throw new InvalidCredentialsException("Error processing token: " + e.getMessage());
         }
     }
+
     public AuthUserDto validateSessionTokenAndGetUserDetails(String token) throws InvalidCredentialsException {
         try {
             Key secretKey = JwtKeyProvider.getKey();
@@ -312,12 +313,9 @@ public class UserBean implements Serializable {
                     .parseClaimsJws(token);
             Claims claims = jwsClaims.getBody();
             Long userId = Long.parseLong(claims.getSubject());
-
             UserEntity user = userDao.findUserById(userId);
             AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()), token);
             return authUserDto;
-
-
         } catch (ExpiredJwtException e) {
             throw new InvalidCredentialsException("Token expired: " + e.getMessage());
         } catch (JwtException | IllegalArgumentException e) {
@@ -451,6 +449,7 @@ public class UserBean implements Serializable {
         RoleEntity newRole = roleDao.findRoleById(userUpdateRoleDto.getRoleId());
         u.setRole(newRole);
     }
+
     public UserBasicInfoDto getUserBasicInfoById(long userId) {
         UserEntity userEntity = userDao.findUserById(userId);
         return convertUserEntitytoUserBasicInfoDto(userEntity);

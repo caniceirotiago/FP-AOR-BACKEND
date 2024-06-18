@@ -4,6 +4,7 @@ import aor.fpbackend.bean.GroupMessageBean;
 import aor.fpbackend.bean.IndividualMessageBean;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import aor.fpbackend.websocket.GroupMessageWebSocket;
@@ -25,8 +26,11 @@ public class GroupMessageService {
     @Path("/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void sendGroupMessage(@Valid GroupMessageSendDto groupMessageSendDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
-        groupMessageBean.sendGroupMessage(groupMessageSendDto, securityContext);
+    public void sendGroupMessage(@PathParam("projectId") long projectId, @Valid GroupMessageSendDto groupMessageSendDto) throws UserNotFoundException, EntityNotFoundException, InputValidationException {
+        if (projectId != groupMessageSendDto.getGroupId()) {
+            throw new InputValidationException("Invalid input Id: " + groupMessageSendDto.getGroupId());
+        }
+        groupMessageBean.sendGroupMessage(groupMessageSendDto);
     }
     @GET
     @Path("/{projectId}")
