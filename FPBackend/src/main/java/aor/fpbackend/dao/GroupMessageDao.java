@@ -56,4 +56,10 @@ public class GroupMessageDao extends AbstractDao<GroupMessageEntity> {
             return List.of(); // Using List.of() to return an immutable empty list
         }
     }
+
+    public List<GroupMessageEntity> getMessagesByIds(List<Long> messageIds) {
+        return em.createQuery("SELECT gm FROM GroupMessageEntity gm WHERE gm.id IN :messageIds", GroupMessageEntity.class)
+                .setParameter("messageIds", messageIds)
+                .getResultList();
+    }
 }

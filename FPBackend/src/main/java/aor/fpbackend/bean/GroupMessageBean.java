@@ -18,6 +18,8 @@ import org.apache.logging.log4j.Logger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Stateless
 public class GroupMessageBean {
@@ -66,30 +68,63 @@ public class GroupMessageBean {
         return groupMessageEntity;
     }
 
-    public List<GroupMessageGetDto> getGroupMessages(long projectId) {
+    public List<GroupMessageGetDto> getGroupMessagesByProjectId(long projectId, SecurityContext securityContext) throws UserNotFoundException {
+        // Get the authenticated user
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        if (userEntity == null) {
+            throw new UserNotFoundException("No user found for this Id");
+        }
         List<GroupMessageEntity> groupMessageEntities = groupMessageDao.getGroupMessagesByProjectId(projectId);
+        for (GroupMessageEntity groupMessageEntity : groupMessageEntities) {
+            markMessageAsReadByUser(groupMessageEntity.getId(), userEntity.getId());
+        }
         List<GroupMessageGetDto> groupMessageGetDtos = convertGroupMessageEntityListToGroupMessageGetDtoList(groupMessageEntities);
         return groupMessageGetDtos;
     }
 
-    public void markMessageAsRead(GroupMessageMarkReadDto groupMessageMarkReadDto, SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
-        // Find the authenticated sender user by their ID
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-        if (userEntity == null) {
-            throw new UserNotFoundException("User with Id: " + authUserDto.getUserId() + " not found");
+    public List<GroupMessageGetDto> getGroupMessagesByMessageIds(List<Long> messageIds) {
+        List<GroupMessageEntity> groupMessageEntities = groupMessageDao.getMessagesByIds(messageIds);
+        return groupMessageEntities.stream()
+                .map(this::convertGroupMessageEntityToGroupMessageGetDto)
+                .collect(Collectors.toList());
+
+    }
+
+    public boolean markMessageAsReadByUser(Long messageId, Long userId) {
+        GroupMessageEntity message = groupMessageDao.findGroupMessageById(messageId);
+        UserEntity user = userDao.findUserById(userId);
+        if (message != null && user != null) {
+            message.getReadByUsers().add(user);
+            return true;
         }
-        GroupMessageEntity messageEntity = groupMessageDao.findGroupMessageById(groupMessageMarkReadDto.getMessageId());
-        if (messageEntity == null) {
-            throw new EntityNotFoundException("Message not found with this Id");
+        return false;
+    }
+
+    private boolean allUsersHaveReadMessage(Long messageId) {
+        GroupMessageEntity messageEntity = groupMessageDao.findGroupMessageById(messageId);
+        if (messageEntity != null) {
+            Set<UserEntity> readByUsers = messageEntity.getReadByUsers();
+            List<UserEntity> groupUsers = projectMemberDao.findProjectMembersByProjectId(messageEntity.getGroup().getId());
+            return readByUsers.containsAll(groupUsers);
         }
-        messageEntity.getReadByUsers().add(userEntity);
-        // Check if all users in the group have read the message
-        List<UserEntity> groupMembers = projectMemberDao.findProjectMembersByProjectId(groupMessageMarkReadDto.getGroupId());
-        if (groupMembers.stream().allMatch(user -> messageEntity.getReadByUsers().contains(user))) {
-            messageEntity.setViewed(true);
-            LOGGER.warn("Group Messages marked as read");
+        return false;
+    }
+
+    public boolean markMessagesAsReadForGroup(List<Long> messageIds) {
+        boolean allRead = true;
+        for (Long messageId : messageIds) {
+            // Check if all users have read the message
+            boolean allUsersRead = allUsersHaveReadMessage(messageId);
+            if (!allUsersRead) {
+                allRead = false;
+            } else {
+                // If all users have read the message, set viewed flag
+                GroupMessageEntity messageEntity = groupMessageDao.findGroupMessageById(messageId);
+                messageEntity.setViewed(true);
+            }
         }
+        return allRead;
     }
 
     public GroupMessageGetDto convertGroupMessageEntityToGroupMessageGetDto(GroupMessageEntity groupMessageEntity) {

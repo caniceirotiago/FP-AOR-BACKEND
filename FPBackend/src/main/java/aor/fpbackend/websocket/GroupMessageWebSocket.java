@@ -19,8 +19,10 @@ import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.utils.GsonSetup;
 import aor.fpbackend.utils.JwtKeyProvider;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.ejb.EJB;
@@ -30,6 +32,7 @@ import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.security.Key;
 import java.util.List;
 import java.util.Map;
@@ -109,11 +112,9 @@ public class GroupMessageWebSocket {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
             if (type.equals(WebSocketMessageType.NEW_GROUP_MESSAGE.toString())) {
-                System.out.println("group_Message");
                 broadcastGroupMessage(session, json);
             } else if (type.equals(WebSocketMessageType.MARK_AS_READ.toString())) {
-                System.out.println("Implement mark as read method()");
-                //markAsRead(json);
+                markAsRead(json);
             }
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
@@ -147,6 +148,35 @@ public class GroupMessageWebSocket {
                         if (senderSession.isOpen()) {
                             senderSession.getBasicRemote().sendText(jsonResponse);
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    public void markAsRead(JsonObject json) throws IOException {
+        JsonElement dataElement = json.get("data");
+        Type listType = new TypeToken<List<Long>>() {}.getType();
+        List<Long> messageIds = gson.fromJson(dataElement, listType);
+        boolean success = groupMessageBean.markMessagesAsReadForGroup(messageIds);
+        if (success) {
+            System.out.println("Group messages marked as read: " + messageIds);
+            List<GroupMessageGetDto> messages = groupMessageBean.getGroupMessagesByMessageIds(messageIds);
+            WebSocketMessageDto response = new WebSocketMessageDto(WebSocketMessageType.MARK_AS_READ.toString(), messages);
+            String jsonResponse = gson.toJson(response);
+            List<Session> groupSessions = userSessions.get(messages.get(0).getGroupId());
+            if (groupSessions != null) {
+                for (Session groupSession : groupSessions) {
+                    if (groupSession.isOpen()) {
+                        groupSession.getBasicRemote().sendText(jsonResponse);
+                    }
+                }
+            }
+            List<Session> senderSessions = userSessions.get(messages.get(0).getSender().getId());
+            if (senderSessions != null) {
+                for (Session senderSession : senderSessions) {
+                    if (senderSession.isOpen()) {
+                        senderSession.getBasicRemote().sendText(jsonResponse);
                     }
                 }
             }
