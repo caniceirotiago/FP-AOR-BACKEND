@@ -156,7 +156,8 @@ public class GroupMessageWebSocket {
 
     public void markAsRead(JsonObject json) throws IOException {
         JsonElement dataElement = json.get("data");
-        Type listType = new TypeToken<List<Long>>() {}.getType();
+        Type listType = new TypeToken<List<Long>>() {
+        }.getType();
         List<Long> messageIds = gson.fromJson(dataElement, listType);
         boolean success = groupMessageBean.markMessagesAsReadForGroup(messageIds);
         if (success) {

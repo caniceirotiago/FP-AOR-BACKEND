@@ -45,12 +45,14 @@ public class GroupMessageService {
         return groupMessageBean.getGroupMessagesByProjectId(projectId, securityContext);
     }
 
-    @PUT
-    @Path("/mark/read")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public void markRead(List<Long> messageIds) {
-        groupMessageBean.markMessagesAsReadForGroup(messageIds);
-    }
+    //TODO
+    // Method just to debug (To erase later)
+//    @PUT
+//    @Path("/mark/read/{messageId}")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public void markRead(@PathParam("messageId")Long messageId) {
+//        groupMessageBean.markMessagesAsReadForGroup(messageId);
+//    }
 
 }
