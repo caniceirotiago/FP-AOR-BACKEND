@@ -8,6 +8,8 @@ import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import aor.fpbackend.websocket.GroupMessageWebSocket;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -15,6 +17,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 @Path("/group/messages")
@@ -32,20 +35,22 @@ public class GroupMessageService {
         }
         groupMessageBean.sendGroupMessage(groupMessageSendDto);
     }
+
     @GET
     @Path("/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public List<GroupMessageGetDto> getGroupMessages(@PathParam("projectId") long projectId) {
-        return groupMessageBean.getGroupMessages(projectId);
+    public List<GroupMessageGetDto> getGroupMessages(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws UserNotFoundException {
+        return groupMessageBean.getGroupMessagesByProjectId(projectId, securityContext);
     }
 
     @PUT
-    @Path("/read/{projectId}")
+    @Path("/mark/read")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresProjectMemberPermission()
-    public void markMessagesAsRead(@Valid GroupMessageMarkReadDto groupMessageMarkReadDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
-        groupMessageBean.markMessageAsRead(groupMessageMarkReadDto, securityContext);
+    @Produces(MediaType.APPLICATION_JSON)
+    public void markRead(List<Long> messageIds) {
+        groupMessageBean.markMessagesAsReadForGroup(messageIds);
     }
+
 }
