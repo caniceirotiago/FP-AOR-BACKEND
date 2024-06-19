@@ -7,6 +7,7 @@ import aor.fpbackend.dto.NotificationGetDto;
 import aor.fpbackend.entity.IndividualMessageEntity;
 import aor.fpbackend.entity.NotificationEntity;
 import aor.fpbackend.enums.NotificationTypeENUM;
+import aor.fpbackend.websocket.GlobalWebSocket;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ws.rs.core.SecurityContext;
@@ -40,12 +41,20 @@ public class NotificationBean implements Serializable {
         notificationEntity.setContent("You have a new message from " + messageEntity.getSender().getUsername());
         LOGGER.info("Creating notification for individual message");
         notificationDao.persist(notificationEntity);
+        NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+        GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
     }
 
     public List<NotificationGetDto> getUnreadNotifications(SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         List<NotificationEntity> notificationsEntety =  notificationDao.getUnreadbByUserNotifications(authUserDto.getUserId());
         return convertEntetiesToDtos(notificationsEntety);
+    }
+
+    public void markNotificationsAsRead(Long notificationId){
+        NotificationEntity notificationEntity = notificationDao.findNotificationById(notificationId);
+        notificationEntity.setRead(true);
+        notificationDao.merge(notificationEntity);
     }
 
     private List<NotificationGetDto> convertEntetiesToDtos(List<NotificationEntity> notificationsEntety) {
