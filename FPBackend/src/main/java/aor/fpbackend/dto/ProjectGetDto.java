@@ -1,18 +1,13 @@
 package aor.fpbackend.dto;
 
-import aor.fpbackend.entity.ProjectMembershipEntity;
-import aor.fpbackend.entity.UserEntity;
 import jakarta.persistence.Enumerated;
-import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import aor.fpbackend.enums.ProjectStateEnum;
-import aor.fpbackend.entity.LaboratoryEntity;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 
 @XmlRootElement
 public class ProjectGetDto implements Serializable {

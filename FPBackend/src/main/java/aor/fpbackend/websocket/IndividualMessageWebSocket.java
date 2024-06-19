@@ -3,6 +3,7 @@ package aor.fpbackend.websocket;
 
 
 import aor.fpbackend.bean.IndividualMessageBean;
+import aor.fpbackend.bean.NotificationBean;
 import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.dto.IndividualMessageGetDto;
@@ -19,14 +20,12 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,8 +43,8 @@ public class IndividualMessageWebSocket {
     private UserBean userBean;
     @EJB
     private IndividualMessageBean individualMessageBean;
-//    @EJB
-//    private NotificationBean notificationBean;
+    @EJB
+    private NotificationBean notificationBean;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("receiverId") Long receiverId) {
@@ -154,8 +153,7 @@ public class IndividualMessageWebSocket {
                     }
                 }else {
                     System.out.println("Receiver session is null or closed");
-                    //notificationBean.createNotification(savedMessage.getReceiver().getUsername(), "message",
-                         //   savedMessageDto.getSenderUsername());
+                    notificationBean.createIndividualMessageNotification(savedMessage);
                 }
                 if (senderSessions != null && !senderSessions.isEmpty()) {
                     for (Session senderSession : senderSessions) {

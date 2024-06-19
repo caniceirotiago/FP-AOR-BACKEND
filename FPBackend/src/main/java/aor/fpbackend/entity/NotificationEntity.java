@@ -1,5 +1,7 @@
 package aor.fpbackend.entity;
 
+import aor.fpbackend.enums.NotificationTypeENUM;
+import aor.fpbackend.enums.convertors.NotificationTypeENUMConverter;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -14,23 +16,29 @@ public class NotificationEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(name = "type", nullable = false)
-    private String type;
+    @Convert(converter = NotificationTypeENUMConverter.class)
+    @Column(name = "type", nullable = false, unique = false, updatable = false)
+    private NotificationTypeENUM type;
 
     @Column(name = "content", nullable = false)
     private String content;
 
     @Column(name = "date_time", nullable = false)
     private Instant dateTime;
+    @Column(name = "is_read", nullable = false)
+    private boolean isRead;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "individual_message_id", nullable = true)
+    private IndividualMessageEntity individualMessage;
 
     // Constructors
     public NotificationEntity() {}
 
-    public NotificationEntity(String type, String content, Instant dateTime, UserEntity user) {
+    public NotificationEntity(NotificationTypeENUM type, String content, Instant dateTime, UserEntity user) {
         this.type = type;
         this.content = content;
         this.dateTime = dateTime;
@@ -46,11 +54,11 @@ public class NotificationEntity implements Serializable {
         this.id = id;
     }
 
-    public String getType() {
+    public NotificationTypeENUM getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(NotificationTypeENUM type) {
         this.type = type;
     }
 
@@ -76,6 +84,22 @@ public class NotificationEntity implements Serializable {
 
     public void setUser(UserEntity user) {
         this.user = user;
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
+
+    public IndividualMessageEntity getIndividualMessage() {
+        return individualMessage;
+    }
+
+    public void setIndividualMessage(IndividualMessageEntity individualMessage) {
+        this.individualMessage = individualMessage;
     }
 
     @Override

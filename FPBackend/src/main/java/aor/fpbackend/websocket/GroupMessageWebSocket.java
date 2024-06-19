@@ -2,14 +2,10 @@
 package aor.fpbackend.websocket;
 
 import aor.fpbackend.bean.GroupMessageBean;
-import aor.fpbackend.bean.IndividualMessageBean;
 import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dao.ProjectMembershipDao;
-import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.GroupMessageEntity;
-import aor.fpbackend.entity.IndividualMessageEntity;
-import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.enums.QueryParams;
 import aor.fpbackend.enums.WebSocketMessageType;
 import aor.fpbackend.exception.EntityNotFoundException;
@@ -17,7 +13,6 @@ import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.UnauthorizedAccessException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.utils.GsonSetup;
-import aor.fpbackend.utils.JwtKeyProvider;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

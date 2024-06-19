@@ -5,7 +5,6 @@ import aor.fpbackend.dto.InterestAddDto;
 import aor.fpbackend.dto.InterestGetDto;
 import aor.fpbackend.dto.InterestRemoveDto;
 import aor.fpbackend.enums.InterestTypeEnum;
-import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;

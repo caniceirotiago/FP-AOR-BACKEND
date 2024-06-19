@@ -17,6 +17,9 @@ public class IndividualMessageEntity extends MessageEntity implements Serializab
     @ManyToOne
     @JoinColumn(name = "recipient_id", nullable = false)
     private UserEntity recipient;
+    @OneToOne
+    @JoinColumn(name = "notification_id", nullable = true)
+    private NotificationEntity notification;
 
     public IndividualMessageEntity() {}
 

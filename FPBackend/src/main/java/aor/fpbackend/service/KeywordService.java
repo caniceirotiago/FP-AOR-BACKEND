@@ -5,7 +5,6 @@ import aor.fpbackend.dto.KeywordAddDto;
 import aor.fpbackend.dto.KeywordGetDto;
 import aor.fpbackend.dto.KeywordRemoveDto;
 import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;

@@ -2,7 +2,6 @@ package aor.fpbackend.dao;
 
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.AssetTypeEnum;
-import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.QueryParams;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;

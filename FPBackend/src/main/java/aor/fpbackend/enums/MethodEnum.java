@@ -37,7 +37,9 @@ public enum MethodEnum {
     ASK_TO_JOIN(34L),
     ASSET_ENUMS(35L),
     SKILL_ENUMS(36L),
-    ASSET_REMOVE(37L);
+    ASSET_REMOVE(37L),
+    GET_NOTIFICATIONS(38L);
+
 
     private final long value;
 

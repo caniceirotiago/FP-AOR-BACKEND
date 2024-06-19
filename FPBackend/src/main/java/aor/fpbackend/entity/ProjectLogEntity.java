@@ -1,7 +1,6 @@
 package aor.fpbackend.entity;
 
 import aor.fpbackend.enums.LogTypeEnum;
-import jakarta.ejb.EJB;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
