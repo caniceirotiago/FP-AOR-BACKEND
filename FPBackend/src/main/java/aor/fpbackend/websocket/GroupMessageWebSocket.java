@@ -107,6 +107,7 @@ public class GroupMessageWebSocket {
         GroupMessageSendDto msg = gson.fromJson(data, GroupMessageSendDto.class);
         if (data != null) {
             GroupMessageEntity savedGroupMessage = groupMessageBean.sendGroupMessage(msg);
+            groupMessageBean.markMessageAsReadByUser(savedGroupMessage.getId(), savedGroupMessage.getSender().getId());
             GroupMessageGetDto savedGroupMessageGetDto = groupMessageBean.convertGroupMessageEntityToGroupMessageGetDto(savedGroupMessage);
             if (savedGroupMessage != null) {
                 String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.NEW_GROUP_MESSAGE.toString(), savedGroupMessageGetDto));
@@ -130,36 +131,15 @@ public class GroupMessageWebSocket {
         Type listType = new TypeToken<List<Long>>() {
         }.getType();
         List<Long> messageIds = gson.fromJson(dataElement, listType);
-
-
-        Long userId = (Long) session.getUserProperties().get("userId");
-
-        for (Long mID : messageIds) {
-            System.out.println("Message Id's " + mID + " user Id" + userId);
-        }
-
-        boolean success = groupMessageBean.markMessagesAsReadForGroup(messageIds, userId);
-
-        System.out.println("Mark as read WS success " + success);
-        if (success) {
-            System.out.println("Group messages marked as read: " + messageIds);
-            List<GroupMessageGetDto> messages = groupMessageBean.getGroupMessagesByMessageIds(messageIds);
-            WebSocketMessageDto response = new WebSocketMessageDto(WebSocketMessageType.MARK_AS_READ.toString(), messages);
-            String jsonResponse = gson.toJson(response);
-            List<Session> groupSessions = userSessions.get(messages.get(0).getGroupId());
-            if (groupSessions != null) {
-                for (Session groupSession : groupSessions) {
-                    if (groupSession.isOpen()) {
-                        groupSession.getBasicRemote().sendText(jsonResponse);
-                    }
-                }
-            }
-            List<Session> senderSessions = userSessions.get(messages.get(0).getSender().getId());
-            if (senderSessions != null) {
-                for (Session senderSession : senderSessions) {
-                    if (senderSession.isOpen()) {
-                        senderSession.getBasicRemote().sendText(jsonResponse);
-                    }
+        List<GroupMessageGetDto> messages = groupMessageBean.getGroupMessagesByMessageIds(messageIds);
+        WebSocketMessageDto response = new WebSocketMessageDto(WebSocketMessageType.MARK_AS_READ.toString(), messages);
+        String jsonResponse = gson.toJson(response);
+        List<Session> groupSessions = userSessions.get(messages.get(0).getGroupId());
+        if (groupSessions != null) {
+            for (Session groupSession : groupSessions) {
+                if (groupSession.isOpen()) {
+                    groupMessageBean.verifyMessagesAsReadForGroup(messageIds, (Long) groupSession.getUserProperties().get("userId"));
+                    groupSession.getBasicRemote().sendText(jsonResponse);
                 }
             }
         }
