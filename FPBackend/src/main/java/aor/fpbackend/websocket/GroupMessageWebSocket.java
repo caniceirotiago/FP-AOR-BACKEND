@@ -52,7 +52,7 @@ public class GroupMessageWebSocket {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("projectId") Long projectId) {
-        System.out.println("GroupChat WebSocket connection opened on project Id nº" + projectId);
+        System.out.println("GroupChat WebSocket connection opened on project Id n:" + projectId);
         try {
             AuthUserDto user = userBean.validateSessionTokenAndGetUserDetails(sessionToken);
             if (!projectMembershipDao.isUserProjectMember(projectId, user.getUserId())) {
@@ -135,7 +135,7 @@ public class GroupMessageWebSocket {
                 List<Session> senderSessions = userSessions.get(savedGroupMessage.getSender().getId());
                 if (groupSessions != null && !groupSessions.isEmpty()) {
                     for (Session groupSession : groupSessions) {
-                        if (groupSession.isOpen() && groupSession.getUserProperties().get("projectId").equals(savedGroupMessageGetDto.getSender().getId())) {
+                        if (groupSession.isOpen() && groupSession.getUserProperties().get("projectId").equals(savedGroupMessageGetDto.getGroupId())) {
                             groupSession.getBasicRemote().sendText(jsonResponse);
                         }
                     }
@@ -148,9 +148,6 @@ public class GroupMessageWebSocket {
                             senderSession.getBasicRemote().sendText(jsonResponse);
                         }
                     }
-                }
-                if (session.isOpen()) {
-                    session.getBasicRemote().sendText(jsonResponse);
                 }
             }
         }
