@@ -101,8 +101,12 @@ public class GroupMessageBean {
         return false;
     }
 
-    private boolean allUsersHaveReadMessage(Long messageId) {
+    private boolean allUsersHaveReadMessage(Long messageId, Long userId) {
         GroupMessageEntity messageEntity = groupMessageDao.findGroupMessageById(messageId);
+        UserEntity userEntity = userDao.findUserById(userId);
+        if (messageEntity != null && userEntity != null) {
+            messageEntity.getReadByUsers().add(userEntity);
+        }
         if (messageEntity != null) {
             Set<UserEntity> readByUsers = messageEntity.getReadByUsers();
             List<UserEntity> groupUsers = projectMemberDao.findProjectMembersByProjectId(messageEntity.getGroup().getId());
@@ -111,17 +115,23 @@ public class GroupMessageBean {
         return false;
     }
 
-    public boolean markMessagesAsReadForGroup(List<Long> messageIds) {
+    public boolean markMessagesAsReadForGroup(List<Long> messageIds, Long userId) {
         boolean allRead = true;
+
         for (Long messageId : messageIds) {
             // Check if all users have read the message
-            boolean allUsersRead = allUsersHaveReadMessage(messageId);
+            boolean allUsersRead = allUsersHaveReadMessage(messageId, userId);
             if (!allUsersRead) {
                 allRead = false;
+
+                System.out.println("Mensagem não marcada como lida");
             } else {
                 // If all users have read the message, set viewed flag
                 GroupMessageEntity messageEntity = groupMessageDao.findGroupMessageById(messageId);
                 messageEntity.setViewed(true);
+                System.out.println("Mensagem marcada como lida");
+                System.out.println(messageEntity.getContent());
+                System.out.println(messageEntity.isViewed());
             }
         }
         return allRead;
