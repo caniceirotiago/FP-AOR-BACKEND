@@ -65,7 +65,7 @@ public class GroupMessageWebSocket {
                 session.getUserProperties().put("projectId", projectId);
                 session.getUserProperties().put("userId", user.getUserId());
                 session.getUserProperties().put("token", sessionToken);
-                userSessions.computeIfAbsent(user.getUserId(), k -> new CopyOnWriteArrayList<>()).add(session);
+                userSessions.computeIfAbsent(projectId, k -> new CopyOnWriteArrayList<>()).add(session);
                 System.out.println("GroupChat WebSocket connection opened for user: " + user.getUserId() + " and project id: " + projectId);
 
                 // Iterate over the userSessions map just for debugging
@@ -133,7 +133,6 @@ public class GroupMessageWebSocket {
             if (savedGroupMessage != null) {
                 String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.NEW_GROUP_MESSAGE.toString(), savedGroupMessageGetDto));
                 List<Session> groupSessions = userSessions.get(savedGroupMessage.getGroup().getId());
-                List<Session> senderSessions = userSessions.get(savedGroupMessage.getSender().getId());
                 if (groupSessions != null && !groupSessions.isEmpty()) {
                     for (Session groupSession : groupSessions) {
                         if (groupSession.isOpen() && groupSession.getUserProperties().get("projectId").equals(savedGroupMessageGetDto.getGroupId())) {
@@ -143,13 +142,7 @@ public class GroupMessageWebSocket {
                 } else {
                     System.out.println("Group session is null or closed");
                 }
-                if (senderSessions != null && !senderSessions.isEmpty()) {
-                    for (Session senderSession : senderSessions) {
-                        if (senderSession.isOpen()) {
-                            senderSession.getBasicRemote().sendText(jsonResponse);
-                        }
-                    }
-                }
+
             }
         }
     }
