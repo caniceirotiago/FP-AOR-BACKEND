@@ -76,9 +76,6 @@ public class GroupMessageBean {
             throw new UserNotFoundException("No user found for this Id");
         }
         List<GroupMessageEntity> groupMessageEntities = groupMessageDao.getGroupMessagesByProjectId(projectId);
-        for (GroupMessageEntity groupMessageEntity : groupMessageEntities) {
-            markMessageAsReadByUser(groupMessageEntity.getId(), userEntity.getId());
-        }
         List<GroupMessageGetDto> groupMessageGetDtos = convertGroupMessageEntityListToGroupMessageGetDtoList(groupMessageEntities);
         return groupMessageGetDtos;
     }
@@ -126,11 +123,15 @@ public class GroupMessageBean {
     }
 
     public GroupMessageGetDto convertGroupMessageEntityToGroupMessageGetDto(GroupMessageEntity groupMessageEntity) {
+        Set<Long> readByUserIds = groupMessageEntity.getReadByUsers().stream()
+                .map(UserEntity::getId)
+                .collect(Collectors.toSet());
         return new GroupMessageGetDto(
                 groupMessageEntity.getId(),
                 groupMessageEntity.getContent(),
                 userBean.convertUserEntetyToUserBasicInfoDto(groupMessageEntity.getSender()),
                 groupMessageEntity.getSentTime(),
+                readByUserIds,
                 groupMessageEntity.isViewed(),
                 groupMessageEntity.getGroup().getId()
         );
