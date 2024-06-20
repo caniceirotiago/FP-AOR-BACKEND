@@ -123,11 +123,15 @@ public class GroupMessageBean {
     }
 
     public GroupMessageGetDto convertGroupMessageEntityToGroupMessageGetDto(GroupMessageEntity groupMessageEntity) {
+        Set<Long> readByUserIds = groupMessageEntity.getReadByUsers().stream()
+                .map(UserEntity::getId)
+                .collect(Collectors.toSet());
         return new GroupMessageGetDto(
                 groupMessageEntity.getId(),
                 groupMessageEntity.getContent(),
                 userBean.convertUserEntetyToUserBasicInfoDto(groupMessageEntity.getSender()),
                 groupMessageEntity.getSentTime(),
+                readByUserIds,
                 groupMessageEntity.isViewed(),
                 groupMessageEntity.getGroup().getId()
         );

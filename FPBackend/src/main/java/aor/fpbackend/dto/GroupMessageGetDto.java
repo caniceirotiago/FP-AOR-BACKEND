@@ -5,6 +5,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Set;
 
 @XmlRootElement
 public class GroupMessageGetDto implements Serializable {
@@ -22,6 +23,9 @@ public class GroupMessageGetDto implements Serializable {
     private Instant sentTime;
 
     @XmlElement
+    private Set<Long> readByUserIds;
+
+    @XmlElement
     private boolean isViewed;
 
     @XmlElement
@@ -31,16 +35,17 @@ public class GroupMessageGetDto implements Serializable {
     public GroupMessageGetDto() {
     }
 
-    public GroupMessageGetDto(long messageId, String content, UserBasicInfoDto sender, Instant sentTime, boolean isViewed, long groupId) {
+    public GroupMessageGetDto(long messageId, String content, UserBasicInfoDto sender, Instant sentTime, Set<Long> readByUserIds, boolean isViewed, long groupId) {
         this.messageId = messageId;
         this.content = content;
         this.sender = sender;
         this.sentTime = sentTime;
+        this.readByUserIds = readByUserIds;
         this.isViewed = isViewed;
         this.groupId = groupId;
     }
 
-    // Getters and setters
+// Getters and setters
 
 
     public long getMessageId() {
@@ -73,6 +78,14 @@ public class GroupMessageGetDto implements Serializable {
 
     public void setSentTime(Instant sentTime) {
         this.sentTime = sentTime;
+    }
+
+    public Set<Long> getReadByUserIds() {
+        return readByUserIds;
+    }
+
+    public void setReadByUserIds(Set<Long> readByUserIds) {
+        this.readByUserIds = readByUserIds;
     }
 
     public boolean isViewed() {
