@@ -56,6 +56,8 @@ public class ProjectBean implements Serializable {
     MembershipBean memberBean;
     @EJB
     EmailService emailService;
+    @EJB
+    NotificationBean notificationBean;
 
 
     @Transactional
@@ -102,6 +104,7 @@ public class ProjectBean implements Serializable {
             Set<String> usernames = projectCreateDto.getUsers().stream().map(UsernameDto::getUsername).collect(Collectors.toSet());
             for (String username : usernames) {
                 memberBean.addUserToProject(username, projectEntity.getId(), true, false, userCreator);
+
             }
         }
         // Define relations for project Skills
@@ -215,6 +218,7 @@ public class ProjectBean implements Serializable {
         }
         // Create a Project Log
         createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, comment);
+        notificationBean.createNotificationProjectApprovalSendAllMembers(projectEntity, userEntity, projectApproveDto.isConfirm());
     }
 
     public ProjectPaginatedDto getFilteredProjects(int page, int pageSize, UriInfo uriInfo) throws InputValidationException {
@@ -287,8 +291,16 @@ public class ProjectBean implements Serializable {
         projectEntity.setMotivation(projectUpdateDto.getMotivation());
         projectEntity.setConclusionDate(projectUpdateDto.getConclusionDate());
         projectEntity.setLaboratory(laboratoryEntity);
-        // Validate state and handle state transitions
+
         ProjectStateEnum newState = projectUpdateDto.getState();
+
+        //Creating Notification for allsystem Admins that the project s now on approval mode
+        if (newState == ProjectStateEnum.READY && currentState == ProjectStateEnum.PLANNING) {
+            System.out.println("Creating Notification for allsystem Admins that the project s now on approval mode");
+            notificationBean.createNotificationForAllPlatformAdminsProjectApproval(projectEntity);
+        }
+        // Validate state and handle state transitions
+
         boolean approved = projectEntity.isApproved();
         if (currentState != newState) {
             if (!approved) {

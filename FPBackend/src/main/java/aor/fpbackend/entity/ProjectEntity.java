@@ -89,6 +89,8 @@ public class ProjectEntity implements Serializable {
 
     @OneToMany(mappedBy = "project")
     private Set<ProjectLogEntity> projectLogs = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY)
+    private Set<NotificationEntity> notifications = new HashSet<>();
 
     public ProjectEntity() {
     }
@@ -261,6 +263,14 @@ public class ProjectEntity implements Serializable {
 
     public Set<ProjectMembershipEntity> getMembers() {
         return members;
+    }
+
+    public Set<NotificationEntity> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(Set<NotificationEntity> notifications) {
+        this.notifications = notifications;
     }
 
     @Override

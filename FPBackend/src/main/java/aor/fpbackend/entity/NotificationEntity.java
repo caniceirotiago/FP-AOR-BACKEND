@@ -35,7 +35,14 @@ public class NotificationEntity implements Serializable {
     @JoinColumn(name = "individual_message_id", nullable = true)
     private IndividualMessageEntity individualMessage;
 
-    // Constructors
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = true)
+    private ProjectEntity project;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id", nullable = true)
+    private TaskEntity task;
+
+            // Constructors
     public NotificationEntity() {}
 
     public NotificationEntity(NotificationTypeENUM type, String content, Instant dateTime, UserEntity user) {
@@ -100,6 +107,22 @@ public class NotificationEntity implements Serializable {
 
     public void setIndividualMessage(IndividualMessageEntity individualMessage) {
         this.individualMessage = individualMessage;
+    }
+
+    public ProjectEntity getProject() {
+        return project;
+    }
+
+    public void setProject(ProjectEntity project) {
+        this.project = project;
+    }
+
+    public TaskEntity getTask() {
+        return task;
+    }
+
+    public void setTask(TaskEntity task) {
+        this.task = task;
     }
 
     @Override

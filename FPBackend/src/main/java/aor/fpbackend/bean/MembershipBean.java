@@ -37,6 +37,8 @@ public class MembershipBean implements Serializable {
     ConfigurationBean configurationBean;
     @EJB
     UserBean userBean;
+    @EJB
+    NotificationBean notificationBean;
 
 
     public void askToJoinProject(long projectId, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException {
@@ -63,6 +65,7 @@ public class MembershipBean implements Serializable {
             projectMembershipEntity.setAcceptanceToken(UUID.randomUUID().toString());
             projectMemberDao.persist(projectMembershipEntity);
             sendJoinRequisitionToManagers(projectMembershipEntity, userEntity, projectEntity);
+            notificationBean.createProjectJoinRequestNotificationsForProjectAdmins(projectMembershipEntity);
         } else {
             throw new EntityNotFoundException("Project or User not found");
         }
@@ -91,9 +94,11 @@ public class MembershipBean implements Serializable {
             membershipEntity.setAccepted(true);
             membershipEntity.setAcceptanceToken(null);
             String content = "User " + membershipEntity.getUser().getUsername() + ", added to project by " + approverUsername;
+            notificationBean.createNotificationForProjectJoinRequestApprovedOrRejected(membershipEntity, true);
             projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
         } else {
             String content = "Application of user " + membershipEntity.getUser().getUsername() + ", to project, rejected by " + approverUsername;
+            notificationBean.createNotificationForProjectJoinRequestApprovedOrRejected(membershipEntity, false);
             projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
             projectMemberDao.remove(membershipEntity);
         }
@@ -101,6 +106,7 @@ public class MembershipBean implements Serializable {
 
     public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
         emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
+        notificationBean.createNotificationForProjectInviteFromAProjectManagerToUser(membershipEntity);
     }
 
     @Transactional
@@ -144,6 +150,7 @@ public class MembershipBean implements Serializable {
         // Add the user to the project's users
         projectEntity.getMembers().add(membershipEntity);
         if (!createHasAccepted) sendInviteToUser(membershipEntity, userEntity, projectEntity);
+        else notificationBean.createNotificationForUserAutomaticallyAddedToProject(membershipEntity);
         if (!userEntity.getUsername().equals(authUser.getUsername())) {
             String content = "User " + userEntity.getUsername() + " added to project";
             projectBean.createProjectLog(projectEntity, authUser, LogTypeEnum.PROJECT_MEMBERS, content);
@@ -159,9 +166,11 @@ public class MembershipBean implements Serializable {
             membershipEntity.setAccepted(true);
             membershipEntity.setAcceptanceToken(null);
             String content = "User " + membershipEntity.getUser().getUsername() + ", accepted become project member";
+            notificationBean.createNotificationForProjectManagersKnowUserApproval(membershipEntity, true);
             projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
         } else {
             String content = "User " + membershipEntity.getUser().getUsername() + ", refused become project member";
+            notificationBean.createNotificationForProjectManagersKnowUserApproval(membershipEntity, false);
             projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
             projectMemberDao.remove(membershipEntity);
         }
@@ -194,6 +203,7 @@ public class MembershipBean implements Serializable {
         }
         // Remove the membership from the user's projects
         if (userMembership != null) {
+            notificationBean.createNotificationForUserRemovedFromProject(userMembership);
             projectMemberDao.remove(userMembership);
         } else {
             throw new IllegalStateException("Project does not have the specified user");

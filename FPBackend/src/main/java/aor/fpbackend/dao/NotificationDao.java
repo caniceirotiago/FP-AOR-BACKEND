@@ -30,5 +30,11 @@ public class NotificationDao extends AbstractDao<NotificationEntity>{
 
         return notifications;
     }
+    public NotificationEntity findNotificationById(Long notificationId) {
+        NotificationEntity notificationEntity = em.createQuery("SELECT n FROM NotificationEntity n WHERE n.id = :notificationId", NotificationEntity.class)
+                .setParameter("notificationId", notificationId)
+                .getSingleResult();
+        return notificationEntity;
+    }
 
 }
