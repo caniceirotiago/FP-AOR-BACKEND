@@ -112,11 +112,17 @@ public class GroupMessageBean {
         return false;
     }
 
-    public void verifyMessagesAsReadForGroup(List<Long> messageIds, Long userId) {
+    public boolean verifyMessagesAsReadForGroup(List<Long> messageIds, Long userId) {
+        boolean allMarkedAsRead = true;
         for (Long messageId : messageIds) {
             // Check if all users have read the message
             markMessageAsReadByUser(messageId, userId);
+            boolean markedAsRead = allUsersHaveReadMessage(messageId);
+            if (!markedAsRead) {
+                allMarkedAsRead = false;
+            }
         }
+        return allMarkedAsRead;
     }
 
     public GroupMessageGetDto convertGroupMessageEntityToGroupMessageGetDto(GroupMessageEntity groupMessageEntity) {

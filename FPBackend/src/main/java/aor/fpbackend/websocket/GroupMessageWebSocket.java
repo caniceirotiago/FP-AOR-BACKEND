@@ -131,18 +131,28 @@ public class GroupMessageWebSocket {
         Type listType = new TypeToken<List<Long>>() {
         }.getType();
         List<Long> messageIds = gson.fromJson(dataElement, listType);
-        List<GroupMessageGetDto> messages = groupMessageBean.getGroupMessagesByMessageIds(messageIds);
-        WebSocketMessageDto response = new WebSocketMessageDto(WebSocketMessageType.MARK_AS_READ.toString(), messages);
-        String jsonResponse = gson.toJson(response);
-        List<Session> groupSessions = userSessions.get(messages.get(0).getGroupId());
-        if (groupSessions != null) {
-            for (Session groupSession : groupSessions) {
-                if (groupSession.isOpen()) {
-                    groupMessageBean.verifyMessagesAsReadForGroup(messageIds, (Long) groupSession.getUserProperties().get("userId"));
-                    groupSession.getBasicRemote().sendText(jsonResponse);
+
+        boolean allMarkedAsRead = false;
+        List<Session> projectSessions = userSessions.get((Long) session.getUserProperties().get("projectId"));
+        if (projectSessions != null) {
+            for (Session pSession : projectSessions) {
+                if (pSession.isOpen()) {
+                    allMarkedAsRead = groupMessageBean.verifyMessagesAsReadForGroup(messageIds, (Long) pSession.getUserProperties().get("userId"));
+                }
+            }
+        }
+        if (allMarkedAsRead) {
+            List<GroupMessageGetDto> messages = groupMessageBean.getGroupMessagesByMessageIds(messageIds);
+            WebSocketMessageDto response = new WebSocketMessageDto(WebSocketMessageType.MARK_AS_READ.toString(), messages);
+            String jsonResponse = gson.toJson(response);
+            List<Session> groupSessions = userSessions.get(messages.get(0).getGroupId());
+            if (groupSessions != null) {
+                for (Session groupSession : groupSessions) {
+                    if (groupSession.isOpen()) {
+                        groupSession.getBasicRemote().sendText(jsonResponse);
+                    }
                 }
             }
         }
     }
-
 }
