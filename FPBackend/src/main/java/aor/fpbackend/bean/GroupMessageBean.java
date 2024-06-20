@@ -91,14 +91,15 @@ public class GroupMessageBean {
 
     }
 
-    public boolean markMessageAsReadByUser(Long messageId, Long userId) {
+    public void markMessageAsReadByUser(Long messageId, Long userId) {
         GroupMessageEntity message = groupMessageDao.findGroupMessageById(messageId);
         UserEntity user = userDao.findUserById(userId);
         if (message != null && user != null) {
             message.getReadByUsers().add(user);
-            return true;
+            if (allUsersHaveReadMessage(message.getId())) {
+                message.setViewed(true);
+            }
         }
-        return false;
     }
 
     private boolean allUsersHaveReadMessage(Long messageId) {
@@ -111,20 +112,17 @@ public class GroupMessageBean {
         return false;
     }
 
-    public boolean markMessagesAsReadForGroup(List<Long> messageIds) {
-        boolean allRead = true;
+    public boolean verifyMessagesAsReadForGroup(List<Long> messageIds, Long userId) {
+        boolean allMarkedAsRead = true;
         for (Long messageId : messageIds) {
             // Check if all users have read the message
-            boolean allUsersRead = allUsersHaveReadMessage(messageId);
-            if (!allUsersRead) {
-                allRead = false;
-            } else {
-                // If all users have read the message, set viewed flag
-                GroupMessageEntity messageEntity = groupMessageDao.findGroupMessageById(messageId);
-                messageEntity.setViewed(true);
+            markMessageAsReadByUser(messageId, userId);
+            boolean markedAsRead = allUsersHaveReadMessage(messageId);
+            if (!markedAsRead) {
+                allMarkedAsRead = false;
             }
         }
-        return allRead;
+        return allMarkedAsRead;
     }
 
     public GroupMessageGetDto convertGroupMessageEntityToGroupMessageGetDto(GroupMessageEntity groupMessageEntity) {

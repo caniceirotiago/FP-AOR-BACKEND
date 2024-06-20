@@ -17,6 +17,8 @@ public class QueryParams {
     public static final String LABORATORY = "laboratory";
     public static final String CREATION_DATE = "creationDate";
     public static final String OPEN_POSITIONS = "openPositions";
+    public static final String DATA = "data";
+
 }
 
 

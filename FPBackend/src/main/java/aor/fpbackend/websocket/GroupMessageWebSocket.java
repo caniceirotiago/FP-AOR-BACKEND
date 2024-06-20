@@ -50,7 +50,6 @@ public class GroupMessageWebSocket {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("projectId") Long projectId) {
-        System.out.println("GroupChat WebSocket connection opened on project Id n:" + projectId);
         try {
             AuthUserDto user = userBean.validateSessionTokenAndGetUserDetails(sessionToken);
             if (!projectMembershipDao.isUserProjectMember(projectId, user.getUserId())) {
@@ -61,23 +60,6 @@ public class GroupMessageWebSocket {
                 session.getUserProperties().put("userId", user.getUserId());
                 session.getUserProperties().put("token", sessionToken);
                 userSessions.computeIfAbsent(projectId, k -> new CopyOnWriteArrayList<>()).add(session);
-                System.out.println("GroupChat WebSocket connection opened for user: " + user.getUserId() + " and project id: " + projectId);
-
-                // Iterate over the userSessions map just for debugging
-                userSessions.forEach((userId, sessions) -> {
-                    // Print userId
-                    System.out.println("User ID: " + userId);
-
-                    // Iterate over the sessions list and print each session
-                    sessions.forEach(session1 -> {
-                        System.out.println("Session Id: " + session1.getId());
-                        // You can print more details of the session if needed
-                    });
-
-                    // Add a separator between different users for clarity
-                    System.out.println("---");
-                });
-
             } else {
                 session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized"));
             }
@@ -97,7 +79,6 @@ public class GroupMessageWebSocket {
                     userSessions.remove(user.getUserId());
                 }
             }
-            System.out.println("GroupChat WebSocket connection closed for user id: " + user.getUserId());
         }
     }
 
@@ -107,24 +88,22 @@ public class GroupMessageWebSocket {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
             if (type.equals(WebSocketMessageType.NEW_GROUP_MESSAGE.toString())) {
-                broadcastGroupMessage(session, json);
+                broadcastGroupMessage(json);
             } else if (type.equals(WebSocketMessageType.MARK_AS_READ.toString())) {
-                markAsRead(json);
+                markAsRead(session, json);
             }
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
         }
     }
 
-    public void broadcastGroupMessage(Session session, JsonObject json) throws IOException, UserNotFoundException, EntityNotFoundException {
-        JsonObject data = json.getAsJsonObject("data");
+    public void broadcastGroupMessage(JsonObject json) throws IOException, UserNotFoundException, EntityNotFoundException {
+        JsonObject data = json.getAsJsonObject(QueryParams.DATA);
         GroupMessageSendDto msg = gson.fromJson(data, GroupMessageSendDto.class);
-        System.out.println("Send Dto groupID: " + msg.getGroupId() + " content: " + msg.getContent() + " sender ID: " + msg.getSenderId());
-
         if (data != null) {
             GroupMessageEntity savedGroupMessage = groupMessageBean.sendGroupMessage(msg);
+            groupMessageBean.markMessageAsReadByUser(savedGroupMessage.getId(), savedGroupMessage.getSender().getId());
             GroupMessageGetDto savedGroupMessageGetDto = groupMessageBean.convertGroupMessageEntityToGroupMessageGetDto(savedGroupMessage);
-            System.out.println("Group Message saved: " + savedGroupMessageGetDto);
             if (savedGroupMessage != null) {
                 String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.NEW_GROUP_MESSAGE.toString(), savedGroupMessageGetDto));
                 List<Session> groupSessions = userSessions.get(savedGroupMessage.getGroup().getId());
@@ -142,14 +121,22 @@ public class GroupMessageWebSocket {
         }
     }
 
-    public void markAsRead(JsonObject json) throws IOException {
-        JsonElement dataElement = json.get("data");
+    public void markAsRead(Session session, JsonObject json) throws IOException {
+        JsonElement dataElement = json.get(QueryParams.DATA);
         Type listType = new TypeToken<List<Long>>() {
         }.getType();
         List<Long> messageIds = gson.fromJson(dataElement, listType);
-        boolean success = groupMessageBean.markMessagesAsReadForGroup(messageIds);
-        if (success) {
-            System.out.println("Group messages marked as read: " + messageIds);
+
+        boolean allMarkedAsRead = false;
+        List<Session> projectSessions = userSessions.get((Long) session.getUserProperties().get("projectId"));
+        if (projectSessions != null) {
+            for (Session pSession : projectSessions) {
+                if (pSession.isOpen()) {
+                    allMarkedAsRead = groupMessageBean.verifyMessagesAsReadForGroup(messageIds, (Long) pSession.getUserProperties().get("userId"));
+                }
+            }
+        }
+        if (allMarkedAsRead) {
             List<GroupMessageGetDto> messages = groupMessageBean.getGroupMessagesByMessageIds(messageIds);
             WebSocketMessageDto response = new WebSocketMessageDto(WebSocketMessageType.MARK_AS_READ.toString(), messages);
             String jsonResponse = gson.toJson(response);
@@ -161,15 +148,6 @@ public class GroupMessageWebSocket {
                     }
                 }
             }
-            List<Session> senderSessions = userSessions.get(messages.get(0).getSender().getId());
-            if (senderSessions != null) {
-                for (Session senderSession : senderSessions) {
-                    if (senderSession.isOpen()) {
-                        senderSession.getBasicRemote().sendText(jsonResponse);
-                    }
-                }
-            }
         }
     }
-
 }
