@@ -10,6 +10,7 @@ import aor.fpbackend.dto.IndividualMessageGetDto;
 import aor.fpbackend.dto.IndividualMessageSendDto;
 import aor.fpbackend.dto.WebSocketMessageDto;
 import aor.fpbackend.entity.IndividualMessageEntity;
+import aor.fpbackend.enums.QueryParams;
 import aor.fpbackend.enums.WebSocketMessageType;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -94,8 +95,8 @@ public class IndividualMessageWebSocket {
         System.out.println("Received message: " + message);
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
-            String type = json.get("type").getAsString();
-            if (type.equals("MARK_AS_READ")) {
+            String type = json.get(QueryParams.TYPE).getAsString();
+            if (type.equals(WebSocketMessageType.MARK_AS_READ.toString())) {
                 markAsRead(json);
             }
             else if (type.equals(WebSocketMessageType.NEW_INDIVIDUAL_MESSAGE.toString())) {
@@ -134,7 +135,7 @@ public class IndividualMessageWebSocket {
         }
     }
     public void receiveSendMessage(Session session, JsonObject json) throws IOException, UserNotFoundException, UserNotFoundException {
-        JsonObject data = json.getAsJsonObject("data");
+        JsonObject data = json.getAsJsonObject(QueryParams.DATA);
         IndividualMessageSendDto msg = gson.fromJson(data, IndividualMessageSendDto.class);
         if (data != null) {
 

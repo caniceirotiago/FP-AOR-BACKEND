@@ -25,17 +25,6 @@ public class GroupMessageService {
     @EJB
     GroupMessageBean groupMessageBean;
 
-    @POST
-    @Path("/{projectId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresProjectMemberPermission()
-    public void sendGroupMessage(@PathParam("projectId") long projectId, @Valid GroupMessageSendDto groupMessageSendDto) throws UserNotFoundException, EntityNotFoundException, InputValidationException {
-        if (projectId != groupMessageSendDto.getGroupId()) {
-            throw new InputValidationException("Invalid input Id: " + groupMessageSendDto.getGroupId());
-        }
-        groupMessageBean.sendGroupMessage(groupMessageSendDto);
-    }
-
     @GET
     @Path("/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -47,12 +36,15 @@ public class GroupMessageService {
 
     //TODO
     // Method just to debug (To erase later)
-//    @PUT
-//    @Path("/mark/read/{messageId}")
+//    @POST
+//    @Path("/{projectId}")
 //    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public void markRead(@PathParam("messageId")Long messageId) {
-//        groupMessageBean.markMessagesAsReadForGroup(messageId);
+//    @RequiresProjectMemberPermission()
+//    public void sendGroupMessage(@PathParam("projectId") long projectId, @Valid GroupMessageSendDto groupMessageSendDto) throws UserNotFoundException, EntityNotFoundException, InputValidationException {
+//        if (projectId != groupMessageSendDto.getGroupId()) {
+//            throw new InputValidationException("Invalid input Id: " + groupMessageSendDto.getGroupId());
+//        }
+//        groupMessageBean.sendGroupMessage(groupMessageSendDto);
 //    }
 
 }
