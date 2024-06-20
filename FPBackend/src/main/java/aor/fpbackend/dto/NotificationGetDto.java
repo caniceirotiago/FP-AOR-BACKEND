@@ -25,6 +25,8 @@ public class NotificationGetDto {
     private UserBasicInfoDto user;
     @XmlElement
     private IndividualMessageGetDto individualMessage;
+    @XmlElement
+    private long projectId;
 
     public NotificationGetDto() {
     }
@@ -85,5 +87,13 @@ public class NotificationGetDto {
 
     public void setUser(UserBasicInfoDto user) {
         this.user = user;
+    }
+
+    public long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
     }
 }

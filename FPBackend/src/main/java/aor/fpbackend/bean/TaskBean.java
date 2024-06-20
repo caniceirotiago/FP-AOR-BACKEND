@@ -46,6 +46,8 @@ public class TaskBean implements Serializable {
     MembershipBean projectMemberbean;
     @EJB
     ProjectMembershipDao projectMemberDao;
+    @EJB
+    NotificationBean notificationBean;
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LogManager.getLogger(TaskBean.class);
@@ -101,32 +103,34 @@ public class TaskBean implements Serializable {
         taskEntity.setProject(projectEntity);
         taskDao.persist(taskEntity);
         taskResponsible.getResponsibleTasks().add(taskEntity);
+        notificationBean.createNotificationMarkesAsResponsibleInNewTask(taskResponsible, taskEntity);
     }
 
-    @Transactional
-    public void addUserTask(TaskAddUserDto taskAddUserDto) throws EntityNotFoundException {
-        TaskEntity taskEntity = taskDao.findTaskById(taskAddUserDto.getTaskId());
-        if (taskEntity == null) {
-            throw new EntityNotFoundException("Task not found");
-        }
-        // Fetch registered executors by their IDs
-        Set<UserEntity> registeredExecutors = taskEntity.getRegisteredExecutors();
-        UserEntity registeredExecutor = userDao.findUserById(taskAddUserDto.getExecutorId());
-        if (registeredExecutor == null) {
-            throw new EntityNotFoundException("Registered executor not found");
-        }
-        if (!registeredExecutors.contains(registeredExecutor)) {
-            registeredExecutors.add(registeredExecutor);
-            registeredExecutor.getTasksAsExecutor().add(taskEntity); // Update the other side of the relation
-        } else {
-            // Handle duplicate entry scenario
-            LOGGER.warn("Duplicate entry for Registered Executor: " + registeredExecutor.getUsername());
-        }
-        // Add additional executors (non-registered)
-        if (taskAddUserDto.getNonRegisteredExecutors() != null) {
-            taskEntity.setAdditionalExecutors(taskAddUserDto.getNonRegisteredExecutors());
-        }
-    }
+//    @Transactional
+//    public void addUserTask(TaskAddUserDto taskAddUserDto) throws EntityNotFoundException {
+//        TaskEntity taskEntity = taskDao.findTaskById(taskAddUserDto.getTaskId());
+//        if (taskEntity == null) {
+//            throw new EntityNotFoundException("Task not found");
+//        }
+//        // Fetch registered executors by their IDs
+//        Set<UserEntity> registeredExecutors = taskEntity.getRegisteredExecutors();
+//        UserEntity registeredExecutor = userDao.findUserById(taskAddUserDto.getExecutorId());
+//        if (registeredExecutor == null) {
+//            throw new EntityNotFoundException("Registered executor not found");
+//        }
+//        if (!registeredExecutors.contains(registeredExecutor)) {
+//            registeredExecutors.add(registeredExecutor);
+//            registeredExecutor.getTasksAsExecutor().add(taskEntity); // Update the other side of the relation
+//            notificationBean.createNotificationMarkesAsExecutorInNewTask(registeredExecutor, taskEntity);
+//        } else {
+//            // Handle duplicate entry scenario
+//            LOGGER.warn("Duplicate entry for Registered Executor: " + registeredExecutor.getUsername());
+//        }
+//        // Add additional executors (non-registered)
+//        if (taskAddUserDto.getNonRegisteredExecutors() != null) {
+//            taskEntity.setAdditionalExecutors(taskAddUserDto.getNonRegisteredExecutors());
+//        }
+//    }
 
     @Transactional
     public void addDependencyTask(TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
@@ -282,6 +286,7 @@ public class TaskBean implements Serializable {
             taskEntity.setState(newState);
             String content = "Task state updated from " + currentState + " to " + newState + ", by " + authUserEntity.getUsername();
             projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
+            //TODO: Estes logs têm de ser feitos apenas se a entidade for criada/alterada com sucesso
         }
 
         // Update basic fields
@@ -299,6 +304,10 @@ public class TaskBean implements Serializable {
             throw new InputValidationException("Responsible user is not a member of the project");
         }
         taskEntity.setResponsibleUser(newResponsibleUser);
+        if(taskEntity.getResponsibleUser().getId() != newResponsibleUser.getId())
+        {
+            notificationBean.createNotificationMarkesAsResponsibleInNewTask(newResponsibleUser, taskEntity);
+        }
 
         // Update registered executors
         Set<UserEntity> newRegisteredExecutors = new HashSet<>();
@@ -311,6 +320,10 @@ public class TaskBean implements Serializable {
                 throw new InputValidationException("Executor with ID " + executorId + " is not a member of the project");
             }
             newRegisteredExecutors.add(executor);
+            if(!taskEntity.getRegisteredExecutors().contains(executor))
+            {
+                notificationBean.createNotificationMarkesAsExecutorInNewTask(executor, taskEntity);
+            }
         }
         taskEntity.setRegisteredExecutors(newRegisteredExecutors);
 

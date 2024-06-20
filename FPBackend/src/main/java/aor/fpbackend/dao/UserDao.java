@@ -6,6 +6,7 @@ import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.UserRoleEnum;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.*;
@@ -121,6 +122,12 @@ public class UserDao extends AbstractDao<UserEntity> {
     public List<ProjectMembershipDto> getUsersByProject(long projectId) {
         TypedQuery<ProjectMembershipDto> query = em.createNamedQuery("ProjectMembership.findProjectMembershipsByProject", ProjectMembershipDto.class);
         query.setParameter("projectId", projectId);
+        return query.getResultList();
+    }
+    public List<UserEntity> getUsersByRole(RoleEntity role) {
+        TypedQuery<UserEntity> query = em.createQuery(
+                "SELECT u FROM UserEntity u JOIN u.role r WHERE r = :role", UserEntity.class);
+        query.setParameter("role", role);
         return query.getResultList();
     }
 }

@@ -83,6 +83,8 @@ public class TaskEntity implements Serializable {
 
     @ManyToMany(mappedBy = "prerequisites")
     private Set<TaskEntity> dependentTasks = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY)
+    private Set<NotificationEntity> notifications = new HashSet<>();
 
     // Constructors, getters, and setters
 
@@ -224,6 +226,14 @@ public class TaskEntity implements Serializable {
 
     public void setDependentTasks(Set<TaskEntity> dependentTasks) {
         this.dependentTasks = dependentTasks;
+    }
+
+    public Set<NotificationEntity> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(Set<NotificationEntity> notifications) {
+        this.notifications = notifications;
     }
 
     @Override
