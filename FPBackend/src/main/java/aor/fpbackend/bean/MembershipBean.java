@@ -228,4 +228,7 @@ public class MembershipBean implements Serializable {
         }
         return userBasicInfoDtos;
     }
+    public List<UserEntity> getProjectMembersByProjId(long projectId) {
+        return projectMemberDao.findProjectMembersByProjectId(projectId);
+    }
 }

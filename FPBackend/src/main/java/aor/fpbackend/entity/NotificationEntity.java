@@ -36,6 +36,10 @@ public class NotificationEntity implements Serializable {
     private IndividualMessageEntity individualMessage;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_message_id", nullable = true)
+    private GroupMessageEntity groupMessage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = true)
     private ProjectEntity project;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -123,6 +127,14 @@ public class NotificationEntity implements Serializable {
 
     public void setTask(TaskEntity task) {
         this.task = task;
+    }
+
+    public GroupMessageEntity getGroupMessage() {
+        return groupMessage;
+    }
+
+    public void setGroupMessage(GroupMessageEntity groupMessage) {
+        this.groupMessage = groupMessage;
     }
 
     @Override
