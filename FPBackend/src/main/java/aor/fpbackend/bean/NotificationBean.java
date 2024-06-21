@@ -265,5 +265,26 @@ public class NotificationBean implements Serializable {
         ));
         return notificationGetDto;
     }
+    public void createNotificationForGroupMessage(GroupMessageEntity groupMessageEntity, List<UserEntity> projectMembers) {
+        if (projectMembers == null) {
+            throw new IllegalArgumentException("Project members list is null");
+        }
+        for (UserEntity userEntity : projectMembers) {
+            if (!userEntity.equals(groupMessageEntity.getSender())) {
+                NotificationEntity notificationEntity = new NotificationEntity();
+                notificationEntity.setType(NotificationTypeENUM.GROUP_MESSAGE);
+                notificationEntity.setUser(userEntity);
+                notificationEntity.setDateTime(Instant.now());
+                notificationEntity.setRead(false);
+                notificationEntity.setContent("You have a new message in group " + groupMessageEntity.getGroup().getName() + " from " + groupMessageEntity.getSender().getUsername());
+                notificationEntity.setGroupMessage(groupMessageEntity);
+                notificationEntity.setProject(groupMessageEntity.getGroup());
+                LOGGER.info("Creating notification for group message");
+                notificationDao.persist(notificationEntity);
+                NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+                GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+            }
+        }
+    }
 
 }

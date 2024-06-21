@@ -2,10 +2,14 @@
 package aor.fpbackend.websocket;
 
 import aor.fpbackend.bean.GroupMessageBean;
+import aor.fpbackend.bean.NotificationBean;
+import aor.fpbackend.bean.ProjectBean;
 import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dao.ProjectMembershipDao;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.GroupMessageEntity;
+import aor.fpbackend.entity.ProjectEntity;
+import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.QueryParams;
 import aor.fpbackend.enums.WebSocketMessageType;
 import aor.fpbackend.exception.EntityNotFoundException;
@@ -47,6 +51,10 @@ public class GroupMessageWebSocket {
     private UserBean userBean;
     @EJB
     private ProjectMembershipDao projectMembershipDao;
+    @EJB
+    private ProjectBean projectBean;
+    @EJB
+    private NotificationBean notificationBean;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("projectId") Long projectId) {
@@ -107,16 +115,27 @@ public class GroupMessageWebSocket {
             if (savedGroupMessage != null) {
                 String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.NEW_GROUP_MESSAGE.toString(), savedGroupMessageGetDto));
                 List<Session> groupSessions = userSessions.get(savedGroupMessage.getGroup().getId());
+                List<UserEntity> projectMembers = projectMembershipDao.findProjectMembersByProjectId(savedGroupMessage.getGroup().getId());
                 if (groupSessions != null && !groupSessions.isEmpty()) {
                     for (Session groupSession : groupSessions) {
                         if (groupSession.isOpen() && groupSession.getUserProperties().get("projectId").equals(savedGroupMessageGetDto.getGroupId())) {
                             groupSession.getBasicRemote().sendText(jsonResponse);
+                            for (UserEntity projectMember : projectMembers) {
+                                System.out.println("Project member: " + projectMember.getId() + " User id: " + groupSession.getUserProperties().get("userId"));
+                                if (projectMember.getId() == (long)groupSession.getUserProperties().get("userId")) {
+                                    System.out.println("Removing project member from list");
+                                    projectMembers.remove(projectMember);
+                                }
+                            }
                         }
                     }
                 } else {
                     System.out.println("Group session is null or closed");
                 }
-
+                if(projectMembers != null || !projectMembers.isEmpty()) {
+                    System.out.println("Creating notification for group message");
+                    notificationBean.createNotificationForGroupMessage(savedGroupMessage, projectMembers);
+                }
             }
         }
     }
