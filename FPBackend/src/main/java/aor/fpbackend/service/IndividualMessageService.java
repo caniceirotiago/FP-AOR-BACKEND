@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.util.List;
 
-@Path("/individual/message")
+@Path("/individual/messages")
 public class IndividualMessageService {
     @EJB
     IndividualMessageBean individualMessageBean;

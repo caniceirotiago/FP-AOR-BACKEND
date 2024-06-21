@@ -1,9 +1,15 @@
 package aor.fpbackend.dto;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.List;
 
-public class IndividualMessageGetPaginatedDto {
+@XmlRootElement
+public class IndividualMessageGetPaginatedDto implements Serializable {
+    @XmlElement
     private List<IndividualMessageGetDto> messages;
+    @XmlElement
     private long totalMessages;
 
     // Getters and setters

@@ -7,17 +7,17 @@ import java.io.Serializable;
 import java.util.List;
 
 @XmlRootElement
-public class AssetsPaginatedDto implements Serializable {
+public class AssetPaginatedDto implements Serializable {
     @XmlElement
     private List<AssetGetDto> assetsForPage;
     @XmlElement
     private long totalAssets;
 
 
-    public AssetsPaginatedDto() {
+    public AssetPaginatedDto() {
     }
 
-    public AssetsPaginatedDto(List<AssetGetDto> assetsForPage, long totalAssets) {
+    public AssetPaginatedDto(List<AssetGetDto> assetsForPage, long totalAssets) {
         this.assetsForPage = assetsForPage;
         this.totalAssets = totalAssets;
     }
