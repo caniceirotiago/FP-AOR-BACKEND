@@ -85,7 +85,7 @@ public class AssetBean implements Serializable {
         return convertAssetEntityToAssetDto(assetDao.findAssetById(assetId));
     }
 
-    public AssetsPaginatedDto getFilteredAssets(int page, int pageSize, UriInfo uriInfo) throws InputValidationException {
+    public AssetPaginatedDto getFilteredAssets(int page, int pageSize, UriInfo uriInfo) throws InputValidationException {
         if (page <= 0) {
             throw new InputValidationException("Page must be greater than 0.");
         }
@@ -95,7 +95,7 @@ public class AssetBean implements Serializable {
         List<AssetEntity> assetEntities = assetDao.findFilteredAssets(page, pageSize, uriInfo);
         long totalAssets = assetDao.countFilteredAssets(uriInfo);
         List<AssetGetDto> assetGetDtos = convertAssetEntityListToAssetDtoList(assetEntities);
-        return new AssetsPaginatedDto(assetGetDtos, totalAssets);
+        return new AssetPaginatedDto(assetGetDtos, totalAssets);
     }
 
     public List<AssetGetDto> getAssetsByFirstLetter(String firstLetter) {

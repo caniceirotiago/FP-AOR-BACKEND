@@ -50,7 +50,7 @@ public class AssetService {
     @Path("/all/filter")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.FILTER_ASSETS)
-    public AssetsPaginatedDto getFilteredAssets(
+    public AssetPaginatedDto getFilteredAssets(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("pageSize") @DefaultValue("8") int pageSize,
             @Context UriInfo uriInfo) throws InputValidationException {

@@ -1,26 +1,34 @@
 package aor.fpbackend.dto;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+import java.io.Serializable;
 import java.time.Instant;
 
-public class IndividualMessageGetDto {
+@XmlRootElement
+public class IndividualMessageGetDto implements Serializable {
 
+    @XmlElement
     private Long id;
-
+    @XmlElement
     private String content;
-
+    @XmlElement
     private UserBasicInfoDto sender;
-
+    @XmlElement
     private UserBasicInfoDto recipient;
-
+    @XmlElement
     private String subject;
+    @XmlElement
     private Instant sentAt;
+    @XmlElement
     private boolean viewed;
 
 
     public IndividualMessageGetDto() {
     }
 
-    public IndividualMessageGetDto(Long id, String content,UserBasicInfoDto sender, UserBasicInfoDto recipient, String subject, Instant sentAt, boolean viewed) {
+    public IndividualMessageGetDto(Long id, String content, UserBasicInfoDto sender, UserBasicInfoDto recipient, String subject, Instant sentAt, boolean viewed) {
         this.id = id;
         this.content = content;
         this.sender = sender;
@@ -48,7 +56,6 @@ public class IndividualMessageGetDto {
         this.content = content;
     }
 
-
     public String getSubject() {
         return subject;
     }
@@ -68,6 +75,7 @@ public class IndividualMessageGetDto {
     public boolean isViewed() {
         return viewed;
     }
+
     public void setViewed(boolean viewed) {
         this.viewed = viewed;
     }

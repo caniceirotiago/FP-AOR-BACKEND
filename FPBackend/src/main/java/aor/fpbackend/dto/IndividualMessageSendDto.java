@@ -3,21 +3,26 @@ package aor.fpbackend.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
-public class IndividualMessageSendDto {
+import java.io.Serializable;
 
-    @NotNull
+@XmlRootElement
+public class IndividualMessageSendDto implements Serializable {
+
+    @XmlElement
     @NotBlank
     @Size(min = 1, max = 5000)
     private String content;
-
+    @XmlElement
     @NotNull
     private Long senderId;
-
+    @XmlElement
     @NotNull
     private Long recipientId;
 
-
+    @XmlElement
     @Size(max = 255)
     private String subject;
 
