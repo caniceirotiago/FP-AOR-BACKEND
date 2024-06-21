@@ -15,7 +15,7 @@ public class InvalidRequestOnRegistConfirmationMapper implements ExceptionMapper
     @Override
     public Response toResponse(InvalidRequestOnRegistConfirmationException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.warn("Attempt confirm registration with invalid confirmation request: " + e.getMessage());
+        LOGGER.warn("Attempt confirm registration with invalid confirmation request: " + error.getMessage());
         return Response
                 .status(Response.Status.BAD_REQUEST)
                 .entity(error)

@@ -16,7 +16,7 @@ public class DuplicatedAttributeExceptionMapper implements ExceptionMapper<Dupli
     @Override
     public Response toResponse(DuplicatedAttributeException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.warn("Attribute Already Exists: " + error.getErrorMessage());
+        LOGGER.warn("Attribute Already Exists: " + error.getMessage());
         return Response
                 .status(Response.Status.CONFLICT)
                 .entity(error)

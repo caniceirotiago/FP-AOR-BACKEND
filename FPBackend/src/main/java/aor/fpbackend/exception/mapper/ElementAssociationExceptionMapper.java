@@ -16,7 +16,7 @@ public class ElementAssociationExceptionMapper implements ExceptionMapper<Elemen
     @Override
     public Response toResponse(ElementAssociationException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.warn("Association error: " + error.getErrorMessage());
+        LOGGER.warn("Association error: " + error.getMessage());
         return Response
                 .status(Response.Status.CONFLICT)
                 .entity(error)

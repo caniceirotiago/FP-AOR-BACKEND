@@ -17,7 +17,7 @@ public class DatabaseOperationExceptionMapper implements ExceptionMapper<Databas
     @Override
     public Response toResponse(DatabaseOperationException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.error("Database operation failed " + LocalDateTime.now() + ": " + error.getErrorMessage());
+        LOGGER.error("Database operation failed " + LocalDateTime.now() + ": " + error.getMessage());
         return Response
                 .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(error)

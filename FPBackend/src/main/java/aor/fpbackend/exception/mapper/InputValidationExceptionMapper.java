@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
         @Override
         public Response toResponse(InputValidationException e) {
             Error error = new Error(e.getMessage());
-            LOGGER.warn("Invalid inputs " + LocalDateTime.now() + ": " + error.getErrorMessage());
+            LOGGER.warn("Invalid inputs " + LocalDateTime.now() + ": " + error.getMessage());
 
             return Response
                     .status(Response.Status.BAD_REQUEST)
