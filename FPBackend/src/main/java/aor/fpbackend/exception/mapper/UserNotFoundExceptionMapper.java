@@ -16,7 +16,7 @@ public class UserNotFoundExceptionMapper implements ExceptionMapper<UserNotFound
     @Override
     public Response toResponse(UserNotFoundException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.warn("User not found: " + error.getErrorMessage());
+        LOGGER.warn("User not found: " + error.getMessage());
         return Response
                 .status(Response.Status.BAD_REQUEST)
                 .entity(error)

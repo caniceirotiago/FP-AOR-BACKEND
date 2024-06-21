@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
         @Override
         public Response toResponse(EntityNotFoundException e) {
             Error error = new Error(e.getMessage());
-            LOGGER.warn("Entity not found: " + error.getErrorMessage());
+            LOGGER.warn("Entity not found: " + error.getMessage());
             return Response
                     .status(Response.Status.BAD_REQUEST)
                     .entity(error)

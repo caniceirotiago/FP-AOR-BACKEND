@@ -15,7 +15,7 @@ public class UserConfirmationExceptionMapper implements ExceptionMapper<UserConf
     @Override
     public Response toResponse(UserConfirmationException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.warn("Attempt confirm registration with invalid confirmation request: " + error.getErrorMessage());
+        LOGGER.warn("Attempt confirm registration with invalid confirmation request: " + error.getMessage());
         return Response
                 .status(Response.Status.BAD_REQUEST)
                 .entity(error)

@@ -15,7 +15,7 @@ public class InvalidPasswordRequestExceptionMapper implements ExceptionMapper<In
     @Override
     public Response toResponse(InvalidPasswordRequestException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.warn("Not possible to change password: " + error.getErrorMessage());
+        LOGGER.warn("Not possible to change password: " + error.getMessage());
         return Response
                 .status(Response.Status.BAD_REQUEST)
                 .entity(error)

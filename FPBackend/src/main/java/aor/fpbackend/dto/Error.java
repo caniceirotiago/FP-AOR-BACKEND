@@ -6,15 +6,15 @@ import java.io.Serializable;
 
 public class Error implements Serializable {
 
-    @JsonbProperty("errorMessage")
-    private final String errorMessage;
+    @JsonbProperty("message")
+    private final String message;
 
 
     public Error(String message) {
-        this.errorMessage = message;
+        this.message = message;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public String getMessage() {
+        return message;
     }
 }

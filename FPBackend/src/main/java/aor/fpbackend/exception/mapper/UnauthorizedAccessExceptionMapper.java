@@ -16,7 +16,7 @@ public class UnauthorizedAccessExceptionMapper implements ExceptionMapper<Unauth
     @Override
     public Response toResponse(UnauthorizedAccessException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.warn("Attempt to access unauthorized information: " + error.getErrorMessage());
+        LOGGER.warn("Attempt to access unauthorized information: " + error.getMessage());
         return Response
                 .status(Response.Status.UNAUTHORIZED)
                 .entity(error)

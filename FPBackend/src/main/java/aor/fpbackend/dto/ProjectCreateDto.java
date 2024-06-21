@@ -37,7 +37,7 @@ public class ProjectCreateDto implements Serializable {
 
     @XmlElement
     @NotNull
-    @Min(value = 1, message = "Laboratory ID must be greater than 0")
+    @Min(value = 1, message = "Laboratory ID cannot be empty")
     private long laboratoryId;
 
     @XmlElement

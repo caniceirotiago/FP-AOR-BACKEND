@@ -16,7 +16,7 @@ public class ForbiddenAccessExceptionMapper implements ExceptionMapper<Forbidden
     @Override
     public Response toResponse(ForbiddenAccessException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.warn("Attempt to access forbidden information: " + error.getErrorMessage());
+        LOGGER.warn("Attempt to access forbidden information: " + error.getMessage());
         return Response
                 .status(Response.Status.FORBIDDEN)
                 .entity(error)
