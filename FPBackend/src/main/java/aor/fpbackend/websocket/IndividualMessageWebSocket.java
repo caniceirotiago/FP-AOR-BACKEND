@@ -1,10 +1,8 @@
 package aor.fpbackend.websocket;
 
-
-
 import aor.fpbackend.bean.IndividualMessageBean;
 import aor.fpbackend.bean.NotificationBean;
-import aor.fpbackend.bean.UserBean;
+import aor.fpbackend.bean.SessionBean;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.dto.IndividualMessageGetDto;
 import aor.fpbackend.dto.IndividualMessageSendDto;
@@ -41,17 +39,17 @@ public class IndividualMessageWebSocket {
     Gson gson = GsonSetup.createGson();
 
     @EJB
-    private UserBean userBean;
-    @EJB
     private IndividualMessageBean individualMessageBean;
     @EJB
     private NotificationBean notificationBean;
+    @EJB
+    private SessionBean sessionBean;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("receiverId") Long receiverId) {
         System.out.println("Chat WebSocket connection opened");
         try {
-            AuthUserDto user = userBean.validateSessionTokenAndGetUserDetails(sessionToken);
+            AuthUserDto user = sessionBean.validateSessionTokenAndGetUserDetails(sessionToken);
 
             if (user != null) {
                 session.getUserProperties().put("receiverId", receiverId);
@@ -69,7 +67,7 @@ public class IndividualMessageWebSocket {
 
     @OnClose
     public void onClose(Session session, @PathParam("sessionToken") String sessionToken) throws InvalidCredentialsException {
-        AuthUserDto user = userBean.validateSessionTokenAndGetUserDetails(sessionToken);
+        AuthUserDto user = sessionBean.validateSessionTokenAndGetUserDetails(sessionToken);
         if (user != null) {
             List<Session> sessions = userSessions.get(user.getUserId());
             if (sessions != null) {

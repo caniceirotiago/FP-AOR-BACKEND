@@ -2,6 +2,7 @@ package aor.fpbackend.filters;
 
 
 import aor.fpbackend.bean.ConfigurationBean;
+import aor.fpbackend.bean.SessionBean;
 import aor.fpbackend.dao.ProjectMembershipDao;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.entity.ProjectMembershipEntity;
@@ -41,14 +42,14 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     @Context
     private ResourceInfo resourceInfo;
-
     @Context
     private HttpServletRequest request;
     @EJB
     private ConfigurationBean configBean;
-
     @EJB
     private ProjectMembershipDao projectMembershipDao;
+    @EJB
+    private SessionBean sessionBean;
 
 
     @Override
@@ -64,7 +65,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             return;
         }
         try {
-            AuthUserDto authUserDto = userBean.validateAuthTokenAndGetUserDetails(token);
+            AuthUserDto authUserDto = sessionBean.validateAuthTokenAndGetUserDetails(token);
             if (authUserDto == null) {
                 abortUnauthorized(requestContext);
                 return;
@@ -84,12 +85,12 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             long definedTimeOut = configBean.getConfigValueByKey("sessionTimeout");
             long renovateSessionTime = definedTimeOut / 2; //Renovate session if it has less than half of the time remaining
             if (timeRemaining < renovateSessionTime && !path.contains("/logout")) {
-                userBean.createNewSessionAndInvalidateOld(authUserDto, requestContext, definedTimeOut, token);
+                sessionBean.createNewSessionAndInvalidateOld(authUserDto, requestContext, definedTimeOut, token);
             }
             setSecurityContext(requestContext, authUserDto);
             checkAuthorization(requestContext, authUserDto);
             if(path.contains("/logout")){
-                userBean.createInvalidSession(authUserDto, requestContext);
+                sessionBean.createInvalidSession(authUserDto, requestContext);
             }
 
         } catch (InvalidCredentialsException e) {

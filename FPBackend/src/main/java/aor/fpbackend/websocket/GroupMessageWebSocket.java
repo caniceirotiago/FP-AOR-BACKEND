@@ -1,10 +1,7 @@
 
 package aor.fpbackend.websocket;
 
-import aor.fpbackend.bean.GroupMessageBean;
-import aor.fpbackend.bean.NotificationBean;
-import aor.fpbackend.bean.ProjectBean;
-import aor.fpbackend.bean.UserBean;
+import aor.fpbackend.bean.*;
 import aor.fpbackend.dao.ProjectMembershipDao;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.GroupMessageEntity;
@@ -46,20 +43,18 @@ public class GroupMessageWebSocket {
     private static final Map<Long, List<Session>> userSessions = new ConcurrentHashMap<>();
     Gson gson = GsonSetup.createGson();
     @EJB
-    private GroupMessageBean groupMessageBean;
-    @EJB
-    private UserBean userBean;
-    @EJB
     private ProjectMembershipDao projectMembershipDao;
     @EJB
-    private ProjectBean projectBean;
+    private GroupMessageBean groupMessageBean;
+    @EJB
+    private SessionBean sessionBean;
     @EJB
     private NotificationBean notificationBean;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("projectId") Long projectId) {
         try {
-            AuthUserDto user = userBean.validateSessionTokenAndGetUserDetails(sessionToken);
+            AuthUserDto user = sessionBean.validateSessionTokenAndGetUserDetails(sessionToken);
             if (!projectMembershipDao.isUserProjectMember(projectId, user.getUserId())) {
                 throw new UnauthorizedAccessException("User is not a project member");
             }
@@ -78,7 +73,7 @@ public class GroupMessageWebSocket {
 
     @OnClose
     public void onClose(Session session, @PathParam("sessionToken") String sessionToken) throws InvalidCredentialsException {
-        AuthUserDto user = userBean.validateSessionTokenAndGetUserDetails(sessionToken);
+        AuthUserDto user = sessionBean.validateSessionTokenAndGetUserDetails(sessionToken);
         if (user != null) {
             List<Session> sessions = userSessions.get(user.getUserId());
             if (sessions != null) {

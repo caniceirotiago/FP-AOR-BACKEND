@@ -24,19 +24,19 @@ public class MembershipBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(MembershipBean.class);
 
     @EJB
-    UserDao userDao;
-    @EJB
     EmailService emailService;
+    @EJB
+    UserDao userDao;
     @EJB
     ProjectDao projectDao;
     @EJB
-    ProjectBean projectBean;
-    @EJB
     ProjectMembershipDao projectMemberDao;
+    @EJB
+    ProjectBean projectBean;
     @EJB
     ConfigurationBean configurationBean;
     @EJB
-    UserBean userBean;
+    SessionBean sessionBean;
     @EJB
     NotificationBean notificationBean;
 
@@ -87,7 +87,7 @@ public class MembershipBean implements Serializable {
         if (approverEntity == null) {
             throw new UserNotFoundException("User not found");
         }
-        if (!projectMemberDao.isUserProjectManager(membershipEntity.getProject().getId(), approverEntity.getId())){
+        if (!projectMemberDao.isUserProjectManager(membershipEntity.getProject().getId(), approverEntity.getId())) {
             throw new UnauthorizedAccessException("Approver is not a Project Manager");
         }
         if (approve) {
@@ -141,7 +141,7 @@ public class MembershipBean implements Serializable {
         }
         membershipEntity.setAccepted(createHasAccepted);
         if (!createHasAccepted) {
-            String acceptanceToken = userBean.generateNewToken();
+            String acceptanceToken = sessionBean.generateNewToken();
             membershipEntity.setAcceptanceToken(acceptanceToken);
         }
         projectMemberDao.persist(membershipEntity);
@@ -211,11 +211,13 @@ public class MembershipBean implements Serializable {
         String content = "User " + userEntity.getUsername() + ", was removed from project " + projectEntity.getName() + ", by " + authUserEntity.getUsername();
         projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
     }
+
     public List<Long> getProjectIdsByUserId(SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         return projectMemberDao.findProjectIdsByUserId(authUserDto.getUserId());
     }
-    public List<UserBasicInfoDto> getUsersBasicInfoByFirstLetter (String firstLetter, long projectId) {
+
+    public List<UserBasicInfoDto> getUsersBasicInfoByFirstLetter(String firstLetter, long projectId) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
             LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
@@ -228,6 +230,7 @@ public class MembershipBean implements Serializable {
         }
         return userBasicInfoDtos;
     }
+
     public List<UserEntity> getProjectMembersByProjId(long projectId) {
         return projectMemberDao.findProjectMembersByProjectId(projectId);
     }

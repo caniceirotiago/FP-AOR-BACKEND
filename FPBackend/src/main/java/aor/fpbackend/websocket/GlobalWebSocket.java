@@ -1,7 +1,7 @@
 // src/main/java/aor/fpbackend/websocket/GlobalWebSocket.java
 package aor.fpbackend.websocket;
 
-import aor.fpbackend.bean.UserBean;
+import aor.fpbackend.bean.SessionBean;
 import aor.fpbackend.dto.AuthUserDto;
 import aor.fpbackend.dto.NotificationGetDto;
 import aor.fpbackend.dto.WebSocketMessageDto;
@@ -11,12 +11,9 @@ import aor.fpbackend.enums.QueryParams;
 import aor.fpbackend.enums.WebSocketMessageType;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.utils.GsonSetup;
-import aor.fpbackend.utils.JwtKeyProvider;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.*;
@@ -24,7 +21,6 @@ import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 
 import java.io.IOException;
-import java.security.Key;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -39,13 +35,13 @@ public class GlobalWebSocket {
     @EJB
     private static SessionDao sessionDao;
     @EJB
-    UserBean userBean;
+    private SessionBean sessionBean;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken) {
         System.out.println("Global WebSocket connection opened");
         try {
-            AuthUserDto user = userBean.validateSessionTokenAndGetUserDetails(sessionToken);
+            AuthUserDto user = sessionBean.validateSessionTokenAndGetUserDetails(sessionToken);
             if (user != null) {
                 session.getUserProperties().put("userId", user.getUserId());
                 session.getUserProperties().put("token", sessionToken);
