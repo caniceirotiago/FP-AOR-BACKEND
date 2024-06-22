@@ -50,17 +50,9 @@ public class UserBean implements Serializable {
     @EJB
     LaboratoryDao labDao;
     @EJB
-    ProjectDao projectDao;
-    @EJB
-    ProjectMembershipDao projectMemberDao;
-    @EJB
     ConfigurationBean configurationBean;
     @EJB
-    ProjectBean projectBean;
-    @EJB
-    UserBean userBean;
-    @EJB
-    MembershipBean memberBean;
+    SessionBean sessionBean;
 
 
     public void createDefaultUserIfNotExistent(String username, String photo, long roleId, long labId) throws DatabaseOperationException {
@@ -113,7 +105,7 @@ public class UserBean implements Serializable {
             // TODO Verificar a fotografia Default
             newUserEntity.setPhoto("https://www.silcharmunicipality.in/wp-content/uploads/2021/02/male-face.jpg");
             // Create a confirmation token
-            String confirmationToken = generateNewToken();
+            String confirmationToken = sessionBean.generateNewToken();
             newUserEntity.setConfirmationToken(confirmationToken);
             newUserEntity.setConfirmationTokenTimestamp(Instant.now());
             // Persist the new User
@@ -152,7 +144,7 @@ public class UserBean implements Serializable {
                 LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to reset password with token not expired at: " + LocalDate.now());
                 throw new InvalidPasswordRequestException("Request password reset done, please check your email or contact the system administrator");
             }
-            String resetToken = generateNewToken();
+            String resetToken = sessionBean.generateNewToken();
             user.setResetPasswordToken(resetToken);
             user.setResetPasswordTimestamp(Instant.now().plus(30, ChronoUnit.MINUTES));
             emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
@@ -219,132 +211,14 @@ public class UserBean implements Serializable {
         Instant now = Instant.now();
         // Calcular o Instant de expiração adicionando o tempo de expiração em milissegundos
         Instant expirationInstant = now.plus(Duration.ofMillis(definedTimeOut));
-        String authToken = generateJwtToken(userEntity, definedTimeOut, "auth");
+        String authToken = sessionBean.generateJwtToken(userEntity, definedTimeOut, "auth");
         NewCookie authCookie = new NewCookie("authToken", authToken, "/", null, "Auth Token", 3600, false, true);
-        String sessionToken = generateJwtToken(userEntity, definedTimeOut, "session");
+        String sessionToken = sessionBean.generateJwtToken(userEntity, definedTimeOut, "session");
         NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
         sessionDao.persist(new SessionEntity(authToken, sessionToken, expirationInstant, userEntity));
         return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
     }
 
-    public String generateJwtToken(UserEntity user, long expirationTime, String tokenType) {
-        Key secretKey = JwtKeyProvider.getKey();
-
-        JwtBuilder builder = Jwts.builder()
-                .setId(UUID.randomUUID().toString())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .claim("type", tokenType) // Adiciona um claim para o tipo de token
-                .signWith(secretKey, SignatureAlgorithm.HS512);
-
-        if (user != null) {
-            builder.setSubject(String.valueOf(user.getId()));
-            builder.claim("username", user.getUsername());
-            builder.claim("role", user.getRole().getName());
-        }
-
-        return builder.compact();
-    }
-
-    public String generateNewToken() {
-        SecureRandom secureRandom = new SecureRandom();
-        Base64.Encoder base64Encoder = Base64.getUrlEncoder();
-        byte[] randomBytes = new byte[24];
-        secureRandom.nextBytes(randomBytes);
-        return base64Encoder.encodeToString(randomBytes);
-    }
-
-    public AuthUserDto validateAuthTokenAndGetUserDetails(String token) throws InvalidCredentialsException {
-        try {
-            Key secretKey = JwtKeyProvider.getKey();
-            if (secretKey == null) {
-                throw new IllegalStateException("Secret key not configured");
-            }
-            SessionEntity se = sessionDao.findSessionByAuthToken(token);
-            if (se == null) {
-                throw new InvalidCredentialsException("Invalid token");
-            }
-            if (!se.isActive()) {
-                throw new InvalidCredentialsException("Token inativated");
-            }
-            if (se.getTokenExpiration().isBefore(Instant.now())) {
-                throw new InvalidCredentialsException("Token expired");
-            }
-            Jws<Claims> jwsClaims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token);
-            Claims claims = jwsClaims.getBody();
-            Long userId = Long.parseLong(claims.getSubject());
-
-            UserEntity user = userDao.findUserById(userId);
-            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()), token);
-            return authUserDto;
-
-
-        } catch (ExpiredJwtException e) {
-            throw new InvalidCredentialsException("Token expired: " + e.getMessage());
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new InvalidCredentialsException("Invalid token: " + e.getMessage());
-        } catch (Exception e) {
-            throw new InvalidCredentialsException("Error processing token: " + e.getMessage());
-        }
-    }
-
-    public AuthUserDto validateSessionTokenAndGetUserDetails(String token) throws InvalidCredentialsException {
-        try {
-            Key secretKey = JwtKeyProvider.getKey();
-            if (secretKey == null) {
-                throw new IllegalStateException("Secret key not configured");
-            }
-            SessionEntity se = sessionDao.findSessionBySessionToken(token);
-            if (se == null) {
-                throw new InvalidCredentialsException("Invalid token");
-            }
-            if (!se.isActive()) {
-                throw new InvalidCredentialsException("Token inativated");
-            }
-            if (se.getTokenExpiration().isBefore(Instant.now())) {
-                throw new InvalidCredentialsException("Token expired");
-            }
-            Jws<Claims> jwsClaims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token);
-            Claims claims = jwsClaims.getBody();
-            Long userId = Long.parseLong(claims.getSubject());
-            UserEntity user = userDao.findUserById(userId);
-            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()), token);
-            return authUserDto;
-        } catch (ExpiredJwtException e) {
-            throw new InvalidCredentialsException("Token expired: " + e.getMessage());
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new InvalidCredentialsException("Invalid token: " + e.getMessage());
-        } catch (Exception e) {
-            throw new InvalidCredentialsException("Error processing token: " + e.getMessage());
-        }
-    }
-
-    public void createNewSessionAndInvalidateOld(AuthUserDto authUserDto, ContainerRequestContext requestContext, long definedTimeout, String oldToken) throws UnknownHostException {
-        UserEntity user = userDao.findUserById(authUserDto.getUserId());
-        String newAuthToken = generateJwtToken(user, definedTimeout, "auth");
-        Instant now = Instant.now();
-        String newSessionToken = generateJwtToken(user, definedTimeout, "session");
-        Instant expirationInstant = now.plus(Duration.ofMillis(definedTimeout));
-        sessionDao.persist(new SessionEntity(newAuthToken, newSessionToken, expirationInstant, user));
-        requestContext.setProperty("newAuthToken", newAuthToken);
-        requestContext.setProperty("newSessionToken", newSessionToken);
-        sessionDao.inativateSessionbyAuthToken(oldToken);
-    }
-
-    public void createInvalidSession(AuthUserDto authUserDto, ContainerRequestContext requestContext) throws UnknownHostException {
-        sessionDao.inativateSessionbyAuthToken(authUserDto.getToken());
-        // Gera tokens inválidos (valor "null")
-        String invalidToken = "null";
-        // Define novos tokens inválidos no contexto da requisição
-        requestContext.setProperty("newAuthToken", invalidToken);
-        requestContext.setProperty("newSessionToken", invalidToken);
-    }
 
     public void logout(SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
         // Invalida a sessão antiga
@@ -508,6 +382,4 @@ public class UserBean implements Serializable {
         userBasicInfoDto.setPhoto(userEntity.getPhoto());
         return userBasicInfoDto;
     }
-
-
 }
