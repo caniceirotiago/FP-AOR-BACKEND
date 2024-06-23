@@ -211,9 +211,15 @@ public class MembershipBean implements Serializable {
         String content = "User " + userEntity.getUsername() + ", was removed from project " + projectEntity.getName() + ", by " + authUserEntity.getUsername();
         projectBean.createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_MEMBERS, content);
     }
-    public List<Long> getProjectIdsByUserId(SecurityContext securityContext) {
+    public List<ProjectNameIdDto> getProjectIdsByUserId(SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        return projectMemberDao.findProjectIdsByUserId(authUserDto.getUserId());
+        List<Long> projectsIds = projectMemberDao.findProjectIdsByUserId(authUserDto.getUserId());
+        List<ProjectNameIdDto> projectNameIdDtos = new ArrayList<>();
+        for (Long projectId : projectsIds) {
+            ProjectEntity project = projectDao.findProjectById(projectId);
+            projectNameIdDtos.add(new ProjectNameIdDto(project.getId(), project.getName()));
+        }
+        return projectNameIdDtos;
     }
     public List<UserBasicInfoDto> getUsersBasicInfoByFirstLetter (String firstLetter, long projectId) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
