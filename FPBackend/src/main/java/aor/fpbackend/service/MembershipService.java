@@ -3,6 +3,7 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.MembershipBean;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.AuthUserDto;
+import aor.fpbackend.dto.ProjectNameIdDto;
 import aor.fpbackend.dto.UserBasicInfoDto;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.MethodEnum;
@@ -69,7 +70,7 @@ public class MembershipService {
     @GET
     @Path("/projectIds/byUserId/securityContext")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Long> getProjectIdsByUserId(@Context SecurityContext securityContext) {
+    public List<ProjectNameIdDto> getProjectIdsByUserId(@Context SecurityContext securityContext) {
         return memberBean.getProjectIdsByUserId(securityContext);
     }
     @GET
