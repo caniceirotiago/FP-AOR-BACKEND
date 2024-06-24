@@ -9,12 +9,14 @@ import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.entity.TaskEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.LogTypeEnum;
+import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.TaskStateEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 
 import java.time.temporal.ChronoUnit;
 
+import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -24,10 +26,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Stateless
@@ -66,7 +65,7 @@ public class TaskBean implements Serializable {
     }
 
     @Transactional
-    public void addTask( String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException {
+    public void addTask(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException {
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
@@ -171,12 +170,23 @@ public class TaskBean implements Serializable {
         prerequisites.remove(mainTaskEntity);
     }
 
-    public void updateTask(TaskUpdateDto taskUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException {
+    public void updateTask(TaskUpdateDto taskUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException, UserNotFoundException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
+        if (authUserEntity == null) {
+            throw new UserNotFoundException("User not found with this Id");
+        }
         TaskEntity taskEntity = taskDao.findTaskById(taskUpdateDto.getTaskId());
         if (taskEntity == null) {
-            throw new EntityNotFoundException("Task not found");
+            throw new EntityNotFoundException("Task not found with this Id");
+        }
+        EnumSet<ProjectStateEnum> dontUpdateStates = EnumSet.of(
+                ProjectStateEnum.CANCELLED,
+                ProjectStateEnum.READY,
+                ProjectStateEnum.FINISHED);
+        // Don't update tasks if project state is CANCELLED or FINISHED
+        if (dontUpdateStates.contains(taskEntity.getProject().getState())) {
+            throw new InputValidationException("Project state doesn't allow task updates");
         }
         // Validate planned dates if both are present
         if (taskUpdateDto.getPlannedStartDate() != null && taskUpdateDto.getPlannedEndDate() != null) {
@@ -187,9 +197,12 @@ public class TaskBean implements Serializable {
             // Planned end date is present but planned start date is missing
             throw new InputValidationException("Cannot plan end date if planned start date is missing");
         }
+        taskEntity.setDescription(taskUpdateDto.getDescription());
+        taskEntity.setPlannedStartDate(taskUpdateDto.getPlannedStartDate());
+        taskEntity.setPlannedEndDate(taskUpdateDto.getPlannedEndDate());
         // Validate state and handle state transitions
-            TaskStateEnum newState = taskUpdateDto.getState();
-            TaskStateEnum currentState = taskEntity.getState();
+        TaskStateEnum newState = taskUpdateDto.getState();
+        TaskStateEnum currentState = taskEntity.getState();
         if (newState != currentState) {
             // Handle state transitions
             if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.IN_PROGRESS) {
@@ -211,20 +224,27 @@ public class TaskBean implements Serializable {
             String content = "Task state updated from " + currentState + " to " + newState + ", by " + authUserEntity.getUsername();
             projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
         }
-        taskEntity.setDescription(taskUpdateDto.getDescription());
-        taskEntity.setPlannedStartDate(taskUpdateDto.getPlannedStartDate());
-        taskEntity.setPlannedEndDate(taskUpdateDto.getPlannedEndDate());
     }
 
     @Transactional
-    public void taskDetailedUpdate(TaskDetailedUpdateDto taskDetailedUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException {
+    public void taskDetailedUpdate(TaskDetailedUpdateDto taskDetailedUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException, UserNotFoundException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
+        if (authUserEntity == null) {
+            throw new UserNotFoundException("User not found with this Id");
+        }
         TaskEntity taskEntity = taskDao.findTaskById(taskDetailedUpdateDto.getTaskId());
         if (taskEntity == null) {
             throw new EntityNotFoundException("Task not found");
         }
-
+        EnumSet<ProjectStateEnum> dontUpdateStates = EnumSet.of(
+                ProjectStateEnum.CANCELLED,
+                ProjectStateEnum.READY,
+                ProjectStateEnum.FINISHED);
+        // Don't update tasks if project state is CANCELLED or FINISHED
+        if (dontUpdateStates.contains(taskEntity.getProject().getState())) {
+            throw new InputValidationException("Project state doesn't allow task updates");
+        }
         // Validate planned dates if both are present
         if (taskDetailedUpdateDto.getPlannedStartDate() != null && taskDetailedUpdateDto.getPlannedEndDate() != null) {
             if (taskDetailedUpdateDto.getPlannedEndDate().isBefore(taskDetailedUpdateDto.getPlannedStartDate())) {
@@ -233,8 +253,6 @@ public class TaskBean implements Serializable {
         } else if (taskDetailedUpdateDto.getPlannedStartDate() == null && taskDetailedUpdateDto.getPlannedEndDate() != null) {
             throw new InputValidationException("Cannot plan end date if planned start date is missing");
         }
-
-        //ValidateIfNewDatesAreCompatibleWithDependencies
         // Validate if new dates are compatible with dependencies and prerequisites
         if (taskDetailedUpdateDto.getPlannedStartDate() != null) {
             for (TaskEntity dependentTask : taskEntity.getDependentTasks()) {
@@ -260,7 +278,41 @@ public class TaskBean implements Serializable {
                 }
             }
         }
-
+        // Update basic fields
+        taskEntity.setTitle(taskDetailedUpdateDto.getTitle());
+        taskEntity.setDescription(taskDetailedUpdateDto.getDescription());
+        taskEntity.setPlannedStartDate(taskDetailedUpdateDto.getPlannedStartDate());
+        taskEntity.setPlannedEndDate(taskDetailedUpdateDto.getPlannedEndDate());
+        // Update responsible user
+        UserEntity newResponsibleUser = userDao.findUserById(taskDetailedUpdateDto.getResponsibleUserId());
+        if (newResponsibleUser == null) {
+            throw new EntityNotFoundException("Responsible user not found");
+        }
+        if (!projectMemberDao.isUserProjectMember(taskEntity.getProject().getId(), newResponsibleUser.getId())) {
+            throw new InputValidationException("Responsible user is not a member of the project");
+        }
+        taskEntity.setResponsibleUser(newResponsibleUser);
+        if (taskEntity.getResponsibleUser().getId() != newResponsibleUser.getId()) {
+            notificationBean.createNotificationMarkesAsResponsibleInNewTask(newResponsibleUser, taskEntity);
+        }
+        // Update registered executors
+        Set<UserEntity> newRegisteredExecutors = new HashSet<>();
+        for (Long executorId : taskDetailedUpdateDto.getRegisteredExecutors()) {
+            UserEntity executor = userDao.findUserById(executorId);
+            if (executor == null) {
+                throw new EntityNotFoundException("Registered executor not found");
+            }
+            if (!projectMemberDao.isUserProjectMember(taskEntity.getProject().getId(), executorId)) {
+                throw new InputValidationException("Executor with ID " + executorId + " is not a member of the project");
+            }
+            newRegisteredExecutors.add(executor);
+            if (!taskEntity.getRegisteredExecutors().contains(executor)) {
+                notificationBean.createNotificationMarkesAsExecutorInNewTask(executor, taskEntity);
+            }
+        }
+        taskEntity.setRegisteredExecutors(newRegisteredExecutors);
+        // Update non-registered executors
+        taskEntity.setAdditionalExecutors(taskDetailedUpdateDto.getNonRegisteredExecutors());
         // Validate and update state
         TaskStateEnum newState = taskDetailedUpdateDto.getState();
         TaskStateEnum currentState = taskEntity.getState();
@@ -280,50 +332,7 @@ public class TaskBean implements Serializable {
             taskEntity.setState(newState);
             String content = "Task state updated from " + currentState + " to " + newState + ", by " + authUserEntity.getUsername();
             projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
-            //TODO: Estes logs têm de ser feitos apenas se a entidade for criada/alterada com sucesso
         }
-
-        // Update basic fields
-        taskEntity.setTitle(taskDetailedUpdateDto.getTitle());
-        taskEntity.setDescription(taskDetailedUpdateDto.getDescription());
-        taskEntity.setPlannedStartDate(taskDetailedUpdateDto.getPlannedStartDate());
-        taskEntity.setPlannedEndDate(taskDetailedUpdateDto.getPlannedEndDate());
-
-        // Update responsible user
-        UserEntity newResponsibleUser = userDao.findUserById(taskDetailedUpdateDto.getResponsibleUserId());
-        if (newResponsibleUser == null) {
-            throw new EntityNotFoundException("Responsible user not found");
-        }
-        if (!projectMemberDao.isUserProjectMember(taskEntity.getProject().getId(), newResponsibleUser.getId())) {
-            throw new InputValidationException("Responsible user is not a member of the project");
-        }
-        taskEntity.setResponsibleUser(newResponsibleUser);
-        if(taskEntity.getResponsibleUser().getId() != newResponsibleUser.getId())
-        {
-            notificationBean.createNotificationMarkesAsResponsibleInNewTask(newResponsibleUser, taskEntity);
-        }
-
-        // Update registered executors
-        Set<UserEntity> newRegisteredExecutors = new HashSet<>();
-        for (Long executorId : taskDetailedUpdateDto.getRegisteredExecutors()) {
-            UserEntity executor = userDao.findUserById(executorId);
-            if (executor == null) {
-                throw new EntityNotFoundException("Registered executor not found");
-            }
-            if (!projectMemberDao.isUserProjectMember(taskEntity.getProject().getId(), executorId)) {
-                throw new InputValidationException("Executor with ID " + executorId + " is not a member of the project");
-            }
-            newRegisteredExecutors.add(executor);
-            if(!taskEntity.getRegisteredExecutors().contains(executor))
-            {
-                notificationBean.createNotificationMarkesAsExecutorInNewTask(executor, taskEntity);
-            }
-        }
-        taskEntity.setRegisteredExecutors(newRegisteredExecutors);
-
-        // Update non-registered executors
-        taskEntity.setAdditionalExecutors(taskDetailedUpdateDto.getNonRegisteredExecutors());
-
     }
 
     public TaskGetDto convertTaskEntityToTaskDto(TaskEntity taskEntity) {
@@ -341,7 +350,6 @@ public class TaskBean implements Serializable {
         taskGetDto.setResponsibleId(userBean.convertUserEntitytoUserBasicInfoDto(taskEntity.getResponsibleUser()));
         taskGetDto.setNonRegisteredExecutors(taskEntity.getAdditionalExecutors());
         taskGetDto.setProjectId(taskEntity.getProject().getId());
-
         // Map registered executors to UserBasicInfoDto set
         Set<UserBasicInfoDto> registeredExecutorsDtoSet = new HashSet<>();
         for (UserEntity user : taskEntity.getRegisteredExecutors()) {
@@ -376,8 +384,8 @@ public class TaskBean implements Serializable {
         }
         return taskGetDtos;
     }
-    public List<TaskStateEnum> getEnumListTaskStates ()
-    {
+
+    public List<TaskStateEnum> getEnumListTaskStates() {
         List<TaskStateEnum> taskStateEnums = new ArrayList<>();
         for (TaskStateEnum taskStateEnum : TaskStateEnum.values()) {
             taskStateEnums.add(taskStateEnum);
