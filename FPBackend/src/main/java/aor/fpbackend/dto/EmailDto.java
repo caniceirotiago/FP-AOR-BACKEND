@@ -11,7 +11,6 @@ import java.io.Serializable;
 public class EmailDto implements Serializable {
 
     @XmlElement
-
     @NotEmpty(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;

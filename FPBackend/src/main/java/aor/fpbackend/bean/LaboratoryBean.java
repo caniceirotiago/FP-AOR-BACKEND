@@ -39,14 +39,7 @@ public class LaboratoryBean implements Serializable {
         }
     }
 
-
-    private LaboratoryEntity convertLaboratoryDtotoLaboratoryEntity(LaboratoryDto laboratoryDto) {
-        LaboratoryEntity laboratoryEntity = new LaboratoryEntity();
-        laboratoryEntity.setLocation(laboratoryDto.getLocation());
-        return laboratoryEntity;
-    }
-
-    public LaboratoryDto convertLaboratoryEntitytoLaboratoryDto(LaboratoryEntity laboratoryEntity) {
+    public LaboratoryDto convertLaboratoryEntityToLaboratoryDto(LaboratoryEntity laboratoryEntity) {
         LaboratoryDto laboratoryDto = new LaboratoryDto();
         laboratoryDto.setId(laboratoryEntity.getId());
         laboratoryDto.setLocation(laboratoryEntity.getLocation());
@@ -56,16 +49,10 @@ public class LaboratoryBean implements Serializable {
     public ArrayList<LaboratoryDto> convertLaboratoryEntityListToLaboratoryDtoList(ArrayList<LaboratoryEntity> laboratoryEntities) {
         ArrayList<LaboratoryDto> labDtos = new ArrayList<>();
         for (LaboratoryEntity l : laboratoryEntities) {
-            LaboratoryDto labDto = convertLaboratoryEntitytoLaboratoryDto(l);
+            LaboratoryDto labDto = convertLaboratoryEntityToLaboratoryDto(l);
             labDtos.add(labDto);
         }
         return labDtos;
-    }
-    public LaboratoryDto convertLaboratoryEntityToLaboratoryDto(LaboratoryEntity laboratoryEntity) {
-        LaboratoryDto laboratoryDto = new LaboratoryDto();
-        laboratoryDto.setId(laboratoryEntity.getId());
-        laboratoryDto.setLocation(laboratoryEntity.getLocation());
-        return laboratoryDto;
     }
 
 }

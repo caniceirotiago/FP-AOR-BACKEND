@@ -39,7 +39,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     @EJB
     UserBean userBean;
-
     @Context
     private ResourceInfo resourceInfo;
     @Context
@@ -111,6 +110,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 || path.endsWith("/individual/message/filter") //temporário
                 || path.endsWith("/register")
                 || path.contains("/confirm")
+                || path.contains("/request")
                 || path.contains("/accept/project")
                 || path.contains("/password/reset")
                 || path.contains("/labs")

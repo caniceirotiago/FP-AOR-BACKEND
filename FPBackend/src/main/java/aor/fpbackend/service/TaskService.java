@@ -72,6 +72,7 @@ public class TaskService {
     public void addDependencyToTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
         taskBean.addDependencyTask(addDependencyDto);
     }
+
     @DELETE
     @Path("/dependency/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -87,6 +88,7 @@ public class TaskService {
     public void updateTask(@Valid TaskUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
         taskBean.updateTask(taskUpdateDto, securityContext);
     }
+
     @PUT
     @Path("/detailed/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -94,6 +96,7 @@ public class TaskService {
     public void updateTaskDetailed(@Valid TaskDetailedUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
         taskBean.taskDetailedUpdate(taskUpdateDto, securityContext);
     }
+
     @GET
     @Path("/states")
     @Produces(MediaType.APPLICATION_JSON)
