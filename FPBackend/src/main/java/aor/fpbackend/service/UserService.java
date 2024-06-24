@@ -148,7 +148,7 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.UPDATE_ROLE)
-    public void updateUserRole(@Valid UserUpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException {
+    public void updateUserRole(@Valid UserUpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException, EntityNotFoundException {
         userBean.updateRole(updatedRole);
     }
 
