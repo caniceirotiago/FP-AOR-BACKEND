@@ -56,36 +56,14 @@ public class UserBean implements Serializable {
     SessionBean sessionBean;
 
 
-    public void createDefaultUserIfNotExistent(String username, String photo, long roleId, long labId) throws DatabaseOperationException {
-        if (!userDao.checkUsernameExist(username)) {
-            String email = username + "@" + username + ".com";
-            String encryptedPassword = passEncoder.encode(username);
-            LaboratoryEntity laboratory = labDao.findLaboratoryById(labId);
-            if (laboratory == null) {
-                throw new IllegalStateException("Laboratory not found.");
-            }
-            RoleEntity role = roleDao.findRoleById(roleId);
-            if (role == null) {
-                throw new IllegalStateException("Role not found.");
-            }
-            UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, photo, true, false, true, laboratory, role, Instant.now());
-            userDao.persist(userEntity);
-        }
-    }
-
     public void register(UserRegisterDto user) throws InvalidCredentialsException, UnknownHostException {
-        // Set MDC properties
-        ThreadContext.put("author", user.getUsername());
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        if (user == null) {
-            LOGGER.warn(" Attempt to register with invalid credentials!");
-            throw new InvalidCredentialsException("Invalid credentials");
-        }
         if (userDao.checkEmailExist(user.getEmail()) || userDao.checkUsernameExist(user.getUsername())) {
-            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to register with invalid credentials!");
+            // Set Mapped Diagnostic Context (MDC) properties
+            ThreadContext.put("author", user.getUsername());
+            ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+            LOGGER.warn("Attempt to register with invalid credentials!");
             throw new InvalidCredentialsException("Invalid credentials - Email or username already exists");
         }
-
         try {
             UserEntity newUserEntity = convertUserRegisterDtotoUserEntity(user);
             String encryptedPassword = passEncoder.encode(user.getPassword());
@@ -116,8 +94,9 @@ public class UserBean implements Serializable {
             userDao.persist(newUserEntity);
             // Send confirmation token by email
             emailService.sendConfirmationEmail(user.getEmail(), confirmationToken);
+            LOGGER.warn("Registration successful");
         } catch (NoResultException e) {
-            LOGGER.error(InetAddress.getLocalHost().getHostAddress() + " - Error while persisting user at: " + e.getMessage());
+            LOGGER.error("Error while persisting user at: " + e.getMessage());
         }
         finally {
             // Clear MDC after logging
@@ -322,13 +301,16 @@ public class UserBean implements Serializable {
         return passEncoder.matches(oldPassword, hashedPassword) && !passEncoder.matches(newPassword, hashedPassword);
     }
 
-    public void updateRole(UserUpdateRoleDto userUpdateRoleDto) throws InvalidCredentialsException, UnknownHostException {
+    public void updateRole(UserUpdateRoleDto userUpdateRoleDto) throws InvalidCredentialsException, UnknownHostException, EntityNotFoundException {
         UserEntity u = userDao.findUserByUsername(userUpdateRoleDto.getUsername());
         if (u == null) {
             LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " User not found for this username");
             throw new InvalidCredentialsException("User not found with this username");
         }
         RoleEntity newRole = roleDao.findRoleById(userUpdateRoleDto.getRoleId());
+        if(newRole== null){
+            throw new EntityNotFoundException("Role not found with this Id");
+        }
         u.setRole(newRole);
     }
 
@@ -339,6 +321,23 @@ public class UserBean implements Serializable {
 
     public List<ProjectMembershipDto> getUsersByProject(long projectId) {
         return userDao.getUsersByProject(projectId);
+    }
+
+    public void createDefaultUserIfNotExistent(String username, String photo, long roleId, long labId) throws DatabaseOperationException {
+        if (!userDao.checkUsernameExist(username)) {
+            String email = username + "@" + username + ".com";
+            String encryptedPassword = passEncoder.encode(username);
+            LaboratoryEntity laboratory = labDao.findLaboratoryById(labId);
+            if (laboratory == null) {
+                throw new IllegalStateException("Laboratory not found.");
+            }
+            RoleEntity role = roleDao.findRoleById(roleId);
+            if (role == null) {
+                throw new IllegalStateException("Role not found.");
+            }
+            UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, photo, true, false, true, laboratory, role, Instant.now());
+            userDao.persist(userEntity);
+        }
     }
 
     public UserEntity convertUserRegisterDtotoUserEntity(UserRegisterDto user) {
