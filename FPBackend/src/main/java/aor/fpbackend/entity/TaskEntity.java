@@ -255,6 +255,7 @@ public class TaskEntity implements Serializable {
                 ", project=" + project +
                 ", prerequisites=" + prerequisites +
                 ", dependentTasks=" + dependentTasks +
+                ", notifications=" + notifications +
                 '}';
     }
 }

@@ -8,6 +8,7 @@ import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
+import com.google.gson.internal.bind.util.ISO8601Utils;
 import jakarta.ejb.EJB;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -37,6 +38,7 @@ public class TaskService {
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
     public List<TaskGetDto> getAllTasksByProject(@PathParam("projectId") long projectId) {
+        taskBean.getTasksByProject(projectId).forEach(System.out::println);
         return taskBean.getTasksByProject(projectId);
     }
 
