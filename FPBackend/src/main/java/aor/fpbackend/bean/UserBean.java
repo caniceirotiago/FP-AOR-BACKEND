@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import aor.fpbackend.exception.UserNotFoundException;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -73,8 +74,11 @@ public class UserBean implements Serializable {
     }
 
     public void register(UserRegisterDto user) throws InvalidCredentialsException, UnknownHostException {
+        // Set MDC properties
+        ThreadContext.put("author", user.getUsername());
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
         if (user == null) {
-            LOGGER.warn(InetAddress.getLocalHost().getHostAddress() + " - Attempt to register with invalid credentials!");
+            LOGGER.warn(" Attempt to register with invalid credentials!");
             throw new InvalidCredentialsException("Invalid credentials");
         }
         if (userDao.checkEmailExist(user.getEmail()) || userDao.checkUsernameExist(user.getUsername())) {
@@ -114,6 +118,10 @@ public class UserBean implements Serializable {
             emailService.sendConfirmationEmail(user.getEmail(), confirmationToken);
         } catch (NoResultException e) {
             LOGGER.error(InetAddress.getLocalHost().getHostAddress() + " - Error while persisting user at: " + e.getMessage());
+        }
+        finally {
+            // Clear MDC after logging
+            ThreadContext.clearMap();
         }
     }
 
