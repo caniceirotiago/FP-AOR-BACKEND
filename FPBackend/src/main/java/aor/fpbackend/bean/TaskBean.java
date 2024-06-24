@@ -150,6 +150,7 @@ public class TaskBean implements Serializable {
         Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
         prerequisites.add(mainTaskEntity);
     }
+
     @Transactional
     public void removeDependencyTask(TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
         TaskEntity mainTaskEntity = taskDao.findTaskById(addDependencyDto.getMainTaskId());
@@ -170,10 +171,6 @@ public class TaskBean implements Serializable {
         prerequisites.remove(mainTaskEntity);
     }
 
-
-
-
-
     public void updateTask(TaskUpdateDto taskUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
@@ -191,7 +188,6 @@ public class TaskBean implements Serializable {
             throw new InputValidationException("Cannot plan end date if planned start date is missing");
         }
         // Validate state and handle state transitions
-
             TaskStateEnum newState = taskUpdateDto.getState();
             TaskStateEnum currentState = taskEntity.getState();
         if (newState != currentState) {
@@ -219,6 +215,7 @@ public class TaskBean implements Serializable {
         taskEntity.setPlannedStartDate(taskUpdateDto.getPlannedStartDate());
         taskEntity.setPlannedEndDate(taskUpdateDto.getPlannedEndDate());
     }
+
     @Transactional
     public void taskDetailedUpdate(TaskDetailedUpdateDto taskDetailedUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
@@ -263,9 +260,6 @@ public class TaskBean implements Serializable {
                 }
             }
         }
-
-
-
 
         // Validate and update state
         TaskStateEnum newState = taskDetailedUpdateDto.getState();
@@ -331,8 +325,6 @@ public class TaskBean implements Serializable {
         taskEntity.setAdditionalExecutors(taskDetailedUpdateDto.getNonRegisteredExecutors());
 
     }
-
-
 
     public TaskGetDto convertTaskEntityToTaskDto(TaskEntity taskEntity) {
         TaskGetDto taskGetDto = new TaskGetDto();

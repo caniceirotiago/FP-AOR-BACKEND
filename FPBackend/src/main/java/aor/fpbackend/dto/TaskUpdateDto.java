@@ -22,6 +22,7 @@ public class TaskUpdateDto implements Serializable {
     @NotNull
     private String description;
 
+    @XmlElement
     private Instant plannedStartDate;
 
     @XmlElement

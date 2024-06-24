@@ -65,6 +65,9 @@ public class ProjectBean implements Serializable {
         if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new InputValidationException("Conclusion date cannot be in the past");
         }
+        if (projectCreateDto.getKeywords() == null || projectCreateDto.getKeywords().isEmpty()) {
+            throw new InputValidationException("Define at least one keyword");
+        }
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity user = userDao.findUserById(authUserDto.getUserId());
         if (user == null) {
@@ -91,9 +94,9 @@ public class ProjectBean implements Serializable {
         projectDao.persist(projectEntity);
         // Define relations on the persisted Project
         ProjectEntity persistedProject = projectDao.findProjectByName(projectEntity.getName());
+        addRelationsToProject(projectCreateDto, persistedProject, user);
         String content = "Creation of " + projectEntity.getName();
         createProjectLog(projectEntity, user, LogTypeEnum.GENERAL_PROJECT_DATA, content);
-        addRelationsToProject(projectCreateDto, persistedProject, user);
     }
 
     private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException, ElementAssociationException {
