@@ -212,4 +212,26 @@ public class TaskGetDto implements Serializable {
     public void setProjectId(long projectId) {
         this.projectId = projectId;
     }
+
+    @Override
+    public String toString() {
+        return "TaskGetDto{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", creationDate=" + creationDate +
+                ", plannedStartDate=" + plannedStartDate +
+                ", startDate=" + startDate +
+                ", plannedEndDate=" + plannedEndDate +
+                ", endDate=" + endDate +
+                ", duration=" + duration +
+                ", state=" + state +
+                ", responsibleId=" + responsibleId +
+                ", registeredExecutors=" + registeredExecutors +
+                ", nonRegisteredExecutors='" + nonRegisteredExecutors + '\'' +
+                ", dependentTasks=" + dependentTasks +
+                ", prerequisites=" + prerequisites +
+                ", projectId=" + projectId +
+                '}';
+    }
 }

@@ -377,6 +377,7 @@ public class TaskBean implements Serializable {
     }
 
     public List<TaskGetDto> convertTaskEntityListToTaskDtoList(List<TaskEntity> taskEntities) {
+
         List<TaskGetDto> taskGetDtos = new ArrayList<>();
         for (TaskEntity taskEntity : taskEntities) {
             TaskGetDto taskGetDto = convertTaskEntityToTaskDto(taskEntity);
