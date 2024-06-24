@@ -6,6 +6,7 @@ import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.TaskStateEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
+import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
@@ -85,7 +86,7 @@ public class TaskService {
     @Path("{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void updateTask(@Valid TaskUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+    public void updateTask(@Valid TaskUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UserNotFoundException {
         taskBean.updateTask(taskUpdateDto, securityContext);
     }
 
@@ -93,7 +94,7 @@ public class TaskService {
     @Path("/detailed/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void updateTaskDetailed(@Valid TaskDetailedUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+    public void updateTaskDetailed(@Valid TaskDetailedUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UserNotFoundException {
         taskBean.taskDetailedUpdate(taskUpdateDto, securityContext);
     }
 
