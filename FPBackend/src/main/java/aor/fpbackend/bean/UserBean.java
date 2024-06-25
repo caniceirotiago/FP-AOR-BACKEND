@@ -6,12 +6,9 @@ import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
-import aor.fpbackend.utils.JwtKeyProvider;
-import io.jsonwebtoken.*;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
-import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,16 +16,11 @@ import org.apache.logging.log4j.Logger;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.Key;
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 
 import aor.fpbackend.exception.UserNotFoundException;
 import org.apache.logging.log4j.ThreadContext;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
