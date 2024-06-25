@@ -2,8 +2,10 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.ConfigurationDao;
 import aor.fpbackend.dto.ConfigurationGetDto;
+import aor.fpbackend.dto.ConfigurationUpdateDto;
 import aor.fpbackend.entity.ConfigurationEntity;
 import aor.fpbackend.exception.DatabaseOperationException;
+import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import org.apache.logging.log4j.LogManager;
@@ -32,11 +34,16 @@ public class ConfigurationBean implements Serializable {
         return configurationDao.findConfigValueByKey(configKey);
     }
 
-
-    public void updateConfigValue(String configKey, int configValue) {
-        ConfigurationEntity configEntity = configurationDao.findConfigEntityByKey(configKey);
-        configEntity.setValue(configValue);
+    public void updateConfigValue(ConfigurationUpdateDto configUpdateDto) throws InputValidationException {
+        ConfigurationEntity configEntity = configurationDao.findConfigEntityByKey(configUpdateDto.getConfigKey());
+        if(configUpdateDto.getConfigKey().equals("sessionTimeout")){
+            if (configUpdateDto.getConfigValue()<10){
+                throw new InputValidationException("New config value lower than minimum session timeout value");
+            }
+        }
+        configEntity.setValue(configUpdateDto.getConfigValue());
     }
+
     public List<ConfigurationGetDto> getAllConfiguration() {
         return configurationDao.getAllConfiguration();
     }

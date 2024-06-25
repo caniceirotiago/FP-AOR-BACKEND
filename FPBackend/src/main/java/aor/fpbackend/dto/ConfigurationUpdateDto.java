@@ -1,21 +1,24 @@
 package aor.fpbackend.dto;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 
 @XmlRootElement
-public class ConfigurationGetDto implements Serializable {
+public class ConfigurationUpdateDto implements Serializable {
     @XmlElement
+    @NotNull
     private String configKey;
     @XmlElement
+    @NotNull
     private int configValue;
 
-    public ConfigurationGetDto() {
+    public ConfigurationUpdateDto() {
     }
 
-    public ConfigurationGetDto(String configKey, int configValue) {
+    public ConfigurationUpdateDto(String configKey, int configValue) {
         this.configKey = configKey;
         this.configValue = configValue;
     }
