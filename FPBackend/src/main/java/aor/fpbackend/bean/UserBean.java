@@ -36,7 +36,7 @@ import java.util.*;
 public class UserBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LogManager.getLogger(UserBean.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(UserBean.class);
 
     @EJB
     PassEncoder passEncoder;
