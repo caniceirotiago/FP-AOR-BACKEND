@@ -51,6 +51,8 @@ public class TaskEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private TaskStateEnum state;
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
 
     // Relationships
@@ -236,6 +238,14 @@ public class TaskEntity implements Serializable {
         this.notifications = notifications;
     }
 
+    public Boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
+    }
+
     @Override
     public String toString() {
         return "TaskEntity{" +
@@ -256,6 +266,7 @@ public class TaskEntity implements Serializable {
                 ", prerequisites=" + prerequisites +
                 ", dependentTasks=" + dependentTasks +
                 ", notifications=" + notifications +
+                ", isDeleted=" + isDeleted +
                 '}';
     }
 }

@@ -84,6 +84,7 @@ public class TaskBean implements Serializable {
         taskEntity.setPlannedStartDate(plannedStartDate);
         taskEntity.setCreationDate(Instant.now());
         taskEntity.setPlannedEndDate(plannedEndDate);
+        taskEntity.setDeleted(false);
         taskEntity.setState(TaskStateEnum.PLANNED); // Default state
         // Set the responsible user for the task
         taskEntity.setResponsibleUser(taskResponsible);
@@ -313,6 +314,28 @@ public class TaskBean implements Serializable {
         }
     }
 
+    public void deleteTask(long taskId, SecurityContext securityContext) throws EntityNotFoundException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
+        if (authUserEntity == null) {
+            throw new EntityNotFoundException("User not found with this Id");
+        }
+        TaskEntity taskEntity = taskDao.findTaskById(taskId);
+        if (taskEntity == null) {
+            throw new EntityNotFoundException("Task not found with this Id");
+        }
+        ProjectEntity projectEntity = taskEntity.getProject();
+        boolean isProjectMember = projectMemberDao.isUserProjectMember(projectEntity.getId(), authUserEntity.getId());
+        if (!isProjectMember) {
+            throw new EntityNotFoundException("User is not a member of the project");
+        }
+
+        taskEntity.setDeleted(true);
+        String content = "Task deleted by " + authUserEntity.getUsername();
+        projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
+
+    }
+
     public TaskGetDto convertTaskEntityToTaskDto(TaskEntity taskEntity) {
         TaskGetDto taskGetDto = new TaskGetDto();
         taskGetDto.setId(taskEntity.getId());
@@ -325,6 +348,7 @@ public class TaskBean implements Serializable {
         taskGetDto.setEndDate(taskEntity.getEndDate());
         taskGetDto.setDuration(taskEntity.getDuration());
         taskGetDto.setState(taskEntity.getState());
+        taskGetDto.setDeleted(taskEntity.isDeleted());
         taskGetDto.setResponsibleId(userBean.convertUserEntitytoUserBasicInfoDto(taskEntity.getResponsibleUser()));
         taskGetDto.setNonRegisteredExecutors(taskEntity.getAdditionalExecutors());
         taskGetDto.setProjectId(taskEntity.getProject().getId());
@@ -351,6 +375,7 @@ public class TaskBean implements Serializable {
             dependentTaskIds.add(dependentTask.getId());
         }
         taskGetDto.setDependentTasks(dependentTaskIds);
+
         return taskGetDto;
     }
 

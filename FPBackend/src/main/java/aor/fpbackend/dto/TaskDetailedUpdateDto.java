@@ -49,13 +49,15 @@ public class TaskDetailedUpdateDto implements Serializable {
 
     @XmlElement
     private String nonRegisteredExecutors;
+    @XmlElement
+    private boolean isDeleted;
 
 
 
     public TaskDetailedUpdateDto() {
     }
 
-    public TaskDetailedUpdateDto(long taskId, String title, String description, Instant plannedStartDate, Instant plannedEndDate, TaskStateEnum state, long responsibleUserId, List<Long> registeredExecutors, String nonRegisteredExecutors) {
+    public TaskDetailedUpdateDto(long taskId, String title, String description, Instant plannedStartDate, Instant plannedEndDate, TaskStateEnum state, long responsibleUserId, List<Long> registeredExecutors, String nonRegisteredExecutors, boolean isDeleted) {
         this.taskId = taskId;
         this.title = title;
         this.description = description;
@@ -65,6 +67,7 @@ public class TaskDetailedUpdateDto implements Serializable {
         this.responsibleUserId = responsibleUserId;
         this.registeredExecutors = registeredExecutors;
         this.nonRegisteredExecutors = nonRegisteredExecutors;
+        this.isDeleted = isDeleted;
 
     }
 
@@ -136,6 +139,14 @@ public class TaskDetailedUpdateDto implements Serializable {
 
     public String getNonRegisteredExecutors() {
         return nonRegisteredExecutors;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
     public void setNonRegisteredExecutors(String nonRegisteredExecutors) {

@@ -59,6 +59,13 @@ public class TaskService {
         taskBean.addTask(taskCreateDto.getTitle(), taskCreateDto.getDescription(), taskCreateDto.getPlannedStartDate(),
                 taskCreateDto.getPlannedEndDate(), taskCreateDto.getResponsibleId(), taskCreateDto.getProjectId());
     }
+    @DELETE
+    @Path("/{taskId}/{projectId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RequiresProjectMemberPermission()
+    public void deleteTask(@PathParam("taskId") long taskId, @Context SecurityContext securityContext) throws EntityNotFoundException {
+        taskBean.deleteTask(taskId, securityContext);
+    }
 
     @PUT
     @Path("/add/dependency/{projectId}")
