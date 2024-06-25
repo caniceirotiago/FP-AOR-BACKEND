@@ -4,6 +4,8 @@ import aor.fpbackend.enums.TaskStateEnum;
 import jakarta.persistence.Enumerated;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -61,12 +63,17 @@ public class TaskGetDto implements Serializable {
     @XmlElement
     private long projectId;
 
+    @XmlElement
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    @JsonProperty("isDeleted")
+    private Boolean isDeleted = false;
+
     public TaskGetDto() {
     }
 
     public TaskGetDto(long id, String title, String description, Instant creationDate, Instant plannedStartDate,
                       Instant startDate, Instant plannedEndDate, Instant endDate, long duration, TaskStateEnum state, UserBasicInfoDto responsibleId,
-                      Set<UserBasicInfoDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, Set<Long> prerequisites, long projectId) {
+                      Set<UserBasicInfoDto> registeredExecutors, String nonRegisteredExecutors, Set<Long> dependentTasks, Set<Long> prerequisites, long projectId, Boolean isDeleted) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -83,7 +90,11 @@ public class TaskGetDto implements Serializable {
         this.dependentTasks = dependentTasks;
         this.prerequisites = prerequisites;
         this.projectId = projectId;
+        this.isDeleted = isDeleted;
     }
+
+    // getters e setters
+
 
     public long getId() {
         return id;
@@ -213,6 +224,14 @@ public class TaskGetDto implements Serializable {
         this.projectId = projectId;
     }
 
+    public Boolean getDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
+    }
+
     @Override
     public String toString() {
         return "TaskGetDto{" +
@@ -232,6 +251,7 @@ public class TaskGetDto implements Serializable {
                 ", dependentTasks=" + dependentTasks +
                 ", prerequisites=" + prerequisites +
                 ", projectId=" + projectId +
+                ", isDeleted=" + isDeleted +
                 '}';
     }
 }
