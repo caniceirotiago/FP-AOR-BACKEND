@@ -127,6 +127,7 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ASSET_REMOVE, "remove asset from inventory list", MethodEnum.ASSET_REMOVE.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.GET_NOTIFICATIONS, "get unread notifications by user", MethodEnum.GET_NOTIFICATIONS.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.MARK_NOTIFICATIONS_AS_READ, "mark notification as read", MethodEnum.MARK_NOTIFICATIONS_AS_READ.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_CONFIG, "update system configurations", MethodEnum.UPDATE_CONFIG.getValue());
     }
 
     @Transactional
@@ -207,5 +208,6 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.GET_NOTIFICATIONS);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.MARK_NOTIFICATIONS_AS_READ);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.MARK_NOTIFICATIONS_AS_READ);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.UPDATE_CONFIG);
     }
 }

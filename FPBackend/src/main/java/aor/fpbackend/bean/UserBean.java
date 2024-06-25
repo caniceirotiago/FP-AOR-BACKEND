@@ -230,7 +230,7 @@ public class UserBean implements Serializable {
         String sessionToken = sessionBean.generateJwtToken(userEntity, definedTimeOut, "session");
         NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
         sessionDao.persist(new SessionEntity(authToken, sessionToken, expirationInstant, userEntity));
-        LOGGER.info("Successful login");
+        LOGGER.error("Successful login");
         // Clear MDC after logging
         ThreadContext.clearMap();
         return Response.ok().cookie(authCookie).cookie(sessionCookie).build();

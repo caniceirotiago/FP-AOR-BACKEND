@@ -39,7 +39,8 @@ public enum MethodEnum {
     SKILL_ENUMS(36L),
     ASSET_REMOVE(37L),
     GET_NOTIFICATIONS(38L),
-    MARK_NOTIFICATIONS_AS_READ(39L);
+    MARK_NOTIFICATIONS_AS_READ(39L),
+    UPDATE_CONFIG(40L);
 
 
     private final long value;
