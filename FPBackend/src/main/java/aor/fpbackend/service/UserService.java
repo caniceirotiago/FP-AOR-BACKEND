@@ -91,7 +91,6 @@ public class UserService {
         return userBean.getUserBasicInfo(securityContext);
     }
 
-
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
