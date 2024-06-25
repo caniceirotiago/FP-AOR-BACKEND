@@ -42,8 +42,6 @@ public class TaskBean implements Serializable {
     @EJB
     ProjectBean projectBean;
     @EJB
-    MembershipBean projectMemberbean;
-    @EJB
     ProjectMembershipDao projectMemberDao;
     @EJB
     NotificationBean notificationBean;
@@ -75,18 +73,9 @@ public class TaskBean implements Serializable {
         if (taskResponsible == null) {
             throw new EntityNotFoundException("User not found");
         }
-        // Avoid duplicate titles
-        if (taskDao.checkTitleExist(title)) {
-            throw new InputValidationException("Duplicated title");
-        }
-        // Validate planned dates if both are present
-        if (plannedStartDate != null && plannedEndDate != null) {
-            if (plannedEndDate.isBefore(plannedStartDate)) {
-                throw new InputValidationException("Planned end date cannot be before planned start date");
-            }
-        } else if (plannedStartDate == null && plannedEndDate != null) {
-            // Planned end date is present but planned start date is missing
-            throw new InputValidationException("Cannot plan end date if planned start date is missing");
+        // Validate planned dates
+        if (plannedEndDate.isBefore(plannedStartDate)) {
+            throw new InputValidationException("Planned end date cannot be before planned start date");
         }
         // Create a new task entity
         TaskEntity taskEntity = new TaskEntity();
@@ -188,14 +177,9 @@ public class TaskBean implements Serializable {
         if (dontUpdateStates.contains(taskEntity.getProject().getState())) {
             throw new InputValidationException("Project state doesn't allow task updates");
         }
-        // Validate planned dates if both are present
-        if (taskUpdateDto.getPlannedStartDate() != null && taskUpdateDto.getPlannedEndDate() != null) {
-            if (taskUpdateDto.getPlannedEndDate().isBefore(taskUpdateDto.getPlannedStartDate())) {
-                throw new InputValidationException("Planned end date cannot be before planned start date");
-            }
-        } else if (taskUpdateDto.getPlannedStartDate() == null && taskUpdateDto.getPlannedEndDate() != null) {
-            // Planned end date is present but planned start date is missing
-            throw new InputValidationException("Cannot plan end date if planned start date is missing");
+        // Validate planned dates
+        if (taskUpdateDto.getPlannedEndDate().isBefore(taskUpdateDto.getPlannedStartDate())) {
+            throw new InputValidationException("Planned end date cannot be before planned start date");
         }
         taskEntity.setDescription(taskUpdateDto.getDescription());
         taskEntity.setPlannedStartDate(taskUpdateDto.getPlannedStartDate());
@@ -245,35 +229,29 @@ public class TaskBean implements Serializable {
         if (dontUpdateStates.contains(taskEntity.getProject().getState())) {
             throw new InputValidationException("Project state doesn't allow task updates");
         }
-        // Validate planned dates if both are present
-        if (taskDetailedUpdateDto.getPlannedStartDate() != null && taskDetailedUpdateDto.getPlannedEndDate() != null) {
-            if (taskDetailedUpdateDto.getPlannedEndDate().isBefore(taskDetailedUpdateDto.getPlannedStartDate())) {
-                throw new InputValidationException("Planned end date cannot be before planned start date");
-            }
-        } else if (taskDetailedUpdateDto.getPlannedStartDate() == null && taskDetailedUpdateDto.getPlannedEndDate() != null) {
-            throw new InputValidationException("Cannot plan end date if planned start date is missing");
+        // Validate planned dates
+        if (taskDetailedUpdateDto.getPlannedEndDate().isBefore(taskDetailedUpdateDto.getPlannedStartDate())) {
+            throw new InputValidationException("Planned end date cannot be before planned start date");
         }
         // Validate if new dates are compatible with dependencies and prerequisites
-        if (taskDetailedUpdateDto.getPlannedStartDate() != null) {
-            for (TaskEntity dependentTask : taskEntity.getDependentTasks()) {
-                if (dependentTask.getPlannedStartDate() != null && dependentTask.getPlannedStartDate().isBefore(taskDetailedUpdateDto.getPlannedStartDate())) {
-                    throw new InputValidationException("Planned start date is not compatible with dependent task: " + dependentTask.getTitle());
-                }
+        for (TaskEntity dependentTask : taskEntity.getDependentTasks()) {
+            if (dependentTask.getPlannedStartDate() != null && dependentTask.getPlannedStartDate().isBefore(taskDetailedUpdateDto.getPlannedStartDate())) {
+                throw new InputValidationException("Planned start date is not compatible with dependent task: " + dependentTask.getTitle());
             }
-            for (TaskEntity prerequisite : taskEntity.getPrerequisites()) {
-                if (prerequisite.getPlannedEndDate() != null && prerequisite.getPlannedEndDate().isAfter(taskDetailedUpdateDto.getPlannedStartDate())) {
-                    throw new InputValidationException("Planned start date is not compatible with prerequisite task: " + prerequisite.getTitle());
-                }
+        }
+        for (TaskEntity prerequisite : taskEntity.getPrerequisites()) {
+            if (prerequisite.getPlannedEndDate() != null && prerequisite.getPlannedEndDate().isAfter(taskDetailedUpdateDto.getPlannedStartDate())) {
+                throw new InputValidationException("Planned start date is not compatible with prerequisite task: " + prerequisite.getTitle());
             }
         }
         if (taskDetailedUpdateDto.getPlannedEndDate() != null) {
             for (TaskEntity dependentTask : taskEntity.getDependentTasks()) {
-                if (dependentTask.getPlannedEndDate() != null && dependentTask.getPlannedEndDate().isBefore(taskDetailedUpdateDto.getPlannedEndDate())) {
+                if (dependentTask.getPlannedEndDate().isBefore(taskDetailedUpdateDto.getPlannedEndDate())) {
                     throw new InputValidationException("Planned end date is not compatible with dependent task: " + dependentTask.getTitle());
                 }
             }
             for (TaskEntity prerequisite : taskEntity.getPrerequisites()) {
-                if (prerequisite.getPlannedStartDate() != null && prerequisite.getPlannedStartDate().isAfter(taskDetailedUpdateDto.getPlannedEndDate())) {
+                if (prerequisite.getPlannedStartDate().isAfter(taskDetailedUpdateDto.getPlannedEndDate())) {
                     throw new InputValidationException("Planned end date is not compatible with prerequisite task: " + prerequisite.getTitle());
                 }
             }

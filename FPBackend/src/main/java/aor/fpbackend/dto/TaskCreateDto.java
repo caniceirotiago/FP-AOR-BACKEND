@@ -23,9 +23,11 @@ public class TaskCreateDto implements Serializable {
     private String description;
 
     @XmlElement
+    @NotNull
     private Instant plannedStartDate;
 
     @XmlElement
+    @NotNull
     private Instant plannedEndDate;
 
     @XmlElement

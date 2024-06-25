@@ -28,9 +28,11 @@ public class TaskDetailedUpdateDto implements Serializable {
     private String description;
 
     @XmlElement
+    @NotNull
     private Instant plannedStartDate;
 
     @XmlElement
+    @NotNull
     private Instant plannedEndDate;
 
     @XmlElement
@@ -39,6 +41,7 @@ public class TaskDetailedUpdateDto implements Serializable {
     private TaskStateEnum state;
 
     @XmlElement
+    @NotNull
     private long responsibleUserId;
 
     @XmlElement
