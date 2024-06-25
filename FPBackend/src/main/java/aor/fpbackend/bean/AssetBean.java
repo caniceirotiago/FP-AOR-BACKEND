@@ -3,6 +3,7 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.AssetDao;
 import aor.fpbackend.dao.ProjectAssetDao;
 import aor.fpbackend.dao.ProjectDao;
+import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.AssetTypeEnum;
@@ -10,11 +11,15 @@ import aor.fpbackend.exception.*;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.UriInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -27,13 +32,22 @@ public class AssetBean implements Serializable {
     @EJB
     ProjectDao projectDao;
     @EJB
+    UserDao userDao;
+    @EJB
     ProjectAssetDao projectAssetDao;
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LogManager.getLogger(AssetBean.class);
 
 
-    public void createAsset(AssetCreateDto assetCreateDto) throws DuplicatedAttributeException {
+    public void createAsset(AssetCreateDto assetCreateDto, SecurityContext securityContext) throws DuplicatedAttributeException, UserNotFoundException, UnknownHostException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        if (userEntity == null) {
+            throw new UserNotFoundException("User not found");
+        }
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", userEntity.getUsername());
         // Check if the asset name already exists to avoid duplicate entries
         if (assetDao.checkAssetExistByName(assetCreateDto.getName())) {
             throw new DuplicatedAttributeException("Asset name already exists");
@@ -41,6 +55,7 @@ public class AssetBean implements Serializable {
         AssetEntity assetEntity = new AssetEntity(assetCreateDto.getName(), assetCreateDto.getType(), assetCreateDto.getDescription(), assetCreateDto.getStockQuantity(),
                 assetCreateDto.getPartNumber(), assetCreateDto.getManufacturer(), assetCreateDto.getManufacturerPhone(), assetCreateDto.getObservations());
         assetDao.persist(assetEntity);
+        LOGGER.info("Asset created successfully");
     }
 
     @Transactional
@@ -100,7 +115,6 @@ public class AssetBean implements Serializable {
 
     public List<AssetGetDto> getAssetsByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
-            LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
         }
         String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();

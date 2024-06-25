@@ -12,8 +12,10 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.UriInfo;
 
+import java.net.UnknownHostException;
 import java.util.List;
 
 
@@ -26,8 +28,8 @@ public class AssetService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.CREATE_ASSET)
-    public void createAsset(@Valid AssetCreateDto assetCreateDto) throws DuplicatedAttributeException {
-        assetBean.createAsset(assetCreateDto);
+    public void createAsset(@Valid AssetCreateDto assetCreateDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, UserNotFoundException, UnknownHostException {
+        assetBean.createAsset(assetCreateDto, securityContext);
     }
 
     @POST

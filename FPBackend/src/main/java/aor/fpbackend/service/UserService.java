@@ -39,7 +39,7 @@ public class UserService {
     @POST
     @Path("/request/confirmation/email")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void requestConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException {
+    public void requestConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException, UnknownHostException {
         userBean.requestNewConfirmationEmail(email);
     }
 
@@ -68,7 +68,7 @@ public class UserService {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response login(@Valid UserLoginDto userLogin) throws InvalidCredentialsException {
+    public Response login(@Valid UserLoginDto userLogin) throws InvalidCredentialsException, UnknownHostException {
         return userBean.login(userLogin);
     }
 
@@ -80,14 +80,14 @@ public class UserService {
     @POST
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@Context SecurityContext securityContext) throws InvalidCredentialsException, UnknownHostException {
+    public void logout(@Context SecurityContext securityContext) {
         userBean.logout(securityContext);
     }
 
     @GET
     @Path("/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
-    public UserBasicInfoDto getBasicInfo(@Context SecurityContext securityContext) {
+    public UserBasicInfoDto getBasicInfo(@Context SecurityContext securityContext) throws UserNotFoundException {
         return userBean.getUserBasicInfo(securityContext);
     }
 
@@ -111,7 +111,7 @@ public class UserService {
     @GET
     @Path("info/{usernameProfile}")
     @Produces(MediaType.APPLICATION_JSON)
-    public UserProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, UnauthorizedAccessException, ForbiddenAccessException {
+    public UserProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, ForbiddenAccessException {
         return userBean.getProfileDto(usernameProfile, securityContext);
     }
 
@@ -139,7 +139,7 @@ public class UserService {
     @Path("/password")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException {
+    public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException, UserNotFoundException {
         userBean.updatePassword(updatedPassword, securityContext);
     }
 

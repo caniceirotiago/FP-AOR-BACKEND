@@ -60,14 +60,6 @@ public class TaskService {
                 taskCreateDto.getPlannedEndDate(), taskCreateDto.getResponsibleId(), taskCreateDto.getProjectId());
     }
 
-//    @PUT
-//    @Path("/add/executor")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @RequiresProjectMemberPermission()
-//    public void addUserToTask(@Valid TaskAddUserDto taskAddUserDto) throws EntityNotFoundException {
-//        taskBean.addUserTask(taskAddUserDto);
-//    }
-
     @PUT
     @Path("/add/dependency/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
