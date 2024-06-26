@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
+import java.net.UnknownHostException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -32,8 +33,6 @@ public class ProjectBean implements Serializable {
     ProjectDao projectDao;
     @EJB
     LaboratoryDao labDao;
-    @EJB
-    TaskDao taskDao;
     @EJB
     UserDao userDao;
     @EJB
@@ -55,13 +54,11 @@ public class ProjectBean implements Serializable {
     @EJB
     MembershipBean memberBean;
     @EJB
-    EmailService emailService;
-    @EJB
     NotificationBean notificationBean;
 
 
     @Transactional
-    public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException, ElementAssociationException {
+    public void createProject(ProjectCreateDto projectCreateDto, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException, ElementAssociationException, UnknownHostException {
         if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new InputValidationException("Conclusion date cannot be in the past");
         }
@@ -99,7 +96,7 @@ public class ProjectBean implements Serializable {
         createProjectLog(projectEntity, user, LogTypeEnum.GENERAL_PROJECT_DATA, content);
     }
 
-    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException, ElementAssociationException {
+    private void addRelationsToProject(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity, UserEntity userCreator) throws EntityNotFoundException, DuplicatedAttributeException, UserNotFoundException, InputValidationException, ElementAssociationException, UnknownHostException {
         // Add creator to project
         memberBean.addUserToProject(userCreator.getUsername(), projectEntity.getId(), true, true, userCreator);
         // Define relations for project members (Users)
@@ -194,7 +191,7 @@ public class ProjectBean implements Serializable {
         return projectLogGetDtos;
     }
 
-    public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException {
+    public void approveProject(ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException {
         // Retrieve the project entity
         ProjectEntity projectEntity = projectDao.findProjectById(projectApproveDto.getProjectId());
         if (projectEntity == null) {
@@ -258,7 +255,7 @@ public class ProjectBean implements Serializable {
     }
 
     @Transactional
-    public void updateProject(long projectId, ProjectUpdateDto projectUpdateDto, SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+    public void updateProject(long projectId, ProjectUpdateDto projectUpdateDto, SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UnknownHostException {
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -299,11 +296,9 @@ public class ProjectBean implements Serializable {
 
         //Creating Notification for allsystem Admins that the project s now on approval mode
         if (newState == ProjectStateEnum.READY && currentState == ProjectStateEnum.PLANNING) {
-            System.out.println("Creating Notification for allsystem Admins that the project s now on approval mode");
             notificationBean.createNotificationForAllPlatformAdminsProjectApproval(projectEntity);
         }
         // Validate state and handle state transitions
-
         boolean approved = projectEntity.isApproved();
         if (currentState != newState) {
             if (!approved) {

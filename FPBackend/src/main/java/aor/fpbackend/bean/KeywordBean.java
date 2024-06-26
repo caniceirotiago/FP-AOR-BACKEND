@@ -60,11 +60,6 @@ public class KeywordBean implements Serializable {
             keywordProjects.add(projectEntity);
             keywordEntity.setProjects(keywordProjects);
         }
-        logger.debug("Sample debug message");
-        logger.info("Sample info message");
-        logger.warn("Sample warn message");
-        logger.error("Sample error message");
-        logger.fatal("Sample fatal message");
     }
 
     private void checkKeywordExist(String name) {
@@ -84,7 +79,6 @@ public class KeywordBean implements Serializable {
 
     public List<KeywordGetDto> getKeywordsByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
-            logger.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
         }
         String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();

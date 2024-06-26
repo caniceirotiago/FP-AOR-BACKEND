@@ -14,6 +14,7 @@ import aor.fpbackend.enums.TaskStateEnum;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 
+import java.net.UnknownHostException;
 import java.time.temporal.ChronoUnit;
 
 import aor.fpbackend.exception.UserNotFoundException;
@@ -63,7 +64,7 @@ public class TaskBean implements Serializable {
     }
 
     @Transactional
-    public void addTask(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException {
+    public void addTask(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException, UnknownHostException {
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
@@ -117,7 +118,6 @@ public class TaskBean implements Serializable {
 //            notificationBean.createNotificationMarkesAsExecutorInNewTask(registeredExecutor, taskEntity);
 //        } else {
 //            // Handle duplicate entry scenario
-//            LOGGER.warn("Duplicate entry for Registered Executor: " + registeredExecutor.getUsername());
 //        }
 //        // Add additional executors (non-registered)
 //        if (taskAddUserDto.getNonRegisteredExecutors() != null) {
@@ -220,7 +220,7 @@ public class TaskBean implements Serializable {
     }
 
     @Transactional
-    public void taskDetailedUpdate(TaskDetailedUpdateDto taskDetailedUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException, UserNotFoundException {
+    public void taskDetailedUpdate(TaskDetailedUpdateDto taskDetailedUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException, UserNotFoundException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         if (authUserEntity == null) {

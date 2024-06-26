@@ -112,7 +112,7 @@ public class AssetService {
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASSET_UPDATE)
-    public void updateAsset(@Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
+    public void updateAsset(@Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException, UnknownHostException {
         assetBean.updateAsset(assetUpdateDto);
     }
 }

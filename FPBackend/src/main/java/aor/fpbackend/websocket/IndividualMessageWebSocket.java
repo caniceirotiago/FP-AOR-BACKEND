@@ -47,7 +47,6 @@ public class IndividualMessageWebSocket {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("receiverId") Long receiverId) {
-        System.out.println("Chat WebSocket connection opened");
         try {
             AuthUserDto user = sessionBean.validateSessionTokenAndGetUserDetails(sessionToken);
 
@@ -56,7 +55,6 @@ public class IndividualMessageWebSocket {
                 session.getUserProperties().put("userId", user.getUserId());
                 session.getUserProperties().put("token", sessionToken);
                 userSessions.computeIfAbsent(user.getUserId(), k -> new CopyOnWriteArrayList<>()).add(session);
-                System.out.println("Chat WebSocket connection opened for user: " + user.getUserId() + " with receiver: " + receiverId);
             } else {
                 session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized"));
             }
@@ -76,7 +74,6 @@ public class IndividualMessageWebSocket {
                     userSessions.remove(user.getUserId());
                 }
             }
-            System.out.println("Chat WebSocket connection closed for user id: " + user.getUserId());
         }
     }
 
@@ -90,27 +87,26 @@ public class IndividualMessageWebSocket {
         //On message receive two types of messages: markAsRead and sendMessage
         //markAsRead: mark messages as read
         //sendMessage: persists message in database and sends it to the receiver if the receiver is online
-        System.out.println("Received message: " + message);
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
             if (type.equals(WebSocketMessageType.MARK_AS_READ.toString())) {
                 markAsRead(json);
-            }
-            else if (type.equals(WebSocketMessageType.NEW_INDIVIDUAL_MESSAGE.toString())) {
+            } else if (type.equals(WebSocketMessageType.NEW_INDIVIDUAL_MESSAGE.toString())) {
                 receiveSendMessage(session, json);
             }
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
         }
     }
+
     public void markAsRead(JsonObject json) throws IOException {
         JsonElement dataElement = json.get("data");
-        Type listType = new TypeToken<List<Long>>() {}.getType();
+        Type listType = new TypeToken<List<Long>>() {
+        }.getType();
         List<Long> messageIds = gson.fromJson(dataElement, listType);
         boolean success = individualMessageBean.markMessagesAsRead(messageIds);
         if (success) {
-            System.out.println("Messages marked as read: " + messageIds);
             List<IndividualMessageGetDto> messages = individualMessageBean.getMessagesByIds(messageIds);
             WebSocketMessageDto response = new WebSocketMessageDto(WebSocketMessageType.MARK_AS_READ.toString(), messages);
             String jsonResponse = gson.toJson(response);
@@ -132,14 +128,13 @@ public class IndividualMessageWebSocket {
             }
         }
     }
-    public void receiveSendMessage(Session session, JsonObject json) throws IOException, UserNotFoundException, UserNotFoundException {
+
+    public void receiveSendMessage(Session session, JsonObject json) throws IOException, UserNotFoundException {
         JsonObject data = json.getAsJsonObject(QueryParams.DATA);
         IndividualMessageSendDto msg = gson.fromJson(data, IndividualMessageSendDto.class);
         if (data != null) {
-
-            IndividualMessageEntity savedMessage =  individualMessageBean.sendIndividualMessage(msg);
+            IndividualMessageEntity savedMessage = individualMessageBean.sendIndividualMessage(msg);
             IndividualMessageGetDto savedMessageDto = individualMessageBean.convertToDto(savedMessage);
-            System.out.println("Message saved: " + savedMessageDto);
             if (savedMessage != null) {
                 String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.NEW_INDIVIDUAL_MESSAGE.toString(), savedMessageDto));
                 List<Session> receiverSessions = userSessions.get(savedMessage.getRecipient().getId());
@@ -150,8 +145,7 @@ public class IndividualMessageWebSocket {
                             receiverSession.getBasicRemote().sendText(jsonResponse);
                         }
                     }
-                }else {
-                    System.out.println("Receiver session is null or closed");
+                } else {
                     notificationBean.createIndividualMessageNotification(savedMessage);
                 }
                 if (senderSessions != null && !senderSessions.isEmpty()) {
@@ -161,7 +155,6 @@ public class IndividualMessageWebSocket {
                         }
                     }
                 }
-
             }
         }
     }

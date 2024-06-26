@@ -16,6 +16,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.UriInfo;
+
+import java.net.UnknownHostException;
 import java.util.List;
 
 
@@ -28,7 +30,7 @@ public class ProjectService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_PROJECT)
-    public void createProject(@Valid ProjectCreateDto projectCreateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException, ElementAssociationException {
+    public void createProject(@Valid ProjectCreateDto projectCreateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, InputValidationException, UserNotFoundException, ElementAssociationException, UnknownHostException {
         projectBean.createProject(projectCreateDto, securityContext);
     }
 
@@ -91,7 +93,7 @@ public class ProjectService {
     @Path("/approve")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.PROJECT_APPROVE)
-    public void approveProject(@Valid ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException {
+    public void approveProject(@Valid ProjectApproveDto projectApproveDto, @Context SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException {
         projectBean.approveProject(projectApproveDto, securityContext);
     }
 
@@ -107,7 +109,7 @@ public class ProjectService {
     @Path("/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void updateProject(@PathParam("projectId") long projectId, @Valid ProjectUpdateDto projectUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException {
+    public void updateProject(@PathParam("projectId") long projectId, @Valid ProjectUpdateDto projectUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UnknownHostException {
         projectBean.updateProject(projectId, projectUpdateDto, securityContext);
     }
 }

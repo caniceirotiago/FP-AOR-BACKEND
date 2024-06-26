@@ -12,6 +12,8 @@ import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ws.rs.core.UriInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,6 +21,10 @@ import java.util.stream.Collectors;
 
 @Stateless
 public class IndividualMessageBean {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = LogManager.getLogger(IndividualMessageBean.class);
     @EJB
     UserDao userDao;
     @EJB

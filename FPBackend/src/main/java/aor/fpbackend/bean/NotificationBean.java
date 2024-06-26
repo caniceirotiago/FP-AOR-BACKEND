@@ -16,8 +16,11 @@ import jakarta.ejb.Stateless;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +41,9 @@ public class NotificationBean implements Serializable {
 
     private static final Logger LOGGER = LogManager.getLogger(NotificationBean.class);
 
-    public void createIndividualMessageNotification(IndividualMessageEntity messageEntity) {
-
+    public void createIndividualMessageNotification(IndividualMessageEntity messageEntity) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", messageEntity.getSender().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.INDIVIDUAL_MESSAGE);
         notificationEntity.setUser(messageEntity.getRecipient());
@@ -47,15 +51,18 @@ public class NotificationBean implements Serializable {
         notificationEntity.setRead(false);
         notificationEntity.setIndividualMessage(messageEntity);
         notificationEntity.setContent("You have a new message from " + messageEntity.getSender().getUsername());
-        LOGGER.info("Creating notification for individual message");
         notificationDao.persist(notificationEntity);
-        NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+        NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+        LOGGER.info("Created notification for individual message");
+        ThreadContext.clearMap();
     }
-    public void createProjectJoinRequestNotificationsForProjectAdmins(ProjectMembershipEntity projectMembershipEn) {
-        Set<ProjectMembershipEntity> projectMembershipEntitiesSet = projectMembershipEn.getProject().getMembers();
-        List<ProjectMembershipEntity> projectMembershipEntities = new ArrayList<>(projectMembershipEntitiesSet);
 
+    public void createProjectJoinRequestNotificationsForProjectAdmins(ProjectMembershipEntity projectMembershipEnt) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", projectMembershipEnt.getUser().getUsername());
+        Set<ProjectMembershipEntity> projectMembershipEntitiesSet = projectMembershipEnt.getProject().getMembers();
+        List<ProjectMembershipEntity> projectMembershipEntities = new ArrayList<>(projectMembershipEntitiesSet);
         for (ProjectMembershipEntity projectMembershipEntity : projectMembershipEntities) {
             if (projectMembershipEntity.getRole().equals(ProjectRoleEnum.PROJECT_MANAGER)) {
                 NotificationEntity notificationEntity = new NotificationEntity();
@@ -63,17 +70,20 @@ public class NotificationBean implements Serializable {
                 notificationEntity.setUser(projectMembershipEntity.getUser());
                 notificationEntity.setDateTime(Instant.now());
                 notificationEntity.setRead(false);
-                notificationEntity.setContent("User " + projectMembershipEn.getUser().getUsername() + " has requested to join project " + projectMembershipEn.getProject().getName() + " please confirm or reject on your email");
-                notificationEntity.setProject(projectMembershipEn.getProject());
-                LOGGER.info("Creating notification for project join request");
-                System.out.println("Creating notification for project join request");
+                notificationEntity.setContent("User " + projectMembershipEnt.getUser().getUsername() + " has requested to join project " + projectMembershipEnt.getProject().getName() + " please confirm or reject on your email");
+                notificationEntity.setProject(projectMembershipEnt.getProject());
                 notificationDao.persist(notificationEntity);
-                NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+                NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
                 GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+                LOGGER.info("Creating notification for project join request");
+                ThreadContext.clearMap();
             }
         }
     }
-    public void createNotificationForProjectJoinRequestApprovedOrRejected(ProjectMembershipEntity projectMembershipEntity, boolean approved) {
+
+    public void createNotificationForProjectJoinRequestApprovedOrRejected(ProjectMembershipEntity projectMembershipEntity, boolean approved) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.PROJECT_JOIN_REQUEST);
         notificationEntity.setUser(projectMembershipEntity.getUser());
@@ -85,12 +95,16 @@ public class NotificationBean implements Serializable {
             notificationEntity.setContent("Your request to join project " + projectMembershipEntity.getProject().getName() + " has been rejected");
         }
         notificationEntity.setProject(projectMembershipEntity.getProject());
-        LOGGER.info("Creating notification for project join request approved");
         notificationDao.persist(notificationEntity);
-        NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+        NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+        LOGGER.info("Creating notification for project join request approved");
+        ThreadContext.clearMap();
     }
-    public void createNotificationForProjectInviteFromAProjectManagerToUser(ProjectMembershipEntity projectMembershipEntity) {
+
+    public void createNotificationForProjectInviteFromAProjectManagerToUser(ProjectMembershipEntity projectMembershipEntity) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.PROJECT_JOIN_REQUEST);
         notificationEntity.setUser(projectMembershipEntity.getUser());
@@ -98,15 +112,18 @@ public class NotificationBean implements Serializable {
         notificationEntity.setRead(false);
         notificationEntity.setContent("You have been invited to join project " + projectMembershipEntity.getProject().getName() + " please confirm or reject on your email");
         notificationEntity.setProject(projectMembershipEntity.getProject());
-        LOGGER.info("Creating notification for project invite from a project manager to user");
         notificationDao.persist(notificationEntity);
-        NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+        NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+        LOGGER.info("Creating notification for project invite from a project manager to user");
+        ThreadContext.clearMap();
     }
-    public void createNotificationForProjectManagersKnowUserApproval(ProjectMembershipEntity projectMembershipEntity, boolean approved) {
+
+    public void createNotificationForProjectManagersKnowUserApproval(ProjectMembershipEntity projectMembershipEntity, boolean approved) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         Set<ProjectMembershipEntity> projectMembershipEntitiesSet = projectMembershipEntity.getProject().getMembers();
         List<ProjectMembershipEntity> projectMembershipEntities = new ArrayList<>(projectMembershipEntitiesSet);
-
         for (ProjectMembershipEntity projectMembershipEntity1 : projectMembershipEntities) {
             if (projectMembershipEntity1.getRole().equals(ProjectRoleEnum.PROJECT_MANAGER)) {
                 NotificationEntity notificationEntity = new NotificationEntity();
@@ -120,28 +137,38 @@ public class NotificationBean implements Serializable {
                     notificationEntity.setContent("User " + projectMembershipEntity.getUser().getUsername() + " rejected the invitation to join " + projectMembershipEntity.getProject().getName());
                 }
                 notificationEntity.setProject(projectMembershipEntity.getProject());
-                LOGGER.info("Creating notification for project managers know user approval");
                 notificationDao.persist(notificationEntity);
-                NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+                NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
                 GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+                LOGGER.info("Creating notification for project managers know user approval");
+                ThreadContext.clearMap();
             }
         }
     }
-    public void createNotificationForUserRemovedFromProject(ProjectMembershipEntity projectMembershipEntity) {
+
+    public void createNotificationForUserRemovedFromProject(ProjectMembershipEntity projectMembershipEntity) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.PROJECT_JOIN_REQUEST);
         notificationEntity.setUser(projectMembershipEntity.getUser());
         notificationEntity.setDateTime(Instant.now());
         notificationEntity.setRead(false);
-        if(projectMembershipEntity.isAccepted())notificationEntity.setContent("You have been removed from project " + projectMembershipEntity.getProject().getName());
-        else notificationEntity.setContent("Your invitation to join project " + projectMembershipEntity.getProject().getName() + " has been cancelled");
+        if (projectMembershipEntity.isAccepted())
+            notificationEntity.setContent("You have been removed from project " + projectMembershipEntity.getProject().getName());
+        else
+            notificationEntity.setContent("Your invitation to join project " + projectMembershipEntity.getProject().getName() + " has been cancelled");
         notificationEntity.setProject(projectMembershipEntity.getProject());
-        LOGGER.info("Creating notification for user removed from project");
         notificationDao.persist(notificationEntity);
-        NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+        NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+        LOGGER.info("Creating notification for user removed from project");
+        ThreadContext.clearMap();
     }
-    public void createNotificationForUserAutomaticallyAddedToProject(ProjectMembershipEntity projectMembershipEntity) {
+
+    public void createNotificationForUserAutomaticallyAddedToProject(ProjectMembershipEntity projectMembershipEntity) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.PROJECT_JOIN_REQUEST);
         notificationEntity.setUser(projectMembershipEntity.getUser());
@@ -149,12 +176,16 @@ public class NotificationBean implements Serializable {
         notificationEntity.setRead(false);
         notificationEntity.setContent("You have been automatically added to project " + projectMembershipEntity.getProject().getName());
         notificationEntity.setProject(projectMembershipEntity.getProject());
-        LOGGER.info("Creating notification for user automatically added to project");
         notificationDao.persist(notificationEntity);
-        NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+        NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+        LOGGER.info("Creating notification for user automatically added to project");
+        ThreadContext.clearMap();
     }
-    public void createNotificationProjectApprovalSendAllMembers(ProjectEntity projectEntity, UserEntity userEntity, boolean approved) {
+
+    public void createNotificationProjectApprovalSendAllMembers(ProjectEntity projectEntity, UserEntity userEntity, boolean approved) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", userEntity.getUsername());
         Set<ProjectMembershipEntity> projectMembershipEntitiesSet = projectEntity.getMembers();
         List<ProjectMembershipEntity> projectMembershipEntities = new ArrayList<>(projectMembershipEntitiesSet);
 
@@ -170,14 +201,18 @@ public class NotificationBean implements Serializable {
                 notificationEntity.setContent("Project " + projectEntity.getName() + " has been rejected by " + userEntity.getUsername());
             }
             notificationEntity.setProject(projectEntity);
-            LOGGER.info("Creating notification for project approval send all members");
             notificationDao.persist(notificationEntity);
-            NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+            NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
             GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+            LOGGER.info("Creating notification for project approval send all members");
+            ThreadContext.clearMap();
         }
     }
-    public void createNotificationForAllPlatformAdminsProjectApproval(ProjectEntity projectEntity) {
-        RoleEntity role  = roleDao.findRoleByName(UserRoleEnum.ADMIN);
+
+    public void createNotificationForAllPlatformAdminsProjectApproval(ProjectEntity projectEntity) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", projectEntity.getCreatedBy().getUsername());
+        RoleEntity role = roleDao.findRoleByName(UserRoleEnum.ADMIN);
         List<UserEntity> platformAdmins = userDao.getUsersByRole(role);
         for (UserEntity platformAdmin : platformAdmins) {
             NotificationEntity notificationEntity = new NotificationEntity();
@@ -186,15 +221,18 @@ public class NotificationBean implements Serializable {
             notificationEntity.setDateTime(Instant.now());
             notificationEntity.setRead(false);
             notificationEntity.setContent("Project " + projectEntity.getName() + " is ready to be approved. Visit project page to approve or reject.");
-
             notificationEntity.setProject(projectEntity);
-            LOGGER.info("Creating notification for all platform admins project approval");
             notificationDao.persist(notificationEntity);
-            NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+            NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
             GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+            LOGGER.info("Creating notification for all platform admins project approval");
+            ThreadContext.clearMap();
         }
     }
-    public void createNotificationMarkesAsResponsibleInNewTask(UserEntity userEntity, TaskEntity taskEntity) {
+
+    public void createNotificationMarkesAsResponsibleInNewTask(UserEntity userEntity, TaskEntity taskEntity) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", userEntity.getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.TASK_RESPONSIBLE);
         notificationEntity.setUser(userEntity);
@@ -202,12 +240,16 @@ public class NotificationBean implements Serializable {
         notificationEntity.setRead(false);
         notificationEntity.setTask(taskEntity);
         notificationEntity.setContent("You have been marked as responsible in the new task " + taskEntity.getTitle() + " in project " + taskEntity.getProject().getName());
-        LOGGER.info("Creating notification for marked as responsible in new task");
         notificationDao.persist(notificationEntity);
-        NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+        NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+        LOGGER.info("Creating notification for marked as responsible in new task");
+        ThreadContext.clearMap();
     }
-    public void createNotificationMarkesAsExecutorInNewTask(UserEntity userEntity, TaskEntity taskEntity) {
+
+    public void createNotificationMarkesAsExecutorInNewTask(UserEntity userEntity, TaskEntity taskEntity) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", userEntity.getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.TASK_EXECUTER);
         notificationEntity.setUser(userEntity);
@@ -215,20 +257,20 @@ public class NotificationBean implements Serializable {
         notificationEntity.setRead(false);
         notificationEntity.setTask(taskEntity);
         notificationEntity.setContent("You have been marked as executor in the task " + taskEntity.getTitle() + " in project " + taskEntity.getProject().getName());
-        LOGGER.info("Creating notification for marked as executor in new task");
         notificationDao.persist(notificationEntity);
-        NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+        NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+        LOGGER.info("Creating notification for marked as executor in new task");
+        ThreadContext.clearMap();
     }
-
 
     public List<NotificationGetDto> getUnreadNotifications(SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        List<NotificationEntity> notificationsEntety =  notificationDao.getUnreadbByUserNotifications(authUserDto.getUserId());
+        List<NotificationEntity> notificationsEntety = notificationDao.getUnreadbByUserNotifications(authUserDto.getUserId());
         return convertEntetiesToDtos(notificationsEntety);
     }
 
-    public void markNotificationsAsRead(Long notificationId){
+    public void markNotificationsAsRead(Long notificationId) {
         NotificationEntity notificationEntity = notificationDao.findNotificationById(notificationId);
         notificationEntity.setRead(true);
         notificationDao.merge(notificationEntity);
@@ -237,15 +279,13 @@ public class NotificationBean implements Serializable {
     private List<NotificationGetDto> convertEntetiesToDtos(List<NotificationEntity> notificationsEntety) {
         List<NotificationGetDto> notificationGetDtos = new ArrayList<>();
         for (NotificationEntity notificationEntity : notificationsEntety) {
-           NotificationGetDto newDto = convertEntetyToDto(notificationEntity);
+            NotificationGetDto newDto = convertEntityToDto(notificationEntity);
             notificationGetDtos.add(newDto);
         }
-        System.out.println("Notifications: " + notificationGetDtos.size());
-        System.out.println(notificationGetDtos);
         return notificationGetDtos;
     }
 
-    private NotificationGetDto convertEntetyToDto(NotificationEntity notificationEntity) {
+    private NotificationGetDto convertEntityToDto(NotificationEntity notificationEntity) {
         NotificationGetDto notificationGetDto = new NotificationGetDto();
         notificationGetDto.setId(notificationEntity.getId());
         notificationGetDto.setType(notificationEntity.getType());
@@ -253,19 +293,24 @@ public class NotificationBean implements Serializable {
         notificationGetDto.setDateTime(notificationEntity.getDateTime());
         notificationGetDto.setRead(notificationEntity.isRead());
         notificationGetDto.setUser(userBean.convertUserEntitytoUserBasicInfoDto(notificationEntity.getUser()));
-        if(notificationEntity.getProject() != null)notificationGetDto.setProjectId(notificationEntity.getProject().getId());
-        if(notificationEntity.getIndividualMessage() != null)notificationGetDto.setIndividualMessage(new IndividualMessageGetDto(
-                notificationEntity.getIndividualMessage().getId(),
-                notificationEntity.getIndividualMessage().getContent(),
-                userBean.convertUserEntetyToUserBasicInfoDto(notificationEntity.getIndividualMessage().getSender()),
-                userBean.convertUserEntetyToUserBasicInfoDto(notificationEntity.getIndividualMessage().getRecipient()),
-                notificationEntity.getIndividualMessage().getSubject(),
-                notificationEntity.getIndividualMessage().getSentTime(),
-                notificationEntity.getIndividualMessage().isViewed()
-        ));
+        if (notificationEntity.getProject() != null)
+            notificationGetDto.setProjectId(notificationEntity.getProject().getId());
+        if (notificationEntity.getIndividualMessage() != null)
+            notificationGetDto.setIndividualMessage(new IndividualMessageGetDto(
+                    notificationEntity.getIndividualMessage().getId(),
+                    notificationEntity.getIndividualMessage().getContent(),
+                    userBean.convertUserEntetyToUserBasicInfoDto(notificationEntity.getIndividualMessage().getSender()),
+                    userBean.convertUserEntetyToUserBasicInfoDto(notificationEntity.getIndividualMessage().getRecipient()),
+                    notificationEntity.getIndividualMessage().getSubject(),
+                    notificationEntity.getIndividualMessage().getSentTime(),
+                    notificationEntity.getIndividualMessage().isViewed()
+            ));
         return notificationGetDto;
     }
-    public void createNotificationForGroupMessage(GroupMessageEntity groupMessageEntity, List<UserEntity> projectMembers) {
+
+    public void createNotificationForGroupMessage(GroupMessageEntity groupMessageEntity, List<UserEntity> projectMembers) throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", groupMessageEntity.getSender().getUsername());
         if (projectMembers == null) {
             throw new IllegalArgumentException("Project members list is null");
         }
@@ -279,10 +324,11 @@ public class NotificationBean implements Serializable {
                 notificationEntity.setContent("You have a new message in group " + groupMessageEntity.getGroup().getName() + " from " + groupMessageEntity.getSender().getUsername());
                 notificationEntity.setGroupMessage(groupMessageEntity);
                 notificationEntity.setProject(groupMessageEntity.getGroup());
-                LOGGER.info("Creating notification for group message");
                 notificationDao.persist(notificationEntity);
-                NotificationGetDto notificationGetDto = convertEntetyToDto(notificationEntity);
+                NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
                 GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
+                LOGGER.info("Creating notification for group message");
+                ThreadContext.clearMap();
             }
         }
     }

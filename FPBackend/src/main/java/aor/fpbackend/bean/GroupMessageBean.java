@@ -26,7 +26,7 @@ public class GroupMessageBean {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LogManager.getLogger(UserBean.class);
+    private static final Logger LOGGER = LogManager.getLogger(GroupMessageBean.class);
 
     @EJB
     UserBean userBean;
