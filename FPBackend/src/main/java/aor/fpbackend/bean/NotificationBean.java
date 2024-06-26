@@ -299,8 +299,8 @@ public class NotificationBean implements Serializable {
             notificationGetDto.setIndividualMessage(new IndividualMessageGetDto(
                     notificationEntity.getIndividualMessage().getId(),
                     notificationEntity.getIndividualMessage().getContent(),
-                    userBean.convertUserEntetyToUserBasicInfoDto(notificationEntity.getIndividualMessage().getSender()),
-                    userBean.convertUserEntetyToUserBasicInfoDto(notificationEntity.getIndividualMessage().getRecipient()),
+                    userBean.convertUserEntitytoUserBasicInfoDto(notificationEntity.getIndividualMessage().getSender()),
+                    userBean.convertUserEntitytoUserBasicInfoDto(notificationEntity.getIndividualMessage().getRecipient()),
                     notificationEntity.getIndividualMessage().getSubject(),
                     notificationEntity.getIndividualMessage().getSentTime(),
                     notificationEntity.getIndividualMessage().isViewed()

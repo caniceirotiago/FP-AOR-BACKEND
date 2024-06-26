@@ -109,7 +109,7 @@ public class UserDao extends AbstractDao<UserEntity> {
         try {
             return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
         } catch (NoResultException e) {
-            return null;
+            return new ArrayList<>();
         }
     }
 

@@ -129,7 +129,7 @@ public class GroupMessageBean {
         return new GroupMessageGetDto(
                 groupMessageEntity.getId(),
                 groupMessageEntity.getContent(),
-                userBean.convertUserEntetyToUserBasicInfoDto(groupMessageEntity.getSender()),
+                userBean.convertUserEntitytoUserBasicInfoDto(groupMessageEntity.getSender()),
                 groupMessageEntity.getSentTime(),
                 readByUserIds,
                 groupMessageEntity.isViewed(),

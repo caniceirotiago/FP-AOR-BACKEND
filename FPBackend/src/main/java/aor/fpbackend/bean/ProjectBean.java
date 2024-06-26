@@ -386,7 +386,7 @@ public class ProjectBean implements Serializable {
         projectGetDto.setConclusionDate(projectEntity.getConclusionDate());
         projectGetDto.setApproved(projectEntity.isApproved());
         projectGetDto.setLaboratory(laboratoryBean.convertLaboratoryEntityToLaboratoryDto(projectEntity.getLaboratory()));
-        projectGetDto.setCreatedBy(userBean.convertUserEntetyToUserBasicInfoDto(projectEntity.getCreatedBy()));
+        projectGetDto.setCreatedBy(userBean.convertUserEntitytoUserBasicInfoDto(projectEntity.getCreatedBy()));
         projectGetDto.setMembers(convertProjectMembershipEntityListToDto(projectEntity.getMembers()));
         return projectGetDto;
     }
@@ -407,7 +407,7 @@ public class ProjectBean implements Serializable {
         projectMembershipDto.setProjectId(projectMembershipEntity.getProject().getId());
         projectMembershipDto.setRole(projectMembershipEntity.getRole());
         projectMembershipDto.setAccepted(projectMembershipEntity.isAccepted());
-        projectMembershipDto.setUser(userBean.convertUserEntetyToUserBasicInfoDto(projectMembershipEntity.getUser()));
+        projectMembershipDto.setUser(userBean.convertUserEntitytoUserBasicInfoDto(projectMembershipEntity.getUser()));
         return projectMembershipDto;
     }
 
