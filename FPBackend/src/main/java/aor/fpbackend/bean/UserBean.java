@@ -6,12 +6,13 @@ import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
+import aor.fpbackend.utils.GlobalSettings;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.*;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -24,11 +25,27 @@ import org.apache.logging.log4j.ThreadContext;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+/**
+ * UserBean is a stateless EJB that provides services for user management, including registration,
+ * authentication, profile updates, and password management.
+ * <p>
+ * This bean handles the core logic for user-related operations, interacting with various DAO
+ * and utility classes to perform tasks such as encoding passwords, sending emails, and managing sessions.
+ * It ensures the integrity and security of user data by performing necessary checks and validations
+ * before persisting or updating any information.
+ * <p>
+ * Dependencies are injected using the @EJB annotation, which includes DAOs for user, session, role,
+ * and laboratory entities, as well as utility classes for password encoding, email services,
+ * and session management.
+ */
+
+
 @Stateless
 public class UserBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LogManager.getLogger(UserBean.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(UserBean.class);
+
 
     @EJB
     PassEncoder passEncoder;
@@ -47,167 +64,215 @@ public class UserBean implements Serializable {
     @EJB
     SessionBean sessionBean;
 
-
-    public void register(UserRegisterDto user) throws InvalidCredentialsException, UnknownHostException {
-        // Set Mapped Diagnostic Context (MDC) properties
-        ThreadContext.put("author", user.getUsername());
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        if (userDao.checkEmailExist(user.getEmail()) || userDao.checkUsernameExist(user.getUsername())) {
-            LOGGER.warn("Attempt to register with invalid credentials!");
-            throw new InvalidCredentialsException("Invalid credentials - Email or username already exists");
+    /**
+     * Registers a new user in the system.
+     * <p>
+     * This method performs several tasks to register a user:
+     * <ul>
+     *     <li>Checks if the email or username already exists.</li>
+     *     <li>Encodes the user's password.</li>
+     *     <li>Assigns the default role and the specified laboratory to the user.</li>
+     *     <li>Sets default parameters for the new user.</li>
+     *     <li>Generates a confirmation token and sends a confirmation email.</li>
+     *     <li>Persists the new user entity in the database.</li>
+     * </ul>
+     * </p>
+     *
+     * @param userRgDto the data transfer object containing user registration details.
+     * @throws InvalidCredentialsException if the email or username already exists, or if there is an error during user persistence.
+     * @throws EntityNotFoundException if the default role or laboratory is not found.
+     */
+    @Transactional
+    public void register(UserRegisterDto userRgDto) throws InvalidCredentialsException, EntityNotFoundException {
+        if (userDao.checkEmailAndUsernameExist(userRgDto.getEmail(), userRgDto.getUsername()))  {
+            throw new InvalidCredentialsException("Attempt to register with invalid credentials - Email or username already exists, Email: " + userRgDto.getEmail() + " Username: " + userRgDto.getUsername());
+        }
+        RoleEntity role = roleDao.findRoleByName(UserRoleEnum.STANDARD_USER);
+        if (role == null) {
+            throw new EntityNotFoundException("Default role not found.");
+        }
+        LaboratoryEntity lab = labDao.findLaboratoryById(userRgDto.getLaboratoryId());
+        if (lab == null) {
+            throw new EntityNotFoundException("Laboratory not found.");
         }
         try {
-            UserEntity newUserEntity = convertUserRegisterDtotoUserEntity(user);
-            String encryptedPassword = passEncoder.encode(user.getPassword());
-            newUserEntity.setPassword(encryptedPassword);
-            // Retrieve and set the default role "Standard User"
-            RoleEntity role = roleDao.findRoleByName(UserRoleEnum.STANDARD_USER);
-            if (role == null) {
-                throw new IllegalStateException("Default role not found.");
-            }
+            UserEntity newUserEntity = convertUserRegisterDtotoUserEntity(userRgDto);
             newUserEntity.setRole(role);
-            // Retrieve and set the laboratory
-            LaboratoryEntity lab = labDao.findLaboratoryById(user.getLaboratoryId());
-            if (lab == null) {
-                throw new IllegalStateException("Laboratory not found.");
-            }
+            newUserEntity.setPassword(passEncoder.encode(userRgDto.getPassword()));
             newUserEntity.setLaboratory(lab);
-            // Set default parameters for the new user
             newUserEntity.setDeleted(false);
             newUserEntity.setConfirmed(false);
             newUserEntity.setPrivate(true);
-            // TODO Verificar a fotografia Default
-            newUserEntity.setPhoto("https://www.silcharmunicipality.in/wp-content/uploads/2021/02/male-face.jpg");
+            newUserEntity.setPhoto(GlobalSettings.USER_DEFAULT_PHOTO_URL);
             // Create a confirmation token
             String confirmationToken = sessionBean.generateNewToken();
             newUserEntity.setConfirmationToken(confirmationToken);
             newUserEntity.setConfirmationTokenTimestamp(Instant.now());
-            // Persist the new User
+
             userDao.persist(newUserEntity);
-            // Send confirmation token by email
-            emailService.sendConfirmationEmail(user.getEmail(), confirmationToken);
-            LOGGER.info("Registration successful");
+            emailService.sendConfirmationEmail(userRgDto.getEmail(), confirmationToken);
+            LOGGER.info("Registration successful for the username: " + newUserEntity.getUsername() + " and email: " + newUserEntity.getEmail());
         } catch (NoResultException e) {
-            LOGGER.error("Error while persisting user at: " + e.getMessage());
+            LOGGER.error("Error while persisting user at: " + e.getMessage() + "for email: " + userRgDto.getEmail() + " and username: " + userRgDto.getUsername());
+            throw new InvalidCredentialsException("Error while persisting user");
         } finally {
-            // Clear MDC after logging
             ThreadContext.clearMap();
         }
     }
 
-    public void confirmUser(String token) throws UserConfirmationException {
+    /**
+     * Confirms a user's registration using the provided confirmation token.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Validates the provided token to ensure it is not null or empty.</li>
+     *     <li>Retrieves the user associated with the confirmation token.</li>
+     *     <li>Confirms the user's registration by setting the confirmation status to true and clearing the confirmation token and timestamp.</li>
+     *     <li>Logs the operation and clears the ThreadContext to ensure no residual data remains.</li>
+     * </ul>
+     * </p>
+     *
+     * @param token the confirmation token used to validate and confirm the user's registration.
+     * @throws InputValidationException if the provided token is null or empty.
+     * @throws UserNotFoundException if no user is found for the provided confirmation token.
+     */
+
+    @Transactional
+    public void confirmUser(String token) throws InputValidationException, UserNotFoundException {
+        if(token == null || token.isEmpty()){
+            LOGGER.warn("Attempt to confirm user with empty token");
+            throw new InputValidationException("Invalid token");
+        }
+        UserEntity userEntity = userDao.findUserByConfirmationToken(token);
+        if (userEntity == null) {
+            throw new UserNotFoundException("Attempt to confirm user with invalid token");
+        }
+        if (userEntity.getConfirmationTokenTimestamp().isBefore(Instant.now().minus(GlobalSettings.CONFIRMATION_TOKEN_EXPIRATION_TIME_H, ChronoUnit.HOURS))) {
+            LOGGER.warn("Attempt to confirm user with expired token");
+            throw new InputValidationException("Token expired - expiration time is " + GlobalSettings.CONFIRMATION_TOKEN_EXPIRATION_TIME_H + " hours");
+        }
+        ThreadContext.put("userId", String.valueOf(userEntity.getId()));
+        ThreadContext.put("username", userEntity.getUsername());
         try {
-            ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-            UserEntity userEntity = userDao.findUserByConfirmationToken(token);
-            if (userEntity != null) {
-                ThreadContext.put("author", userEntity.getUsername());
-                userEntity.setConfirmed(true);
-                userEntity.setConfirmationToken(null);
-                userEntity.setConfirmationTokenTimestamp(null);
-                LOGGER.info("Confirmed user");
-            } else {
-                LOGGER.warn("Attempt to confirm user with invalid token");
-                throw new UserConfirmationException("Invalid token");
-            }
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to retrieve host address", e);
+            userEntity.setConfirmed(true);
+            userEntity.setConfirmationToken(null);
+            userEntity.setConfirmationTokenTimestamp(null);
+            LOGGER.info("User confirmed successfully");
+        } catch (NoResultException e) {
+            LOGGER.error("Error while confirming user at: " + e.getMessage());
+            throw new UserNotFoundException("Error while confirming user");
         } finally {
-            // Clear MDC after logging
             ThreadContext.clearMap();
         }
     }
 
-    public void requestPasswordReset(PasswordRequestResetDto passwordRequestResetDto) throws InvalidPasswordRequestException {
+    /**
+     * Requests a password reset for a user identified by the provided email.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Validates the email to ensure the user exists.</li>
+     *     <li>Checks if a password reset request was made recently.</li>
+     *     <li>Generates a new password reset token and sets a timestamp to prevent immediate subsequent requests.</li>
+     *     <li>Sends a password reset email to the user with the reset token.</li>
+     *     <li>Logs the operation and clears the ThreadContext to ensure no residual data remains.</li>
+     * </ul>
+     * </p>
+     *
+     * @param passwordRequestResetDto the data transfer object containing the user's email for the password reset request.
+     * @throws UserNotFoundException if no user is found for the provided email.
+     * @throws IllegalStateException if a password reset request has been made recently.
+     */
+    @Transactional
+    public void requestPasswordReset(PasswordRequestResetDto passwordRequestResetDto) throws UserNotFoundException, ForbiddenAccessException {
+        UserEntity user = userDao.findUserByEmail(passwordRequestResetDto.getEmail());
+        if (user == null) {
+            throw new UserNotFoundException("Attempt to reset password with invalid credentials!");
+        }
+        if (user.getResetPasswordTimestamp() != null && user.getResetPasswordTimestamp().isAfter(Instant.now())) {
+            throw new ForbiddenAccessException("You can only make a password reset request every " + GlobalSettings.PASSWORD_RESET_PREVENT_TIMER_MIN + " minutes");
+        }
         try {
-            // Set MDC properties
-            ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-            UserEntity user = userDao.findUserByEmail(passwordRequestResetDto.getEmail());
-            if (user == null) {
-                LOGGER.warn("Attempt to reset password with invalid credentials!");
-                throw new InvalidPasswordRequestException("Invalid credentials");
-            }
-            ThreadContext.put("author", user.getUsername());
-            if (isResetTokenNotExpired(user)) {
-                LOGGER.warn("Attempt to reset password with token not expired");
-                throw new InvalidPasswordRequestException("Request password reset done, please check your email or contact the system administrator");
-            }
+            ThreadContext.put("username", user.getUsername());
+            ThreadContext.put("userId", String.valueOf(user.getId()));
+
             String resetToken = sessionBean.generateNewToken();
             user.setResetPasswordToken(resetToken);
-            user.setResetPasswordTimestamp(Instant.now().plus(30, ChronoUnit.MINUTES));
+            user.setResetPasswordTimestamp(Instant.now().plus(GlobalSettings.PASSWORD_RESET_PREVENT_TIMER_MIN, ChronoUnit.MINUTES));
             emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
-            LOGGER.info("Request password reset done");
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to retrieve host address", e);
+            LOGGER.info("Request password reset done for email: " + user.getEmail());
+
         } finally {
-            // Clear MDC after logging
             ThreadContext.clearMap();
         }
     }
 
+    /**
+     * Service responsible for requesting the resend of a registration confirmation email.
+     * This method checks if the user exists, if they have already been confirmed, and if they are not
+     * requesting confirmation emails too frequently before sending a new confirmation email.
+     *
+     * @param email the DTO containing the email of the user requesting the resend of the confirmation email.
+     * @throws InvalidRequestOnRegistConfirmationException if the user is not found,
+     *         has already been confirmed, or is requesting confirmation emails
+     *         at intervals shorter than allowed.
+     * @throws UnknownHostException if there is an error resolving the host when sending the email.
+     */
+    @Transactional
     public void requestNewConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException, UnknownHostException {
-        // Set MDC properties
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", email.getEmail());
         UserEntity user = userDao.findUserByEmail(email.getEmail());
         if (user == null) {
-            LOGGER.warn("Attempt to request new confirmation email with user not found");
-            throw new InvalidRequestOnRegistConfirmationException("Not found user with this email");
+            throw new InvalidRequestOnRegistConfirmationException("Attempt to request new confirmation email with user not found");
         }
         if (user.isConfirmed()) {
-            LOGGER.warn("Attempt to request new confirmation email with user already confirmed");
-            throw new InvalidRequestOnRegistConfirmationException("Not possible to request confirmation email please contact the administrator");
+            throw new InvalidRequestOnRegistConfirmationException("Attempt to request new confirmation email with user already confirmed");
         }
         if (user.getLastSentEmailTimestamp() != null) {
             Instant now = Instant.now();
             Instant lastSentEmail = user.getLastSentEmailTimestamp();
             long timeDifference = ChronoUnit.MINUTES.between(lastSentEmail, now);
-            if (timeDifference < 1) {
-                LOGGER.warn("Attempt to request new confirmation email with time difference less than 1 minute");
-                throw new InvalidRequestOnRegistConfirmationException("You can't request a new confirmation email now, please wait 1 minute");
+            if (timeDifference < GlobalSettings.CONFIRMATION_EMAIL_PREVENT_TIMER_MIN) {
+                throw new InvalidRequestOnRegistConfirmationException("You can't request a new confirmation email now, please wait " + (GlobalSettings.CONFIRMATION_EMAIL_PREVENT_TIMER_MIN - timeDifference) + " minute/s");
             }
         }
-        emailService.sendConfirmationEmail(user.getEmail(), user.getConfirmationToken());
-        user.setLastSentEmailTimestamp(Instant.now());
-        LOGGER.info("Request new confirmation email");
-        // Clear MDC after logging
-        ThreadContext.clearMap();
+        try{
+            ThreadContext.put("username", user.getUsername());
+            ThreadContext.put("userId", String.valueOf(user.getId()));
+
+            emailService.sendConfirmationEmail(user.getEmail(), user.getConfirmationToken());
+            user.setLastSentEmailTimestamp(Instant.now());
+            LOGGER.info("Request new confirmation email");
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
     private boolean isResetTokenNotExpired(UserEntity user) {
         return user.getResetPasswordTimestamp() != null && user.getResetPasswordTimestamp().isAfter(Instant.now());
     }
 
-    public void resetPassword(PasswordResetDto passwordResetDto) throws InvalidPasswordRequestException {
+    public void resetPassword(PasswordResetDto passwordResetDto) throws IllegalStateException {
         try {
-            // Set MDC properties
-            ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
             UserEntity user = userDao.findUserByResetPasswordToken(passwordResetDto.getResetToken());
             if (user == null) {
                 LOGGER.warn("Attempt to reset password with invalid token");
-                throw new InvalidPasswordRequestException("Invalid token");
+                throw new IllegalStateException("Invalid token");
             }
-            ThreadContext.put("author", user.getUsername());
             if (!isResetTokenNotExpired(user)) {
                 LOGGER.warn("Attempt to reset password with expired token");
-                throw new InvalidPasswordRequestException("Token expired");
+                throw new IllegalStateException("Token expired");
             }
-            String encryptedPassword = passEncoder.encode(passwordResetDto.getNewPassword());
-            user.setPassword(encryptedPassword);
+            user.setPassword(passEncoder.encode(passwordResetDto.getNewPassword()));
             user.setResetPasswordToken(null);
             user.setResetPasswordTimestamp(null);
             LOGGER.info("Reset password");
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to retrieve host address", e);
         } finally {
-            // Clear MDC after logging
             ThreadContext.clearMap();
         }
     }
 
-    public Response login(UserLoginDto userLogin) throws InvalidCredentialsException, UnknownHostException {
-        // Set MDC properties
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", userLogin.getEmail());
+    public Response login(UserLoginDto userLogin) throws InvalidCredentialsException {
+        try{
         UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
         if (userEntity == null || !passEncoder.matches(userLogin.getPassword(), userEntity.getPassword())) {
             LOGGER.warn("Failed login attempt");
@@ -222,10 +287,14 @@ public class UserBean implements Serializable {
         String sessionToken = sessionBean.generateJwtToken(userEntity, definedTimeOut, "session");
         NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
         sessionDao.persist(new SessionEntity(authToken, sessionToken, expirationInstant, userEntity));
-        LOGGER.error("Successful login");
-        // Clear MDC after logging
+
+        LOGGER.info("Successful login for username " + userEntity.getUsername() + " user id " + userEntity.getId());
         ThreadContext.clearMap();
+
         return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
     public void logout(SecurityContext securityContext) {
@@ -235,7 +304,6 @@ public class UserBean implements Serializable {
 
     public List<UsernameDto> getAllRegUsers() {
         try {
-            ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
             ArrayList<UserEntity> userEntities = userDao.findAllUsers();
             if (userEntities != null && !userEntities.isEmpty()) {
                 ArrayList<UsernameDto> usernameDtos = new ArrayList<>();
@@ -250,34 +318,34 @@ public class UserBean implements Serializable {
                 LOGGER.warn("No users found");
                 return Collections.emptyList(); // Return empty list when no users found
             }
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to retrieve host address", e);
         } finally {
             ThreadContext.clearMap();
         }
     }
 
     public void updateUserProfile(@Context SecurityContext securityContext, UserUpdateDto updatedUser) throws UserNotFoundException, UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-        if (userEntity == null) {
-            LOGGER.warn("Attempt to update user with invalid token");
-            throw new UserNotFoundException("User not found");
+        try {
+            AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+            UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+            if (userEntity == null) {
+                LOGGER.warn("Attempt to update user with invalid token");
+                throw new UserNotFoundException("User not found");
+            }
+            ThreadContext.put("author", userEntity.getUsername());
+            if (updatedUser.getFirstName() != null) userEntity.setFirstName(updatedUser.getFirstName());
+            if (updatedUser.getLastName() != null) userEntity.setLastName(updatedUser.getLastName());
+            if (updatedUser.getPhoto() != null) userEntity.setPhoto(updatedUser.getPhoto());
+            if (updatedUser.getBiography() != null) userEntity.setBiography(updatedUser.getBiography());
+            LaboratoryEntity laboratory = labDao.findLaboratoryById(updatedUser.getLaboratoryId());
+            if (laboratory != null) {
+                userEntity.setLaboratory(laboratory);
+            }
+            userEntity.setPrivate(updatedUser.isPrivate());
+            userDao.merge(userEntity);
+            LOGGER.info("User profile updated");
+        } finally {
+            ThreadContext.clearMap();
         }
-        ThreadContext.put("author", userEntity.getUsername());
-        if (updatedUser.getFirstName() != null) userEntity.setFirstName(updatedUser.getFirstName());
-        if (updatedUser.getLastName() != null) userEntity.setLastName(updatedUser.getLastName());
-        if (updatedUser.getPhoto() != null) userEntity.setPhoto(updatedUser.getPhoto());
-        if (updatedUser.getBiography() != null) userEntity.setBiography(updatedUser.getBiography());
-        LaboratoryEntity laboratory = labDao.findLaboratoryById(updatedUser.getLaboratoryId());
-        if (laboratory != null) {
-            userEntity.setLaboratory(laboratory);
-        }
-        userEntity.setPrivate(updatedUser.isPrivate());
-        userDao.merge(userEntity);
-        LOGGER.info("User profile updated");
-        ThreadContext.clearMap();
     }
 
     public UserBasicInfoDto getUserBasicInfo(@Context SecurityContext securityContext) throws UserNotFoundException {
@@ -310,7 +378,7 @@ public class UserBean implements Serializable {
         return convertUserEntitytoUserProfileDto(userEntity);
     }
 
-    public void updatePassword(PasswordUpdateDto passwordUpdateDto, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException, UserNotFoundException {
+    public void updatePassword(PasswordUpdateDto passwordUpdateDto, @Context SecurityContext securityContext) throws IllegalStateException, UnknownHostException, UserNotFoundException {
         ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
@@ -320,7 +388,7 @@ public class UserBean implements Serializable {
         ThreadContext.put("author", userEntity.getUsername());
         if (!oldPasswordConfirmation(userEntity, passwordUpdateDto)) {
             LOGGER.warn("Attempt to update password with invalid old password or repeated new password");
-            throw new InvalidPasswordRequestException("Invalid old password or repeated new password");
+            throw new IllegalStateException("Invalid old password or repeated new password");
         }
         String encryptedNewPassword = passEncoder.encode(passwordUpdateDto.getNewPassword());
         userEntity.setPassword(encryptedNewPassword);

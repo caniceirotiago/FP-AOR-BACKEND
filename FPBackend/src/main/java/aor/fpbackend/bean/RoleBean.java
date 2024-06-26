@@ -24,7 +24,7 @@ public class RoleBean implements Serializable {
     MethodDao methodDao;
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LogManager.getLogger(RoleBean.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(RoleBean.class);
 
     public void createRoleIfNotExists(UserRoleEnum name) {
         if (!roleDao.checkRoleExist(name)) {

@@ -26,14 +26,14 @@ public class UserService {
     @Path("/register")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public void registerUser(@Valid UserRegisterDto user) throws InvalidCredentialsException, UnknownHostException {
+    public void registerUser(@Valid UserRegisterDto user) throws InvalidCredentialsException, UnknownHostException, EntityNotFoundException {
         userBean.register(user);
     }
 
     @PUT
     @Path("/confirm")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void confirmRegistration(@QueryParam("token") String token) throws UserConfirmationException {
+    public void confirmRegistration(@QueryParam("token") String token) throws InputValidationException, UserNotFoundException {
         userBean.confirmUser(token);
     }
     @POST
@@ -46,14 +46,14 @@ public class UserService {
     @PUT
     @Path("/request/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void requestPasswordReset(@Valid PasswordRequestResetDto passwordRequestResetDto) throws InvalidPasswordRequestException {
+    public void requestPasswordReset(@Valid PasswordRequestResetDto passwordRequestResetDto) throws UserNotFoundException, ForbiddenAccessException {
         userBean.requestPasswordReset(passwordRequestResetDto);
     }
 
     @PUT
     @Path("/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void resetPassword(@Valid PasswordResetDto passwordResetDto) throws InvalidPasswordRequestException {
+    public void resetPassword(@Valid PasswordResetDto passwordResetDto) {
         userBean.resetPassword(passwordResetDto);
     }
 
@@ -138,7 +138,7 @@ public class UserService {
     @Path("/password")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws InvalidPasswordRequestException, UnknownHostException, UserNotFoundException {
+    public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws  UnknownHostException, UserNotFoundException {
         userBean.updatePassword(updatedPassword, securityContext);
     }
 

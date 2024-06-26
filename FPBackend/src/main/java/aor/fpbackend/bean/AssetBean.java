@@ -37,7 +37,7 @@ public class AssetBean implements Serializable {
     ProjectAssetDao projectAssetDao;
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LogManager.getLogger(AssetBean.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(AssetBean.class);
 
 
     public void createAsset(AssetCreateDto assetCreateDto, SecurityContext securityContext) throws DuplicatedAttributeException, UserNotFoundException, UnknownHostException {

@@ -3,12 +3,12 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout
-             pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %X{author} %X{ip} %highlight{%level}{FATAL=bg_red, ERROR=red, WARN=yellow, INFO=green, DEBUG=blue} - %msg%n"/>
+                pattern="%highlight{%level}{FATAL=bg_red, ERROR=red, WARN=yellow, INFO=green, DEBUG=blue} - %d{yyyy-MM-dd HH:mm:ss.SSS} thread=[%t] access=%X{access} userId=%X{userId} username=%X{username} sessionId= %X{sessionId} ip=%X{ip} message=%msg%n"/>
         </Console>
         <RollingFile name="RollingFileAppender" fileName="innovation_lab.log"
-                     filePattern="logs/${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+                     filePattern="logs/${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz" append="true">
             <PatternLayout
-                    pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %X{author} %X{ip} %highlight{%level}{FATAL=bg_red, ERROR=red, WARN=yellow, INFO=green, DEBUG=blue} - %msg%n"/>
+                 pattern="timestamp=%d{yyyy-MM-dd HH:mm:ss.SSS} level=%level thread=[%t] access=%X{access} userId=%X{userId} username=%X{username} sessionId= %X{sessionId} ip=%X{ip} message=%msg%n"/>
             <Policies>
                 <OnStartupTriggeringPolicy/>
                 <TimeBasedTriggeringPolicy/>

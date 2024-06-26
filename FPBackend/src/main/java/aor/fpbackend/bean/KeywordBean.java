@@ -29,7 +29,7 @@ public class KeywordBean implements Serializable {
     ProjectDao projectDao;
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = LogManager.getLogger(KeywordBean.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(KeywordBean.class);
 
     @Transactional
     public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException {

@@ -23,6 +23,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import aor.fpbackend.bean.UserBean;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -51,24 +54,34 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     private SessionBean sessionBean;
 
 
+
     @Override
     public void filter(ContainerRequestContext requestContext) {
         String path = requestContext.getUriInfo().getPath();
-        if (isPublicEndpoint(path)) {
-            return;
-        }
-        String token = extractTokenFromCookieHeader(request.getHeader("Cookie"));
+        String ip = request.getRemoteAddr();
 
-        if (token == null) {
-            abortUnauthorized(requestContext);
-            return;
-        }
+        // Set up ThreadContext for all requests for logs
+
         try {
+            if (isPublicEndpoint(path)) {
+                setupThreadContext("unknown", ip, "public", "unknown", "unknown");
+                return;
+            }
+            String token = extractTokenFromCookieHeader(request.getHeader("Cookie"));
+
+            if (token == null) {
+                abortUnauthorized(requestContext);
+                return;
+            }
+
             AuthUserDto authUserDto = sessionBean.validateAuthTokenAndGetUserDetails(token);
             if (authUserDto == null) {
                 abortUnauthorized(requestContext);
                 return;
             }
+
+            // Update ThreadContext with authenticated user details
+            setupThreadContext(String.valueOf(authUserDto.getUserId()), ip, "authenticated", authUserDto.getSessionId().toString(), authUserDto.getUsername());
 
             //Adding new token to cookie if the token is about to expire
             Instant now = Instant.now();
@@ -103,6 +116,17 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             requestContext.abortWith(response);
         }
     }
+    private void setupThreadContext(String userId,  String ip, String access, String sessionId, String username) {
+        ThreadContext.put("userId", userId);
+        ThreadContext.put("username", username);
+        ThreadContext.put("ip", ip);
+        ThreadContext.put("access", access);
+        ThreadContext.put("sessionId", sessionId);
+    }
+
+    private void clearThreadContext() {
+        ThreadContext.clearMap();
+    }
 
     private boolean isPublicEndpoint(String path) {
         return path.endsWith("/login")
@@ -110,7 +134,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 || path.endsWith("/individual/message/filter") //temporário
                 || path.endsWith("/register")
                 || path.contains("/confirm")
-                || path.contains("/request")
+                || path.contains("/request/password/reset")
+                || path.contains("/request/confirmation/email")
                 || path.contains("/accept/project")
                 || path.contains("/password/reset")
                 || path.contains("/labs")

@@ -9,6 +9,8 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.transaction.Transactional;
+import org.apache.logging.log4j.LogManager;
+
 import java.io.Serializable;
 
 
@@ -27,6 +29,8 @@ public class StartupBean implements Serializable {
     ConfigurationBean configBean;
     @EJB
     MethodBean methodBean;
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(StartupBean.class);
+
 
 
     @PostConstruct

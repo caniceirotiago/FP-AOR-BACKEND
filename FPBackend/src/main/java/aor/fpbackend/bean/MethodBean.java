@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Stateless
 public class MethodBean implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LogManager.getLogger(MethodBean.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(MethodBean.class);
     @EJB
     MethodDao methodDao;
 
