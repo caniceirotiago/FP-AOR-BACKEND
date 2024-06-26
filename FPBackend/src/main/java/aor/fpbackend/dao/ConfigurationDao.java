@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import aor.fpbackend.entity.ConfigurationEntity;
+import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 
@@ -58,5 +59,11 @@ public class ConfigurationDao extends AbstractDao<ConfigurationEntity> {
                 .getResultList();
     }
 
+    public int getMaxProjectMembers() {
+        String configKey = "maxProjectMembers";
+        TypedQuery<Integer> query = em.createNamedQuery("Configuration.findConfigValueByConfigKey", Integer.class);
+        query.setParameter("configKey", configKey);
+        return query.getSingleResult();
+    }
 
 }
