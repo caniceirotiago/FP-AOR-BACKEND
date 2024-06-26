@@ -16,6 +16,26 @@ import java.util.Set;
 @NamedQuery(name = "Project.findProjectByName", query = "SELECT p FROM ProjectEntity p WHERE LOWER(p.name) = LOWER(:name)")
 @NamedQuery(name = "Project.findAllProjects", query = "SELECT p FROM ProjectEntity p")
 @NamedQuery(name = "Project.getAllProjectsIds", query = "SELECT p.id FROM ProjectEntity p")
+@NamedQuery(name = "Project.countProjectsByLaboratory",
+        query = "SELECT p.laboratory.location, COUNT(p) FROM ProjectEntity p GROUP BY p.laboratory.location")
+@NamedQuery(name = "Project.averageMembersPerProject",
+        query = "SELECT AVG((SELECT COUNT(m) FROM ProjectMembershipEntity m WHERE m.project.id = p.id)) FROM ProjectEntity p")
+@NamedQuery(name = "Project.approvedProjectsByLocation", query = "SELECT p.laboratory.location, COUNT(p), (COUNT(p) * 1.0 / (SELECT COUNT(p1) FROM ProjectEntity p1 WHERE p1.isApproved = true)) * 100.0 FROM ProjectEntity p WHERE p.isApproved = true GROUP BY p.laboratory.location")
+@NamedQuery(name = "Project.completedProjectsByLocation", query = "SELECT p.laboratory.location, COUNT(p), (COUNT(p) * 1.0 / (SELECT COUNT(p1) FROM ProjectEntity p1 WHERE p1.state = 'COMPLETED')) * 100.0 FROM ProjectEntity p WHERE p.state = 'COMPLETED' GROUP BY p.laboratory.location")
+@NamedQuery(name = "Project.canceledProjectsByLocation", query = "SELECT p.laboratory.location, COUNT(p), (COUNT(p) * 1.0 / (SELECT COUNT(p1) FROM ProjectEntity p1 WHERE p1.state = 'CANCELED')) * 100.0 FROM ProjectEntity p WHERE p.state = 'CANCELED' GROUP BY p.laboratory.location")
+@NamedQuery(
+        name = "Project.averageProjectDuration",
+        query = "SELECT AVG(FUNCTION('DATEDIFF', p.conclusionDate, p.initialDate)) FROM ProjectEntity p WHERE p.initialDate IS NOT NULL AND p.conclusionDate IS NOT NULL"
+)
+
+
+
+
+
+
+
+
+
 public class ProjectEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

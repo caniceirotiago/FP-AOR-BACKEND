@@ -100,31 +100,6 @@ public class TaskBean implements Serializable {
         notificationBean.createNotificationMarkesAsResponsibleInNewTask(taskResponsible, taskEntity);
     }
 
-//    @Transactional
-//    public void addUserTask(TaskAddUserDto taskAddUserDto) throws EntityNotFoundException {
-//        TaskEntity taskEntity = taskDao.findTaskById(taskAddUserDto.getTaskId());
-//        if (taskEntity == null) {
-//            throw new EntityNotFoundException("Task not found");
-//        }
-//        // Fetch registered executors by their IDs
-//        Set<UserEntity> registeredExecutors = taskEntity.getRegisteredExecutors();
-//        UserEntity registeredExecutor = userDao.findUserById(taskAddUserDto.getExecutorId());
-//        if (registeredExecutor == null) {
-//            throw new EntityNotFoundException("Registered executor not found");
-//        }
-//        if (!registeredExecutors.contains(registeredExecutor)) {
-//            registeredExecutors.add(registeredExecutor);
-//            registeredExecutor.getTasksAsExecutor().add(taskEntity); // Update the other side of the relation
-//            notificationBean.createNotificationMarkesAsExecutorInNewTask(registeredExecutor, taskEntity);
-//        } else {
-//            // Handle duplicate entry scenario
-//        }
-//        // Add additional executors (non-registered)
-//        if (taskAddUserDto.getNonRegisteredExecutors() != null) {
-//            taskEntity.setAdditionalExecutors(taskAddUserDto.getNonRegisteredExecutors());
-//        }
-//    }
-
     @Transactional
     public void addDependencyTask(TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
         TaskEntity mainTaskEntity = taskDao.findTaskById(addDependencyDto.getMainTaskId());

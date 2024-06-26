@@ -3,6 +3,7 @@ package aor.fpbackend.dao;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.QueryParams;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
@@ -25,6 +26,9 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
 
     @PersistenceContext
     private EntityManager em;
+
+    @EJB
+    ConfigurationDao configDao;
 
 
     public boolean checkProjectNameExist(String name) {
@@ -107,7 +111,7 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
                     Subquery<Long> subquery = query.subquery(Long.class);
                     Root<ProjectMembershipEntity> subRoot = subquery.from(ProjectMembershipEntity.class);
                     subquery.select(cb.count(subRoot.get("id"))).where(cb.equal(subRoot.get("project"), projectRoot));
-                    Expression<Integer> maxMembersExpr = cb.literal(getMaxProjectMembers());
+                    Expression<Integer> maxMembersExpr = cb.literal(configDao.getMaxProjectMembers());
                     Expression<Long> currentMembersExpr = cb.coalesce(subquery.getSelection(), 0L);
                     Expression<Integer> openPositionsExpr = cb.diff(maxMembersExpr, currentMembersExpr.as(Integer.class));
                     order = QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(openPositionsExpr) : cb.asc(openPositionsExpr);
@@ -188,11 +192,14 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         return predicates;
     }
 
-    private int getMaxProjectMembers() {
-        String configKey = "maxProjectMembers";
-        TypedQuery<Integer> query = em.createNamedQuery("Configuration.findConfigValueByConfigKey", Integer.class);
-        query.setParameter("configKey", configKey);
-        return query.getSingleResult();
+    public List<Object[]> countProjectsByLaboratory() {
+        TypedQuery<Object[]> query = em.createNamedQuery("Project.countProjectsByLaboratory", Object[].class);
+        return query.getResultList();
+    }
+
+    public Double getAverageMembersPerProject() {
+        Query query = em.createNamedQuery("Project.averageMembersPerProject");
+        return (Double) query.getSingleResult();
     }
 
 
