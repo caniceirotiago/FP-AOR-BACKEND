@@ -116,9 +116,7 @@ public class GroupMessageWebSocket {
                         if (groupSession.isOpen() && groupSession.getUserProperties().get("projectId").equals(savedGroupMessageGetDto.getGroupId())) {
                             groupSession.getBasicRemote().sendText(jsonResponse);
                             for (UserEntity projectMember : projectMembers) {
-                                System.out.println("Project member: " + projectMember.getId() + " User id: " + groupSession.getUserProperties().get("userId"));
-                                if (projectMember.getId() == (long)groupSession.getUserProperties().get("userId")) {
-                                    System.out.println("Removing project member from list");
+                                if (projectMember.getId() == (long) groupSession.getUserProperties().get("userId")) {
                                     projectMembers.remove(projectMember);
                                 }
                             }
@@ -127,8 +125,7 @@ public class GroupMessageWebSocket {
                 } else {
                     System.out.println("Group session is null or closed");
                 }
-                if(projectMembers != null || !projectMembers.isEmpty()) {
-                    System.out.println("Creating notification for group message");
+                if (projectMembers != null || !projectMembers.isEmpty()) {
                     notificationBean.createNotificationForGroupMessage(savedGroupMessage, projectMembers);
                 }
             }

@@ -56,6 +56,7 @@ public class AssetBean implements Serializable {
                 assetCreateDto.getPartNumber(), assetCreateDto.getManufacturer(), assetCreateDto.getManufacturerPhone(), assetCreateDto.getObservations());
         assetDao.persist(assetEntity);
         LOGGER.info("Asset created successfully");
+        ThreadContext.clearMap();
     }
 
     @Transactional
@@ -185,7 +186,7 @@ public class AssetBean implements Serializable {
         assetEntity.setProjectAssets(assetProjects);
     }
 
-    public void updateAsset(AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
+    public void updateAsset(AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException, UnknownHostException {
         // Find existing Asset
         AssetEntity assetEntity = assetDao.findAssetById(assetUpdateDto.getId());
         if (assetEntity == null) {
@@ -206,6 +207,10 @@ public class AssetBean implements Serializable {
         assetEntity.setManufacturer(assetUpdateDto.getManufacturer());
         assetEntity.setManufacturerPhone(assetUpdateDto.getManufacturerPhone());
         assetEntity.setObservations(assetUpdateDto.getObservations());
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+        ThreadContext.put("author", assetUpdateDto.getName());
+        LOGGER.info("Asset updated successfully");
+        ThreadContext.clearMap();
     }
 
     public AssetGetDto convertAssetEntityToAssetDto(AssetEntity assetEntity) {

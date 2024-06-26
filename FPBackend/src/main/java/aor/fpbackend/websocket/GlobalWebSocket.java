@@ -39,14 +39,12 @@ public class GlobalWebSocket {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken) {
-        System.out.println("Global WebSocket connection opened");
         try {
             AuthUserDto user = sessionBean.validateSessionTokenAndGetUserDetails(sessionToken);
             if (user != null) {
                 session.getUserProperties().put("userId", user.getUserId());
                 session.getUserProperties().put("token", sessionToken);
                 sessions.computeIfAbsent(user.getUserId(), k -> new CopyOnWriteArrayList<>()).add(session);
-                System.out.println("Chat WebSocket connection opened for user: " + user.getUserId());
             } else {
                 session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized"));
             }
@@ -70,7 +68,6 @@ public class GlobalWebSocket {
                 sessions.remove(userId);
             }
         }
-        System.out.println("Chat WebSocket connection closed for user: " + userId + ", session token: " + sessionToken);
     }
 
     @OnMessage
@@ -101,7 +98,6 @@ public class GlobalWebSocket {
                 try {
                     String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.FORCED_LOGOUT.toString(), null));
                     session.getBasicRemote().sendText(jsonResponse);
-                    System.out.println("Logout message sent to session token: " + sessionToken);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -109,29 +105,22 @@ public class GlobalWebSocket {
                 // Se a sessão não estiver aberta ou não for encontrada, desativar sessão
                 sessionEntity.setActive(false);
                 sessionDao.merge(sessionEntity);
-                System.out.println("Session token not found or closed: " + sessionToken);
             }
         } else {
             // Se não houver sessões para o usuário, desativar sessão
             sessionEntity.setActive(false);
             sessionDao.merge(sessionEntity);
-            System.out.println("No active sessions found for user id: " + userId);
         }
     }
 
 
     public static void tryToSendNotificationToUserSessions(NotificationGetDto notification) {
-        System.out.println("Sending notification to user sessions");
         Long userId = notification.getUser().getId();
-        System.out.println("User id: " + userId);
-        System.out.println("Current sessions: " + sessions);
         List<Session> userSessions = sessions.get(userId);
         if (userSessions != null) {
-            System.out.println("User sessions found: " + userSessions.size());
             for (Session session : userSessions) {
                 if (session.isOpen()) {
                     try {
-                        System.out.println("Sending notification to session: " + session.getId());
                         session.getBasicRemote().sendText(gson.toJson(new WebSocketMessageDto(WebSocketMessageType.RECEIVED_NOTIFICATION.toString(), notification)));
                     } catch (IOException e) {
                         e.printStackTrace();

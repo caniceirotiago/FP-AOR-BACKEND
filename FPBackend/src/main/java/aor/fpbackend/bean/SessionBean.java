@@ -16,8 +16,10 @@ import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.Key;
 import java.security.SecureRandom;
@@ -42,7 +44,8 @@ public class SessionBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SessionBean.class);
 
     @Schedule(hour = "*", minute = "*/1", persistent = false)
-    public void cleanupExpiredTokens() {
+    public void cleanupExpiredTokens() throws UnknownHostException {
+        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
         List<SessionEntity> sessions = sessionDao.findSessionsExpiringInThreeMinutes();
         Instant now = Instant.now();
 
@@ -63,6 +66,7 @@ public class SessionBean implements Serializable {
                 }
             }
         }
+        ThreadContext.clearMap();
     }
 
     public String generateJwtToken(UserEntity user, long expirationTime, String tokenType) {

@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
+import java.net.UnknownHostException;
 import java.util.*;
 
 @Stateless
@@ -41,7 +42,7 @@ public class MembershipBean implements Serializable {
     NotificationBean notificationBean;
 
 
-    public void askToJoinProject(long projectId, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException {
+    public void askToJoinProject(long projectId, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
@@ -78,7 +79,7 @@ public class MembershipBean implements Serializable {
         }
     }
 
-    public void confirmAskToJoinProjectInvite(String token, boolean approve, String approverUsername) throws EntityNotFoundException, UserNotFoundException, UnauthorizedAccessException {
+    public void confirmAskToJoinProjectInvite(String token, boolean approve, String approverUsername) throws EntityNotFoundException, UserNotFoundException, UnauthorizedAccessException, UnknownHostException {
         ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
         if (membershipEntity == null) {
             throw new EntityNotFoundException("Project membership not found");
@@ -104,13 +105,13 @@ public class MembershipBean implements Serializable {
         }
     }
 
-    public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) {
+    public void sendInviteToUser(ProjectMembershipEntity membershipEntity, UserEntity user, ProjectEntity projectEntity) throws UnknownHostException {
         emailService.sendInvitationToProjectEmail(user.getEmail(), membershipEntity.getAcceptanceToken(), projectEntity.getName());
         notificationBean.createNotificationForProjectInviteFromAProjectManagerToUser(membershipEntity);
     }
 
     @Transactional
-    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, UserEntity authUser) throws EntityNotFoundException, UserNotFoundException, InputValidationException {
+    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, UserEntity authUser) throws EntityNotFoundException, UserNotFoundException, InputValidationException, UnknownHostException {
         // Find the project by Id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
@@ -157,7 +158,7 @@ public class MembershipBean implements Serializable {
         }
     }
 
-    public void acceptProjectInvite(String token, boolean approve) throws EntityNotFoundException {
+    public void acceptProjectInvite(String token, boolean approve) throws EntityNotFoundException, UnknownHostException {
         ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
         if (membershipEntity == null) {
             throw new EntityNotFoundException("Project membership not found");
@@ -177,7 +178,7 @@ public class MembershipBean implements Serializable {
     }
 
     @Transactional
-    public void removeUserFromProject(String username, long projectId, SecurityContext securityContext) throws EntityNotFoundException {
+    public void removeUserFromProject(String username, long projectId, SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         // Find the project by Id
@@ -224,7 +225,6 @@ public class MembershipBean implements Serializable {
 
     public List<UserBasicInfoDto> getUsersBasicInfoByFirstLetter(String firstLetter, long projectId) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
-            LOGGER.error("Invalid first letter: " + firstLetter);
             return new ArrayList<>();
         }
         String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
