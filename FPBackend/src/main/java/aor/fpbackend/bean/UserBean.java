@@ -289,6 +289,10 @@ public class UserBean implements Serializable {
         return convertUserEntitytoUserBasicInfoDto(userEntity);
     }
 
+    public List<UserBasicInfoDto> getUsersListBasicInfo() {
+        return convertUserEntityListToUserBasicInfoDtoList(userDao.findAllUsers());
+    }
+
     public List<UserBasicInfoDto> getUsersBasicInfoByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
             return new ArrayList<>();
@@ -344,7 +348,7 @@ public class UserBean implements Serializable {
             throw new InvalidCredentialsException("User not found with this username");
         }
         ThreadContext.put("author", userEntity.getUsername());
-        RoleEntity newRole = roleDao.findRoleByName(userUpdateRoleDto.getRole());
+        RoleEntity newRole = roleDao.findRoleById(userUpdateRoleDto.getRoleId());
         if (newRole == null) {
             throw new EntityNotFoundException("Role not found with this Id");
         }
@@ -418,14 +422,5 @@ public class UserBean implements Serializable {
             userBasicInfoDtos.add(userBasicInfoDto);
         }
         return userBasicInfoDtos;
-    }
-
-    public UserBasicInfoDto convertUserEntetyToUserBasicInfoDto(UserEntity userEntity) {
-        UserBasicInfoDto userBasicInfoDto = new UserBasicInfoDto();
-        userBasicInfoDto.setId(userEntity.getId());
-        userBasicInfoDto.setUsername(userEntity.getUsername());
-        userBasicInfoDto.setRole(userEntity.getRole().getId());
-        userBasicInfoDto.setPhoto(userEntity.getPhoto());
-        return userBasicInfoDto;
     }
 }

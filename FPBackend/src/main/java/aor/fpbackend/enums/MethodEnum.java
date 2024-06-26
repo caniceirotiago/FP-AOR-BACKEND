@@ -40,7 +40,8 @@ public enum MethodEnum {
     ASSET_REMOVE(37L),
     GET_NOTIFICATIONS(38L),
     MARK_NOTIFICATIONS_AS_READ(39L),
-    UPDATE_CONFIG(40L);
+    UPDATE_CONFIG(40L),
+    USERS_BASIC_INFO(41L);
 
 
     private final long value;

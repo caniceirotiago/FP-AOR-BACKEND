@@ -20,16 +20,16 @@ public class UserUpdateRoleDto implements Serializable {
 
     @XmlElement
     @NotNull
-    @Enumerated
-    private UserRoleEnum role;
+    @Min(value = 1, message = "Role Id must be greater than 0")
+    private long roleId;
 
 
     public UserUpdateRoleDto() {
     }
 
-    public UserUpdateRoleDto(long userId, UserRoleEnum role) {
+    public UserUpdateRoleDto(long userId, long roleId) {
         this.userId = userId;
-        this.role = role;
+        this.roleId = roleId;
     }
 
     public long getUserId() {
@@ -40,11 +40,11 @@ public class UserUpdateRoleDto implements Serializable {
         this.userId = userId;
     }
 
-    public UserRoleEnum getRole() {
-        return role;
+    public long getRoleId() {
+        return roleId;
     }
 
-    public void setRole(UserRoleEnum role) {
-        this.role = role;
+    public void setRoleId(long roleId) {
+        this.roleId = roleId;
     }
 }

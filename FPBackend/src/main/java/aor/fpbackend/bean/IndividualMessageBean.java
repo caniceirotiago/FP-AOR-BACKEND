@@ -100,8 +100,8 @@ public class IndividualMessageBean {
     public IndividualMessageGetDto convertToDto(IndividualMessageEntity individualMessageEntity) {
         IndividualMessageGetDto individualMessageGetDto = new IndividualMessageGetDto();
         individualMessageGetDto.setContent(individualMessageEntity.getContent());
-        individualMessageGetDto.setRecipient(userBean.convertUserEntetyToUserBasicInfoDto(individualMessageEntity.getRecipient()));
-        individualMessageGetDto.setSender(userBean.convertUserEntetyToUserBasicInfoDto(individualMessageEntity.getSender()));
+        individualMessageGetDto.setRecipient(userBean.convertUserEntitytoUserBasicInfoDto(individualMessageEntity.getRecipient()));
+        individualMessageGetDto.setSender(userBean.convertUserEntitytoUserBasicInfoDto(individualMessageEntity.getSender()));
         individualMessageGetDto.setSentAt(individualMessageEntity.getSentTime());
         individualMessageGetDto.setSubject(individualMessageEntity.getSubject());
         individualMessageGetDto.setViewed(individualMessageEntity.isViewed());
