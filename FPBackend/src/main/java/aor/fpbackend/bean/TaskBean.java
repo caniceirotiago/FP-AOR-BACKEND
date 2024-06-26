@@ -77,6 +77,10 @@ public class TaskBean implements Serializable {
         if (plannedEndDate.isBefore(plannedStartDate)) {
             throw new InputValidationException("Planned end date cannot be before planned start date");
         }
+        long daysBetween = ChronoUnit.DAYS.between(plannedStartDate, plannedEndDate);
+        if (daysBetween < 1) {
+            throw new InputValidationException("Planned end date must be at least one day after planned start date");
+        }
         // Create a new task entity
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setTitle(title);
@@ -182,6 +186,10 @@ public class TaskBean implements Serializable {
         if (taskUpdateDto.getPlannedEndDate().isBefore(taskUpdateDto.getPlannedStartDate())) {
             throw new InputValidationException("Planned end date cannot be before planned start date");
         }
+        long daysBetween = ChronoUnit.DAYS.between(taskUpdateDto.getPlannedStartDate(), taskUpdateDto.getPlannedEndDate());
+        if (daysBetween < 1) {
+            throw new InputValidationException("Planned end date must be at least one day after planned start date");
+        }
         taskEntity.setDescription(taskUpdateDto.getDescription());
         taskEntity.setPlannedStartDate(taskUpdateDto.getPlannedStartDate());
         taskEntity.setPlannedEndDate(taskUpdateDto.getPlannedEndDate());
@@ -233,6 +241,10 @@ public class TaskBean implements Serializable {
         // Validate planned dates
         if (taskDetailedUpdateDto.getPlannedEndDate().isBefore(taskDetailedUpdateDto.getPlannedStartDate())) {
             throw new InputValidationException("Planned end date cannot be before planned start date");
+        }
+        long daysBetween = ChronoUnit.DAYS.between(taskDetailedUpdateDto.getPlannedStartDate(), taskDetailedUpdateDto.getPlannedEndDate());
+        if (daysBetween < 1) {
+            throw new InputValidationException("Planned end date must be at least one day after planned start date");
         }
         // Validate if new dates are compatible with dependencies and prerequisites
         for (TaskEntity dependentTask : taskEntity.getDependentTasks()) {
