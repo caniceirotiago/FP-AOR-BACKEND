@@ -1,5 +1,8 @@
 package aor.fpbackend.dto;
 
+import aor.fpbackend.enums.UserRoleEnum;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -12,33 +15,36 @@ public class UserUpdateRoleDto implements Serializable {
 
     @XmlElement
     @NotNull
-    private String username;
+    @Min(value = 1, message = "Id must be greater than 0")
+    private long userId;
+
     @XmlElement
     @NotNull
-    private long roleId;
+    @Enumerated
+    private UserRoleEnum role;
+
 
     public UserUpdateRoleDto() {
     }
 
-    public UserUpdateRoleDto(String username, long roleId) {
-        this.username = username;
-        this.roleId = roleId;
+    public UserUpdateRoleDto(long userId, UserRoleEnum role) {
+        this.userId = userId;
+        this.role = role;
     }
 
-
-    public String getUsername() {
-        return username;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
-    public long getRoleId() {
-        return roleId;
+    public UserRoleEnum getRole() {
+        return role;
     }
 
-    public void setRoleId(long roleId) {
-        this.roleId = roleId;
+    public void setRole(UserRoleEnum role) {
+        this.role = role;
     }
 }

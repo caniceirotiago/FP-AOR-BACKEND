@@ -222,7 +222,7 @@ public class UserBean implements Serializable {
         String sessionToken = sessionBean.generateJwtToken(userEntity, definedTimeOut, "session");
         NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
         sessionDao.persist(new SessionEntity(authToken, sessionToken, expirationInstant, userEntity));
-        LOGGER.error("Successful login");
+        LOGGER.info("Successful login");
         // Clear MDC after logging
         ThreadContext.clearMap();
         return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
@@ -338,13 +338,13 @@ public class UserBean implements Serializable {
 
     public void updateRole(UserUpdateRoleDto userUpdateRoleDto) throws InvalidCredentialsException, UnknownHostException, EntityNotFoundException {
         ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        UserEntity userEntity = userDao.findUserByUsername(userUpdateRoleDto.getUsername());
+        UserEntity userEntity = userDao.findUserById(userUpdateRoleDto.getUserId());
         if (userEntity == null) {
             LOGGER.warn("User not found for this username");
             throw new InvalidCredentialsException("User not found with this username");
         }
         ThreadContext.put("author", userEntity.getUsername());
-        RoleEntity newRole = roleDao.findRoleById(userUpdateRoleDto.getRoleId());
+        RoleEntity newRole = roleDao.findRoleByName(userUpdateRoleDto.getRole());
         if (newRole == null) {
             throw new EntityNotFoundException("Role not found with this Id");
         }
