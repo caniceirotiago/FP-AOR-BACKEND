@@ -48,7 +48,7 @@ public class TaskBean implements Serializable {
     NotificationBean notificationBean;
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LogManager.getLogger(TaskBean.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(TaskBean.class);
 
 
     public List<TaskGetDto> getTasks() {

@@ -120,7 +120,7 @@ public class SessionBean implements Serializable {
             Long userId = Long.parseLong(claims.getSubject());
 
             UserEntity user = userDao.findUserById(userId);
-            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()), token);
+            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()), token, session.getId(), user.getUsername());
             return authUserDto;
 
 
@@ -156,7 +156,7 @@ public class SessionBean implements Serializable {
             Claims claims = jwsClaims.getBody();
             Long userId = Long.parseLong(claims.getSubject());
             UserEntity user = userDao.findUserById(userId);
-            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()), token);
+            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()), token, se.getId(), user.getUsername());
             return authUserDto;
         } catch (ExpiredJwtException e) {
             throw new InvalidCredentialsException("Token expired: " + e.getMessage());

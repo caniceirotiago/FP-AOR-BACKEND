@@ -24,7 +24,7 @@ public class IndividualMessageBean {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LogManager.getLogger(IndividualMessageBean.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(IndividualMessageBean.class);
     @EJB
     UserDao userDao;
     @EJB

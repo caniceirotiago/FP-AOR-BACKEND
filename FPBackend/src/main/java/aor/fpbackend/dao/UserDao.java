@@ -1,13 +1,8 @@
 package aor.fpbackend.dao;
 
-import aor.fpbackend.bean.PassEncoder;
 import aor.fpbackend.dto.ProjectMembershipDto;
-import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
-import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
-import aor.fpbackend.enums.UserRoleEnum;
-import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.*;
 
@@ -25,10 +20,11 @@ public class UserDao extends AbstractDao<UserEntity> {
     @PersistenceContext
     private EntityManager em;
 
-    public boolean checkEmailExist(String email) {
+    public boolean checkEmailAndUsernameExist(String email, String username) {
         try {
-            Long count = (Long) em.createNamedQuery("User.countUserByEmail")
+            Long count = (Long) em.createNamedQuery("User.countUserByEmailAndUsername")
                     .setParameter("email", email)
+                    .setParameter("username", username)
                     .getSingleResult();
             return count > 0;
         } catch (NoResultException e) {

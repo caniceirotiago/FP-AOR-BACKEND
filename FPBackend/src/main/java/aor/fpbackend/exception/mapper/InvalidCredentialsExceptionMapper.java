@@ -17,7 +17,7 @@ public class InvalidCredentialsExceptionMapper implements ExceptionMapper<Invali
     @Override
     public Response toResponse(InvalidCredentialsException e) {
         Error error = new Error(e.getMessage());
-        LOGGER.warn("Attempt to register with invalid credentials " + LocalDateTime.now() + ": " + error.getMessage());
+        LOGGER.warn("Attempt to register with invalid credentials: " + error.getMessage());
 
         return Response
                 .status(Response.Status.CONFLICT)

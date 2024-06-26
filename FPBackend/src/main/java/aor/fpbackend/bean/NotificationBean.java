@@ -39,7 +39,7 @@ public class NotificationBean implements Serializable {
     RoleDao roleDao;
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LogManager.getLogger(NotificationBean.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(NotificationBean.class);
 
     public void createIndividualMessageNotification(IndividualMessageEntity messageEntity) throws UnknownHostException {
         ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());

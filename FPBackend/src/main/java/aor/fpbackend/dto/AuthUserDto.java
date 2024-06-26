@@ -25,19 +25,27 @@ public class AuthUserDto implements Serializable, Principal {
     private Long roleId;
     @XmlElement
     @NotNull
+    private String username;
+    @XmlElement
+    @NotNull
     private Set<MethodEntity> permissions;
     @XmlElement
     @NotNull
     private String token;
+    @XmlElement
+    @NotNull
+    private Long sessionId;
 
     // Constructors
     public AuthUserDto() {}
 
-    public AuthUserDto(Long userId, Long roleId, Set<MethodEntity> permissions, String token) {
+    public AuthUserDto(Long userId, Long roleId, Set<MethodEntity> permissions, String token, Long sessionId, String username) {
         this.userId = userId;
         this.roleId = roleId;
         this.permissions = permissions;
         this.token = token;
+        this.sessionId = sessionId;
+        this.username = username;
     }
 
     // Implementing the getName method from Principal
@@ -87,5 +95,21 @@ public class AuthUserDto implements Serializable, Principal {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Long getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(Long sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
