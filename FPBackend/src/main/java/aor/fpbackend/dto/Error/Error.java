@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Error;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 
