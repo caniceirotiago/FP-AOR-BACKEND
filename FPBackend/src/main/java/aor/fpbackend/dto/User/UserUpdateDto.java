@@ -14,10 +14,6 @@ public class UserUpdateDto implements Serializable {
 
     @XmlElement
     @NotNull
-    private String username;
-
-    @XmlElement
-    @NotNull
     @Size(min = 2, max = 25, message = "First name must be between 2 and 25 characters")
     private String firstName;
 
@@ -32,6 +28,7 @@ public class UserUpdateDto implements Serializable {
     private String photo;
 
     @XmlElement
+    @Size(max = 4096, message = "Biography must be less than 4096 characters")
     private String biography;
 
     @XmlElement
@@ -49,21 +46,12 @@ public class UserUpdateDto implements Serializable {
     }
 
     public UserUpdateDto(String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
-        this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
         this.photo = photo;
         this.biography = biography;
         this.laboratoryId = laboratoryId;
         this.isPrivate = isPrivate;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getFirstName() {

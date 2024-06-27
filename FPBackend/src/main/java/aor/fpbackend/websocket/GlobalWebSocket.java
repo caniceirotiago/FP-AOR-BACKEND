@@ -2,6 +2,7 @@
 package aor.fpbackend.websocket;
 
 import aor.fpbackend.bean.SessionBean;
+import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dto.Authentication.AuthUserDto;
 import aor.fpbackend.dto.Notification.NotificationGetDto;
 import aor.fpbackend.dto.Websocket.WebSocketMessageDto;
@@ -19,6 +20,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,6 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @ApplicationScoped
 @ServerEndpoint("/ws/{sessionToken}")
 public class GlobalWebSocket {
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(GlobalWebSocket.class);
 
     private static final ConcurrentHashMap<Long, List<Session>> sessions = new ConcurrentHashMap<>();
     static Gson gson = GsonSetup.createGson();
@@ -45,30 +49,48 @@ public class GlobalWebSocket {
                 session.getUserProperties().put("userId", user.getUserId());
                 session.getUserProperties().put("token", sessionToken);
                 sessions.computeIfAbsent(user.getUserId(), k -> new CopyOnWriteArrayList<>()).add(session);
+                LOGGER.info("WS Global session opened for user: " + user.getUserId());
             } else {
+                LOGGER.warn("User validation failed, user is null");
                 session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized"));
             }
-
         } catch (InvalidCredentialsException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @OnClose
-
-    public void onClose(Session session, CloseReason reason) {
-        Long userId = (Long) session.getUserProperties().get("userId");
-        String sessionToken = (String) session.getUserProperties().get("token");
-        List<Session> userSessions = sessions.get(userId);
-        if (userSessions != null) {
-            userSessions.remove(session);
-            if (userSessions.isEmpty()) {
-                sessions.remove(userId);
+            LOGGER.error("Invalid session token, the JWT key may have expired: " + e.getMessage());
+            try {
+                session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Invalid session token"));
+            } catch (IOException ioException) {
+                LOGGER.error("Error closing session after invalid token", ioException);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error opening WS Global session: " + e.getMessage(), e);
+            try {
+                session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Error opening session"));
+            } catch (IOException ioException) {
+                LOGGER.error("Error closing session after unexpected error", ioException);
             }
         }
     }
+
+
+    @OnClose
+    public void onClose(Session session, CloseReason reason) {
+        Long userId = (Long) session.getUserProperties().get("userId");
+        if (userId != null) {
+            List<Session> userSessions = sessions.get(userId);
+            if (userSessions != null) {
+                userSessions.remove(session);
+                if (userSessions.isEmpty()) {
+                    sessions.remove(userId);
+                }
+                LOGGER.info("WS Global session closed for user: " + userId + " with reason: " + reason.getReasonPhrase());
+            } else {
+                LOGGER.warn("No sessions found for user id: " + userId);
+            }
+        } else {
+            LOGGER.warn("Session closed but no userId found in session properties");
+        }
+    }
+
 
     @OnMessage
     public void onMessage(String message, Session session) {
@@ -87,8 +109,9 @@ public class GlobalWebSocket {
         Long userId = sessionEntity.getUser().getId();
         String sessionToken = sessionEntity.getSessionToken();
         List<Session> userSessions = sessions.get(userId);
-
+        System.out.println("User sessions: " + userSessions);
         if (userSessions != null) {
+            System.out.println("User sessions size: " + userSessions.size());
             Session session = userSessions.stream()
                     .filter(s -> sessionToken.equals(s.getUserProperties().get("token")))
                     .findFirst()
@@ -96,6 +119,7 @@ public class GlobalWebSocket {
 
             if (session != null && session.isOpen()) {
                 try {
+                    System.out.println("Sending forced logout request to session: " + session.getId());
                     String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.FORCED_LOGOUT.toString(), null));
                     session.getBasicRemote().sendText(jsonResponse);
                 } catch (IOException e) {
@@ -103,6 +127,7 @@ public class GlobalWebSocket {
                 }
             } else {
                 // Se a sessão não estiver aberta ou não for encontrada, desativar sessão
+                System.out.println("Session not found or not open");
                 sessionEntity.setActive(false);
                 sessionDao.merge(sessionEntity);
             }

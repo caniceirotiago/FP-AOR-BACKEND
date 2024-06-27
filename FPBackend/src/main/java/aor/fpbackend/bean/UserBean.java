@@ -16,16 +16,14 @@ import aor.fpbackend.utils.GlobalSettings;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.*;
 import org.apache.logging.log4j.LogManager;
-
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.Instant;
-
 import aor.fpbackend.exception.UserNotFoundException;
 import org.apache.logging.log4j.ThreadContext;
 import java.time.temporal.ChronoUnit;
@@ -39,20 +37,29 @@ import java.util.*;
  * and utility classes to perform tasks such as encoding passwords, sending emails, and managing sessions.
  * It ensures the integrity and security of user data by performing necessary checks and validations
  * before persisting or updating any information.
+ * </p>
  * <p>
- * Dependencies are injected using the @EJB annotation, which includes DAOs for user, session, role,
+ * Technologies Used:
+ * <ul>
+ *     <li><b>Java EE</b>: For building the EJB and managing transactions.</li>
+ *     <li><b>BCrypt</b>: For password hashing and validation via {@link PassEncoder}.</li>
+ *     <li><b>JWT</b>: For token generation and validation via {@link SessionBean}.</li>
+ *     <li><b>JPA</b>: For database interactions via DAOs.</li>
+ *     <li><b>Jakarta EE</b>: For RESTful web services and dependency injection.</li>
+ *     <li><b>SLF4J</b>: For logging operations.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Dependencies are injected using the {@link EJB} annotation, which includes DAOs for user, session, role,
  * and laboratory entities, as well as utility classes for password encoding, email services,
  * and session management.
+ * </p>
  */
-
 
 @Stateless
 public class UserBean implements Serializable {
     private static final long serialVersionUID = 1L;
-
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(UserBean.class);
-
-
     @EJB
     PassEncoder passEncoder;
     @EJB
@@ -83,7 +90,6 @@ public class UserBean implements Serializable {
      *     <li>Persists the new user entity in the database.</li>
      * </ul>
      * </p>
-     *
      * @param userRgDto the data transfer object containing user registration details.
      * @throws InvalidCredentialsException if the email or username already exists, or if there is an error during user persistence.
      * @throws EntityNotFoundException if the default role or laboratory is not found.
@@ -137,12 +143,10 @@ public class UserBean implements Serializable {
      *     <li>Logs the operation and clears the ThreadContext to ensure no residual data remains.</li>
      * </ul>
      * </p>
-     *
      * @param token the confirmation token used to validate and confirm the user's registration.
      * @throws InputValidationException if the provided token is null or empty.
      * @throws UserNotFoundException if no user is found for the provided confirmation token.
      */
-
     @Transactional
     public void confirmUser(String token) throws InputValidationException, UserNotFoundException {
         if(token == null || token.isEmpty()){
@@ -184,7 +188,6 @@ public class UserBean implements Serializable {
      *     <li>Logs the operation and clears the ThreadContext to ensure no residual data remains.</li>
      * </ul>
      * </p>
-     *
      * @param passwordRequestResetDto the data transfer object containing the user's email for the password reset request.
      * @throws UserNotFoundException if no user is found for the provided email.
      * @throws IllegalStateException if a password reset request has been made recently.
@@ -207,7 +210,6 @@ public class UserBean implements Serializable {
             user.setResetPasswordTimestamp(Instant.now().plus(GlobalSettings.PASSWORD_RESET_PREVENT_TIMER_MIN, ChronoUnit.MINUTES));
             emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
             LOGGER.info("Request password reset done for email: " + user.getEmail());
-
         } finally {
             ThreadContext.clearMap();
         }
@@ -215,17 +217,17 @@ public class UserBean implements Serializable {
 
     /**
      * Service responsible for requesting the resend of a registration confirmation email.
+     * <p>
      * This method checks if the user exists, if they have already been confirmed, and if they are not
      * requesting confirmation emails too frequently before sending a new confirmation email.
-     *
+     * </p>
      * @param email the DTO containing the email of the user requesting the resend of the confirmation email.
      * @throws InvalidRequestOnRegistConfirmationException if the user is not found,
      *         has already been confirmed, or is requesting confirmation emails
      *         at intervals shorter than allowed.
-     * @throws UnknownHostException if there is an error resolving the host when sending the email.
      */
     @Transactional
-    public void requestNewConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException, UnknownHostException {
+    public void requestNewConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException {
         UserEntity user = userDao.findUserByEmail(email.getEmail());
         if (user == null) {
             throw new InvalidRequestOnRegistConfirmationException("Attempt to request new confirmation email with user not found");
@@ -253,21 +255,29 @@ public class UserBean implements Serializable {
         }
     }
 
-    private boolean isResetTokenNotExpired(UserEntity user) {
-        return user.getResetPasswordTimestamp() != null && user.getResetPasswordTimestamp().isAfter(Instant.now());
-    }
-
-    public void resetPassword(PasswordResetDto passwordResetDto) throws IllegalStateException {
+    /**
+     * Service responsible for resetting the user's password.
+     * <p>
+     * This method validates the reset token, checks if it has not expired,
+     * and then updates the user's password. If the token is invalid or expired,
+     * appropriate exceptions are thrown.
+     * </p>
+     * @param passwordResetDto the DTO containing the reset token and the new password.
+     * @throws IllegalStateException if the reset token has expired.
+     * @throws UserNotFoundException if the user associated with the reset token is not found.
+     */
+    public void resetPassword(PasswordResetDto passwordResetDto) throws IllegalStateException, UserNotFoundException, ForbiddenAccessException {
+        UserEntity user = userDao.findUserByResetPasswordToken(passwordResetDto.getResetToken());
+        if (user == null) {
+            throw new UserNotFoundException("Attempt to reset password with invalid token");
+        }
+        if (!(user.getResetPasswordTimestamp() != null && user.getResetPasswordTimestamp().isAfter(Instant.now()))) {
+            throw new ForbiddenAccessException("Attempt to reset password with expired token");
+        }
         try {
-            UserEntity user = userDao.findUserByResetPasswordToken(passwordResetDto.getResetToken());
-            if (user == null) {
-                LOGGER.warn("Attempt to reset password with invalid token");
-                throw new IllegalStateException("Invalid token");
-            }
-            if (!isResetTokenNotExpired(user)) {
-                LOGGER.warn("Attempt to reset password with expired token");
-                throw new IllegalStateException("Token expired");
-            }
+            ThreadContext.put("username", user.getUsername());
+            ThreadContext.put("userId", String.valueOf(user.getId()));
+
             user.setPassword(passEncoder.encode(passwordResetDto.getNewPassword()));
             user.setResetPasswordToken(null);
             user.setResetPasswordTimestamp(null);
@@ -277,105 +287,182 @@ public class UserBean implements Serializable {
         }
     }
 
-    public Response login(UserLoginDto userLogin) throws InvalidCredentialsException {
-        try{
-        UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
-        if (userEntity == null || !passEncoder.matches(userLogin.getPassword(), userEntity.getPassword())) {
-            LOGGER.warn("Failed login attempt");
-            throw new InvalidCredentialsException("Invalid credentials");
-        }
-        int definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
-        Instant now = Instant.now();
-        // Calcular o Instant de expiração adicionando o tempo de expiração em milissegundos
-        Instant expirationInstant = now.plus(Duration.ofMillis(definedTimeOut));
-        String authToken = sessionBean.generateJwtToken(userEntity, definedTimeOut, "auth");
-        NewCookie authCookie = new NewCookie("authToken", authToken, "/", null, "Auth Token", 3600, false, true);
-        String sessionToken = sessionBean.generateJwtToken(userEntity, definedTimeOut, "session");
-        NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
-        sessionDao.persist(new SessionEntity(authToken, sessionToken, expirationInstant, userEntity));
 
-        LOGGER.info(" Successful login for username: " + userEntity.getUsername() + " with user id: " + userEntity.getId());
-        ThreadContext.clearMap();
 
-        return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
-        } finally {
-            ThreadContext.clearMap();
-        }
-    }
 
-    public void logout(SecurityContext securityContext) {
+
+        //todo: para já comentado.. acho que não está a ser utilziado
+//    public List<UsernameDto> getAllRegUsers() {
+//        try {
+//            ArrayList<UserEntity> userEntities = userDao.findAllUsers();
+//            if (userEntities != null && !userEntities.isEmpty()) {
+//                ArrayList<UsernameDto> usernameDtos = new ArrayList<>();
+//                for (UserEntity u : userEntities) {
+//                    UsernameDto usernameDto = new UsernameDto();
+//                    usernameDto.setId(u.getId());
+//                    usernameDto.setUsername(u.getUsername());
+//                    usernameDtos.add(usernameDto);
+//                }
+//                return usernameDtos;
+//            } else {
+//                LOGGER.warn("No users found");
+//                return Collections.emptyList(); // Return empty list when no users found
+//            }
+//        } finally {
+//            ThreadContext.clearMap();
+//        }
+//    }
+
+    /**
+     * Updates the authenticated user's profile with the provided details.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Retrieves the authenticated user's entity from the database.</li>
+     *     <li>Validates and updates the user's profile details (first name, last name, photo, laboratory, biography, and privacy setting).</li>
+     *     <li>Persists the updated user entity in the database.</li>
+     *     <li>Logs the profile update operation for auditing purposes.</li>
+     * </ul>
+     * </p>
+     * @param securityContext the security context containing the authenticated user's details.
+     * @param updatedUser the DTO containing the updated user profile details.
+     * @throws UserNotFoundException if the authenticated user is not found.
+     * @throws EntityNotFoundException if the specified laboratory is not found.
+     * @throws DatabaseOperationException if an error occurs while persisting the updated profile.
+     */
+    @Transactional
+    public void updateUserProfile(@Context SecurityContext securityContext, UserUpdateDto updatedUser) throws UserNotFoundException, EntityNotFoundException, DatabaseOperationException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        sessionDao.inativateSessionbyAuthToken(authUserDto.getToken());
-    }
-
-    public List<UsernameDto> getAllRegUsers() {
-        try {
-            ArrayList<UserEntity> userEntities = userDao.findAllUsers();
-            if (userEntities != null && !userEntities.isEmpty()) {
-                ArrayList<UsernameDto> usernameDtos = new ArrayList<>();
-                for (UserEntity u : userEntities) {
-                    UsernameDto usernameDto = new UsernameDto();
-                    usernameDto.setId(u.getId());
-                    usernameDto.setUsername(u.getUsername());
-                    usernameDtos.add(usernameDto);
-                }
-                return usernameDtos;
-            } else {
-                LOGGER.warn("No users found");
-                return Collections.emptyList(); // Return empty list when no users found
-            }
-        } finally {
-            ThreadContext.clearMap();
+        UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
+        if (userEntity == null) {
+            throw new UserNotFoundException("User not found");
         }
-    }
-
-    public void updateUserProfile(@Context SecurityContext securityContext, UserUpdateDto updatedUser) throws UserNotFoundException, UnknownHostException {
+        LaboratoryEntity laboratory = labDao.findLaboratoryById(updatedUser.getLaboratoryId());
+        if (laboratory == null) {
+            throw new EntityNotFoundException("Laboratory not found");
+        }
         try {
-            AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-            UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-            if (userEntity == null) {
-                LOGGER.warn("Attempt to update user with invalid token");
-                throw new UserNotFoundException("User not found");
-            }
-            ThreadContext.put("author", userEntity.getUsername());
             if (updatedUser.getFirstName() != null) userEntity.setFirstName(updatedUser.getFirstName());
             if (updatedUser.getLastName() != null) userEntity.setLastName(updatedUser.getLastName());
             if (updatedUser.getPhoto() != null) userEntity.setPhoto(updatedUser.getPhoto());
+            userEntity.setLaboratory(laboratory);
             if (updatedUser.getBiography() != null) userEntity.setBiography(updatedUser.getBiography());
-            LaboratoryEntity laboratory = labDao.findLaboratoryById(updatedUser.getLaboratoryId());
-            if (laboratory != null) {
-                userEntity.setLaboratory(laboratory);
-            }
             userEntity.setPrivate(updatedUser.isPrivate());
             userDao.merge(userEntity);
             LOGGER.info("User profile updated");
-        } finally {
+        } catch (PersistenceException e) {
+            throw new DatabaseOperationException("Persistence error while updating user profile, " +  e);
+        }finally {
             ThreadContext.clearMap();
         }
     }
 
+    /**
+     * Retrieves the basic information of the authenticated user.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Retrieves the authenticated user's entity from the database using their ID.</li>
+     *     <li>Converts the user entity to a UserBasicInfoDto object.</li>
+     * </ul>
+     * </p>
+     * @param securityContext the security context containing the authenticated user's details.
+     * @return a UserBasicInfoDto object representing the authenticated user's basic information.
+     * @throws UserNotFoundException if the authenticated user is not found.
+     */
     public UserBasicInfoDto getUserBasicInfo(@Context SecurityContext securityContext) throws UserNotFoundException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         if (userEntity == null) {
             throw new UserNotFoundException("User not found");
         }
-        return convertUserEntitytoUserBasicInfoDto(userEntity);
+        try {
+            LOGGER.info("Fetched basic info for user id: {}", authUserDto.getUserId());
+            return convertUserEntitytoUserBasicInfoDto(userEntity);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching basic info for user", e);
+            throw e;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
+
+    /**
+     * Retrieves a list of basic information for all registered users.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Fetches all user entities from the database.</li>
+     *     <li>Converts the list of user entities to a list of UserBasicInfoDto objects.</li>
+     * </ul>
+     * </p>
+     * Note: Security and access control are managed at the endpoint level.
+     * </p>
+     * @return a list of UserBasicInfoDto objects representing the basic information of all registered users.
+     */
     public List<UserBasicInfoDto> getUsersListBasicInfo() {
-        return convertUserEntityListToUserBasicInfoDtoList(userDao.findAllUsers());
+        try {
+            LOGGER.info("Fetching all users basic info");
+            return convertUserEntityListToUserBasicInfoDtoList(userDao.findAllUsers());
+        } catch (Exception e) {
+            LOGGER.error("Error fetching all users basic info", e);
+            throw e;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
+    /**
+     * Retrieves a list of basic information for users whose usernames start with the specified first letter.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Validates the input to ensure it is a single alphabetic character.</li>
+     *     <li>Converts the first letter to lowercase to ensure case-insensitive matching.</li>
+     *     <li>Fetches the user entities from the database whose usernames start with the specified letter.</li>
+     *     <li>Converts the list of user entities to a list of UserBasicInfoDto objects.</li>
+     * </ul>
+     * </p>
+     * @param firstLetter the first letter to filter usernames by. It should be a single alphabetic character.
+     * @return a list of UserBasicInfoDto objects representing the basic information of users whose usernames start with the specified letter.
+     */
     public List<UserBasicInfoDto> getUsersBasicInfoByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
             return new ArrayList<>();
         }
-        String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
-        List<UserEntity> userEntities = userDao.getUsersByFirstLetter(lowerCaseFirstLetter);
-        return convertUserEntityListToUserBasicInfoDtoList(userEntities);
+        try {
+            String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
+            List<UserEntity> userEntities = userDao.getUsersByFirstLetter(lowerCaseFirstLetter);
+            LOGGER.info("Fetching users basic info by first letter");
+            return convertUserEntityListToUserBasicInfoDtoList(userEntities);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching users by first letter: {}", firstLetter, e);
+            throw e;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
+    /**
+     * Retrieves the profile information of a user by their username.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Retrieves the authenticated user's details from the security context.</li>
+     *     <li>Fetches the user entity from the database by the provided username.</li>
+     *     <li>Checks if the user entity is private and if the authenticated user has permission to access it.</li>
+     *     <li>Checks if the user is fetching his own profile</li>
+     *     <li>Converts the user entity to a UserProfileDto object.</li>
+     *     <li>Logs the operation for auditing purposes.</li>
+     * </ul>
+     * </p>
+     * @param username the username of the user whose profile information is to be retrieved.
+     * @param securityContext the security context containing the authenticated user's details.
+     * @return a UserProfileDto object representing the user's profile information.
+     * @throws UserNotFoundException if no user is found for the provided username.
+     * @throws ForbiddenAccessException if the user profile is private and the authenticated user does not have permission to access it.
+     */
     public UserProfileDto getProfileDto(String username, @Context SecurityContext securityContext) throws UserNotFoundException, ForbiddenAccessException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserByUsername(username);
@@ -385,27 +472,73 @@ public class UserBean implements Serializable {
         if (userEntity.isPrivate() && !authUserDto.getUserId().equals(userEntity.getId())) {
             throw new ForbiddenAccessException("User is private");
         }
-        return convertUserEntitytoUserProfileDto(userEntity);
+        try {
+            LOGGER.info("Fetched profile for username: {}", username);
+            return convertUserEntitytoUserProfileDto(userEntity);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching user profile for username: {}", username, e);
+            throw e;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
-    public void updatePassword(PasswordUpdateDto passwordUpdateDto, @Context SecurityContext securityContext) throws IllegalStateException, UnknownHostException, UserNotFoundException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
+    /**
+     * Updates the password of the authenticated user.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Retrieves the authenticated user's details from the security context.</li>
+     *     <li>Validates the old password provided by the user.</li>
+     *     <li>Encodes the new password and updates the user entity.</li>
+     *     <li>Logs the operation for auditing purposes.</li>
+     * </ul>
+     * </p>
+     * @param passwordUpdateDto the DTO containing the old and new passwords.
+     * @param securityContext the security context containing the authenticated user's details.
+     * @throws IllegalStateException if an error occurs while updating the password.
+     * @throws UserNotFoundException if the authenticated user is not found.
+     * @throws InputValidationException if the old password is incorrect or the new password is invalid.
+     */
+    @Transactional
+    public void updatePassword(PasswordUpdateDto passwordUpdateDto, @Context SecurityContext securityContext) throws IllegalStateException, UserNotFoundException, InputValidationException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         if (userEntity == null) {
             throw new UserNotFoundException("User not found");
         }
-        ThreadContext.put("author", userEntity.getUsername());
         if (!oldPasswordConfirmation(userEntity, passwordUpdateDto)) {
-            LOGGER.warn("Attempt to update password with invalid old password or repeated new password");
-            throw new IllegalStateException("Invalid old password or repeated new password");
+            throw new InputValidationException("Invalid old password or repeated new password");
         }
-        String encryptedNewPassword = passEncoder.encode(passwordUpdateDto.getNewPassword());
-        userEntity.setPassword(encryptedNewPassword);
-        LOGGER.info("Password updated successfully");
-        ThreadContext.clearMap();
+        try{
+            String encryptedNewPassword = passEncoder.encode(passwordUpdateDto.getNewPassword());
+            userEntity.setPassword(encryptedNewPassword);
+            LOGGER.info("Password updated successfully");
+        } catch (PersistenceException e) {
+            LOGGER.error("Error while updating password at: " + e.getMessage());
+            throw new IllegalStateException("Error while updating password");
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
+    /**
+     * Verifies that the old password provided by the user matches the stored hashed password
+     * and that the new password is different from the current password.
+     *
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Retrieves the old and new passwords from the provided DTO.</li>
+     *     <li>Compares the old password with the stored hashed password using the password encoder.</li>
+     *     <li>Ensures that the new password is different from the current hashed password.</li>
+     * </ul>
+     * </p>
+     *
+     * @param userEntity the user entity containing the current hashed password.
+     * @param passwordUpdateDto the DTO containing the old and new passwords.
+     * @return true if the old password matches and the new password is different, false otherwise.
+     */
     private boolean oldPasswordConfirmation(UserEntity userEntity, PasswordUpdateDto passwordUpdateDto) {
         String oldPassword = passwordUpdateDto.getOldPassword();
         String newPassword = passwordUpdateDto.getNewPassword();
@@ -414,31 +547,93 @@ public class UserBean implements Serializable {
         return passEncoder.matches(oldPassword, hashedPassword) && !passEncoder.matches(newPassword, hashedPassword);
     }
 
+    /**
+     * Updates the role of a user.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Retrieves the user entity from the database using the user ID provided in the DTO.</li>
+     *     <li>Validates the existence of the user and the new role.</li>
+     *     <li>Updates the user's role with the new role.</li>
+     *     <li>Logs the operation for auditing purposes.</li>
+     * </ul>
+     * </p>
+     * @param userUpdateRoleDto the DTO containing the user ID and the new role ID.
+     * @throws InvalidCredentialsException if the user is not found.
+     * @throws EntityNotFoundException if the new role is not found.
+     * @throws IllegalStateException if an error occurs while updating the user role.
+     */
+
+    @Transactional
     public void updateRole(UserUpdateRoleDto userUpdateRoleDto) throws InvalidCredentialsException, UnknownHostException, EntityNotFoundException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
         UserEntity userEntity = userDao.findUserById(userUpdateRoleDto.getUserId());
         if (userEntity == null) {
             LOGGER.warn("User not found for this username");
             throw new InvalidCredentialsException("User not found with this username");
         }
-        ThreadContext.put("author", userEntity.getUsername());
         RoleEntity newRole = roleDao.findRoleById(userUpdateRoleDto.getRoleId());
         if (newRole == null) {
             throw new EntityNotFoundException("Role not found with this Id");
         }
-        userEntity.setRole(newRole);
-        LOGGER.info("User Role updated successfully");
-        ThreadContext.clearMap();
+        try{
+            userEntity.setRole(newRole);
+            LOGGER.info("User Role updated successfully");
+        } catch (PersistenceException e) {
+            LOGGER.error("Error while updating user role at: " + e.getMessage());
+            throw new IllegalStateException("Error while updating user role");
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
-    public UserBasicInfoDto getUserBasicInfoById(long userId) {
-        UserEntity userEntity = userDao.findUserById(userId);
-        return convertUserEntitytoUserBasicInfoDto(userEntity);
-    }
+    //TODO não estava a ser utilizado para já comentado
+//    public UserBasicInfoDto getUserBasicInfoById(long userId) {
+//        UserEntity userEntity = userDao.findUserById(userId);
+//        return convertUserEntitytoUserBasicInfoDto(userEntity);
+//    }
 
+    /**
+     * Retrieves a list of project memberships for users associated with a specific project.
+     * <p>
+     * This method fetches the list of project memberships from the database using the provided project ID.
+     * It logs the operation for auditing purposes and handles any exceptions that may occur during the process.
+     * </p>
+     *
+     * @param projectId the ID of the project for which to retrieve user memberships.
+     * @return a list of ProjectMembershipDto objects representing the users associated with the specified project.
+     * @throws RuntimeException if an error occurs while fetching the project memberships.
+     */
     public List<ProjectMembershipDto> getUsersByProject(long projectId) {
-        return userDao.getUsersByProject(projectId);
+        try {
+            LOGGER.info("Fetching users by project");
+            return userDao.getUsersByProject(projectId);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching users by project", e);
+            throw e;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
+
+    /**
+     * Creates a default user with the specified username, photo, role, and laboratory if the username does not already exist.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Checks if the username already exists in the database.</li>
+     *     <li>If the username does not exist, constructs a default email and encrypted password.</li>
+     *     <li>Retrieves the specified laboratory and role entities from the database.</li>
+     *     <li>Creates and persists a new user entity with the provided details.</li>
+     *     <li>Logs the operation for auditing purposes.</li>
+     * </ul>
+     * </p>
+     * @param username the username of the user to be created.
+     * @param photo the photo URL for the user.
+     * @param roleId the ID of the role to be assigned to the user.
+     * @param labId the ID of the laboratory to be assigned to the user.
+     * @throws DatabaseOperationException if an error occurs while creating the user.
+     * @throws IllegalStateException if the specified laboratory or role is not found.
+     */
 
     public void createDefaultUserIfNotExistent(String username, String photo, long roleId, long labId) throws DatabaseOperationException {
         if (!userDao.checkUsernameExist(username)) {
@@ -452,11 +647,24 @@ public class UserBean implements Serializable {
             if (role == null) {
                 throw new IllegalStateException("Role not found.");
             }
-            UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, photo, true, false, true, laboratory, role, Instant.now());
-            userDao.persist(userEntity);
+            try{
+                LOGGER.info("Creating default user: " + username);
+                UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, photo, true, false, true, laboratory, role, Instant.now());
+                userDao.persist(userEntity);
+            } catch (PersistenceException e) {
+                throw new DatabaseOperationException("Error while creating default user" + e);
+            }
+        } else {
+            LOGGER.info("Default user already exists: " + username);
         }
     }
 
+    /**
+     * Converts a UserRegisterDto object to a UserEntity object.
+     * <p>
+     * @param user the UserRegisterDto containing the user registration data.
+     * @return a UserEntity object populated with the data from the DTO.
+     */
     public UserEntity convertUserRegisterDtotoUserEntity(UserRegisterDto user) {
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(user.getEmail());
@@ -466,6 +674,13 @@ public class UserBean implements Serializable {
         return userEntity;
     }
 
+
+    /**
+     * Converts a UserEntity object to a UserProfileDto object.
+     * <p>
+     * @param userEntity the UserEntity containing the user data.
+     * @return a UserProfileDto object populated with the data from the entity.
+     */
     public UserProfileDto convertUserEntitytoUserProfileDto(UserEntity userEntity) {
         UserProfileDto userProfileDto = new UserProfileDto();
         userProfileDto.setId(userEntity.getId());
@@ -480,6 +695,12 @@ public class UserBean implements Serializable {
         return userProfileDto;
     }
 
+    /**
+     * Converts a UserEntity object to a UserBasicInfoDto object.
+     * <p>
+     * @param userEntity the UserEntity containing the user data.
+     * @return a UserBasicInfoDto object populated with the data from the entity.
+     */
     public UserBasicInfoDto convertUserEntitytoUserBasicInfoDto(UserEntity userEntity) {
         UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
         userBasicInfo.setUsername(userEntity.getUsername());
@@ -489,6 +710,12 @@ public class UserBean implements Serializable {
         return userBasicInfo;
     }
 
+    /**
+     * Converts a list of UserEntity objects to a list of UserBasicInfoDto objects.
+     * <p>
+     * @param userEntities the list of UserEntity objects to be converted.
+     * @return a list of UserBasicInfoDto objects populated with the data from the UserEntity objects.
+     */
     public List<UserBasicInfoDto> convertUserEntityListToUserBasicInfoDtoList(List<UserEntity> userEntities) {
         ArrayList<UserBasicInfoDto> userBasicInfoDtos = new ArrayList<>();
         for (UserEntity u : userEntities) {
