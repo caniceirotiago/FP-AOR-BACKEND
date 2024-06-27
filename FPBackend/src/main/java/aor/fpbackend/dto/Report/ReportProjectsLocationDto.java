@@ -1,22 +1,17 @@
 package aor.fpbackend.dto.Report;
 
 import aor.fpbackend.enums.LocationEnum;
-import aor.fpbackend.enums.ProjectStateEnum;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
-import java.time.Instant;
 
 
 @XmlRootElement
 public class ReportProjectsLocationDto implements Serializable {
 
     @XmlElement
-    private LocationEnum labLocation;
+    private LocationEnum location;
 
     @XmlElement
     private Long projectCount;
@@ -28,18 +23,18 @@ public class ReportProjectsLocationDto implements Serializable {
     public ReportProjectsLocationDto() {
     }
 
-    public ReportProjectsLocationDto(LocationEnum labLocation, Long projectCount, Double projectPercentage) {
-        this.labLocation = labLocation;
+    public ReportProjectsLocationDto(LocationEnum location, Long projectCount, Double projectPercentage) {
+        this.location = location;
         this.projectCount = projectCount;
         this.projectPercentage = projectPercentage;
     }
 
-    public LocationEnum getLabLocation() {
-        return labLocation;
+    public LocationEnum getLocation() {
+        return location;
     }
 
-    public void setLabLocation(LocationEnum labLocation) {
-        this.labLocation = labLocation;
+    public void setLocation(LocationEnum location) {
+        this.location = location;
     }
 
     public Long getProjectCount() {

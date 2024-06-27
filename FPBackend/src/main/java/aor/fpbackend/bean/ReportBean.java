@@ -1,18 +1,22 @@
 package aor.fpbackend.bean;
 
-import aor.fpbackend.dao.LaboratoryDao;
 import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dto.Report.ReportAverageResultDto;
 import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
 import aor.fpbackend.dto.Report.ReportSummaryDto;
 import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.utils.PdfReportGenerator;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 
@@ -22,11 +26,29 @@ public class ReportBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(aor.fpbackend.bean.ReportBean.class);
     @EJB
     ProjectDao projectDao;
+
     @EJB
-    LaboratoryDao laboratoryDao;
+    PdfReportGenerator pdfReportGenerator;
+
+    // Generate PDF Report
+    public String generatePdfReport() throws IOException {
+        ReportSummaryDto reportSummary = getReportSummary();
+        // Use environment variable or default to a relative directory
+        String baseDir = System.getenv("PDF_REPORT_DIR");
+        if (baseDir == null || baseDir.isEmpty()) {
+            baseDir = "generated-pdfs"; // Relative path to the project root
+        }
+        // Ensure the directory exists
+        Path dirPath = Paths.get(baseDir).toAbsolutePath();
+        Files.createDirectories(dirPath);
+        // Construct the file path
+        Path pdfFilePath = dirPath.resolve("project_summary_report.pdf");
+        // Generate the PDF report
+        pdfReportGenerator.generateProjectReport(reportSummary, pdfFilePath.toString());
+        return pdfFilePath.toString();
+    }
 
     // Consolidate Data Retrieval for Project Report
-
     public ReportSummaryDto getReportSummary() {
         ReportSummaryDto reportSummary = new ReportSummaryDto();
 
@@ -39,8 +61,6 @@ public class ReportBean implements Serializable {
 
         return reportSummary;
     }
-
-
 
     // Projects count by laboratory location
     public List<ReportProjectsLocationDto> getProjectCountByLocation() {
