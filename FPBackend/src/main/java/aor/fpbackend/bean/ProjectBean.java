@@ -1,11 +1,14 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
-import aor.fpbackend.dto.*;
+import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Keyword.KeywordAddDto;
+import aor.fpbackend.dto.Project.*;
+import aor.fpbackend.dto.Skill.SkillAddProjectDto;
+import aor.fpbackend.dto.User.UsernameDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.*;
 import aor.fpbackend.exception.*;
-import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -13,7 +16,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.UriInfo;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.net.UnknownHostException;

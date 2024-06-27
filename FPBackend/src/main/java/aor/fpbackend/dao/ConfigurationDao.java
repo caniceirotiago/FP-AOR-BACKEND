@@ -1,7 +1,7 @@
 package aor.fpbackend.dao;
 
 
-import aor.fpbackend.dto.ConfigurationGetDto;
+import aor.fpbackend.dto.Configuration.ConfigurationGetDto;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;

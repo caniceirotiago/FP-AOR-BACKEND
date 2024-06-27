@@ -1,7 +1,7 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.NotificationBean;
-import aor.fpbackend.dto.NotificationGetDto;
+import aor.fpbackend.dto.Notification.NotificationGetDto;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import jakarta.ejb.EJB;

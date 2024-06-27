@@ -1,12 +1,10 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.IndividualMessageBean;
-import aor.fpbackend.dto.IndividualMessageGetDto;
-import aor.fpbackend.dto.IndividualMessageGetPaginatedDto;
-import aor.fpbackend.dto.IndividualMessageSendDto;
+import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetDto;
+import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetPaginatedDto;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;

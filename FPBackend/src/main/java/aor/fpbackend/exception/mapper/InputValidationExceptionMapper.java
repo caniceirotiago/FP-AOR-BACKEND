@@ -1,6 +1,6 @@
 package aor.fpbackend.exception.mapper;
 
-import aor.fpbackend.dto.Error;
+import aor.fpbackend.dto.Error.Error;
 import aor.fpbackend.exception.InputValidationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -9,9 +9,7 @@ import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.LocalDateTime;
-
-    @Provider
+@Provider
     public class InputValidationExceptionMapper implements ExceptionMapper<InputValidationException> {
         private static final Logger LOGGER = LogManager.getLogger(InputValidationExceptionMapper.class);
 

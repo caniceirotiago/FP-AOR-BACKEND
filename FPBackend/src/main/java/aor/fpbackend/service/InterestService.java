@@ -1,9 +1,9 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.InterestBean;
-import aor.fpbackend.dto.InterestAddDto;
-import aor.fpbackend.dto.InterestGetDto;
-import aor.fpbackend.dto.InterestRemoveDto;
+import aor.fpbackend.dto.Interest.InterestAddDto;
+import aor.fpbackend.dto.Interest.InterestGetDto;
+import aor.fpbackend.dto.Interest.InterestRemoveDto;
 import aor.fpbackend.enums.InterestTypeEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;

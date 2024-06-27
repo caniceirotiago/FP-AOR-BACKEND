@@ -2,9 +2,9 @@
 package aor.fpbackend.websocket;
 
 import aor.fpbackend.bean.SessionBean;
-import aor.fpbackend.dto.AuthUserDto;
-import aor.fpbackend.dto.NotificationGetDto;
-import aor.fpbackend.dto.WebSocketMessageDto;
+import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Notification.NotificationGetDto;
+import aor.fpbackend.dto.Websocket.WebSocketMessageDto;
 import aor.fpbackend.entity.SessionEntity;
 import aor.fpbackend.dao.SessionDao;
 import aor.fpbackend.enums.QueryParams;

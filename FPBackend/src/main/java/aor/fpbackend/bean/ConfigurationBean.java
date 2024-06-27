@@ -1,10 +1,9 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.ConfigurationDao;
-import aor.fpbackend.dto.ConfigurationGetDto;
-import aor.fpbackend.dto.ConfigurationUpdateDto;
+import aor.fpbackend.dto.Configuration.ConfigurationGetDto;
+import aor.fpbackend.dto.Configuration.ConfigurationUpdateDto;
 import aor.fpbackend.entity.ConfigurationEntity;
-import aor.fpbackend.exception.DatabaseOperationException;
 import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;

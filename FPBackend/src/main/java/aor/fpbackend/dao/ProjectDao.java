@@ -1,5 +1,6 @@
 package aor.fpbackend.dao;
 
+import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.QueryParams;
@@ -192,6 +193,8 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         return predicates;
     }
 
+    // Methods for Reports
+
     public List<Object[]> countProjectsByLaboratory() {
         TypedQuery<Object[]> query = em.createNamedQuery("Project.countProjectsByLaboratory", Object[].class);
         return query.getResultList();
@@ -200,6 +203,11 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
     public Double getAverageMembersPerProject() {
         Query query = em.createNamedQuery("Project.averageMembersPerProject");
         return (Double) query.getSingleResult();
+    }
+
+    public List<Object[]> getApprovedProjectsByLocation() {
+        Query query = em.createNamedQuery("Project.approvedProjectsByLocation");
+        return query.getResultList();
     }
 
 

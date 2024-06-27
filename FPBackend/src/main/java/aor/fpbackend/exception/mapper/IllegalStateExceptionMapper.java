@@ -1,6 +1,6 @@
 package aor.fpbackend.exception.mapper;
 
-import aor.fpbackend.dto.Error;
+import aor.fpbackend.dto.Error.Error;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;

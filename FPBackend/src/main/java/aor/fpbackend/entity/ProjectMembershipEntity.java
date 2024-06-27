@@ -13,8 +13,8 @@ import java.io.Serializable;
 
 @NamedQuery(name = "ProjectMembership.findProjectIdsByUserId", query = "SELECT p.project.id FROM ProjectMembershipEntity p WHERE p.user.id = :userId")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipById", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.id = :id")
-@NamedQuery(name = "ProjectMembership.findProjectMembershipsByProject", query = "SELECT new aor.fpbackend.dto.ProjectMembershipDto(" +
-        "p.id, u.id, pr.id, p.role, p.isAccepted, new aor.fpbackend.dto.UserBasicInfoDto(u.id, u.username, u.photo, u.role.id)) " +
+@NamedQuery(name = "ProjectMembership.findProjectMembershipsByProject", query = "SELECT new aor.fpbackend.dto.Project.ProjectMembershipDto(" +
+        "p.id, u.id, pr.id, p.role, p.isAccepted, new aor.fpbackend.dto.User.UserBasicInfoDto(u.id, u.username, u.photo, u.role.id)) " +
         "FROM ProjectMembershipEntity p JOIN p.user u JOIN p.project pr WHERE pr.id = :projectId")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipByAcceptanceToken", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.acceptanceToken = :acceptanceToken")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipByProjectIdAndUserId", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.user.id = :userId")

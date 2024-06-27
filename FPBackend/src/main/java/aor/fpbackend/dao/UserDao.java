@@ -1,6 +1,6 @@
 package aor.fpbackend.dao;
 
-import aor.fpbackend.dto.ProjectMembershipDto;
+import aor.fpbackend.dto.Project.ProjectMembershipDto;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.Stateless;

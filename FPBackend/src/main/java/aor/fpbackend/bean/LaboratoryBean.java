@@ -1,14 +1,13 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.LaboratoryDao;
-import aor.fpbackend.dto.LaboratoryDto;
+import aor.fpbackend.dto.Laboratory.LaboratoryDto;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.exception.DatabaseOperationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.ArrayList;
