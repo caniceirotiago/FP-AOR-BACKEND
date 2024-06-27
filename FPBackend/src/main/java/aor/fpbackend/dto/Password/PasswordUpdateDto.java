@@ -1,6 +1,7 @@
 package aor.fpbackend.dto.Password;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -15,7 +16,9 @@ public class PasswordUpdateDto implements Serializable {
     private String oldPassword;
     @XmlElement
     @NotNull
-    @Size(min = 4, message = "Password must be greater than 4 characters")
+    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#.])[A-Za-z\\d@$!%*?&#.]+$",
+            message = "Password must include an uppercase letter, a lowercase letter, a digit, and one special character")
     private String newPassword;
 
     public PasswordUpdateDto() {

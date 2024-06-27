@@ -25,15 +25,37 @@ import java.time.temporal.ChronoUnit;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.*;
 
-
+/**
+ * TaskBean is a stateless EJB that manages the operations related to tasks within a project.
+ * It interacts with various DAOs to perform CRUD operations on task entities, user entities,
+ * and project entities. This bean handles the addition, update, deletion, and dependency
+ * management of tasks.
+ * <p>
+ * The class also performs input validation, logging, and ensures that transactions are handled
+ * appropriately.
+ * </p>
+ * <p>
+ * Technologies Used:
+ * <ul>
+ *     <li><b>Jakarta EE</b>: For dependency injection.</li>
+ *     <li><b>SLF4J</b>: For logging operations.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Dependencies are injected using the {@link EJB} annotation, which includes DAOs for user,
+ * task, and project entities. The bean also uses utility classes for logging and input validation.
+ * </p>
+ */
 @Stateless
 public class TaskBean implements Serializable {
     @EJB
@@ -55,21 +77,129 @@ public class TaskBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(TaskBean.class);
 
 
+    /**
+     * Retrieves a list of all tasks from the system.
+     * <p>
+     * This method fetches all task entities from the database and converts them
+     * into a list of {@link TaskGetDto} objects for easier handling and presentation
+     * in the application layer.
+     * </p>
+     *
+     * @return a list of {@link TaskGetDto} representing all tasks in the system.
+     */
     public List<TaskGetDto> getTasks() {
-        return convertTaskEntityListToTaskDtoList(taskDao.findAllTasks());
+        try {
+            List<TaskGetDto> tasks = convertTaskEntityListToTaskDtoList(taskDao.findAllTasks());
+            LOGGER.info("Successfully fetched {} tasks", tasks.size());
+            return tasks;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
-    public List<TaskGetDto> getTasksByProject(long projectId) {
-        return convertTaskEntityListToTaskDtoList(taskDao.getTasksByProjectId(projectId));
+
+    /**
+     * Retrieves a list of tasks associated with a specific project.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Validates the provided project ID to ensure it is positive.</li>
+     *     <li>Checks if the project exists in the database.</li>
+     *     <li>Fetches the list of tasks associated with the project ID if the project exists.</li>
+     *     <li>Converts the list of task entities to a list of TaskGetDto objects.</li>
+     *     <li>Logs the number of tasks fetched for monitoring purposes.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * ThreadContext is cleared at the end of the method execution to ensure no residual data remains.
+     * </p>
+     *
+     * @param projectId the ID of the project whose tasks are to be retrieved.
+     * @return a list of TaskGetDto objects representing the tasks associated with the specified project.
+     * @throws EntityNotFoundException if the project ID is invalid or the project does not exist.
+     */
+    public List<TaskGetDto> getTasksByProject(long projectId) throws EntityNotFoundException {
+        if(projectId < 1) {
+            throw new EntityNotFoundException("Project ID cannot be negative");
+        }
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if (projectEntity == null) {
+            throw new EntityNotFoundException("Project not found");
+        }
+        try {
+            List<TaskGetDto> tasks = convertTaskEntityListToTaskDtoList(taskDao.getTasksByProjectId(projectId));
+            LOGGER.info("Successfully fetched {} tasks for project ID: {}", tasks.size(), projectId);
+            return tasks;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
-    public TaskGetDto getTasksById(long taskId) {
-        return convertTaskEntityToTaskDto(taskDao.findTaskById(taskId));
+    /**
+     * Retrieves the details of a specific task by its ID.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Validates the provided task ID to ensure it is positive.</li>
+     *     <li>Checks if the task exists in the database.</li>
+     *     <li>Fetches the task entity associated with the task ID if the task exists.</li>
+     *     <li>Converts the task entity to a TaskGetDto object.</li>
+     *     <li>Logs the successful retrieval of the task for monitoring purposes.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * ThreadContext is cleared at the end of the method execution to ensure no residual data remains.
+     * </p>
+     *
+     * @param taskId the ID of the task to be retrieved.
+     * @return a TaskGetDto object representing the details of the specified task.
+     * @throws EntityNotFoundException if the task ID is invalid or the task does not exist.
+     */
+    public TaskGetDto getTasksById(long taskId) throws EntityNotFoundException {
+        if(taskId < 1) {
+            throw new EntityNotFoundException("Task ID cannot be negative");
+        }
+        TaskEntity taskEntity = taskDao.findTaskById(taskId);
+        if (taskEntity == null) {
+            LOGGER.warn("Task with ID: {} not found", taskId);
+            throw new EntityNotFoundException("Task not found");
+        }
+        try {
+            TaskGetDto taskGetDto = convertTaskEntityToTaskDto(taskEntity);
+            LOGGER.info("Successfully fetched task with ID: {}", taskId);
+            return taskGetDto;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
+    /**
+     * Adds a new task to the specified project with the provided details.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Validates the existence of the project and the responsible user.</li>
+     *     <li>Validates the planned start and end dates.</li>
+     *     <li>Creates and persists a new task entity associated with the project and responsible user.</li>
+     *     <li>Creates a notification for the user marked as responsible for the new task.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * ThreadContext is utilized to log user-specific information for auditing purposes.
+     * </p>
+     *
+     * @param title the title of the task.
+     * @param description the description of the task.
+     * @param plannedStartDate the planned start date of the task.
+     * @param plannedEndDate the planned end date of the task.
+     * @param responsibleId the ID of the user responsible for the task.
+     * @param projectId the ID of the project to which the task will be added.
+     * @throws EntityNotFoundException if the project or user is not found.
+     * @throws InputValidationException if the planned dates are invalid.
+     * @throws UnknownHostException if there is an error with the host.
+     */
     @Transactional
     public void addTask(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException, UnknownHostException {
-        // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
@@ -86,7 +216,7 @@ public class TaskBean implements Serializable {
         if (daysBetween < 1) {
             throw new InputValidationException("Planned end date must be at least one day after planned start date");
         }
-        // Create a new task entity
+
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setTitle(title);
         taskEntity.setDescription(description);
@@ -94,34 +224,60 @@ public class TaskBean implements Serializable {
         taskEntity.setCreationDate(Instant.now());
         taskEntity.setPlannedEndDate(plannedEndDate);
         taskEntity.setDeleted(false);
-        taskEntity.setState(TaskStateEnum.PLANNED); // Default state
-        // Set the responsible user for the task
+        taskEntity.setState(TaskStateEnum.PLANNED);
         taskEntity.setResponsibleUser(taskResponsible);
-        // Associate the task with the project
         taskEntity.setProject(projectEntity);
-        taskDao.persist(taskEntity);
-        taskResponsible.getResponsibleTasks().add(taskEntity);
-        notificationBean.createNotificationMarkesAsResponsibleInNewTask(taskResponsible, taskEntity);
+
+        try{
+            taskDao.persist(taskEntity);
+            taskResponsible.getResponsibleTasks().add(taskEntity);
+            notificationBean.createNotificationMarkesAsResponsibleInNewTask(taskResponsible, taskEntity);
+            LOGGER.info("Task entity persisted successfully: " + taskEntity.getTitle() + "on project: " + projectEntity.getName());
+        } catch (PersistenceException e) {
+            LOGGER.error("Error while persisting task entity: {}", e.getMessage());
+            throw new EntityNotFoundException("Error while persisting task entity");
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
+
+    /**
+     * Adds a dependency between two tasks.
+     * <p>
+     * This method validates the existence of the main and dependent tasks,
+     * and then defines a dependency relationship between them.
+     * </p>
+     *
+     * @param addDependencyDto the DTO containing the IDs of the main and dependent tasks.
+     * @throws EntityNotFoundException if either the main task or the dependent task is not found.
+     */
     @Transactional
     public void addDependencyTask(TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
         TaskEntity mainTaskEntity = taskDao.findTaskById(addDependencyDto.getMainTaskId());
         TaskEntity dependentTaskEntity = taskDao.findTaskById(addDependencyDto.getDependentTaskId());
-        if (mainTaskEntity == null || dependentTaskEntity == null) {
-            throw new EntityNotFoundException("Task not found");
+        if (mainTaskEntity == null) {
+            LOGGER.warn("Main task with ID: {} not found", addDependencyDto.getMainTaskId());
+            throw new EntityNotFoundException("Main task not found");
         }
-        defineDependency(mainTaskEntity, dependentTaskEntity);
+        if (dependentTaskEntity == null) {
+            LOGGER.warn("Dependent task with ID: {} not found", addDependencyDto.getDependentTaskId());
+            throw new EntityNotFoundException("Dependent task not found");
+        }
+        try{
+            Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
+            dependentTasks.add(dependentTaskEntity);
+            Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
+            prerequisites.add(mainTaskEntity);
+            LOGGER.info("Dependency added successfully: Main Task ID: {}, Dependent Task ID: {}", addDependencyDto.getMainTaskId(), addDependencyDto.getDependentTaskId());
+        } catch (PersistenceException e) {
+            LOGGER.error("Error while adding dependency: {}", e.getMessage());
+            throw new EntityNotFoundException("Error while adding dependency");
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 
-    private void defineDependency(TaskEntity mainTaskEntity, TaskEntity dependentTaskEntity) {
-        // Update dependent tasks of the main task
-        Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
-        dependentTasks.add(dependentTaskEntity);
-        // Update prerequisites of the dependent task
-        Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
-        prerequisites.add(mainTaskEntity);
-    }
 
     @Transactional
     public void removeDependencyTask(TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {

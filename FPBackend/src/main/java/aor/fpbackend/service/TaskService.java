@@ -38,8 +38,7 @@ public class TaskService {
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public List<TaskGetDto> getAllTasksByProject(@PathParam("projectId") long projectId) {
-        taskBean.getTasksByProject(projectId).forEach(System.out::println);
+    public List<TaskGetDto> getAllTasksByProject(@PathParam("projectId") long projectId) throws EntityNotFoundException {
         return taskBean.getTasksByProject(projectId);
     }
 
@@ -47,7 +46,7 @@ public class TaskService {
     @Path("/{taskId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.TASKS_BY_ID)
-    public TaskGetDto getTaskById(@PathParam("taskId") long taskId) {
+    public TaskGetDto getTaskById(@PathParam("taskId") long taskId) throws EntityNotFoundException {
         return taskBean.getTasksById(taskId);
     }
 

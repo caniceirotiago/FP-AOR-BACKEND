@@ -48,9 +48,9 @@ public class SessionDao extends AbstractDao<SessionEntity> {
     }
 
     public List<SessionEntity> findSessionsExpiringInThreeMinutes() {
-        Instant oneMinuteFromNow = Instant.now().plusSeconds(180);
+        Instant threeMinutesFromNow = Instant.now().plusSeconds(180);
         TypedQuery<SessionEntity> query = em.createNamedQuery("Session.findSessionsExpiringInACertainAmountOfSeconds", SessionEntity.class);
-        query.setParameter("expirationTime", oneMinuteFromNow);
+        query.setParameter("expirationTime", threeMinutesFromNow);
         return query.getResultList();
     }
 

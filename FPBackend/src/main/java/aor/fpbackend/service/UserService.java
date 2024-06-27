@@ -1,5 +1,6 @@
 package aor.fpbackend.service;
 
+import aor.fpbackend.bean.SessionBean;
 import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dto.Email.EmailDto;
 import aor.fpbackend.dto.Password.PasswordRequestResetDto;
@@ -26,6 +27,8 @@ import java.util.List;
 public class UserService {
     @EJB
     UserBean userBean;
+    @EJB
+    SessionBean sessionBean;
 
     @POST
     @Path("/register")
@@ -58,7 +61,7 @@ public class UserService {
     @PUT
     @Path("/password/reset")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void resetPassword(@Valid PasswordResetDto passwordResetDto) {
+    public void resetPassword(@Valid PasswordResetDto passwordResetDto) throws UserNotFoundException, ForbiddenAccessException {
         userBean.resetPassword(passwordResetDto);
     }
 
@@ -74,7 +77,7 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response login(@Valid UserLoginDto userLogin) throws InvalidCredentialsException, UnknownHostException {
-        return userBean.login(userLogin);
+        return sessionBean.login(userLogin);
     }
 
     /**
@@ -85,8 +88,8 @@ public class UserService {
     @POST
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void logout(@Context SecurityContext securityContext) {
-        userBean.logout(securityContext);
+    public void logout(@Context SecurityContext securityContext) throws UserNotFoundException {
+        sessionBean.logout(securityContext);
     }
 
     @GET
@@ -127,12 +130,13 @@ public class UserService {
         return userBean.getProfileDto(usernameProfile, securityContext);
     }
 
-    @GET
-    @Path("")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<UsernameDto> getAllUsers() {
-        return userBean.getAllRegUsers();
-    }
+    //TODO comentei porque acho que nao esta a ser utilizado
+//    @GET
+//    @Path("")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public List<UsernameDto> getAllUsers() {
+//        return userBean.getAllRegUsers();
+//    }
 
     /**
      * Allows an authenticated user to update their own data. It checks for valid authentication and
@@ -143,7 +147,7 @@ public class UserService {
     @Path("/profile")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void editUserData(@Valid UserUpdateDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, UnknownHostException {
+    public void editUserData(@Valid UserUpdateDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, UnknownHostException, EntityNotFoundException, DatabaseOperationException {
         userBean.updateUserProfile(securityContext, updatedUser);
     }
 
@@ -151,7 +155,7 @@ public class UserService {
     @Path("/password")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws  UnknownHostException, UserNotFoundException {
+    public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws UnknownHostException, UserNotFoundException, InputValidationException {
         userBean.updatePassword(updatedPassword, securityContext);
     }
 
