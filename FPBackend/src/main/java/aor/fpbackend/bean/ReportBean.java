@@ -6,7 +6,7 @@ import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
 import aor.fpbackend.dto.Report.ReportSummaryDto;
 import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
-import aor.fpbackend.utils.PdfReportGenerator;
+import aor.fpbackend.utils.PdfGenerator;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +28,7 @@ public class ReportBean implements Serializable {
     ProjectDao projectDao;
 
     @EJB
-    PdfReportGenerator pdfReportGenerator;
+    PdfGenerator pdfGenerator;
 
     // Generate PDF Report
     public String generatePdfReport() throws IOException {
@@ -44,7 +44,7 @@ public class ReportBean implements Serializable {
         // Construct the file path
         Path pdfFilePath = dirPath.resolve("project_summary_report.pdf");
         // Generate the PDF report
-        pdfReportGenerator.generateProjectReport(reportSummary, pdfFilePath.toString());
+        pdfGenerator.generateProjectReport(reportSummary, pdfFilePath.toString());
         return pdfFilePath.toString();
     }
 
