@@ -4,6 +4,7 @@ import aor.fpbackend.dao.LaboratoryDao;
 import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dto.Report.ReportAverageResultDto;
 import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
+import aor.fpbackend.dto.Report.ReportSummaryDto;
 import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
 import jakarta.ejb.EJB;
@@ -23,6 +24,22 @@ public class ReportBean implements Serializable {
     ProjectDao projectDao;
     @EJB
     LaboratoryDao laboratoryDao;
+
+    // Consolidate Data Retrieval for Project Report
+
+    public ReportSummaryDto getReportSummary() {
+        ReportSummaryDto reportSummary = new ReportSummaryDto();
+
+        reportSummary.setAverageMembersPerProject(getAverageMembersPerProject());
+        reportSummary.setAverageProjectDuration(getAverageProjectDuration());
+        reportSummary.setProjectCountByLocation(getProjectCountByLocation());
+        reportSummary.setApprovedProjectsByLocation(getProjectsByLocationAndApproval(true));
+        reportSummary.setCompletedProjectsByLocation(getProjectsByLocationAndState(ProjectStateEnum.FINISHED));
+        reportSummary.setCanceledProjectsByLocation(getProjectsByLocationAndState(ProjectStateEnum.CANCELLED));
+
+        return reportSummary;
+    }
+
 
 
     // Projects count by laboratory location

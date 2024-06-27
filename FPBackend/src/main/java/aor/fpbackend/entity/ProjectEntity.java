@@ -25,7 +25,7 @@ import java.util.Set;
 
 @NamedQuery(
         name = "Project.averageProjectDuration",
-        query = "SELECT AVG(FUNCTION('DATEDIFF', p.conclusionDate, p.initialDate)) FROM ProjectEntity p WHERE p.initialDate IS NOT NULL AND p.conclusionDate IS NOT NULL"
+        query = "SELECT AVG(FUNCTION('DATEDIFF', p.finalDate, p.initialDate)) FROM ProjectEntity p WHERE p.initialDate IS NOT NULL AND p.finalDate IS NOT NULL"
 )
 
 

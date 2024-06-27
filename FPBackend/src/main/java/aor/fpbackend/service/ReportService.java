@@ -3,7 +3,10 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.ReportBean;
 import aor.fpbackend.dto.Report.ReportAverageResultDto;
 import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
+import aor.fpbackend.dto.Report.ReportSummaryDto;
+import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.filters.RequiresMethodPermission;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -18,48 +21,12 @@ public class ReportService {
 
 
     @GET
-    @Path("/average/members")
+    @Path("/project/summary")
     @Produces(MediaType.APPLICATION_JSON)
-    //@RequiresMethodPermission(MethodEnum.REPORTS)
-    public ReportAverageResultDto getAverageMembersPerProject() {
-        return reportBean.getAverageMembersPerProject();
+    @RequiresMethodPermission(MethodEnum.PROJECT_REPORTS)
+    public ReportSummaryDto getReportSummary() {
+        return reportBean.getReportSummary();
     }
-
-    @GET
-    @Path("/average/duration")
-    @Produces(MediaType.APPLICATION_JSON)
-    //@RequiresMethodPermission(MethodEnum.REPORTS)
-    public ReportAverageResultDto getAverageProjectDuration() {
-        return reportBean.getAverageProjectDuration();
-    }
-
-    @GET
-    @Path("/count/location")
-    @Produces(MediaType.APPLICATION_JSON)
-    //@RequiresMethodPermission(MethodEnum.REPORTS)
-    public List<ReportProjectsLocationDto> getProjectCountByLocation() {
-        return reportBean.getProjectCountByLocation();
-    }
-
-    @GET
-    @Path("/approved/projects/location")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<ReportProjectsLocationDto> getProjectsByLocation() {
-        return reportBean.getProjectsByLocationAndApproval(true);
-    }
-
-    @GET
-    @Path("/completed/projects/location")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<ReportProjectsLocationDto> getCompletedProjectsByLocation() {
-        return reportBean.getProjectsByLocationAndState(ProjectStateEnum.FINISHED);
-    }
-
-    @GET
-    @Path("/canceled/projects/location")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<ReportProjectsLocationDto> getCanceledProjectsByLocation() {
-        return reportBean.getProjectsByLocationAndState(ProjectStateEnum.CANCELLED);
-    }
+    
 
 }

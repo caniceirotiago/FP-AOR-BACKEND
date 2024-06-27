@@ -41,7 +41,8 @@ public enum MethodEnum {
     GET_NOTIFICATIONS(38L),
     MARK_NOTIFICATIONS_AS_READ(39L),
     UPDATE_CONFIG(40L),
-    USERS_BASIC_INFO(41L);
+    USERS_BASIC_INFO(41L),
+    PROJECT_REPORTS(42l);
 
 
     private final long value;
