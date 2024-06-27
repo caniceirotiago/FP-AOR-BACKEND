@@ -2,9 +2,10 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.LaboratoryDao;
 import aor.fpbackend.dao.ProjectDao;
-import aor.fpbackend.dto.Report.ReportAverageMembersDto;
+import aor.fpbackend.dto.Report.ReportAverageResultDto;
 import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
 import aor.fpbackend.enums.LocationEnum;
+import aor.fpbackend.enums.ProjectStateEnum;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import org.apache.logging.log4j.LogManager;
@@ -54,7 +55,7 @@ public class ReportBean implements Serializable {
     }
 
     // Average members per project
-    public ReportAverageMembersDto getAverageMembersPerProject() {
+    public ReportAverageResultDto getAverageMembersPerProject() {
         Double averageMembers = projectDao.getAverageMembersPerProject();
         // Ensure the average is not null and handle it appropriately
         if (averageMembers == null) {
@@ -63,31 +64,60 @@ public class ReportBean implements Serializable {
         // Format the average to 2 decimal places
         String formattedAverage = String.format(Locale.US,"%.2f", averageMembers);
         double roundedAverage = Double.parseDouble(formattedAverage);
-        return new ReportAverageMembersDto(roundedAverage);
+        return new ReportAverageResultDto(roundedAverage);
+    }
+
+    // Average project duration
+    public ReportAverageResultDto getAverageProjectDuration() {
+        Double averageDuration = projectDao.getAverageProjectDuration();
+        // Handle null case if no projects or durations found
+        if (averageDuration == null) {
+            averageDuration = 0.0; // or any default value as per your business logic
+        }
+        // Format the average to 2 decimal places
+        String formattedAverage = String.format(Locale.US,"%.2f", averageDuration);
+        double roundedAverage = Double.parseDouble(formattedAverage);
+        return new ReportAverageResultDto(roundedAverage);
     }
 
     // Approved projects by location
-    public List<ReportProjectsLocationDto> getApprovedProjectsByLocation() {
-        List<Object[]> results = projectDao.getApprovedProjectsByLocation();
-        List<ReportProjectsLocationDto> approvedProjects = approvedProjectsByLocation(results);
+    public List<ReportProjectsLocationDto> getProjectsByLocationAndApproval(boolean isApproved) {
+        List<Object[]> results = projectDao.getProjectsByLocationAndApproval(isApproved);
+        List<ReportProjectsLocationDto> projectsByLocationDtos = projectsByLocation(results);
 
         // Format percentage to 2 decimal places
-        for (ReportProjectsLocationDto dto : approvedProjects) {
-            String formattedPercentage = String.format(Locale.US,"%.2f", dto.getProjectPercentage());
+        for (ReportProjectsLocationDto dto : projectsByLocationDtos) {
+            String formattedPercentage = String.format(Locale.US, "%.2f", dto.getProjectPercentage());
             double roundedPercentage = Double.parseDouble(formattedPercentage);
             dto.setProjectPercentage(roundedPercentage);
         }
-        return approvedProjects;
+        return projectsByLocationDtos;
     }
 
-    private List<ReportProjectsLocationDto> approvedProjectsByLocation(List<Object[]> results) {
-        List<ReportProjectsLocationDto> approvedProjectsByLocationDtos = new ArrayList<>();
+    private List<ReportProjectsLocationDto> projectsByLocation(List<Object[]> results) {
+        List<ReportProjectsLocationDto> projectsByLocationDtos = new ArrayList<>();
         for (Object[] result : results) {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
             Double percentage = (Double) result[2];
-            approvedProjectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage));
+            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage));
         }
-        return approvedProjectsByLocationDtos;
+        return projectsByLocationDtos;
     }
+
+
+    // Approved projects by location
+    public List<ReportProjectsLocationDto> getProjectsByLocationAndState(ProjectStateEnum state) {
+        List<Object[]> results = projectDao.getProjectsByLocationAndState(state);
+
+        List<ReportProjectsLocationDto> projectsByLocationDtos = new ArrayList<>();
+        for (Object[] result : results) {
+            LocationEnum location = (LocationEnum) result[0];
+            Long count = (Long) result[1];
+            Double percentage = (Double) result[2];
+            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage));
+        }
+        return projectsByLocationDtos;
+    }
+
 }

@@ -205,9 +205,22 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         return (Double) query.getSingleResult();
     }
 
-    public List<Object[]> getApprovedProjectsByLocation() {
-        Query query = em.createNamedQuery("Project.approvedProjectsByLocation");
+    public List<Object[]> getProjectsByLocationAndApproval(boolean isApproved) {
+        Query query = em.createNamedQuery("Project.projectsByLocationAndApproval");
+        query.setParameter("isApprovedParam", isApproved);
         return query.getResultList();
+    }
+
+
+    public List<Object[]> getProjectsByLocationAndState(ProjectStateEnum state) {
+        Query query = em.createNamedQuery("Project.projectsByLocationAndState");
+        query.setParameter("stateParam", state);
+        return query.getResultList();
+    }
+
+    public Double getAverageProjectDuration() {
+        Query query = em.createNamedQuery("Project.averageProjectDuration");
+        return (Double) query.getSingleResult();
     }
 
 
