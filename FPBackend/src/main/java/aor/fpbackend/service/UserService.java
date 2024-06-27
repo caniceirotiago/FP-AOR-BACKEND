@@ -1,7 +1,12 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.UserBean;
-import aor.fpbackend.dto.*;
+import aor.fpbackend.dto.Email.EmailDto;
+import aor.fpbackend.dto.Password.PasswordRequestResetDto;
+import aor.fpbackend.dto.Password.PasswordResetDto;
+import aor.fpbackend.dto.Password.PasswordUpdateDto;
+import aor.fpbackend.dto.Project.ProjectMembershipDto;
+import aor.fpbackend.dto.User.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresMethodPermission;

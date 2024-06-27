@@ -1,7 +1,6 @@
 package aor.fpbackend.exception.mapper;
 
-import aor.fpbackend.bean.UserBean;
-import aor.fpbackend.dto.Error;
+import aor.fpbackend.dto.Error.Error;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.MediaType;

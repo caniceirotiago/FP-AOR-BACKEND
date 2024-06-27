@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Task;
 
 import aor.fpbackend.enums.TaskStateEnum;
 import jakarta.persistence.Enumerated;

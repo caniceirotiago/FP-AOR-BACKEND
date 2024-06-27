@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.User;
 
 import aor.fpbackend.enums.UserRoleEnum;
 import jakarta.persistence.Enumerated;

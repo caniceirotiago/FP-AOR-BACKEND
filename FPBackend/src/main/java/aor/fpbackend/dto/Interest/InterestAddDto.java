@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Interest;
 
 import aor.fpbackend.enums.InterestTypeEnum;
 import jakarta.persistence.Enumerated;

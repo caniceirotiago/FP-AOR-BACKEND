@@ -4,7 +4,7 @@ package aor.fpbackend.filters;
 import aor.fpbackend.bean.ConfigurationBean;
 import aor.fpbackend.bean.SessionBean;
 import aor.fpbackend.dao.ProjectMembershipDao;
-import aor.fpbackend.dto.AuthUserDto;
+import aor.fpbackend.dto.Authentication.AuthUserDto;
 import aor.fpbackend.entity.ProjectMembershipEntity;
 import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.exception.InvalidCredentialsException;
@@ -23,8 +23,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import aor.fpbackend.bean.UserBean;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 
 import java.io.IOException;

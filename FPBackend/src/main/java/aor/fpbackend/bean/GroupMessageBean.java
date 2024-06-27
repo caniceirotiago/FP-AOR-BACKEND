@@ -1,19 +1,16 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
-import aor.fpbackend.dto.*;
+import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.GroupMessage.GroupMessageGetDto;
+import aor.fpbackend.dto.GroupMessage.GroupMessageSendDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
-import aor.fpbackend.websocket.GroupMessageWebSocket;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.time.Instant;
 import java.util.ArrayList;

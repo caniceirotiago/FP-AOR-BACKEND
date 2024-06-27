@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Email;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

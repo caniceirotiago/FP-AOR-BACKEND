@@ -1,10 +1,8 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Notification;
 
-import aor.fpbackend.entity.IndividualMessageEntity;
-import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetDto;
+import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.enums.NotificationTypeENUM;
-import aor.fpbackend.enums.convertors.NotificationTypeENUMConverter;
-import jakarta.persistence.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 

@@ -1,5 +1,6 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Task;
 
+import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.enums.TaskStateEnum;
 import jakarta.persistence.Enumerated;
 import jakarta.xml.bind.annotation.XmlElement;

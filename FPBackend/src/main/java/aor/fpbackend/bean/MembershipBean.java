@@ -1,7 +1,9 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
-import aor.fpbackend.dto.*;
+import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Project.ProjectNameIdDto;
+import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.LogTypeEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
@@ -12,7 +14,6 @@ import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.net.UnknownHostException;

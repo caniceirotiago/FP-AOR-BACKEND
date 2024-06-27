@@ -1,9 +1,9 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.KeywordBean;
-import aor.fpbackend.dto.KeywordAddDto;
-import aor.fpbackend.dto.KeywordGetDto;
-import aor.fpbackend.dto.KeywordRemoveDto;
+import aor.fpbackend.dto.Keyword.KeywordAddDto;
+import aor.fpbackend.dto.Keyword.KeywordGetDto;
+import aor.fpbackend.dto.Keyword.KeywordRemoveDto;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;

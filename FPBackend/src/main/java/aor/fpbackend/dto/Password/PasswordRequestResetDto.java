@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Password;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;

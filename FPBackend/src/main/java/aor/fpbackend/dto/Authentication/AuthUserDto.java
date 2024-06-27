@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Authentication;
 import aor.fpbackend.entity.MethodEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.enterprise.context.control.RequestContextController;

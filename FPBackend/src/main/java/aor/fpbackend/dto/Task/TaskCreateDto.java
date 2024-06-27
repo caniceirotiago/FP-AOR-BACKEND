@@ -1,5 +1,6 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Task;
 
+import aor.fpbackend.dto.User.UsernameDto;
 import jakarta.validation.constraints.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;

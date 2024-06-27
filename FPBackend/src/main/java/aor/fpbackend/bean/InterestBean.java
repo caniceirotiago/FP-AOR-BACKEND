@@ -2,7 +2,10 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.InterestDao;
 import aor.fpbackend.dao.UserDao;
-import aor.fpbackend.dto.*;
+import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Interest.InterestAddDto;
+import aor.fpbackend.dto.Interest.InterestGetDto;
+import aor.fpbackend.dto.Interest.InterestRemoveDto;
 import aor.fpbackend.entity.InterestEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.InterestTypeEnum;

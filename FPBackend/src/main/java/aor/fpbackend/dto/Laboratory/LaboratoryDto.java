@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Laboratory;
 
 import aor.fpbackend.enums.LocationEnum;
 import jakarta.xml.bind.annotation.XmlElement;

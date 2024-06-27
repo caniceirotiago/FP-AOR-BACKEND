@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Asset;
 
 import aor.fpbackend.enums.AssetTypeEnum;
 import jakarta.xml.bind.annotation.XmlElement;

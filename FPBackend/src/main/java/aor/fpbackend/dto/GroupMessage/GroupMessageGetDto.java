@@ -1,5 +1,6 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.GroupMessage;
 
+import aor.fpbackend.dto.User.UserBasicInfoDto;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 

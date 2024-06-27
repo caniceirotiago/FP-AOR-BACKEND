@@ -2,10 +2,9 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.IndividualMessageDao;
 import aor.fpbackend.dao.UserDao;
-import aor.fpbackend.dto.IndividualMessageGetDto;
-import aor.fpbackend.dto.IndividualMessageGetPaginatedDto;
-import aor.fpbackend.dto.IndividualMessageSendDto;
-import aor.fpbackend.dto.UserBasicInfoDto;
+import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetDto;
+import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetPaginatedDto;
+import aor.fpbackend.dto.IndividualMessage.IndividualMessageSendDto;
 import aor.fpbackend.entity.IndividualMessageEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -13,7 +12,6 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ws.rs.core.UriInfo;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.time.Instant;
 import java.util.List;

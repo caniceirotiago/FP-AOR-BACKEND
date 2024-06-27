@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Project;
 
 import aor.fpbackend.enums.LogTypeEnum;
 import jakarta.persistence.Enumerated;

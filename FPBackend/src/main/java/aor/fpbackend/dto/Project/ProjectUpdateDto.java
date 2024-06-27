@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Project;
 
 import aor.fpbackend.enums.ProjectStateEnum;
 import jakarta.validation.constraints.Min;

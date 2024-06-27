@@ -7,7 +7,7 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import aor.fpbackend.dto.Error;
+import aor.fpbackend.dto.Error.Error;
 
 @Provider
 public class UserNotFoundExceptionMapper implements ExceptionMapper<UserNotFoundException> {

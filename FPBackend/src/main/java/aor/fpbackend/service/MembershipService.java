@@ -2,9 +2,9 @@ package aor.fpbackend.service;
 
 import aor.fpbackend.bean.MembershipBean;
 import aor.fpbackend.dao.UserDao;
-import aor.fpbackend.dto.AuthUserDto;
-import aor.fpbackend.dto.ProjectNameIdDto;
-import aor.fpbackend.dto.UserBasicInfoDto;
+import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Project.ProjectNameIdDto;
+import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;

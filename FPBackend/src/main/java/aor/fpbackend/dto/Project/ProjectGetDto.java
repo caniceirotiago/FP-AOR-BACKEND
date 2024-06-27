@@ -1,5 +1,7 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Project;
 
+import aor.fpbackend.dto.Laboratory.LaboratoryDto;
+import aor.fpbackend.dto.User.UserBasicInfoDto;
 import jakarta.persistence.Enumerated;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;

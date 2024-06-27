@@ -1,7 +1,7 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.SkillBean;
-import aor.fpbackend.dto.*;
+import aor.fpbackend.dto.Skill.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.SkillTypeEnum;
 import aor.fpbackend.exception.DuplicatedAttributeException;

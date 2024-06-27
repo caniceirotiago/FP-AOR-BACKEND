@@ -2,17 +2,15 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.KeywordDao;
 import aor.fpbackend.dao.ProjectDao;
-import aor.fpbackend.dto.KeywordGetDto;
-import aor.fpbackend.dto.KeywordRemoveDto;
+import aor.fpbackend.dto.Keyword.KeywordGetDto;
+import aor.fpbackend.dto.Keyword.KeywordRemoveDto;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.ArrayList;

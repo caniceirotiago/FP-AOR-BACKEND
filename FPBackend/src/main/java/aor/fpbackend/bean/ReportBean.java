@@ -1,25 +1,17 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.LaboratoryDao;
-import aor.fpbackend.dao.MethodDao;
 import aor.fpbackend.dao.ProjectDao;
-import aor.fpbackend.dto.ReportProjectsLocationDto;
-import aor.fpbackend.entity.LaboratoryEntity;
-import aor.fpbackend.entity.MethodEntity;
+import aor.fpbackend.dto.Report.ReportAverageMembersDto;
+import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
 import aor.fpbackend.enums.LocationEnum;
-import aor.fpbackend.enums.MethodEnum;
-import aor.fpbackend.exception.DatabaseOperationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.persistence.TypedQuery;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Stateless
@@ -32,7 +24,7 @@ public class ReportBean implements Serializable {
     LaboratoryDao laboratoryDao;
 
 
-
+    // Projects count by laboratory location
     public List<ReportProjectsLocationDto> getProjectCountByLocation() {
         Map<LocationEnum, Long> projectCountByLaboratory = countProjectsByLocation();
         long totalProjects = projectCountByLaboratory.values().stream().mapToLong(Long::longValue).sum();
@@ -40,8 +32,11 @@ public class ReportBean implements Serializable {
         List<ReportProjectsLocationDto> projectCountDtos = new ArrayList<>();
 
         for (Map.Entry<LocationEnum, Long> entry : projectCountByLaboratory.entrySet()) {
-            double percentage = (double) entry.getValue() * 100 / totalProjects;
-            projectCountDtos.add(new ReportProjectsLocationDto(entry.getKey(), entry.getValue(), percentage));
+            double rawPercentage = (double) entry.getValue() * 100 / totalProjects;
+            // Format the average to 2 decimal places
+            String formattedPercentageStr = String.format(Locale.US, "%.2f", rawPercentage);
+            double formattedPercentage = Double.parseDouble(formattedPercentageStr);
+            projectCountDtos.add(new ReportProjectsLocationDto(entry.getKey(), entry.getValue(), formattedPercentage));
         }
         return projectCountDtos;
     }
@@ -56,5 +51,43 @@ public class ReportBean implements Serializable {
             projectCountByLaboratory.put(laboratoryLocation, count);
         }
         return projectCountByLaboratory;
+    }
+
+    // Average members per project
+    public ReportAverageMembersDto getAverageMembersPerProject() {
+        Double averageMembers = projectDao.getAverageMembersPerProject();
+        // Ensure the average is not null and handle it appropriately
+        if (averageMembers == null) {
+            averageMembers = 0.0;
+        }
+        // Format the average to 2 decimal places
+        String formattedAverage = String.format(Locale.US,"%.2f", averageMembers);
+        double roundedAverage = Double.parseDouble(formattedAverage);
+        return new ReportAverageMembersDto(roundedAverage);
+    }
+
+    // Approved projects by location
+    public List<ReportProjectsLocationDto> getApprovedProjectsByLocation() {
+        List<Object[]> results = projectDao.getApprovedProjectsByLocation();
+        List<ReportProjectsLocationDto> approvedProjects = approvedProjectsByLocation(results);
+
+        // Format percentage to 2 decimal places
+        for (ReportProjectsLocationDto dto : approvedProjects) {
+            String formattedPercentage = String.format(Locale.US,"%.2f", dto.getProjectPercentage());
+            double roundedPercentage = Double.parseDouble(formattedPercentage);
+            dto.setProjectPercentage(roundedPercentage);
+        }
+        return approvedProjects;
+    }
+
+    private List<ReportProjectsLocationDto> approvedProjectsByLocation(List<Object[]> results) {
+        List<ReportProjectsLocationDto> approvedProjectsByLocationDtos = new ArrayList<>();
+        for (Object[] result : results) {
+            LocationEnum location = (LocationEnum) result[0];
+            Long count = (Long) result[1];
+            Double percentage = (Double) result[2];
+            approvedProjectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage));
+        }
+        return approvedProjectsByLocationDtos;
     }
 }

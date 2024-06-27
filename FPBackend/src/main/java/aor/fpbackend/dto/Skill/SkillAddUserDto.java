@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Skill;
 
 import aor.fpbackend.enums.SkillTypeEnum;
 import jakarta.persistence.Enumerated;

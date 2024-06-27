@@ -1,5 +1,5 @@
 package aor.fpbackend.exception.mapper;
-import aor.fpbackend.dto.Error;
+import aor.fpbackend.dto.Error.Error;
 import aor.fpbackend.exception.UnauthorizedAccessException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;

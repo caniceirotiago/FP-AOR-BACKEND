@@ -1,7 +1,13 @@
 package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
-import aor.fpbackend.dto.*;
+import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Email.EmailDto;
+import aor.fpbackend.dto.Password.PasswordRequestResetDto;
+import aor.fpbackend.dto.Password.PasswordResetDto;
+import aor.fpbackend.dto.Password.PasswordUpdateDto;
+import aor.fpbackend.dto.Project.ProjectMembershipDto;
+import aor.fpbackend.dto.User.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
@@ -288,7 +294,7 @@ public class UserBean implements Serializable {
         NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", 3600, false, false);
         sessionDao.persist(new SessionEntity(authToken, sessionToken, expirationInstant, userEntity));
 
-        LOGGER.info("Successful login for username " + userEntity.getUsername() + " user id " + userEntity.getId());
+        LOGGER.info(" Successful login for username: " + userEntity.getUsername() + " with user id: " + userEntity.getId());
         ThreadContext.clearMap();
 
         return Response.ok().cookie(authCookie).cookie(sessionCookie).build();

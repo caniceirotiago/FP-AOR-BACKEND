@@ -1,4 +1,4 @@
-package aor.fpbackend.dto;
+package aor.fpbackend.dto.Report;
 
 import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
