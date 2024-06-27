@@ -16,103 +16,84 @@ public class PdfGenerator {
     public void generateProjectReport(ReportSummaryDto reportSummary, String dest) throws IOException {
         // Create a new document
         PDDocument document = new PDDocument();
-        // Create a new page
-        PDPage page = new PDPage();
-        document.addPage(page);
-        // Start a new content stream
-        PDPageContentStream contentStream = new PDPageContentStream(document, page);
-        // Set up starting position for text
-        float yPosition = 700; // Adjust this value as needed for vertical spacing
-        // Title
-        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
-        contentStream.beginText();
-        contentStream.newLineAtOffset(100, yPosition);
-        contentStream.showText("Project Report Summary");
-        contentStream.endText();
-        yPosition -= 40; // Move down for the next line
+        try {
+            // Initialize page and content stream
+            PDPage page = new PDPage();
+            document.addPage(page);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
-        // Average Members per Project
-        contentStream.setFont(PDType1Font.HELVETICA, 12);
-        contentStream.beginText();
-        contentStream.newLineAtOffset(100, yPosition);
-        contentStream.showText("Average Members per Project: " + reportSummary.getAverageMembersPerProject().getAverage());
-        contentStream.endText();
-        yPosition -= 40;
+            // Define starting position and line height
+            float margin = 50; // Margin from top of the page
+            float yPosition = page.getMediaBox().getHeight() - margin; // Start at the top margin
+            float lineHeight = 12; // Adjust line height as needed
 
-        // Average Project Duration
-        contentStream.beginText();
-        contentStream.newLineAtOffset(100, yPosition);
-        contentStream.showText("Average Project Duration: " + reportSummary.getAverageProjectDuration().getAverage());
-        contentStream.endText();
-        yPosition -= 40;
+            // Title
+            drawText(contentStream, PDType1Font.HELVETICA_BOLD, 16, "Project Report Summary", margin, yPosition);
+            yPosition -= lineHeight * 2; // Move down for the next line
 
-        // Project Count by Location
-        contentStream.beginText();
-        contentStream.newLineAtOffset(100, yPosition);
-        contentStream.showText("Project Count by Location:");
-        contentStream.endText();
-        yPosition -= 40;
+            // Average Members per Project
+            drawText(contentStream, PDType1Font.HELVETICA, 12, "Average Members per Project: " + reportSummary.getAverageMembersPerProject().getAverage(), margin, yPosition);
+            yPosition -= lineHeight * 2; // Move down for the next section
 
-        for (ReportProjectsLocationDto locationDto : reportSummary.getProjectCountByLocation()) {
-            contentStream.beginText();
-            contentStream.newLineAtOffset(120, yPosition);
-            contentStream.showText(locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%");
-            contentStream.endText();
-            yPosition -= 40;
+            // Average Project Duration
+            drawText(contentStream, PDType1Font.HELVETICA, 12, "Average Project Duration: " + reportSummary.getAverageProjectDuration().getAverage(), margin, yPosition);
+            yPosition -= lineHeight * 2; // Move down for the next section
+
+            // Project Count by Location
+            drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Project Count by Location:", margin, yPosition);
+            yPosition -= lineHeight * 2; // Move down for the next section
+
+            // Iterate over Project Count by Location
+            yPosition = drawLocationData(contentStream, reportSummary.getProjectCountByLocation(), margin, yPosition, lineHeight);
+
+            // Approved Projects by Location
+            drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Approved Projects by Location:", margin, yPosition);
+            yPosition -= lineHeight * 2; // Move down for the next section
+
+            // Iterate over Approved Projects by Location
+            yPosition = drawLocationData(contentStream, reportSummary.getApprovedProjectsByLocation(), margin, yPosition, lineHeight);
+
+            // Completed Projects by Location
+            drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Completed Projects by Location:", margin, yPosition);
+            yPosition -= lineHeight * 2; // Move down for the next section
+
+            // Iterate over Completed Projects by Location
+            yPosition = drawLocationData(contentStream, reportSummary.getCompletedProjectsByLocation(), margin, yPosition, lineHeight);
+
+            // Canceled Projects by Location
+            drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Canceled Projects by Location:", margin, yPosition);
+            yPosition -= lineHeight * 2; // Move down for the next section
+
+            // Iterate over Canceled Projects by Location
+            yPosition = drawLocationData(contentStream, reportSummary.getCanceledProjectsByLocation(), margin, yPosition, lineHeight);
+
+            // Close the content stream
+            contentStream.close();
+
+            // Save the document
+            document.save(dest);
+        } finally {
+            // Close the document
+            document.close();
         }
+    }
 
-        // Approved Projects by Location
+    // Helper method to draw text on the PDF
+    private void drawText(PDPageContentStream contentStream, PDType1Font font, int fontSize, String text, float x, float y) throws IOException {
+        contentStream.setFont(font, fontSize);
         contentStream.beginText();
-        contentStream.newLineAtOffset(100, yPosition);
-        contentStream.showText("Approved Projects by Location:");
+        contentStream.newLineAtOffset(x, y);
+        contentStream.showText(text);
         contentStream.endText();
-        yPosition -= 40;
+    }
 
-        for (ReportProjectsLocationDto locationDto : reportSummary.getApprovedProjectsByLocation()) {
-            contentStream.beginText();
-            contentStream.newLineAtOffset(120, yPosition);
-            contentStream.showText(locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%");
-            contentStream.endText();
-            yPosition -= 40;
+    // Helper method to draw location data on the PDF
+    private float drawLocationData(PDPageContentStream contentStream, Iterable<ReportProjectsLocationDto> locationData, float x, float y, float lineHeight) throws IOException {
+        for (ReportProjectsLocationDto locationDto : locationData) {
+            String locationText = locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%";
+            drawText(contentStream, PDType1Font.HELVETICA, 12, locationText, x + 20, y);
+            y -= lineHeight * 2; // Move down for the next location
         }
-
-        // Completed Projects by Location
-        contentStream.beginText();
-        contentStream.newLineAtOffset(100, yPosition);
-        contentStream.showText("Completed Projects by Location:");
-        contentStream.endText();
-        yPosition -= 40;
-
-        for (ReportProjectsLocationDto locationDto : reportSummary.getCompletedProjectsByLocation()) {
-            contentStream.beginText();
-            contentStream.newLineAtOffset(120, yPosition);
-            contentStream.showText(locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%");
-            contentStream.endText();
-            yPosition -= 40;
-        }
-
-        // Canceled Projects by Location
-        contentStream.beginText();
-        contentStream.newLineAtOffset(100, yPosition);
-        contentStream.showText("Canceled Projects by Location:");
-        contentStream.endText();
-        yPosition -= 40;
-
-        for (ReportProjectsLocationDto locationDto : reportSummary.getCanceledProjectsByLocation()) {
-            contentStream.beginText();
-            contentStream.newLineAtOffset(120, yPosition);
-            contentStream.showText(locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%");
-            contentStream.endText();
-            yPosition -= 40;
-        }
-
-        // Close the content stream
-        contentStream.close();
-
-        // Save the document
-        document.save(dest);
-
-        // Close the document
-        document.close();
+        return y;
     }
 }
