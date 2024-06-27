@@ -2,6 +2,7 @@ package aor.fpbackend.dto.Project;
 
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -23,7 +24,7 @@ public class ProjectApproveDto implements Serializable {
     private boolean confirm;
 
     @XmlElement
-    @NotNull
+    @NotEmpty
     private String comment;
 
 
