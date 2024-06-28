@@ -13,6 +13,7 @@ import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import aor.fpbackend.utils.GlobalSettings;
+import aor.fpbackend.utils.PassEncoder;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;

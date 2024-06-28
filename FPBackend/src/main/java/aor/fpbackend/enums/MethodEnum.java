@@ -29,7 +29,7 @@ public enum MethodEnum {
     ASSETS_FIRST_LETTER(26L),
     ASSETS_BY_PROJECT(27L),
     TASKS_BY_ID(28L),
-    PROJECT_ENUMS (29l),
+    PROJECT_ENUMS (29L),
     INTEREST_ENUMS(30L),
     ASSET_UPDATE(31L),
     FILTER_ASSETS(32L),
@@ -42,7 +42,7 @@ public enum MethodEnum {
     MARK_NOTIFICATIONS_AS_READ(39L),
     UPDATE_CONFIG(40L),
     USERS_BASIC_INFO(41L),
-    PROJECT_REPORTS(42l);
+    PROJECT_REPORTS(42L);
 
 
     private final long value;

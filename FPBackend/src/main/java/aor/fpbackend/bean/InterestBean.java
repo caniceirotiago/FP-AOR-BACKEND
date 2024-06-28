@@ -105,13 +105,16 @@ public class InterestBean implements Serializable {
     @Transactional
     public void removeInterest(InterestRemoveDto interestRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         // Get the authenticated user
+        System.out.println("Removing interest");
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        System.out.println("Auth user: " + authUserDto.getUserId());
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         if (userEntity == null) {
             throw new UserNotFoundException("User not found");
         }
         // Find the interest by name
         InterestEntity interestEntity = interestDao.findInterestById(interestRemoveDto.getId());
+        System.out.println("Interest entity: " + interestEntity);
         if (interestEntity == null) {
             throw new EntityNotFoundException("Interest not found");
         }

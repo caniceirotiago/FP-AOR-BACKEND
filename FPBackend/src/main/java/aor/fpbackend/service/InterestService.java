@@ -72,6 +72,7 @@ public class InterestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.REMOVE_INTEREST)
     public void removeInterest(@Valid InterestRemoveDto interestRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
+        System.out.println("Removing interest");
         interestBean.removeInterest(interestRemoveDto, securityContext);
     }
 

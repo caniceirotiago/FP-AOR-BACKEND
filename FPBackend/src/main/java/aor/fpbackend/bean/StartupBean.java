@@ -4,6 +4,7 @@ import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.DatabaseOperationException;
+import aor.fpbackend.utils.GlobalSettings;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
@@ -13,12 +14,27 @@ import org.apache.logging.log4j.LogManager;
 
 import java.io.Serializable;
 
-
+/**
+ * StartupBean is a singleton EJB that initializes application data at startup.
+ * It sets up initial roles, laboratories, users, configurations, methods, and permissions.
+ * This bean ensures that the necessary data is available for the application to function correctly.
+ *
+ * <p>
+ * Technologies Used:
+ * <ul>
+ *     <li>Jakarta EE: For dependency injection and EJB management.</li>
+ *     <li>SLF4J: For logging operations.</li>
+ * </ul>
+ * </p>
+ *
+ * Dependencies are injected using the {@link EJB} annotation, which includes beans for role,
+ * laboratory, user, configuration, and method management. The bean uses utility classes for
+ * logging and ensures that transactions are handled appropriately.
+ */
 @Singleton
 @Startup
 public class StartupBean implements Serializable {
     private static final long serialVersionUID = 1L;
-
     @EJB
     RoleBean roleBean;
     @EJB
@@ -32,7 +48,10 @@ public class StartupBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(StartupBean.class);
 
 
-
+    /**
+     * Initializes the application data at startup.
+     * This method is called after the bean's construction and dependency injection.
+     */
     @PostConstruct
     public void init() {
         try {
@@ -42,28 +61,41 @@ public class StartupBean implements Serializable {
         }
     }
 
+
+    /**
+     * Creates the initial data for the application.
+     * This includes roles, laboratories, users, configurations, methods, and permissions.
+     *
+     * @throws DatabaseOperationException if there is an error during the creation of data.
+     */
     private void createData() throws DatabaseOperationException {
-        // Create roles
         createRoles();
-        // Create laboratories
         createLaboratories();
-        // Create default users
         createUsers();
-        // Create default session timeout
-        // Create default max members per project
         createDefaultConfigs();
-        // Create methods
         createMethods();
-        // Define permissions
         addPermissions();
     }
 
+
+    /**
+     * Creates the initial roles for the application.
+     * If a role already exists, it will not be created again.
+     *
+     * @throws DatabaseOperationException if there is an error during role creation.
+     */
     @Transactional
     private void createRoles() throws DatabaseOperationException {
         roleBean.createRoleIfNotExists(UserRoleEnum.ADMIN);
         roleBean.createRoleIfNotExists(UserRoleEnum.STANDARD_USER);
     }
 
+    /**
+     * Creates the initial laboratories for the application.
+     * If a laboratory already exists, it will not be created again.
+     *
+     * @throws DatabaseOperationException if there is an error during laboratory creation.
+     */
     @Transactional
     private void createLaboratories() throws DatabaseOperationException {
         labBean.createLaboratoryIfNotExists(LocationEnum.LISBOA);
@@ -74,6 +106,12 @@ public class StartupBean implements Serializable {
         labBean.createLaboratoryIfNotExists(LocationEnum.VILA_REAL);
     }
 
+    /**
+     * Creates the initial users for the application.
+     * If a user already exists, they will not be created again.
+     *
+     * @throws DatabaseOperationException if there is an error during user creation.
+     */
     @Transactional
     private void createUsers() throws DatabaseOperationException {
         userBean.createDefaultUserIfNotExistent("admin", "https://i.pinimg.com/474x/7e/71/9b/7e719be79d55353a3ce6551d704e43ca.jpg",1, 2);
@@ -84,12 +122,24 @@ public class StartupBean implements Serializable {
         userBean.createDefaultUserIfNotExistent("Manuel", "https://i.pinimg.com/originals/54/8a/65/548a659c2b06a877516d3c998f5b0939.png", 2, 5);
     }
 
+    /**
+     * Creates the initial configurations for the application.
+     * If a configuration already exists, it will not be created again.
+     *
+     * @throws DatabaseOperationException if there is an error during configuration creation.
+     */
     @Transactional
     private void createDefaultConfigs() throws DatabaseOperationException {
-        configBean.createDefaultConfigIfNotExistent("sessionTimeout", 36000000); //10 horas  em milissegundos
-        configBean.createDefaultConfigIfNotExistent("maxProjectMembers", 4);
+        configBean.createDefaultConfigIfNotExistent("sessionTimeout", GlobalSettings.DEFAULT_SESSION_TIMEOUT_MILLIS);
+        configBean.createDefaultConfigIfNotExistent("maxProjectMembers", GlobalSettings.DEFAULT_NUMBER_MEMBERS_PER_PROJECT);
     }
 
+    /**
+     * Creates the initial methods for the application.
+     * If a method already exists, it will not be created again.
+     *
+     * @throws DatabaseOperationException if there is an error during method creation.
+     */
     @Transactional
     private void createMethods() throws DatabaseOperationException {
         methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_ROLE, "updates user role",MethodEnum.UPDATE_ROLE.getValue());
@@ -136,6 +186,13 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_REPORTS, "retrieves a summary of project reports", MethodEnum.PROJECT_REPORTS.getValue());
 
     }
+
+    /**
+     * Adds permissions to roles for the application.
+     * If a permission already exists, it will not be added again.
+     *
+     * @throws DatabaseOperationException if there is an error during permission addition.
+     */
 
     @Transactional
     private void addPermissions() throws DatabaseOperationException {

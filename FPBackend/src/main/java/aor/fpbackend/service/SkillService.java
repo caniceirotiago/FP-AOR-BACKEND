@@ -4,6 +4,7 @@ import aor.fpbackend.bean.SkillBean;
 import aor.fpbackend.dto.Skill.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.SkillTypeEnum;
+import aor.fpbackend.exception.DatabaseOperationException;
 import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -29,7 +30,7 @@ public class SkillService {
     @Path("/add/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_SKILL_USER)
-    public void addSkill(@Valid SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException {
+    public void addSkill(@Valid SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, EntityNotFoundException, UserNotFoundException, DatabaseOperationException {
         skillBean.addSkillUser(skillAddUserDto, securityContext);
     }
 
@@ -38,7 +39,7 @@ public class SkillService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_SKILL_PROJECT)
-    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException {
+    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException, DatabaseOperationException {
         skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), skillAddProjectDto.getProjectId());
 
     }
@@ -47,7 +48,7 @@ public class SkillService {
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ALL_SKILLS)
-    public List<SkillGetDto> getAllSkills() {
+    public List<SkillGetDto> getAllSkills() throws DatabaseOperationException {
         return skillBean.getSkills();
     }
 
@@ -55,7 +56,7 @@ public class SkillService {
     @Path("/user/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.SKILLS_BY_USER)
-    public List<SkillGetDto> getAllSkillsByUser(@PathParam("username") String username) throws EntityNotFoundException {
+    public List<SkillGetDto> getAllSkillsByUser(@PathParam("username") String username) throws EntityNotFoundException, DatabaseOperationException {
         return skillBean.getSkillsByUser(username);
     }
 
@@ -63,7 +64,7 @@ public class SkillService {
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.SKILLS_BY_PROJECT)
-    public List<SkillGetDto> getAllSkillsByProject(@PathParam("projectId") long projectId) {
+    public List<SkillGetDto> getAllSkillsByProject(@PathParam("projectId") long projectId) throws DatabaseOperationException {
         return skillBean.getSkillsByProject(projectId);
     }
 
@@ -71,7 +72,7 @@ public class SkillService {
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.SKILLS_FIRST_LETTER)
-    public List<SkillGetDto> getAllSkillsByFirstLetter(@QueryParam("value") String firstLetter) {
+    public List<SkillGetDto> getAllSkillsByFirstLetter(@QueryParam("value") String firstLetter) throws DatabaseOperationException {
         return skillBean.getSkillsByFirstLetter(firstLetter);
     }
 
