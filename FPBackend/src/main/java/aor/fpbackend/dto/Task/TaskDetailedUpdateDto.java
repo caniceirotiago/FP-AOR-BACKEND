@@ -4,6 +4,7 @@ import aor.fpbackend.enums.TaskStateEnum;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -21,10 +22,11 @@ public class TaskDetailedUpdateDto implements Serializable {
 
     @XmlElement
     @NotNull
+    @Size(min = 1, max = 25)
     private String title;
 
     @XmlElement
-    @NotNull
+    @Size(max = 2048)
     private String description;
 
     @XmlElement
@@ -48,6 +50,7 @@ public class TaskDetailedUpdateDto implements Serializable {
     private List<Long> registeredExecutors;
 
     @XmlElement
+    @Size(max = 2048)
     private String nonRegisteredExecutors;
     @XmlElement
     private boolean isDeleted;

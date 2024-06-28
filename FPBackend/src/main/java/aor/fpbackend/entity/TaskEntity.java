@@ -2,6 +2,7 @@ package aor.fpbackend.entity;
 
 import jakarta.persistence.*;
 import aor.fpbackend.enums.TaskStateEnum;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -24,10 +25,12 @@ public class TaskEntity implements Serializable {
     @Column(name = "id", updatable = false)
     private long id;
 
-    @Column(name = "title", nullable = false, updatable = false)
+    @Column(name = "title", nullable = false, updatable = true)
+    @Size(min = 1, max = 25)
     private String title;
 
     @Column(name = "description", nullable = true, length = 2048)
+    @Size(max = 2048)
     private String description;
 
     @Column(name = "creation_date", nullable = false)
@@ -68,7 +71,8 @@ public class TaskEntity implements Serializable {
     )
     private Set<UserEntity> registeredExecutors = new HashSet<>();
 
-    @Column(name = "additional_executors", nullable = true)
+    @Column(name = "additional_executors", nullable = true, length = 2048)
+    @Size( max = 2048)
     private String additionalExecutors;
 
     @ManyToOne
