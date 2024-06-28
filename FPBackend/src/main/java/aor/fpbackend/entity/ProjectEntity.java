@@ -16,25 +16,20 @@ import java.util.Set;
 @NamedQuery(name = "Project.findProjectByName", query = "SELECT p FROM ProjectEntity p WHERE LOWER(p.name) = LOWER(:name)")
 @NamedQuery(name = "Project.findAllProjects", query = "SELECT p FROM ProjectEntity p")
 @NamedQuery(name = "Project.getAllProjectsIds", query = "SELECT p.id FROM ProjectEntity p")
-@NamedQuery(name = "Project.countProjectsByLaboratory",
-        query = "SELECT p.laboratory.location, COUNT(p) FROM ProjectEntity p GROUP BY p.laboratory.location")
 @NamedQuery(name = "Project.averageMembersPerProject",
-        query = "SELECT AVG((SELECT COUNT(m) FROM ProjectMembershipEntity m WHERE m.project.id = p.id)) FROM ProjectEntity p")
-@NamedQuery(name = "Project.projectsByLocationAndApproval", query = "SELECT p.laboratory.location, COUNT(p), (COUNT(p) * 1.0 / (SELECT COUNT(p1) FROM ProjectEntity p1 WHERE p1.isApproved = true)) * 100.0 FROM ProjectEntity p WHERE p.isApproved = :isApprovedParam GROUP BY p.laboratory.location")
-@NamedQuery(name = "Project.projectsByLocationAndState", query = "SELECT p.laboratory.location, COUNT(p), (COUNT(p) * 1.0 / (SELECT COUNT(p1) FROM ProjectEntity p1 WHERE p1.state = :stateParam)) * 100.0 FROM ProjectEntity p WHERE p.state = :stateParam GROUP BY p.laboratory.location")
-
-@NamedQuery(
-        name = "Project.averageProjectDuration",
-        query = "SELECT AVG(FUNCTION('DATEDIFF', p.finalDate, p.initialDate)) FROM ProjectEntity p WHERE p.initialDate IS NOT NULL AND p.finalDate IS NOT NULL"
-)
-
-
-
-
-
-
-
-
+        query = "SELECT FUNCTION('ROUND', AVG((SELECT COUNT(m) FROM ProjectMembershipEntity m WHERE m.project.id = p.id)), 2) FROM ProjectEntity p")
+@NamedQuery(name = "Project.averageProjectDuration",
+        query = "SELECT FUNCTION('ROUND', AVG(FUNCTION('DATEDIFF', p.finalDate, p.initialDate)), 2) FROM ProjectEntity p WHERE p.initialDate IS NOT NULL AND p.finalDate IS NOT NULL")
+@NamedQuery(name = "Project.countProjectsByLaboratory",
+        query = "SELECT p.laboratory.location, COUNT(p), FUNCTION('ROUND', (COUNT(p) * 100.0 / (SELECT COUNT(p1) FROM ProjectEntity p1))) " +
+                "FROM ProjectEntity p GROUP BY p.laboratory.location")
+@NamedQuery(name = "Project.projectsByLocationAndApproval",
+        query = "SELECT p.laboratory.location, COUNT(p), FUNCTION('ROUND', (COUNT(p) * 1.0 / (SELECT COUNT(p1) FROM ProjectEntity p1 WHERE p1.isApproved = true)) * 100.0, 2) " +
+                "FROM ProjectEntity p WHERE p.isApproved = :isApprovedParam " +
+                "GROUP BY p.laboratory.location")
+@NamedQuery(name = "Project.projectsByLocationAndState",
+        query = "SELECT p.laboratory.location, COUNT(p), FUNCTION('ROUND', (COUNT(p) * 100.0 / (SELECT COUNT(p1) FROM ProjectEntity p1 WHERE p1.state = :stateParam)), 2) " +
+                "FROM ProjectEntity p WHERE p.state = :stateParam GROUP BY p.laboratory.location")
 
 public class ProjectEntity implements Serializable {
     private static final long serialVersionUID = 1L;

@@ -30,8 +30,8 @@ public class ReportBean implements Serializable {
     @EJB
     PdfGenerator pdfGenerator;
 
-    // Generate PDF Report
-    public String generatePdfReport() throws IOException {
+    // Generate PDF Report for Projects
+    public String generateProjectPdfReport() throws IOException {
         ReportSummaryDto reportSummary = getReportSummary();
         // Use environment variable or default to a relative directory
         String baseDir = System.getenv("PDF_REPORT_DIR");
@@ -51,87 +51,51 @@ public class ReportBean implements Serializable {
     // Consolidate Data Retrieval for Project Report
     public ReportSummaryDto getReportSummary() {
         ReportSummaryDto reportSummary = new ReportSummaryDto();
-
         reportSummary.setAverageMembersPerProject(getAverageMembersPerProject());
         reportSummary.setAverageProjectDuration(getAverageProjectDuration());
         reportSummary.setProjectCountByLocation(getProjectCountByLocation());
         reportSummary.setApprovedProjectsByLocation(getProjectsByLocationAndApproval(true));
         reportSummary.setCompletedProjectsByLocation(getProjectsByLocationAndState(ProjectStateEnum.FINISHED));
         reportSummary.setCanceledProjectsByLocation(getProjectsByLocationAndState(ProjectStateEnum.CANCELLED));
-
         return reportSummary;
     }
 
     // Average members per project
     public ReportAverageResultDto getAverageMembersPerProject() {
         Double averageMembers = projectDao.getAverageMembersPerProject();
-        // Ensure the average is not null and handle it appropriately
+        // Handle null case if no average found
         if (averageMembers == null) {
-            averageMembers = 0.0;
+            averageMembers = 0.0; //
         }
-        // Format the average to 2 decimal places
-        String formattedAverage = String.format(Locale.US,"%.2f", averageMembers);
-        double roundedAverage = Double.parseDouble(formattedAverage);
-        return new ReportAverageResultDto(roundedAverage);
+        return new ReportAverageResultDto(averageMembers);
     }
 
     // Average project duration
     public ReportAverageResultDto getAverageProjectDuration() {
         Double averageDuration = projectDao.getAverageProjectDuration();
-        // Handle null case if no projects or durations found
+        // Handle null case if no average found
         if (averageDuration == null) {
-            averageDuration = 0.0; // or any default value as per your business logic
+            averageDuration = 0.0;
         }
-        // Format the average to 2 decimal places
-        String formattedAverage = String.format(Locale.US,"%.2f", averageDuration);
-        double roundedAverage = Double.parseDouble(formattedAverage);
-        return new ReportAverageResultDto(roundedAverage);
+        return new ReportAverageResultDto(averageDuration);
     }
 
     // Projects count by laboratory location
     public List<ReportProjectsLocationDto> getProjectCountByLocation() {
-        Map<LocationEnum, Long> projectCountByLaboratory = countProjectsByLocation();
-        long totalProjects = projectCountByLaboratory.values().stream().mapToLong(Long::longValue).sum();
-
+        List<Object[]> results = projectDao.countProjectsByLaboratory();
         List<ReportProjectsLocationDto> projectCountDtos = new ArrayList<>();
-
-        for (Map.Entry<LocationEnum, Long> entry : projectCountByLaboratory.entrySet()) {
-            double rawPercentage = (double) entry.getValue() * 100 / totalProjects;
-            // Format the average to 2 decimal places
-            String formattedPercentageStr = String.format(Locale.US, "%.2f", rawPercentage);
-            double formattedPercentage = Double.parseDouble(formattedPercentageStr);
-            projectCountDtos.add(new ReportProjectsLocationDto(entry.getKey(), entry.getValue(), formattedPercentage));
+        for (Object[] result : results) {
+            LocationEnum location = (LocationEnum) result[0];
+            Long count = (Long) result[1];
+            Double percentage = (Double) result[2];
+            projectCountDtos.add(new ReportProjectsLocationDto(location, count, percentage));
         }
         return projectCountDtos;
-    }
-
-    private Map<LocationEnum, Long> countProjectsByLocation() {
-        List<Object[]> results = projectDao.countProjectsByLaboratory();
-
-        Map<LocationEnum, Long> projectCountByLaboratory = new HashMap<>();
-        for (Object[] result : results) {
-            LocationEnum laboratoryLocation = (LocationEnum) result[0];
-            Long count = (Long) result[1];
-            projectCountByLaboratory.put(laboratoryLocation, count);
-        }
-        return projectCountByLaboratory;
     }
 
     // Approved projects by location and approval
     public List<ReportProjectsLocationDto> getProjectsByLocationAndApproval(boolean isApproved) {
         List<Object[]> results = projectDao.getProjectsByLocationAndApproval(isApproved);
-        List<ReportProjectsLocationDto> projectsByLocationDtos = projectsByLocation(results);
-
-        // Format percentage to 2 decimal places
-        for (ReportProjectsLocationDto dto : projectsByLocationDtos) {
-            String formattedPercentage = String.format(Locale.US, "%.2f", dto.getProjectPercentage());
-            double roundedPercentage = Double.parseDouble(formattedPercentage);
-            dto.setProjectPercentage(roundedPercentage);
-        }
-        return projectsByLocationDtos;
-    }
-
-    private List<ReportProjectsLocationDto> projectsByLocation(List<Object[]> results) {
         List<ReportProjectsLocationDto> projectsByLocationDtos = new ArrayList<>();
         for (Object[] result : results) {
             LocationEnum location = (LocationEnum) result[0];
@@ -145,17 +109,39 @@ public class ReportBean implements Serializable {
     // Approved projects by location and state
     public List<ReportProjectsLocationDto> getProjectsByLocationAndState(ProjectStateEnum state) {
         List<Object[]> results = projectDao.getProjectsByLocationAndState(state);
-
         List<ReportProjectsLocationDto> projectsByLocationDtos = new ArrayList<>();
         for (Object[] result : results) {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
             Double percentage = (Double) result[2];
-            String formattedPercentage = String.format(Locale.US, "%.2f", percentage);
-            double roundedPercentage = Double.parseDouble(formattedPercentage);
-            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, roundedPercentage));
+            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage));
         }
         return projectsByLocationDtos;
     }
+
+
+    // Generate PDF Report for Assets
+    public String generateAssetPdfReport() throws IOException {
+        ReportSummaryDto reportSummary = getReportSummary();
+
+        // Use environment variable or default to a relative directory
+        String baseDir = System.getenv("PDF_REPORT_DIR");
+        if (baseDir == null || baseDir.isEmpty()) {
+            baseDir = "generated-pdfs"; // Relative path to the project root
+        }
+
+        // Ensure the directory exists
+        Path dirPath = Paths.get(baseDir).toAbsolutePath();
+        Files.createDirectories(dirPath);
+
+        // Construct the file path
+        Path pdfFilePath = dirPath.resolve("asset_summary_report.pdf");
+
+        // Generate the PDF report
+        pdfGenerator.generateAssetReport(reportSummary, pdfFilePath.toString());
+
+        return pdfFilePath.toString();
+    }
+
 
 }

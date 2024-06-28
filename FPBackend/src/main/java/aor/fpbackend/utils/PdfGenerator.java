@@ -96,4 +96,9 @@ public class PdfGenerator {
         }
         return y;
     }
+
+    // Method for Assets!!!
+    public void generateAssetReport(ReportSummaryDto reportSummary, String dest) throws IOException {
+
+    }
 }
