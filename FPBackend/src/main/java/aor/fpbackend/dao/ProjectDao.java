@@ -211,7 +211,6 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         return query.getResultList();
     }
 
-
     public List<Object[]> getProjectsByLocationAndState(ProjectStateEnum state) {
         Query query = em.createNamedQuery("Project.projectsByLocationAndState");
         query.setParameter("stateParam", state);

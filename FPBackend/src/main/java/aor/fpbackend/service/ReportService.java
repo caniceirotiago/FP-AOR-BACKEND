@@ -31,12 +31,29 @@ public class ReportService {
     @Path("/project/summary/pdf")
     @Produces("application/pdf")
     @RequiresMethodPermission(MethodEnum.PROJECT_REPORTS)
-    public Response getReportSummaryPdf() {
+    public Response getProjectReportSummaryPdf() {
         try {
-            String saveFolderPath = reportBean.generatePdfReport();
+            String saveFolderPath = reportBean.generateProjectPdfReport();
             File file = new File(saveFolderPath);
             Response.ResponseBuilder response = Response.ok((Object) file);
             response.header("Content-Disposition", "attachment; filename=project_summary_report.pdf");
+            return response.build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("PDF generation failed").build();
+        }
+    }
+
+    @GET
+    @Path("/asset/summary/pdf")
+    @Produces("application/pdf")
+    @RequiresMethodPermission(MethodEnum.PROJECT_REPORTS)
+    public Response getAssetReportSummaryPdf() {
+        try {
+            String saveFolderPath = reportBean.generateAssetPdfReport();
+            File file = new File(saveFolderPath);
+            Response.ResponseBuilder response = Response.ok((Object) file);
+            response.header("Content-Disposition", "attachment; filename=asset_summary_report.pdf");
             return response.build();
         } catch (IOException e) {
             e.printStackTrace();
