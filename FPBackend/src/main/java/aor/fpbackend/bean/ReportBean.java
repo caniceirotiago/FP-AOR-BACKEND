@@ -62,6 +62,32 @@ public class ReportBean implements Serializable {
         return reportSummary;
     }
 
+    // Average members per project
+    public ReportAverageResultDto getAverageMembersPerProject() {
+        Double averageMembers = projectDao.getAverageMembersPerProject();
+        // Ensure the average is not null and handle it appropriately
+        if (averageMembers == null) {
+            averageMembers = 0.0;
+        }
+        // Format the average to 2 decimal places
+        String formattedAverage = String.format(Locale.US,"%.2f", averageMembers);
+        double roundedAverage = Double.parseDouble(formattedAverage);
+        return new ReportAverageResultDto(roundedAverage);
+    }
+
+    // Average project duration
+    public ReportAverageResultDto getAverageProjectDuration() {
+        Double averageDuration = projectDao.getAverageProjectDuration();
+        // Handle null case if no projects or durations found
+        if (averageDuration == null) {
+            averageDuration = 0.0; // or any default value as per your business logic
+        }
+        // Format the average to 2 decimal places
+        String formattedAverage = String.format(Locale.US,"%.2f", averageDuration);
+        double roundedAverage = Double.parseDouble(formattedAverage);
+        return new ReportAverageResultDto(roundedAverage);
+    }
+
     // Projects count by laboratory location
     public List<ReportProjectsLocationDto> getProjectCountByLocation() {
         Map<LocationEnum, Long> projectCountByLaboratory = countProjectsByLocation();
@@ -91,33 +117,7 @@ public class ReportBean implements Serializable {
         return projectCountByLaboratory;
     }
 
-    // Average members per project
-    public ReportAverageResultDto getAverageMembersPerProject() {
-        Double averageMembers = projectDao.getAverageMembersPerProject();
-        // Ensure the average is not null and handle it appropriately
-        if (averageMembers == null) {
-            averageMembers = 0.0;
-        }
-        // Format the average to 2 decimal places
-        String formattedAverage = String.format(Locale.US,"%.2f", averageMembers);
-        double roundedAverage = Double.parseDouble(formattedAverage);
-        return new ReportAverageResultDto(roundedAverage);
-    }
-
-    // Average project duration
-    public ReportAverageResultDto getAverageProjectDuration() {
-        Double averageDuration = projectDao.getAverageProjectDuration();
-        // Handle null case if no projects or durations found
-        if (averageDuration == null) {
-            averageDuration = 0.0; // or any default value as per your business logic
-        }
-        // Format the average to 2 decimal places
-        String formattedAverage = String.format(Locale.US,"%.2f", averageDuration);
-        double roundedAverage = Double.parseDouble(formattedAverage);
-        return new ReportAverageResultDto(roundedAverage);
-    }
-
-    // Approved projects by location
+    // Approved projects by location and approval
     public List<ReportProjectsLocationDto> getProjectsByLocationAndApproval(boolean isApproved) {
         List<Object[]> results = projectDao.getProjectsByLocationAndApproval(isApproved);
         List<ReportProjectsLocationDto> projectsByLocationDtos = projectsByLocation(results);
@@ -142,8 +142,7 @@ public class ReportBean implements Serializable {
         return projectsByLocationDtos;
     }
 
-
-    // Approved projects by location
+    // Approved projects by location and state
     public List<ReportProjectsLocationDto> getProjectsByLocationAndState(ProjectStateEnum state) {
         List<Object[]> results = projectDao.getProjectsByLocationAndState(state);
 
@@ -152,7 +151,9 @@ public class ReportBean implements Serializable {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
             Double percentage = (Double) result[2];
-            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage));
+            String formattedPercentage = String.format(Locale.US, "%.2f", percentage);
+            double roundedPercentage = Double.parseDouble(formattedPercentage);
+            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, roundedPercentage));
         }
         return projectsByLocationDtos;
     }
