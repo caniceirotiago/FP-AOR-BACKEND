@@ -4,6 +4,7 @@ import aor.fpbackend.enums.TaskStateEnum;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -19,13 +20,15 @@ public class TaskUpdateDto implements Serializable {
     private long taskId;
 
     @XmlElement
-    @NotNull
+    @Size( max = 2048)
     private String description;
 
     @XmlElement
+    @NotNull
     private Instant plannedStartDate;
 
     @XmlElement
+    @NotNull
     private Instant plannedEndDate;
 
     @XmlElement

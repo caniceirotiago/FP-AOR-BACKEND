@@ -22,7 +22,6 @@ import jakarta.ws.rs.core.*;
 import org.apache.logging.log4j.LogManager;
 import java.io.Serializable;
 import java.net.UnknownHostException;
-import java.time.Duration;
 import java.time.Instant;
 import aor.fpbackend.exception.UserNotFoundException;
 import org.apache.logging.log4j.ThreadContext;

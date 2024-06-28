@@ -4,6 +4,7 @@ import aor.fpbackend.bean.TaskBean;
 import aor.fpbackend.dto.Task.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.TaskStateEnum;
+import aor.fpbackend.exception.DatabaseOperationException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
@@ -26,13 +27,14 @@ public class TaskService {
     @EJB
     TaskBean taskBean;
 
-    @GET
-    @Path("")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RequiresProjectMemberPermission()
-    public List<TaskGetDto> getAllTasks() {
-        return taskBean.getTasks();
-    }
+    //TODO acho que não está a ser utilizado
+//    @GET
+//    @Path("")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @RequiresProjectMemberPermission()
+//    public List<TaskGetDto> getAllTasks() {
+//        return taskBean.getTasks();
+//    }
 
     @GET
     @Path("/project/{projectId}")
@@ -78,7 +80,7 @@ public class TaskService {
     @Path("/dependency/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void removeDependencyFromTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
+    public void removeDependencyFromTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, DatabaseOperationException {
         taskBean.removeDependencyTask(addDependencyDto);
     }
 
@@ -94,7 +96,7 @@ public class TaskService {
     @Path("/detailed/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void updateTaskDetailed(@Valid TaskDetailedUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UserNotFoundException, UnknownHostException {
+    public void updateTaskDetailed(@Valid TaskDetailedUpdateDto taskUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UserNotFoundException, UnknownHostException, DatabaseOperationException {
         taskBean.taskDetailedUpdate(taskUpdateDto, securityContext);
     }
 
