@@ -193,8 +193,9 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         return predicates;
     }
 
-    // Methods for Reports
 
+
+    // Methods for Project Report
     public List<Object[]> countProjectsByLaboratory() {
         TypedQuery<Object[]> query = em.createNamedQuery("Project.countProjectsByLaboratory", Object[].class);
         return query.getResultList();

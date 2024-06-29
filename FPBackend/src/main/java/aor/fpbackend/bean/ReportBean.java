@@ -1,9 +1,11 @@
 package aor.fpbackend.bean;
 
+import aor.fpbackend.dao.ProjectAssetDao;
 import aor.fpbackend.dao.ProjectDao;
+import aor.fpbackend.dto.Report.ReportAssetSummaryDto;
 import aor.fpbackend.dto.Report.ReportAverageResultDto;
 import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
-import aor.fpbackend.dto.Report.ReportSummaryDto;
+import aor.fpbackend.dto.Report.ReportProjectSummaryDto;
 import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.utils.PdfGenerator;
@@ -26,13 +28,14 @@ public class ReportBean implements Serializable {
     private static final Logger LOGGER = LogManager.getLogger(aor.fpbackend.bean.ReportBean.class);
     @EJB
     ProjectDao projectDao;
-
+    @EJB
+    ProjectAssetDao projectAssetDao;
     @EJB
     PdfGenerator pdfGenerator;
 
     // Generate PDF Report for Projects
     public String generateProjectPdfReport() throws IOException {
-        ReportSummaryDto reportSummary = getReportSummary();
+        ReportProjectSummaryDto projectReportSummary = getProjectReportSummary();
         // Use environment variable or default to a relative directory
         String baseDir = System.getenv("PDF_REPORT_DIR");
         if (baseDir == null || baseDir.isEmpty()) {
@@ -44,13 +47,13 @@ public class ReportBean implements Serializable {
         // Construct the file path
         Path pdfFilePath = dirPath.resolve("project_summary_report.pdf");
         // Generate the PDF report
-        pdfGenerator.generateProjectReport(reportSummary, pdfFilePath.toString());
+        pdfGenerator.generateProjectReport(projectReportSummary, pdfFilePath.toString());
         return pdfFilePath.toString();
     }
 
     // Consolidate Data Retrieval for Project Report
-    public ReportSummaryDto getReportSummary() {
-        ReportSummaryDto reportSummary = new ReportSummaryDto();
+    public ReportProjectSummaryDto getProjectReportSummary() {
+        ReportProjectSummaryDto reportSummary = new ReportProjectSummaryDto();
         reportSummary.setAverageMembersPerProject(getAverageMembersPerProject());
         reportSummary.setAverageProjectDuration(getAverageProjectDuration());
         reportSummary.setProjectCountByLocation(getProjectCountByLocation());
@@ -122,26 +125,30 @@ public class ReportBean implements Serializable {
 
     // Generate PDF Report for Assets
     public String generateAssetPdfReport() throws IOException {
-        ReportSummaryDto reportSummary = getReportSummary();
-
+        ReportAssetSummaryDto assetReportSummary = getAssetReportSummary();
         // Use environment variable or default to a relative directory
         String baseDir = System.getenv("PDF_REPORT_DIR");
         if (baseDir == null || baseDir.isEmpty()) {
             baseDir = "generated-pdfs"; // Relative path to the project root
         }
-
         // Ensure the directory exists
         Path dirPath = Paths.get(baseDir).toAbsolutePath();
         Files.createDirectories(dirPath);
-
         // Construct the file path
         Path pdfFilePath = dirPath.resolve("asset_summary_report.pdf");
-
         // Generate the PDF report
-        pdfGenerator.generateAssetReport(reportSummary, pdfFilePath.toString());
-
+        pdfGenerator.generateAssetReport(assetReportSummary, pdfFilePath.toString());
         return pdfFilePath.toString();
     }
 
+    // Consolidate Data Retrieval for Asset Report
+    public ReportAssetSummaryDto getAssetReportSummary() {
+        List<Object[]> topProjectsByUsedQuantity = projectAssetDao.getTopProjectsByUsedQuantity();
+        List<Object[]> topAssetsByUsedQuantity = projectAssetDao.getTopAssetsByUsedQuantity();
+        ReportAssetSummaryDto assetReportSummary = new ReportAssetSummaryDto();
+        assetReportSummary.setTopProjectsByUsedQuantity(topProjectsByUsedQuantity);
+        assetReportSummary.setTopAssetsByUsedQuantity(topAssetsByUsedQuantity);
+        return assetReportSummary;
+    }
 
 }
