@@ -622,7 +622,8 @@ public class ProjectBean implements Serializable {
             }
         }
         if (projectUpdateDto.getConclusionDate() != null && projectUpdateDto.getConclusionDate().isBefore(Instant.now())) {
-            throw new IllegalArgumentException("Conclusion date cannot be in the past");
+            //make the concluision date the day after the present day
+            projectUpdateDto.setConclusionDate(Instant.now().plus(1, ChronoUnit.DAYS));
         }
         // Find associated laboratory
         LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(projectUpdateDto.getLaboratoryId());
