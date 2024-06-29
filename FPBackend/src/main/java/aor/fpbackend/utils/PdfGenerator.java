@@ -26,62 +26,70 @@ public class PdfGenerator {
             // Create a new document
             PDDocument document = new PDDocument();
             try {
-                // Initialize page and content stream
-                PDPage page = new PDPage();
-                document.addPage(page);
-                PDPageContentStream contentStream = new PDPageContentStream(document, page);
+                // Initialize pages and content streams
+                PDImageXObject logo = PDImageXObject.createFromByteArray(document, IOUtils.toByteArray(logoStream), "logo");
+                PDPageContentStream contentStream = null;
+
+                // First Page
+                PDPage firstPage = new PDPage();
+                document.addPage(firstPage);
+                contentStream = new PDPageContentStream(document, firstPage);
+                insertLogo(contentStream, logo, firstPage.getMediaBox().getWidth());
 
                 // Define starting position and line height
-                float margin = 50; // Margin from top of the page
-                float yPosition = page.getMediaBox().getHeight() - margin; // Start at the top margin
-                float lineHeight = 12; // Adjust line height as needed
-
-                // Draw the logo at the top of the page
-                PDImageXObject logo = PDImageXObject.createFromByteArray(document, IOUtils.toByteArray(logoStream), "logo");
-                contentStream.drawImage(logo, 450, yPosition - 10, 100, 50); // Adjust x, y, width, height as needed
+                float xMargin = 120;
+                float yMargin = 80;
+                float[] yPosition = new float[]{firstPage.getMediaBox().getHeight() - yMargin}; // Start at the top margin
+                float lineHeight = 12;
 
                 // Title
-                yPosition -= 10; // Adjust for the logo height
-                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 16, "Project Report Summary", margin + 140, yPosition);
-                yPosition -= lineHeight * 4; // Move down for the next line
+                yPosition[0] -= 40;
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 16, "Project Report", xMargin + 100, yPosition[0]);
+                yPosition[0] -= lineHeight * 4;
 
-                // Average Members per Project
-                drawText(contentStream, PDType1Font.HELVETICA, 12, "Average Members per Project: " + reportSummary.getAverageMembersPerProject().getAverage(), margin, yPosition);
-                yPosition -= lineHeight * 2; // Move down for the next section
+                // Average Members per Project - title and value
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Average Members per Project: ", xMargin, yPosition[0]);
+                yPosition[0] -= lineHeight * 1.2;
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA, 12, reportSummary.getAverageMembersPerProject().getAverage() + " members", xMargin + 20, yPosition[0]);
+                yPosition[0] -= lineHeight * 2;
 
-                // Average Project Duration
-                drawText(contentStream, PDType1Font.HELVETICA, 12, "Average Project Duration: " + reportSummary.getAverageProjectDuration().getAverage(), margin, yPosition);
-                yPosition -= lineHeight * 2; // Move down for the next section
-
+                // Average Project Duration - title and value
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Average Project Duration: ", xMargin, yPosition[0]);
+                yPosition[0] -= lineHeight * 1.2;
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA, 12, reportSummary.getAverageProjectDuration().getAverage() + " days", xMargin + 20, yPosition[0]);
+                yPosition[0] -= lineHeight * 2;
                 // Project Count by Location
-                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Project Count by Location:", margin, yPosition);
-                yPosition -= lineHeight * 2; // Move down for the next section
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Project Count by Location:", xMargin, yPosition[0]);
+                yPosition[0] -= lineHeight * 2;
+                yPosition[0] = drawLocationData(contentStream, reportSummary.getProjectCountByLocation(), xMargin, yPosition[0], lineHeight);
 
-                // Iterate over Project Count by Location
-                yPosition = drawLocationData(contentStream, reportSummary.getProjectCountByLocation(), margin, yPosition, lineHeight);
+                // Close the content stream for the first page
+                contentStream.close();
+
+                // Add second page and its content
+                PDPage secondPage = new PDPage();
+                document.addPage(secondPage);
+                contentStream = new PDPageContentStream(document, secondPage);
+                insertLogo(contentStream, logo, secondPage.getMediaBox().getWidth());
 
                 // Approved Projects by Location
-                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Approved Projects by Location:", margin, yPosition);
-                yPosition -= lineHeight * 2; // Move down for the next section
-
-                // Iterate over Approved Projects by Location
-                yPosition = drawLocationData(contentStream, reportSummary.getApprovedProjectsByLocation(), margin, yPosition, lineHeight);
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Approved Projects by Location:", xMargin, secondPage.getMediaBox().getHeight() - yMargin - 50);
+                yPosition[0] -= lineHeight * 1.2;
+                yPosition[0] = drawLocationData(contentStream, reportSummary.getApprovedProjectsByLocation(), xMargin, yPosition[0], lineHeight);
 
                 // Completed Projects by Location
-                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Completed Projects by Location:", margin, yPosition);
-                yPosition -= lineHeight * 2; // Move down for the next section
-
-                // Iterate over Completed Projects by Location
-                yPosition = drawLocationData(contentStream, reportSummary.getCompletedProjectsByLocation(), margin, yPosition, lineHeight);
+                yPosition[0] -= lineHeight * 1;
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Completed Projects by Location:", xMargin, yPosition[0]);
+                yPosition[0] -= lineHeight * 1.2;
+                yPosition[0] = drawLocationData(contentStream, reportSummary.getCompletedProjectsByLocation(), xMargin, yPosition[0], lineHeight);
 
                 // Canceled Projects by Location
-                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Canceled Projects by Location:", margin, yPosition);
-                yPosition -= lineHeight * 2; // Move down for the next section
+                yPosition[0] -= lineHeight * 1;
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Canceled Projects by Location:", xMargin, yPosition[0]);
+                yPosition[0] -= lineHeight * 1.2;
+                yPosition[0] = drawLocationData(contentStream, reportSummary.getCanceledProjectsByLocation(), xMargin, yPosition[0], lineHeight);
 
-                // Iterate over Canceled Projects by Location
-                yPosition = drawLocationData(contentStream, reportSummary.getCanceledProjectsByLocation(), margin, yPosition, lineHeight);
-
-                // Close the content stream
+                // Close the content stream for the second page
                 contentStream.close();
 
                 // Save the document
@@ -93,24 +101,34 @@ public class PdfGenerator {
         }
     }
 
+    // Helper method to insert logo
+    private void insertLogo(PDPageContentStream contentStream, PDImageXObject logo, float pageWidth) throws IOException {
+        contentStream.drawImage(logo, pageWidth - 150, 700, 100, 50); // Adjust x, y, width, height as needed
+    }
+
     // Helper method to draw text on the PDF
-    private void drawText(PDPageContentStream contentStream, PDType1Font font, int fontSize, String text, float x, float y) throws IOException {
+    private float drawText(PDPageContentStream contentStream, PDType1Font font, int fontSize, String text, float x, float y) throws IOException {
         contentStream.setFont(font, fontSize);
         contentStream.beginText();
         contentStream.newLineAtOffset(x, y);
         contentStream.showText(text);
         contentStream.endText();
+        // Calculate the height of the text
+        float textHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize;
+        // Return the updated y position
+        return y - textHeight;
     }
 
     // Helper method to draw location data on the PDF
     private float drawLocationData(PDPageContentStream contentStream, Iterable<ReportProjectsLocationDto> locationData, float x, float y, float lineHeight) throws IOException {
         for (ReportProjectsLocationDto locationDto : locationData) {
-            String locationText = locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%";
-            drawText(contentStream, PDType1Font.HELVETICA, 12, locationText, x + 20, y);
-            y -= lineHeight * 2; // Move down for the next location
+            String locationText = "Location: " + locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%";
+            y = drawText(contentStream, PDType1Font.HELVETICA, 12, locationText, x + 20, y);
+            y -= lineHeight * 1.2;
         }
         return y;
     }
+
 
     // Method for Assets!!!
     public void generateAssetReport(ReportSummaryDto reportSummary, String dest) throws IOException {

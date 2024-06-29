@@ -22,14 +22,14 @@ import java.util.Set;
         query = "SELECT FUNCTION('ROUND', AVG(FUNCTION('DATEDIFF', p.finalDate, p.initialDate)), 2) FROM ProjectEntity p WHERE p.initialDate IS NOT NULL AND p.finalDate IS NOT NULL")
 @NamedQuery(name = "Project.countProjectsByLaboratory",
         query = "SELECT p.laboratory.location, COUNT(p), FUNCTION('ROUND', (COUNT(p) * 100.0 / (SELECT COUNT(p1) FROM ProjectEntity p1))) " +
-                "FROM ProjectEntity p GROUP BY p.laboratory.location")
+                "FROM ProjectEntity p GROUP BY p.laboratory.location ORDER BY COUNT(p) DESC")
 @NamedQuery(name = "Project.projectsByLocationAndApproval",
         query = "SELECT p.laboratory.location, COUNT(p), FUNCTION('ROUND', (COUNT(p) * 1.0 / (SELECT COUNT(p1) FROM ProjectEntity p1 WHERE p1.isApproved = true)) * 100.0, 2) " +
                 "FROM ProjectEntity p WHERE p.isApproved = :isApprovedParam " +
-                "GROUP BY p.laboratory.location")
+                "GROUP BY p.laboratory.location ORDER BY COUNT(p) DESC")
 @NamedQuery(name = "Project.projectsByLocationAndState",
         query = "SELECT p.laboratory.location, COUNT(p), FUNCTION('ROUND', (COUNT(p) * 100.0 / (SELECT COUNT(p1) FROM ProjectEntity p1 WHERE p1.state = :stateParam)), 2) " +
-                "FROM ProjectEntity p WHERE p.state = :stateParam GROUP BY p.laboratory.location")
+                "FROM ProjectEntity p WHERE p.state = :stateParam GROUP BY p.laboratory.location ORDER BY COUNT(p) DESC")
 
 public class ProjectEntity implements Serializable {
     private static final long serialVersionUID = 1L;
