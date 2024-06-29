@@ -11,31 +11,32 @@ import java.util.List;
 public class ReportAssetSummaryDto implements Serializable {
 
     @XmlElement
-    private List<Object[]> usedQuantityByProject;
+    private List<Object[]> topProjectsByUsedQuantity;
+
     @XmlElement
-    private List<Object[]> usedQuantityByAssetType;
+    private List<Object[]> topAssetsByUsedQuantity;
 
     public ReportAssetSummaryDto() {
     }
 
-    public ReportAssetSummaryDto(List<Object[]> usedQuantityByProject, List<Object[]> usedQuantityByAssetType) {
-        this.usedQuantityByProject = usedQuantityByProject;
-        this.usedQuantityByAssetType = usedQuantityByAssetType;
+    public ReportAssetSummaryDto(List<Object[]> topProjectsByUsedQuantity, List<Object[]> topAssetsByUsedQuantity) {
+        this.topProjectsByUsedQuantity = topProjectsByUsedQuantity;
+        this.topAssetsByUsedQuantity = topAssetsByUsedQuantity;
     }
 
-    public List<Object[]> getUsedQuantityByProject() {
-        return usedQuantityByProject;
+    public List<Object[]> getTopProjectsByUsedQuantity() {
+        return topProjectsByUsedQuantity;
     }
 
-    public void setUsedQuantityByProject(List<Object[]> usedQuantityByProject) {
-        this.usedQuantityByProject = usedQuantityByProject;
+    public void setTopProjectsByUsedQuantity(List<Object[]> topProjectsByUsedQuantity) {
+        this.topProjectsByUsedQuantity = topProjectsByUsedQuantity;
     }
 
-    public List<Object[]> getUsedQuantityByAssetType() {
-        return usedQuantityByAssetType;
+    public List<Object[]> getTopAssetsByUsedQuantity() {
+        return topAssetsByUsedQuantity;
     }
 
-    public void setUsedQuantityByAssetType(List<Object[]> usedQuantityByAssetType) {
-        this.usedQuantityByAssetType = usedQuantityByAssetType;
+    public void setTopAssetsByUsedQuantity(List<Object[]> topAssetsByUsedQuantity) {
+        this.topAssetsByUsedQuantity = topAssetsByUsedQuantity;
     }
 }

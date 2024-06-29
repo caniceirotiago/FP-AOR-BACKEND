@@ -143,10 +143,12 @@ public class ReportBean implements Serializable {
 
     // Consolidate Data Retrieval for Asset Report
     public ReportAssetSummaryDto getAssetReportSummary() {
-        List<Object[]> usedQuantityByProject = projectAssetDao.getUsedQuantityByProject();
+        List<Object[]> topProjectsByUsedQuantity = projectAssetDao.getTopProjectsByUsedQuantity();
+        List<Object[]> topAssetsByUsedQuantity = projectAssetDao.getTopAssetsByUsedQuantity();
         ReportAssetSummaryDto assetReportSummary = new ReportAssetSummaryDto();
-        assetReportSummary.setUsedQuantityByProject(usedQuantityByProject);
-        assetReportSummary.setUsedQuantityByAssetType(projectAssetDao.getUsedQuantityByAssetType());
+        assetReportSummary.setTopProjectsByUsedQuantity(topProjectsByUsedQuantity);
+        assetReportSummary.setTopAssetsByUsedQuantity(topAssetsByUsedQuantity);
         return assetReportSummary;
     }
+
 }

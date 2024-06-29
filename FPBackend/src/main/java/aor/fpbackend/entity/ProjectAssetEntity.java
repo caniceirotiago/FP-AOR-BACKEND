@@ -10,10 +10,15 @@ import java.io.Serializable;
 @NamedQuery(name = "ProjectAsset.findProjectAssetById", query = "SELECT pa FROM ProjectAssetEntity pa WHERE pa.id = :id")
 @NamedQuery(name = "ProjectAsset.findProjectAssetsByProjectId", query = "SELECT pa FROM ProjectAssetEntity pa WHERE pa.project.id = :projectId")
 @NamedQuery(name = "ProjectAsset.countProjectAssetsByAssetId", query = "SELECT COUNT(pa) FROM ProjectAssetEntity pa WHERE pa.asset.id = :assetId")
-@NamedQuery(name = "ProjectAsset.getUsedQuantityByProject", query = "SELECT p.name, SUM(pa.usedQuantity) " +
-        "FROM ProjectAssetEntity pa JOIN pa.project p GROUP BY p.name")
-@NamedQuery(name = "ProjectAsset.getUsedQuantityByAssetType", query = "SELECT pa.asset.type, SUM(pa.usedQuantity) FROM ProjectAssetEntity pa GROUP BY pa.asset.type")
-
+@NamedQuery(name = "ProjectAsset.getTopProjectsByUsedQuantity", query =
+        "SELECT p.name, SUM(CASE WHEN a.type = 'RESOURCE' THEN pa.usedQuantity ELSE 0 END) AS resourceUsedQuantity, " +
+                "       SUM(CASE WHEN a.type = 'COMPONENT' THEN pa.usedQuantity ELSE 0 END) AS componentUsedQuantity, " +
+                "       SUM(pa.usedQuantity) AS totalUsedQuantity " +
+                "FROM ProjectAssetEntity pa JOIN pa.project p JOIN pa.asset a " +
+                "GROUP BY p.name ORDER BY totalUsedQuantity DESC")
+@NamedQuery(name = "ProjectAsset.getTopAssetsByUsedQuantity", query = "SELECT a.name, a.type, SUM(pa.usedQuantity) AS totalUsedQuantity " +
+                "FROM ProjectAssetEntity pa JOIN pa.asset a " +
+                "GROUP BY a.name, a.type ORDER BY totalUsedQuantity DESC")
 
 public class ProjectAssetEntity implements Serializable {
     private static final long serialVersionUID = 1L;

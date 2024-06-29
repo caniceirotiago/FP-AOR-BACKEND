@@ -139,35 +139,41 @@ public class PdfGenerator {
                 yPosition[0] -= lineHeight * 4;
 
                 // Used Quantity by Project - title and value
-                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity by Project: ", xMargin, yPosition[0]);
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Top 5 Used Quantity by Project: ", xMargin, yPosition[0]);
                 yPosition[0] -= lineHeight * 1.5;
                 drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Project Name:", xMargin + 20, yPosition[0]);
-                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity:", xMargin + 150, yPosition[0]);
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Resource Qty:", xMargin + 150, yPosition[0]);
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Component Qty:", xMargin + 280, yPosition[0]);
                 yPosition[0] -= lineHeight * 1.5;
 
                 // Iterate over used quantity by project data
-                for (Object[] result : assetReportSummary.getUsedQuantityByProject()) {
+                for (Object[] result : assetReportSummary.getTopProjectsByUsedQuantity()) {
                     String projectName = (String) result[0];
-                    Long usedQuantity = (Long) result[1];
+                    Long resourceQuantity = (Long) result[1];
+                    Long componentQuantity = (Long) result[2];
                     drawText(contentStream, PDType1Font.HELVETICA, 12, projectName, xMargin + 20, yPosition[0]);
-                    drawText(contentStream, PDType1Font.HELVETICA, 12, String.valueOf(usedQuantity), xMargin + 150, yPosition[0]);
+                    drawText(contentStream, PDType1Font.HELVETICA, 12, String.valueOf(resourceQuantity), xMargin + 170, yPosition[0]);
+                    drawText(contentStream, PDType1Font.HELVETICA, 12, String.valueOf(componentQuantity), xMargin + 300, yPosition[0]);
                     yPosition[0] -= lineHeight * 1.5;
                 }
 
-                // Used Quantity by Asset Type - title and value
-                yPosition[0] -= lineHeight * 2;
-                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity by Asset Type:", xMargin, yPosition[0]);
+                // Title for top assets
+                yPosition[0] -= lineHeight * 3;
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Top 5 Used Quantity by Asset: ", xMargin, yPosition[0]);
                 yPosition[0] -= lineHeight * 1.5;
-                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Asset Type:", xMargin + 20, yPosition[0]);
-                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity:", xMargin + 150, yPosition[0]);
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Asset Name:", xMargin + 20, yPosition[0]);
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Type:", xMargin + 150, yPosition[0]);
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity:", xMargin + 280, yPosition[0]);
                 yPosition[0] -= lineHeight * 1.5;
 
-                // Iterate over used quantity by asset type data
-                for (Object[] result : assetReportSummary.getUsedQuantityByAssetType()) {
-                    String assetType = result[0].toString();
-                    Long usedQuantity = (Long) result[1];
-                    drawText(contentStream, PDType1Font.HELVETICA, 12, assetType, xMargin + 20, yPosition[0]);
-                    drawText(contentStream, PDType1Font.HELVETICA, 12, String.valueOf(usedQuantity), xMargin + 150, yPosition[0]);
+                // Iterate over top assets by used quantity data
+                for (Object[] result : assetReportSummary.getTopAssetsByUsedQuantity()) {
+                    String assetName = (String) result[0];
+                    String assetType = result[1].toString();
+                    Long totalUsedQuantity = (Long) result[2];
+                    drawText(contentStream, PDType1Font.HELVETICA, 12, assetName, xMargin + 20, yPosition[0]);
+                    drawText(contentStream, PDType1Font.HELVETICA, 12, assetType, xMargin + 150, yPosition[0]);
+                    drawText(contentStream, PDType1Font.HELVETICA, 12, String.valueOf(totalUsedQuantity), xMargin + 300, yPosition[0]);
                     yPosition[0] -= lineHeight * 1.5;
                 }
 
@@ -206,7 +212,7 @@ public class PdfGenerator {
     // Helper method to draw location data on the PDF
     private float drawLocationData(PDPageContentStream contentStream, Iterable<ReportProjectsLocationDto> locationData, float x, float y, float lineHeight) throws IOException {
         for (ReportProjectsLocationDto locationDto : locationData) {
-            String locationText = "Location: " + locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%";
+            String locationText = "Laboratory: " + locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%";
             y = drawText(contentStream, PDType1Font.HELVETICA, 12, locationText, x + 20, y);
             y -= lineHeight * 1.2;
         }
