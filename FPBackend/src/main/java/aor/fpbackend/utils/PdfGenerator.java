@@ -1,7 +1,8 @@
 package aor.fpbackend.utils;
 
+import aor.fpbackend.dto.Report.ReportAssetSummaryDto;
 import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
-import aor.fpbackend.dto.Report.ReportSummaryDto;
+import aor.fpbackend.dto.Report.ReportProjectSummaryDto;
 import jakarta.ejb.Stateless;
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -17,7 +18,8 @@ import java.io.InputStream;
 @Stateless
 public class PdfGenerator {
 
-    public void generateProjectReport(ReportSummaryDto reportSummary, String dest) throws IOException {
+    // Method for Project Report!
+    public void generateProjectReport(ReportProjectSummaryDto reportSummary, String dest) throws IOException {
         // Load the logo image
         try (InputStream logoStream = getClass().getClassLoader().getResourceAsStream("CriticalLogo.png")) {
             if (logoStream == null) {
@@ -105,6 +107,84 @@ public class PdfGenerator {
         }
     }
 
+    // Method for Asset Report!
+    public void generateAssetReport(ReportAssetSummaryDto assetReportSummary, String dest) throws IOException {
+        // Load the logo image
+        try (InputStream logoStream = getClass().getClassLoader().getResourceAsStream("CriticalLogo.png")) {
+            if (logoStream == null) {
+                throw new FileNotFoundException("Logo file not found");
+            }
+            // Create a new document
+            PDDocument document = new PDDocument();
+            try {
+                // Initialize pages and content streams
+                PDImageXObject logo = PDImageXObject.createFromByteArray(document, IOUtils.toByteArray(logoStream), "logo");
+                PDPageContentStream contentStream = null;
+
+                // Create Page
+                PDPage firstPage = new PDPage();
+                document.addPage(firstPage);
+                contentStream = new PDPageContentStream(document, firstPage);
+                insertLogo(contentStream, logo, firstPage.getMediaBox().getWidth());
+
+                // Define starting position and line height
+                float xMargin = 120;
+                float yMargin = 80;
+                float[] yPosition = new float[]{firstPage.getMediaBox().getHeight() - yMargin}; // Start at the top margin
+                float lineHeight = 12;
+
+                // Title
+                yPosition[0] -= 40;
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 16, "Asset Report", xMargin + 100, yPosition[0]);
+                yPosition[0] -= lineHeight * 4;
+
+                // Used Quantity by Project - title and value
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity by Project: ", xMargin, yPosition[0]);
+                yPosition[0] -= lineHeight * 1.5;
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Project Name:", xMargin + 20, yPosition[0]);
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity:", xMargin + 150, yPosition[0]);
+                yPosition[0] -= lineHeight * 1.5;
+
+                // Iterate over used quantity by project data
+                for (Object[] result : assetReportSummary.getUsedQuantityByProject()) {
+                    String projectName = (String) result[0];
+                    Long usedQuantity = (Long) result[1];
+                    drawText(contentStream, PDType1Font.HELVETICA, 12, projectName, xMargin + 20, yPosition[0]);
+                    drawText(contentStream, PDType1Font.HELVETICA, 12, String.valueOf(usedQuantity), xMargin + 150, yPosition[0]);
+                    yPosition[0] -= lineHeight * 1.5;
+                }
+
+                // Used Quantity by Asset Type - title and value
+                yPosition[0] -= lineHeight * 2;
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity by Asset Type:", xMargin, yPosition[0]);
+                yPosition[0] -= lineHeight * 1.5;
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Asset Type:", xMargin + 20, yPosition[0]);
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity:", xMargin + 150, yPosition[0]);
+                yPosition[0] -= lineHeight * 1.5;
+
+                // Iterate over used quantity by asset type data
+                for (Object[] result : assetReportSummary.getUsedQuantityByAssetType()) {
+                    String assetType = result[0].toString();
+                    Long usedQuantity = (Long) result[1];
+                    drawText(contentStream, PDType1Font.HELVETICA, 12, assetType, xMargin + 20, yPosition[0]);
+                    drawText(contentStream, PDType1Font.HELVETICA, 12, String.valueOf(usedQuantity), xMargin + 150, yPosition[0]);
+                    yPosition[0] -= lineHeight * 1.5;
+                }
+
+                // Footer
+                drawText(contentStream, PDType1Font.HELVETICA, 10, "Page 1 of 1", 500, 30);
+                // Close the content stream
+                contentStream.close();
+
+                // Save the document
+                document.save(dest);
+            } finally {
+                // Close the document
+                document.close();
+            }
+        }
+    }
+
     // Helper method to insert logo
     private void insertLogo(PDPageContentStream contentStream, PDImageXObject logo, float pageWidth) throws IOException {
         contentStream.drawImage(logo, pageWidth - 150, 700, 100, 50); // Adjust x, y, width, height as needed
@@ -133,9 +213,4 @@ public class PdfGenerator {
         return y;
     }
 
-
-    // Method for Assets!!!
-    public void generateAssetReport(ReportSummaryDto reportSummary, String dest) throws IOException {
-
-    }
 }

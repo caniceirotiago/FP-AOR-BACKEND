@@ -1,7 +1,8 @@
 package aor.fpbackend.service;
 
 import aor.fpbackend.bean.ReportBean;
-import aor.fpbackend.dto.Report.ReportSummaryDto;
+import aor.fpbackend.dto.Report.ReportAssetSummaryDto;
+import aor.fpbackend.dto.Report.ReportProjectSummaryDto;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import jakarta.ejb.EJB;
@@ -23,8 +24,16 @@ public class ReportService {
     @Path("/project/summary")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.PROJECT_REPORTS)
-    public ReportSummaryDto getReportSummary() {
-        return reportBean.getReportSummary();
+    public ReportProjectSummaryDto getProjectReportSummary() {
+        return reportBean.getProjectReportSummary();
+    }
+
+    @GET
+    @Path("/asset/summary")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.PROJECT_REPORTS)
+    public ReportAssetSummaryDto getAssetReportSummary() {
+        return reportBean.getAssetReportSummary();
     }
 
     @GET

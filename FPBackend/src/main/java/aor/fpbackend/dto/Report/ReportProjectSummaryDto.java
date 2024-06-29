@@ -8,7 +8,7 @@ import java.util.List;
 
 
 @XmlRootElement
-public class ReportSummaryDto implements Serializable {
+public class ReportProjectSummaryDto implements Serializable {
 
     @XmlElement
     private ReportAverageResultDto averageMembersPerProject;
@@ -23,7 +23,7 @@ public class ReportSummaryDto implements Serializable {
     @XmlElement
     private List<ReportProjectsLocationDto> canceledProjectsByLocation;
 
-    public ReportSummaryDto() {
+    public ReportProjectSummaryDto() {
     }
 
     public ReportAverageResultDto getAverageMembersPerProject() {

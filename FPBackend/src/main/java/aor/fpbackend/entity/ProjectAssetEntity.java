@@ -10,6 +10,10 @@ import java.io.Serializable;
 @NamedQuery(name = "ProjectAsset.findProjectAssetById", query = "SELECT pa FROM ProjectAssetEntity pa WHERE pa.id = :id")
 @NamedQuery(name = "ProjectAsset.findProjectAssetsByProjectId", query = "SELECT pa FROM ProjectAssetEntity pa WHERE pa.project.id = :projectId")
 @NamedQuery(name = "ProjectAsset.countProjectAssetsByAssetId", query = "SELECT COUNT(pa) FROM ProjectAssetEntity pa WHERE pa.asset.id = :assetId")
+@NamedQuery(name = "ProjectAsset.getUsedQuantityByProject", query = "SELECT p.name, SUM(pa.usedQuantity) " +
+        "FROM ProjectAssetEntity pa JOIN pa.project p GROUP BY p.name")
+@NamedQuery(name = "ProjectAsset.getUsedQuantityByAssetType", query = "SELECT pa.asset.type, SUM(pa.usedQuantity) FROM ProjectAssetEntity pa GROUP BY pa.asset.type")
+
 
 public class ProjectAssetEntity implements Serializable {
     private static final long serialVersionUID = 1L;

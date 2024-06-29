@@ -46,4 +46,17 @@ public class ProjectAssetDao extends AbstractDao<ProjectAssetEntity> {
         }
     }
 
+    // Methods for Asset Report
+    // Get used quantity by project
+    public List<Object[]> getUsedQuantityByProject() {
+        return em.createNamedQuery("ProjectAsset.getUsedQuantityByProject", Object[].class)
+                .getResultList();
+    }
+
+    // Get used quantity by asset type
+    public List<Object[]> getUsedQuantityByAssetType() {
+        return em.createNamedQuery("ProjectAsset.getUsedQuantityByAssetType")
+                .getResultList();
+    }
+
 }
