@@ -12,6 +12,7 @@ import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.utils.JwtKeyProvider;
+import aor.fpbackend.utils.PassEncoder;
 import aor.fpbackend.websocket.GlobalWebSocket;
 import io.jsonwebtoken.*;
 import jakarta.ejb.EJB;
@@ -28,7 +29,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
 
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.Key;
 import java.security.SecureRandom;

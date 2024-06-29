@@ -1,5 +1,6 @@
 package aor.fpbackend.dto.Interest;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -11,22 +12,23 @@ import java.io.Serializable;
 public class InterestRemoveDto implements Serializable {
     @XmlElement
     @NotNull
-    @Size
-    private long id;
+    @Min(value = 1, message = "ID must be greater than 0")
+    private Long id;
 
     public InterestRemoveDto() {
     }
 
-    public InterestRemoveDto(long id) {
+    public InterestRemoveDto(Long id) {
         this.id = id;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
+        System.out.println("InterestRemoveDto: setId: " + id);
     }
 
 }

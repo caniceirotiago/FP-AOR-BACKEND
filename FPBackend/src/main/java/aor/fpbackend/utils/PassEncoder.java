@@ -1,4 +1,4 @@
-package aor.fpbackend.bean;
+package aor.fpbackend.utils;
 
 import jakarta.ejb.Stateless;
 import org.mindrot.jbcrypt.BCrypt;

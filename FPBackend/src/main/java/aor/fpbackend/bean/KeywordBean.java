@@ -18,7 +18,36 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 
-
+/**
+ * KeywordBean is a stateless session bean responsible for managing keywords and their associations with projects.
+ * <p>
+ * This bean handles the creation of keywords if they do not already exist,
+ * as well as the addition and removal of keywords from projects.
+ * It also provides methods for retrieving keywords.
+ * </p>
+ * <p>
+ * Key functionalities provided by this bean include:
+ * <ul>
+ *     <li>Adding keywords to projects.</li>
+ *     <li>Removing keywords from projects.</li>
+ *     <li>Retrieving keywords and converting them to DTOs (Data Transfer Objects).</li>
+ * </ul>
+ * </p>
+ * <p>
+ * The class uses dependency injection to obtain instances of KeywordDao and ProjectDao,
+ * promoting a clean architecture.
+ * </p>
+ * <p>
+ * Technologies Used:
+ * <ul>
+ *     <li><b>Jakarta EE</b>: For EJB and transaction management.</li>
+ *     <li><b>Log4j</b>: For logging operations.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Note: This bean is thread-safe as it is a stateless session bean.
+ * </p>
+ */
 @Stateless
 public class KeywordBean implements Serializable {
     @EJB
@@ -29,18 +58,21 @@ public class KeywordBean implements Serializable {
 
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(KeywordBean.class);
 
+    /**
+     * Adds a keyword to a project, ensuring the keyword exists by creating it if necessary.
+     *
+     * @param keywordName the name of the keyword
+     * @param projectId   the ID of the project
+     * @throws EntityNotFoundException if the project is not found
+     */
     @Transactional
     public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException {
-        // Ensure the keyword exists, creating it if necessary
         checkKeywordExist(keywordName);
-        // Find the keyword by name
         KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordName);
-        // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if(projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
-        // Add the keyword to the project's keywords
         Set<KeywordEntity> projectKeywords = projectEntity.getProjectKeywords();
         if (projectKeywords == null) {
             projectKeywords = new HashSet<>();
@@ -49,7 +81,6 @@ public class KeywordBean implements Serializable {
             projectKeywords.add(keywordEntity);
             projectEntity.setProjectKeywords(projectKeywords);
         }
-        // Add the project to the keyword's projects
         Set<ProjectEntity> keywordProjects = keywordEntity.getProjects();
         if (keywordProjects == null) {
             keywordProjects = new HashSet<>();
@@ -59,7 +90,11 @@ public class KeywordBean implements Serializable {
             keywordEntity.setProjects(keywordProjects);
         }
     }
-
+    /**
+     * Checks if a keyword exists and creates it if it doesn't.
+     *
+     * @param name the name of the keyword
+     */
     private void checkKeywordExist(String name) {
         if (!keywordDao.checkKeywordExist(name)) {
             KeywordEntity keyword = new KeywordEntity(name);
@@ -67,14 +102,31 @@ public class KeywordBean implements Serializable {
         }
     }
 
+    /**
+     * Retrieves all keywords and converts them to a list of KeywordGetDto.
+     *
+     * @return a list of KeywordGetDto objects
+     */
     public List<KeywordGetDto> getKeywords() {
         return convertKeywordEntityListToKeywordDtoList(keywordDao.getAllKeywords());
     }
 
+    /**
+     * Retrieves all keywords associated with a specific project and converts them to a list of KeywordGetDto.
+     *
+     * @param projectId the ID of the project
+     * @return a list of KeywordGetDto objects
+     */
     public List<KeywordGetDto> getKeywordsByProject(long projectId) {
         return convertKeywordEntityListToKeywordDtoList(keywordDao.getKeywordsByProjectId(projectId));
     }
 
+    /**
+     * Retrieves all keywords that start with a specific letter and converts them to a list of KeywordGetDto.
+     *
+     * @param firstLetter the first letter of the keywords to retrieve
+     * @return a list of KeywordGetDto objects
+     */
     public List<KeywordGetDto> getKeywordsByFirstLetter(String firstLetter) {
         if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
             return new ArrayList<>();
@@ -84,6 +136,12 @@ public class KeywordBean implements Serializable {
         return convertKeywordEntityListToKeywordDtoList(keywordEntities);
     }
 
+    /**
+     * Removes a keyword from a project.
+     *
+     * @param keywordRemoveDto the DTO containing the keyword ID and project ID
+     * @throws EntityNotFoundException if the keyword or project is not found
+     */
     @Transactional
     public void removeKeyword(KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {
         // Find the project by id
@@ -101,8 +159,6 @@ public class KeywordBean implements Serializable {
         if (projectKeywords.contains(keywordEntity)) {
             projectKeywords.remove(keywordEntity);
             projectEntity.setProjectKeywords(projectKeywords);
-
-            // Remove the project from the keyword's projects
             Set<ProjectEntity> keywordProjects = keywordEntity.getProjects();
             keywordProjects.remove(projectEntity);
             keywordEntity.setProjects(keywordProjects);
@@ -111,6 +167,12 @@ public class KeywordBean implements Serializable {
         }
     }
 
+    /**
+     * Converts a KeywordEntity to a KeywordGetDto.
+     *
+     * @param keywordEntity the KeywordEntity to convert
+     * @return the corresponding KeywordGetDto
+     */
     public KeywordGetDto convertKeywordEntityToKeywordDto(KeywordEntity keywordEntity) {
         KeywordGetDto keywordGetDto = new KeywordGetDto();
         keywordGetDto.setId(keywordEntity.getId());
@@ -118,6 +180,12 @@ public class KeywordBean implements Serializable {
         return keywordGetDto;
     }
 
+    /**
+     * Converts a list of KeywordEntity objects to a list of KeywordGetDto objects.
+     *
+     * @param keywordEntities the list of KeywordEntity objects to convert
+     * @return a list of KeywordGetDto objects
+     */
     public List<KeywordGetDto> convertKeywordEntityListToKeywordDtoList(List<KeywordEntity> keywordEntities) {
         List<KeywordGetDto> keywordGetDtos = new ArrayList<>();
         for (KeywordEntity k : keywordEntities) {

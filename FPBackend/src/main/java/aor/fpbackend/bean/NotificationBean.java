@@ -25,7 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ * EJB Stateless bean responsible for managing notifications within the application.
+ * Handles creation of various types of notifications including individual messages, project join requests,
+ * task assignments, group messages, and project approvals/rejections.
+ * Provides methods for marking notifications as read and retrieving unread notifications for users.
+ */
 @Stateless
 public class NotificationBean implements Serializable {
     @EJB
@@ -40,9 +45,15 @@ public class NotificationBean implements Serializable {
 
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(NotificationBean.class);
 
+
+    /**
+     * Creates a notification for an individual message and persists it.
+     * Sends the notification to the recipient's user sessions using WebSocket.
+     *
+     * @param messageEntity The entity representing the individual message.
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createIndividualMessageNotification(IndividualMessageEntity messageEntity) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", messageEntity.getSender().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.INDIVIDUAL_MESSAGE);
         notificationEntity.setUser(messageEntity.getRecipient());
@@ -53,13 +64,19 @@ public class NotificationBean implements Serializable {
         notificationDao.persist(notificationEntity);
         NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-        LOGGER.info("Created notification for individual message");
-        ThreadContext.clearMap();
+
     }
 
+
+    /**
+     * Creates notification(s) for project administrators when a user requests to join their project.
+     * Each project manager/administrator receives a notification if the requesting user's role is
+     * set as 'PROJECT_MANAGER'.
+     *
+     * @param projectMembershipEnt The entity representing the membership request.
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createProjectJoinRequestNotificationsForProjectAdmins(ProjectMembershipEntity projectMembershipEnt) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", projectMembershipEnt.getUser().getUsername());
         Set<ProjectMembershipEntity> projectMembershipEntitiesSet = projectMembershipEnt.getProject().getMembers();
         List<ProjectMembershipEntity> projectMembershipEntities = new ArrayList<>(projectMembershipEntitiesSet);
         for (ProjectMembershipEntity projectMembershipEntity : projectMembershipEntities) {
@@ -75,14 +92,18 @@ public class NotificationBean implements Serializable {
                 NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
                 GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
                 LOGGER.info("Creating notification for project join request");
-                ThreadContext.clearMap();
             }
         }
     }
 
+    /**
+     * Creates a notification for a user whose project join request has been approved or rejected.
+     *
+     * @param projectMembershipEntity The entity representing the project membership request.
+     * @param approved                Boolean indicating whether the request was approved (true) or rejected (false).
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createNotificationForProjectJoinRequestApprovedOrRejected(ProjectMembershipEntity projectMembershipEntity, boolean approved) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.PROJECT_JOIN_REQUEST);
         notificationEntity.setUser(projectMembershipEntity.getUser());
@@ -97,13 +118,16 @@ public class NotificationBean implements Serializable {
         notificationDao.persist(notificationEntity);
         NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-        LOGGER.info("Creating notification for project join request approved");
-        ThreadContext.clearMap();
     }
 
+
+    /**
+     * Creates a notification for a user who has been invited by a project manager to join a project.
+     *
+     * @param projectMembershipEntity The entity representing the project membership invitation.
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createNotificationForProjectInviteFromAProjectManagerToUser(ProjectMembershipEntity projectMembershipEntity) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.PROJECT_JOIN_REQUEST);
         notificationEntity.setUser(projectMembershipEntity.getUser());
@@ -114,13 +138,17 @@ public class NotificationBean implements Serializable {
         notificationDao.persist(notificationEntity);
         NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-        LOGGER.info("Creating notification for project invite from a project manager to user");
-        ThreadContext.clearMap();
     }
 
+
+    /**
+     * Creates a notification for project managers informing them about user approval or rejection for project membership.
+     *
+     * @param projectMembershipEntity The entity representing the project membership.
+     * @param approved                Indicates whether the user's request to join the project was approved.
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createNotificationForProjectManagersKnowUserApproval(ProjectMembershipEntity projectMembershipEntity, boolean approved) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         Set<ProjectMembershipEntity> projectMembershipEntitiesSet = projectMembershipEntity.getProject().getMembers();
         List<ProjectMembershipEntity> projectMembershipEntities = new ArrayList<>(projectMembershipEntitiesSet);
         for (ProjectMembershipEntity projectMembershipEntity1 : projectMembershipEntities) {
@@ -139,15 +167,11 @@ public class NotificationBean implements Serializable {
                 notificationDao.persist(notificationEntity);
                 NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
                 GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-                LOGGER.info("Creating notification for project managers know user approval");
-                ThreadContext.clearMap();
             }
         }
     }
 
     public void createNotificationForUserRemovedFromProject(ProjectMembershipEntity projectMembershipEntity) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.PROJECT_JOIN_REQUEST);
         notificationEntity.setUser(projectMembershipEntity.getUser());
@@ -161,13 +185,15 @@ public class NotificationBean implements Serializable {
         notificationDao.persist(notificationEntity);
         NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-        LOGGER.info("Creating notification for user removed from project");
-        ThreadContext.clearMap();
     }
 
+    /**
+     * Creates a notification for a user who has been removed from a project or whose invitation to join a project has been cancelled.
+     *
+     * @param projectMembershipEntity The entity representing the project membership.
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createNotificationForUserAutomaticallyAddedToProject(ProjectMembershipEntity projectMembershipEntity) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", projectMembershipEntity.getUser().getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.PROJECT_JOIN_REQUEST);
         notificationEntity.setUser(projectMembershipEntity.getUser());
@@ -178,16 +204,20 @@ public class NotificationBean implements Serializable {
         notificationDao.persist(notificationEntity);
         NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-        LOGGER.info("Creating notification for user automatically added to project");
-        ThreadContext.clearMap();
     }
 
+
+    /**
+     * Creates notifications for all members of a project about its approval or rejection by a user.
+     *
+     * @param projectEntity The entity representing the project.
+     * @param userEntity    The entity representing the user who approved or rejected the project.
+     * @param approved      A boolean indicating whether the project was approved (true) or rejected (false).
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createNotificationProjectApprovalSendAllMembers(ProjectEntity projectEntity, UserEntity userEntity, boolean approved) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", userEntity.getUsername());
         Set<ProjectMembershipEntity> projectMembershipEntitiesSet = projectEntity.getMembers();
         List<ProjectMembershipEntity> projectMembershipEntities = new ArrayList<>(projectMembershipEntitiesSet);
-
         for (ProjectMembershipEntity projectMembershipEntity : projectMembershipEntities) {
             NotificationEntity notificationEntity = new NotificationEntity();
             notificationEntity.setType(NotificationTypeENUM.PROJECT_APPROVAL);
@@ -203,14 +233,17 @@ public class NotificationBean implements Serializable {
             notificationDao.persist(notificationEntity);
             NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
             GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-            LOGGER.info("Creating notification for project approval send all members");
-            ThreadContext.clearMap();
         }
     }
 
+
+    /**
+     * Creates notifications for all platform administrators about a project awaiting approval.
+     *
+     * @param projectEntity The entity representing the project awaiting approval.
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createNotificationForAllPlatformAdminsProjectApproval(ProjectEntity projectEntity) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", projectEntity.getCreatedBy().getUsername());
         RoleEntity role = roleDao.findRoleByName(UserRoleEnum.ADMIN);
         List<UserEntity> platformAdmins = userDao.getUsersByRole(role);
         for (UserEntity platformAdmin : platformAdmins) {
@@ -224,14 +257,18 @@ public class NotificationBean implements Serializable {
             notificationDao.persist(notificationEntity);
             NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
             GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-            LOGGER.info("Creating notification for all platform admins project approval");
-            ThreadContext.clearMap();
         }
     }
 
+
+    /**
+     * Creates a notification for a user who has been marked as responsible in a new task.
+     *
+     * @param userEntity The user entity who is marked as responsible.
+     * @param taskEntity The task entity in which the user is marked as responsible.
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createNotificationMarkesAsResponsibleInNewTask(UserEntity userEntity, TaskEntity taskEntity) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", userEntity.getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.TASK_RESPONSIBLE);
         notificationEntity.setUser(userEntity);
@@ -242,13 +279,17 @@ public class NotificationBean implements Serializable {
         notificationDao.persist(notificationEntity);
         NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-        LOGGER.info("Creating notification for marked as responsible in new task");
-        ThreadContext.clearMap();
     }
 
+
+    /**
+     * Creates a notification for a user who has been marked as executor in a new task.
+     *
+     * @param userEntity The user entity who is marked as executor.
+     * @param taskEntity The task entity in which the user is marked as executor.
+     * @throws UnknownHostException If the host IP address cannot be determined.
+     */
     public void createNotificationMarkesAsExecutorInNewTask(UserEntity userEntity, TaskEntity taskEntity) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", userEntity.getUsername());
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.TASK_EXECUTER);
         notificationEntity.setUser(userEntity);
@@ -259,22 +300,40 @@ public class NotificationBean implements Serializable {
         notificationDao.persist(notificationEntity);
         NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
-        LOGGER.info("Creating notification for marked as executor in new task");
-        ThreadContext.clearMap();
     }
 
+
+    /**
+     * Retrieves unread notifications for the authenticated user.
+     *
+     * @param securityContext The security context containing the authenticated user's principal.
+     * @return A list of NotificationGetDto objects representing unread notifications.
+     */
     public List<NotificationGetDto> getUnreadNotifications(SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         List<NotificationEntity> notificationsEntety = notificationDao.getUnreadbByUserNotifications(authUserDto.getUserId());
         return convertEntetiesToDtos(notificationsEntety);
     }
 
+
+    /**
+     * Marks a notification as read by setting its 'read' flag to true.
+     *
+     * @param notificationId The ID of the notification to mark as read.
+     */
     public void markNotificationsAsRead(Long notificationId) {
         NotificationEntity notificationEntity = notificationDao.findNotificationById(notificationId);
         notificationEntity.setRead(true);
         notificationDao.merge(notificationEntity);
     }
 
+
+    /**
+     * Converts a list of NotificationEntity objects to a list of NotificationGetDto objects.
+     *
+     * @param notificationsEntety The list of NotificationEntity objects to convert.
+     * @return The list of NotificationGetDto objects converted from NotificationEntity objects.
+     */
     private List<NotificationGetDto> convertEntetiesToDtos(List<NotificationEntity> notificationsEntety) {
         List<NotificationGetDto> notificationGetDtos = new ArrayList<>();
         for (NotificationEntity notificationEntity : notificationsEntety) {
@@ -284,6 +343,13 @@ public class NotificationBean implements Serializable {
         return notificationGetDtos;
     }
 
+
+    /**
+     * Converts a NotificationEntity object to a NotificationGetDto object.
+     *
+     * @param notificationEntity The NotificationEntity object to convert.
+     * @return The converted NotificationGetDto object.
+     */
     private NotificationGetDto convertEntityToDto(NotificationEntity notificationEntity) {
         NotificationGetDto notificationGetDto = new NotificationGetDto();
         notificationGetDto.setId(notificationEntity.getId());
@@ -307,9 +373,15 @@ public class NotificationBean implements Serializable {
         return notificationGetDto;
     }
 
+
+    /**
+     * Creates notifications for a group message sent to project members.
+     *
+     * @param groupMessageEntity The GroupMessageEntity containing the group message details.
+     * @param projectMembers     The list of project members to receive the notification.
+     * @throws UnknownHostException If there is an issue with host resolution.
+     */
     public void createNotificationForGroupMessage(GroupMessageEntity groupMessageEntity, List<UserEntity> projectMembers) throws UnknownHostException {
-        ThreadContext.put("ip", InetAddress.getLocalHost().getHostAddress());
-        ThreadContext.put("author", groupMessageEntity.getSender().getUsername());
         if (projectMembers == null) {
             throw new IllegalArgumentException("Project members list is null");
         }
@@ -327,7 +399,7 @@ public class NotificationBean implements Serializable {
                 NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
                 GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
                 LOGGER.info("Creating notification for group message");
-                ThreadContext.clearMap();
+
             }
         }
     }

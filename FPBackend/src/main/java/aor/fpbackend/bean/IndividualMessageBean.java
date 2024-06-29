@@ -31,6 +31,13 @@ public class IndividualMessageBean {
     UserBean userBean;
 
 
+    /**
+     * Sends an individual message.
+     *
+     * @param individualMessageSendDto the DTO containing message details
+     * @return the created IndividualMessageEntity
+     * @throws UserNotFoundException if the sender or recipient is not found
+     */
     public IndividualMessageEntity sendIndividualMessage(IndividualMessageSendDto individualMessageSendDto) throws UserNotFoundException {
 
         IndividualMessageEntity individualMessageEntity = convertToEntity(individualMessageSendDto);
@@ -39,6 +46,14 @@ public class IndividualMessageBean {
         individualMessageDao.persist(individualMessageEntity);
         return individualMessageEntity;
     }
+    /**
+     * Retrieves individual messages between a sender and a recipient.
+     *
+     * @param senderId the ID of the sender
+     * @param recipientId the ID of the recipient
+     * @return a list of IndividualMessageGetDto
+     * @throws UserNotFoundException if the sender or recipient is not found
+     */
     public List<IndividualMessageGetDto> getIndividualMessages(String senderId, String recipientId) throws UserNotFoundException {
         boolean senderExists = userDao.confirmUserIdExists(senderId);
         boolean recipientExists = userDao.confirmUserIdExists(recipientId);
@@ -53,6 +68,18 @@ public class IndividualMessageBean {
     private List<IndividualMessageGetDto> convertToDtos(List<IndividualMessageEntity> individualMessageEntities) {
         return individualMessageEntities.stream().map(this::convertToDto).toList();
     }
+
+    /**
+     * Retrieves paginated individual messages filtered by type.
+     *
+     * @param userId the ID of the user
+     * @param type the type of messages ("sent" or "inbox")
+     * @param page the page number
+     * @param pageSize the page size
+     * @param uriInfo the URI info for additional filtering
+     * @return a paginated DTO of messages
+     * @throws UserNotFoundException if the user is not found
+     */
     public IndividualMessageGetPaginatedDto getFilteredMessages(String userId, String type, int page, int pageSize, UriInfo uriInfo) throws UserNotFoundException {
         boolean userExists = userDao.confirmUserIdExists(userId);
         if (!userExists) {
@@ -82,15 +109,28 @@ public class IndividualMessageBean {
 
         return paginatedMessagesDto;
     }
+
+    /**
+     * Marks messages as read.
+     *
+     * @param messageIds the list of message IDs to be marked as read
+     * @return true if successful, false otherwise
+     */
     public boolean markMessagesAsRead(List<Long> messageIds) {
         return individualMessageDao.markMessagesAsRead(messageIds);
     }
+
+    /**
+     * Retrieves messages by their IDs.
+     *
+     * @param messageIds the list of message IDs
+     * @return a list of IndividualMessageGetDto
+     */
     public List<IndividualMessageGetDto> getMessagesByIds(List<Long> messageIds) {
         List<IndividualMessageEntity> messages = individualMessageDao.getMessagesByIds(messageIds);
         return messages.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
-
     }
 
 
