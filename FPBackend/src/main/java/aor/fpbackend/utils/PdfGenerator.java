@@ -163,7 +163,7 @@ public class PdfGenerator {
                 yPosition[0] -= lineHeight * 1.5;
                 drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Asset Name:", xMargin + 20, yPosition[0]);
                 drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Type:", xMargin + 150, yPosition[0]);
-                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Used Quantity:", xMargin + 280, yPosition[0]);
+                drawText(contentStream, PDType1Font.HELVETICA_BOLD, 12, "Quantity:", xMargin + 280, yPosition[0]);
                 yPosition[0] -= lineHeight * 1.5;
 
                 // Iterate over top assets by used quantity data
@@ -212,7 +212,7 @@ public class PdfGenerator {
     // Helper method to draw location data on the PDF
     private float drawLocationData(PDPageContentStream contentStream, Iterable<ReportProjectsLocationDto> locationData, float x, float y, float lineHeight) throws IOException {
         for (ReportProjectsLocationDto locationDto : locationData) {
-            String locationText = "Laboratory: " + locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects, " + locationDto.getProjectPercentage() + "%";
+            String locationText = locationDto.getLocation().toString() + " - total projects: " + locationDto.getProjectCount() + "; percentage: " + locationDto.getProjectPercentage() + "%";
             y = drawText(contentStream, PDType1Font.HELVETICA, 12, locationText, x + 20, y);
             y -= lineHeight * 1.2;
         }

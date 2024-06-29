@@ -1,8 +1,8 @@
 package aor.fpbackend.enums;
 
 public enum AssetTypeEnum {
-    COMPONENT ("COMPONENT"),
-    RESOURCE("RESOURCE");
+    COMPONENT ("Component"),
+    RESOURCE("Resource");
 
     private final String value;
 
