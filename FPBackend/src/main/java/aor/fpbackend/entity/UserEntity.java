@@ -15,7 +15,7 @@ import java.util.Set;
 @NamedQuery(name = "User.findUserById", query = "SELECT u FROM UserEntity u WHERE u.id = :userId")
 @NamedQuery(name = "User.findUserByUsername", query = "SELECT u FROM UserEntity u WHERE u.username = :username")
 @NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u WHERE u.email = :email")
-@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
+@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u WHERE u.id != 1")
 @NamedQuery(name = "User.countUserByEmail", query = "SELECT COUNT(u) FROM UserEntity u WHERE LOWER(u.email) = LOWER(:email)")
 @NamedQuery(name = "User.countUserByUsername", query = "SELECT COUNT(u) FROM UserEntity u WHERE LOWER(u.username) = LOWER(:username)")
 @NamedQuery(name = "User.countUserByEmailAndUsername", query = "SELECT COUNT(u) FROM UserEntity u WHERE LOWER(u.email) = LOWER(:email) OR LOWER(u.username) = LOWER(:username)")

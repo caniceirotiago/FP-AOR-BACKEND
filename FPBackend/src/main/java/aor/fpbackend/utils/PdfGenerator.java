@@ -63,6 +63,8 @@ public class PdfGenerator {
                 yPosition[0] -= lineHeight * 2;
                 yPosition[0] = drawLocationData(contentStream, reportSummary.getProjectCountByLocation(), xMargin, yPosition[0], lineHeight);
 
+                // Footer for first page
+                drawText(contentStream, PDType1Font.HELVETICA, 10, "Page 1 of 2", 500, 30);
                 // Close the content stream for the first page
                 contentStream.close();
 
@@ -89,6 +91,8 @@ public class PdfGenerator {
                 yPosition[0] -= lineHeight * 1.2;
                 yPosition[0] = drawLocationData(contentStream, reportSummary.getCanceledProjectsByLocation(), xMargin, yPosition[0], lineHeight);
 
+                // Footer for second page
+                drawText(contentStream, PDType1Font.HELVETICA, 10, "Page 2 of 2", 500, 30);
                 // Close the content stream for the second page
                 contentStream.close();
 
