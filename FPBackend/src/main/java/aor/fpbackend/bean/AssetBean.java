@@ -117,7 +117,7 @@ public class AssetBean implements Serializable {
     }
 
     public List<AssetGetDto> getAssetsByFirstLetter(String firstLetter) {
-        if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
+        if (firstLetter.length() != 1) {
             return new ArrayList<>();
         }
         String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
