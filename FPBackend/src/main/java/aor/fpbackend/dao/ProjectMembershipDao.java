@@ -1,5 +1,6 @@
 package aor.fpbackend.dao;
 
+import aor.fpbackend.dto.Project.ProjectMembershipDto;
 import aor.fpbackend.entity.ProjectMembershipEntity;
 import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.ProjectRoleEnum;
@@ -21,16 +22,6 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
 
     @PersistenceContext
     private EntityManager em;
-
-    public ProjectMembershipEntity findProjectMembershipById(long id) {
-        try {
-            return (ProjectMembershipEntity) em.createNamedQuery("ProjectMembership.findProjectMembershipById")
-                    .setParameter("id", id)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
 
     public List<UserEntity> findProjectMembersByProjectId(Long projectId) {
         TypedQuery<UserEntity> query = em.createQuery("SELECT pm.user FROM ProjectMembershipEntity pm " +
@@ -102,6 +93,12 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
                 .setParameter("firstLetter", firstLetter.toLowerCase() + "%")
                 .setParameter("projectId", projectId)
                 .getResultList();
+    }
+
+    public List<ProjectMembershipDto> getUsersByProject(long projectId) {
+        TypedQuery<ProjectMembershipDto> query = em.createNamedQuery("ProjectMembership.findProjectMembershipsByProject", ProjectMembershipDto.class);
+        query.setParameter("projectId", projectId);
+        return query.getResultList();
     }
 
 }

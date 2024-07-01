@@ -67,13 +67,11 @@ public class UserBean implements Serializable {
     @EJB
     UserDao userDao;
     @EJB
-    SessionDao sessionDao;
-    @EJB
     RoleDao roleDao;
     @EJB
     LaboratoryDao labDao;
     @EJB
-    ConfigurationBean configurationBean;
+    ProjectMembershipDao projectMemberDao;
     @EJB
     SessionBean sessionBean;
 
@@ -445,6 +443,45 @@ public class UserBean implements Serializable {
     }
 
     /**
+     * Retrieves a list of basic information for users whose usernames or first name start with the specified first letter.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Validates the input to ensure it is a single alphabetic character.</li>
+     *     <li>Converts the first letter to lowercase to ensure case-insensitive matching.</li>
+     *     <li>Fetches the user entities from the database whose usernames or first name start with the specified letter.</li>
+     *     <li>Converts the list of user entities to a list of UserBasicInfoDto objects.</li>
+     * </ul>
+     * </p>
+     * @param firstLetter the first letter to filter usernames or first name by. It should be a single alphabetic character.
+     * @return a list of UserMessageInfoDto objects representing the basic information of users whose usernames start with the specified letter.
+     */
+    public List<UserMessageInfoDto> getUserEmailRecipientByFirstLetter(String firstLetter) {
+        if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
+            return new ArrayList<>();
+        }
+        try {
+            String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();
+            List<UserEntity> userEntities = userDao.getUsersByFirstLetterUsernameOrFirstName(lowerCaseFirstLetter);
+            LOGGER.info("Fetching users info by first letter");
+            List<UserMessageInfoDto> userMessageInfoDtos = new ArrayList<>();
+            for (UserEntity u : userEntities) {
+                UserMessageInfoDto userMessageInfoDto = new UserMessageInfoDto();
+                userMessageInfoDto.setId(u.getId());
+                userMessageInfoDto.setUsername(u.getUsername());
+                userMessageInfoDto.setFirstName(u.getFirstName());
+                userMessageInfoDtos.add(userMessageInfoDto);
+            }
+            return userMessageInfoDtos;
+        } catch (Exception e) {
+            LOGGER.error("Error fetching users by first letter: {}", firstLetter, e);
+            throw e;
+        } finally {
+            ThreadContext.clearMap();
+        }
+    }
+
+    /**
      * Retrieves the profile information of a user by their username.
      * <p>
      * This method performs the following steps:
@@ -606,7 +643,7 @@ public class UserBean implements Serializable {
     public List<ProjectMembershipDto> getUsersByProject(long projectId) {
         try {
             LOGGER.info("Fetching users by project");
-            return userDao.getUsersByProject(projectId);
+            return projectMemberDao.getUsersByProject(projectId);
         } catch (Exception e) {
             LOGGER.error("Error fetching users by project", e);
             throw e;
@@ -639,6 +676,7 @@ public class UserBean implements Serializable {
         if (!userDao.checkUsernameExist(username)) {
             String email = username + "@" + username + ".com";
             String encryptedPassword = passEncoder.encode(username);
+            String firstName = "a" + username;
             LaboratoryEntity laboratory = labDao.findLaboratoryById(labId);
             if (laboratory == null) {
                 throw new IllegalStateException("Laboratory not found.");
@@ -649,7 +687,7 @@ public class UserBean implements Serializable {
             }
             try{
                 LOGGER.info("Creating default user: " + username);
-                UserEntity userEntity = new UserEntity(email, encryptedPassword, username, username, username, photo, true, false, true, laboratory, role, Instant.now());
+                UserEntity userEntity = new UserEntity(email, encryptedPassword, username, firstName, username, photo, true, false, true, laboratory, role, Instant.now());
                 userDao.persist(userEntity);
             } catch (PersistenceException e) {
                 throw new DatabaseOperationException("Error while creating default user" + e);
@@ -673,7 +711,6 @@ public class UserBean implements Serializable {
         userEntity.setLastName(user.getLastName());
         return userEntity;
     }
-
 
     /**
      * Converts a UserEntity object to a UserProfileDto object.
@@ -703,10 +740,10 @@ public class UserBean implements Serializable {
      */
     public UserBasicInfoDto convertUserEntitytoUserBasicInfoDto(UserEntity userEntity) {
         UserBasicInfoDto userBasicInfo = new UserBasicInfoDto();
-        userBasicInfo.setUsername(userEntity.getUsername());
-        userBasicInfo.setRole(userEntity.getRole().getId());
-        userBasicInfo.setPhoto(userEntity.getPhoto());
         userBasicInfo.setId(userEntity.getId());
+        userBasicInfo.setUsername(userEntity.getUsername());
+        userBasicInfo.setPhoto(userEntity.getPhoto());
+        userBasicInfo.setRole(userEntity.getRole().getId());
         return userBasicInfo;
     }
 
