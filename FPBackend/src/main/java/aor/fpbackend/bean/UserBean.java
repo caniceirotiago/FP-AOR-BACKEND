@@ -676,7 +676,7 @@ public class UserBean implements Serializable {
         if (!userDao.checkUsernameExist(username)) {
             String email = username + "@" + username + ".com";
             String encryptedPassword = passEncoder.encode(username);
-            String firstName = "f" + username;
+            String firstName = "fn_" + username;
             LaboratoryEntity laboratory = labDao.findLaboratoryById(labId);
             if (laboratory == null) {
                 throw new IllegalStateException("Laboratory not found.");
