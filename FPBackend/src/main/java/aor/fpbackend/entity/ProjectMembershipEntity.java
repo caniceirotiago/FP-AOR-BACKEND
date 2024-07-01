@@ -18,9 +18,11 @@ import java.io.Serializable;
         "FROM ProjectMembershipEntity p JOIN p.user u JOIN p.project pr WHERE pr.id = :projectId")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipByAcceptanceToken", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.acceptanceToken = :acceptanceToken")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipByProjectIdAndUserId", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.user.id = :userId")
+@NamedQuery(name = "ProjectMembership.isUserProjectMember", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.user.id = :userId AND p.isAccepted = true")
 @NamedQuery(name = "ProjectMembership.findProjectManagers", query = "SELECT p.user FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.role = aor.fpbackend.enums.ProjectRoleEnum.PROJECT_MANAGER")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipByProjectIdAndUserIdAndRole",
         query = "SELECT pm FROM ProjectMembershipEntity pm WHERE pm.project.id = :projectId AND pm.user.id = :userId AND pm.role = :role")
+
 public class ProjectMembershipEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -42,15 +44,21 @@ public class ProjectMembershipEntity implements Serializable {
     private ProjectRoleEnum role;
 
     @Column(name = "is_accepted", nullable = false)
-    private boolean isAccepted = false;
+    private boolean isAccepted;
 
     @Column(name = "acceptance_token", nullable = true)
     private String acceptanceToken;
 
     // Constructors, getters, and setters
-
     public ProjectMembershipEntity() {}
 
+    public ProjectMembershipEntity(UserEntity user, ProjectEntity project, ProjectRoleEnum role, boolean isAccepted, String acceptanceToken) {
+        this.user = user;
+        this.project = project;
+        this.role = role;
+        this.isAccepted = isAccepted;
+        this.acceptanceToken = acceptanceToken;
+    }
 
     public long getId() {
         return id;
