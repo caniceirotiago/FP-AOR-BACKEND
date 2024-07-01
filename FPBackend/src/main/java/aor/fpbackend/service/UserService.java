@@ -34,7 +34,7 @@ public class UserService {
     @Path("/register")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public void registerUser(@Valid UserRegisterDto user) throws InvalidCredentialsException, UnknownHostException, EntityNotFoundException {
+    public void registerUser(@Valid UserRegisterDto user) throws InvalidCredentialsException, EntityNotFoundException {
         userBean.register(user);
     }
 
@@ -47,7 +47,7 @@ public class UserService {
     @POST
     @Path("/request/confirmation/email")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void requestConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException, UnknownHostException {
+    public void requestConfirmationEmail(EmailDto email) throws InvalidRequestOnRegistConfirmationException {
         userBean.requestNewConfirmationEmail(email);
     }
 
@@ -76,7 +76,7 @@ public class UserService {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response login(@Valid UserLoginDto userLogin) throws InvalidCredentialsException, UnknownHostException {
+    public Response login(@Valid UserLoginDto userLogin) throws InvalidCredentialsException {
         return sessionBean.login(userLogin);
     }
 
@@ -103,7 +103,7 @@ public class UserService {
     @Path("/all/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.USERS_BASIC_INFO)
-    public List<UserBasicInfoDto> getUsersListBasicInfo() throws UserNotFoundException {
+    public List<UserBasicInfoDto> getUsersListBasicInfo() {
         return userBean.getUsersListBasicInfo();
     }
 
@@ -155,7 +155,7 @@ public class UserService {
     @Path("/profile")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void editUserData(@Valid UserUpdateDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, UnknownHostException, EntityNotFoundException, DatabaseOperationException {
+    public void editUserData(@Valid UserUpdateDto updatedUser, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException, DatabaseOperationException {
         userBean.updateUserProfile(securityContext, updatedUser);
     }
 
@@ -163,14 +163,13 @@ public class UserService {
     @Path("/password")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws UnknownHostException, UserNotFoundException, InputValidationException {
+    public void updateUserPassword(@Valid PasswordUpdateDto updatedPassword, @Context SecurityContext securityContext) throws UserNotFoundException, InputValidationException {
         userBean.updatePassword(updatedPassword, securityContext);
     }
 
     @PUT
     @Path("/role")
     @Consumes(MediaType.APPLICATION_JSON)
-    //@Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.UPDATE_ROLE)
     public void updateUserRole(@Valid UserUpdateRoleDto updatedRole) throws InvalidCredentialsException, UnknownHostException, EntityNotFoundException {
         userBean.updateRole(updatedRole);
