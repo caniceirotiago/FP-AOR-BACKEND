@@ -62,7 +62,7 @@ public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
 
     public boolean isUserProjectMember(long projectId, long userId) {
         try {
-            em.createNamedQuery("ProjectMembership.findProjectMembershipByProjectIdAndUserId", ProjectMembershipEntity.class)
+            em.createNamedQuery("ProjectMembership.isUserProjectMember", ProjectMembershipEntity.class)
                     .setParameter("projectId", projectId)
                     .setParameter("userId", userId)
                     .getSingleResult();

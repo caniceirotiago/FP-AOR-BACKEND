@@ -212,7 +212,7 @@ public class PdfGenerator {
     // Helper method to draw location data on the PDF
     private float drawLocationData(PDPageContentStream contentStream, Iterable<ReportProjectsLocationDto> locationData, float x, float y, float lineHeight) throws IOException {
         for (ReportProjectsLocationDto locationDto : locationData) {
-            String locationText = locationDto.getLocation().toString() + " - total projects: " + locationDto.getProjectCount() + "; percentage: " + locationDto.getProjectPercentage() + "%";
+            String locationText = locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects; " + locationDto.getProjectPercentage() + "%";
             y = drawText(contentStream, PDType1Font.HELVETICA, 12, locationText, x + 20, y);
             y -= lineHeight * 1.2;
         }

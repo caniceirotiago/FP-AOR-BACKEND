@@ -206,6 +206,10 @@ public class TaskBean implements Serializable {
         if (taskResponsible == null) {
             throw new EntityNotFoundException("User not found");
         }
+        // Validate that user is project member
+        if(!projectMemberDao.isUserProjectMember(projectEntity.getId(), taskResponsible.getId())){
+            throw new InputValidationException("Responsible user is not a member of the project");
+        }
         // Validate planned dates
         if (plannedEndDate.isBefore(plannedStartDate)) {
             throw new InputValidationException("Planned end date cannot be before planned start date");
