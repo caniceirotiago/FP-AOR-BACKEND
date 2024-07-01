@@ -69,10 +69,10 @@ public class MembershipService {
         memberBean.removeUserFromProject(username, projectId, securityContext);
     }
     @GET
-    @Path("/projectIds/byUserId/securityContext")
+    @Path("/projectIds/byUserId/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ProjectNameIdDto> getProjectIdsByUserId(@Context SecurityContext securityContext) {
-        return memberBean.getProjectIdsByUserId(securityContext);
+    public List<ProjectNameIdDto> getProjectIdsByUserId(@PathParam("userId") long userId){
+        return memberBean.getProjectIdsByUserId(userId);
     }
     @GET
     @Path("/first/letter/{projectId}")

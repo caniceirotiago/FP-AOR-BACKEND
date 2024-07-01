@@ -275,6 +275,7 @@ public class NotificationBean implements Serializable {
         notificationEntity.setDateTime(Instant.now());
         notificationEntity.setRead(false);
         notificationEntity.setTask(taskEntity);
+        notificationEntity.setProject(taskEntity.getProject());
         notificationEntity.setContent("You have been marked as responsible in the new task " + taskEntity.getTitle() + " in project " + taskEntity.getProject().getName());
         notificationDao.persist(notificationEntity);
         NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);

@@ -330,9 +330,8 @@ public class MembershipBean implements Serializable {
      * @param securityContext the security context containing the authenticated user's information
      * @return a list of ProjectNameIdDto containing the IDs and names of the projects
      */
-    public List<ProjectNameIdDto> getProjectIdsByUserId(SecurityContext securityContext) {
-        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        List<Long> projectsIds = projectMemberDao.findProjectIdsByUserId(authUserDto.getUserId());
+    public List<ProjectNameIdDto> getProjectIdsByUserId(Long userId) {
+        List<Long> projectsIds = projectMemberDao.findProjectIdsByUserId(userId);
         List<ProjectNameIdDto> projectNameIdDtos = new ArrayList<>();
         for (Long projectId : projectsIds) {
             ProjectEntity project = projectDao.findProjectById(projectId);
