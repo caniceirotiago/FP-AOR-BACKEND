@@ -42,6 +42,7 @@ public class UserDao extends AbstractDao<UserEntity> {
             return false;
         }
     }
+
     public  boolean confirmUserIdExists(String userId) {
         try {
             Long count = (Long) em.createNamedQuery("User.countUserById")
@@ -115,11 +116,14 @@ public class UserDao extends AbstractDao<UserEntity> {
         query.setParameter("pattern", firstLetter + "%");
         return query.getResultList();
     }
-    public List<ProjectMembershipDto> getUsersByProject(long projectId) {
-        TypedQuery<ProjectMembershipDto> query = em.createNamedQuery("ProjectMembership.findProjectMembershipsByProject", ProjectMembershipDto.class);
-        query.setParameter("projectId", projectId);
+
+    public List<UserEntity> getUsersByFirstLetterUsernameOrFirstName(String firstLetter) {
+        TypedQuery<UserEntity> query = em.createQuery(
+                "SELECT u FROM UserEntity u WHERE LOWER(u.username) LIKE :pattern OR LOWER(u.firstName) LIKE :pattern", UserEntity.class);
+        query.setParameter("pattern", firstLetter.toLowerCase() + "%");
         return query.getResultList();
     }
+
     public List<UserEntity> getUsersByRole(RoleEntity role) {
         TypedQuery<UserEntity> query = em.createQuery(
                 "SELECT u FROM UserEntity u JOIN u.role r WHERE r = :role", UserEntity.class);

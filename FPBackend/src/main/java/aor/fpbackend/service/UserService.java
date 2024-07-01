@@ -115,6 +115,14 @@ public class UserService {
         return userBean.getUsersBasicInfoByFirstLetter(firstLetter);
     }
 
+    @GET
+    @Path("/first/letter/email")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresMethodPermission(MethodEnum.USERS_FIRST_LETTER)
+    public List<UserMessageInfoDto> getUserEmailRecipientByFirstLetter(@QueryParam("value") String firstLetter) {
+        return userBean.getUserEmailRecipientByFirstLetter(firstLetter);
+    }
+
     /**
      * Retrieves user information for the given username.
      * If the username or password is missing in the request headers, returns a status code 401 (Unauthorized)

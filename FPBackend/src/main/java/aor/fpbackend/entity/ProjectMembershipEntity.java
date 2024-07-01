@@ -10,9 +10,7 @@ import java.io.Serializable;
 
 @NamedQuery(name="ProjectMembership.findUsersByFirstLetterAndProjId",
         query="SELECT u FROM ProjectMembershipEntity p JOIN p.user u WHERE p.project.id = :projectId AND u.username LIKE :firstLetter || '%'")
-
 @NamedQuery(name = "ProjectMembership.findProjectIdsByUserId", query = "SELECT p.project.id FROM ProjectMembershipEntity p WHERE p.user.id = :userId")
-@NamedQuery(name = "ProjectMembership.findProjectMembershipById", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.id = :id")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipsByProject", query = "SELECT new aor.fpbackend.dto.Project.ProjectMembershipDto(" +
         "p.id, u.id, pr.id, p.role, p.isAccepted, new aor.fpbackend.dto.User.UserBasicInfoDto(u.id, u.username, u.photo, u.role.id)) " +
         "FROM ProjectMembershipEntity p JOIN p.user u JOIN p.project pr WHERE pr.id = :projectId")
