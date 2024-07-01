@@ -290,7 +290,7 @@ public class MembershipBean implements Serializable {
      * @throws UnknownHostException if an error occurs during notification creation
      */
     @Transactional
-    public void removeUserFromProject(String username, long projectId, SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException {
+    public void removeUserFromProject(String username, long projectId, SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException, ForbiddenAccessException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
@@ -301,6 +301,9 @@ public class MembershipBean implements Serializable {
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
+        }
+        if((!projectMemberDao.isUserProjectManager(projectId, authUserEntity.getId())) && (authUserEntity.getId()!=userEntity.getId())){
+            throw new ForbiddenAccessException("Not allowed");
         }
         if (projectEntity.getCreatedBy().equals(userEntity)) {
             throw new IllegalStateException("User is the creator of the project");
