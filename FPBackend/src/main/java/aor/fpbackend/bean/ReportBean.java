@@ -65,22 +65,22 @@ public class ReportBean implements Serializable {
 
     // Average members per project
     public ReportAverageResultDto getAverageMembersPerProject() {
-        Double averageMembers = projectDao.getAverageMembersPerProject();
+        Number averageMembers = projectDao.getAverageMembersPerProject();
         // Handle null case if no average found
         if (averageMembers == null) {
-            averageMembers = 0.0; //
+            averageMembers = 0.0;
         }
-        return new ReportAverageResultDto(averageMembers);
+        return new ReportAverageResultDto(averageMembers.doubleValue());
     }
 
     // Average project duration
     public ReportAverageResultDto getAverageProjectDuration() {
-        Double averageDuration = projectDao.getAverageProjectDuration();
+        Number averageDuration = projectDao.getAverageProjectDuration();
         // Handle null case if no average found
         if (averageDuration == null) {
             averageDuration = 0.0;
         }
-        return new ReportAverageResultDto(averageDuration);
+        return new ReportAverageResultDto(averageDuration.doubleValue());
     }
 
     // Projects count by laboratory location
@@ -90,8 +90,8 @@ public class ReportBean implements Serializable {
         for (Object[] result : results) {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
-            Double percentage = (Double) result[2];
-            projectCountDtos.add(new ReportProjectsLocationDto(location, count, percentage));
+            Number percentage = (Number) result[2]; // Use Number aqui
+            projectCountDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue())); // Converta para Double
         }
         return projectCountDtos;
     }
@@ -103,8 +103,8 @@ public class ReportBean implements Serializable {
         for (Object[] result : results) {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
-            Double percentage = (Double) result[2];
-            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage));
+            Number percentage = (Number) result[2]; // Use Number aqui
+            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue())); // Converta para Double
         }
         return projectsByLocationDtos;
     }
@@ -116,8 +116,8 @@ public class ReportBean implements Serializable {
         for (Object[] result : results) {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
-            Double percentage = (Double) result[2];
-            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage));
+            Number percentage = (Number) result[2]; // Use Number aqui
+            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue())); // Converta para Double
         }
         return projectsByLocationDtos;
     }
