@@ -183,8 +183,8 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.MARK_NOTIFICATIONS_AS_READ, "mark notification as read", MethodEnum.MARK_NOTIFICATIONS_AS_READ.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_CONFIG, "update system configurations", MethodEnum.UPDATE_CONFIG.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.USERS_BASIC_INFO, "retrieves a list of all users basic info", MethodEnum.USERS_BASIC_INFO.getValue());
-        methodBean.createMethodIfNotExistent(MethodEnum.PROJECT_REPORTS, "retrieves a summary of project reports", MethodEnum.PROJECT_REPORTS.getValue());
-
+        methodBean.createMethodIfNotExistent(MethodEnum.PROJECTS_REPORT, "retrieves a summary of projects info in pdf", MethodEnum.PROJECTS_REPORT.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.ASSETS_REPORT, "retrieves a summary of assets info in pdf", MethodEnum.ASSETS_REPORT.getValue());
     }
 
     /**
@@ -274,6 +274,7 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.MARK_NOTIFICATIONS_AS_READ);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.UPDATE_CONFIG);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.USERS_BASIC_INFO);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECT_REPORTS);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECTS_REPORT);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSETS_REPORT);
     }
 }

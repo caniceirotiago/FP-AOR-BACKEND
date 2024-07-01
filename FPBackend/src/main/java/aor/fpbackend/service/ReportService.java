@@ -23,7 +23,7 @@ public class ReportService {
     @GET
     @Path("/project/summary")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.PROJECT_REPORTS)
+    @RequiresMethodPermission(MethodEnum.PROJECTS_REPORT)
     public ReportProjectSummaryDto getProjectReportSummary() {
         return reportBean.getProjectReportSummary();
     }
@@ -31,7 +31,7 @@ public class ReportService {
     @GET
     @Path("/asset/summary")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.PROJECT_REPORTS)
+    @RequiresMethodPermission(MethodEnum.ASSETS_REPORT)
     public ReportAssetSummaryDto getAssetReportSummary() {
         return reportBean.getAssetReportSummary();
     }
@@ -39,7 +39,7 @@ public class ReportService {
     @GET
     @Path("/project/summary/pdf")
     @Produces("application/pdf")
-    @RequiresMethodPermission(MethodEnum.PROJECT_REPORTS)
+    @RequiresMethodPermission(MethodEnum.PROJECTS_REPORT)
     public Response getProjectReportSummaryPdf() {
         try {
             String saveFolderPath = reportBean.generateProjectPdfReport();
@@ -56,7 +56,7 @@ public class ReportService {
     @GET
     @Path("/asset/summary/pdf")
     @Produces("application/pdf")
-    @RequiresMethodPermission(MethodEnum.PROJECT_REPORTS)
+    @RequiresMethodPermission(MethodEnum.ASSETS_REPORT)
     public Response getAssetReportSummaryPdf() {
         try {
             String saveFolderPath = reportBean.generateAssetPdfReport();
