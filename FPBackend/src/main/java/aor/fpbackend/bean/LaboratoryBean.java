@@ -76,6 +76,7 @@ public class LaboratoryBean implements Serializable {
         LaboratoryDto laboratoryDto = new LaboratoryDto();
         laboratoryDto.setId(laboratoryEntity.getId());
         laboratoryDto.setLocation(laboratoryEntity.getLocation());
+        laboratoryDto.setLocationName(laboratoryEntity.getLocation().toString());
         return laboratoryDto;
     }
 

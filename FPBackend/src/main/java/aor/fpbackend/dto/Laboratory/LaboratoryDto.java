@@ -14,13 +14,16 @@ public class LaboratoryDto implements Serializable {
     long id;
     @XmlElement
     LocationEnum location;
+    @XmlElement
+    String locationName;
 
     public LaboratoryDto() {
     }
 
-    public LaboratoryDto(long id, LocationEnum location) {
+    public LaboratoryDto(long id, LocationEnum location, String locationName) {
         this.id = id;
         this.location = location;
+        this.locationName = locationName;
     }
 
     public long getId() {
@@ -37,5 +40,13 @@ public class LaboratoryDto implements Serializable {
 
     public void setLocation(LocationEnum location) {
         this.location = location;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }
