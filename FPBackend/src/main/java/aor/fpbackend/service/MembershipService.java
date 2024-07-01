@@ -61,28 +61,26 @@ public class MembershipService {
         memberBean.acceptProjectInvite(token, approve);
     }
 
-    @PUT
+    @DELETE
     @Path("/remove/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException {
+    @RequiresMethodPermission(MethodEnum.REMOVE_USER_PROJECT)
+    public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException, ForbiddenAccessException {
         memberBean.removeUserFromProject(username, projectId, securityContext);
     }
+
     @GET
     @Path("/projectIds/byUserId/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ProjectNameIdDto> getProjectIdsByUserId(@PathParam("userId") long userId){
         return memberBean.getProjectIdsByUserId(userId);
     }
+
     @GET
     @Path("/first/letter/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<UserBasicInfoDto> getBasicInfoByFirstLetter(@QueryParam("value") String firstLetter, @PathParam("projectId") long projectId) {
         return memberBean.getUsersBasicInfoByFirstLetter(firstLetter, projectId);
     }
-
-
-
-
 
 }
