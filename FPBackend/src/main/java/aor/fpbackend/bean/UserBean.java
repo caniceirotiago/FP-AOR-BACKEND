@@ -384,6 +384,21 @@ public class UserBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
+    public UserBasicInfoDto getUserBasicInfo(String Username) throws UserNotFoundException {
+        UserEntity userEntity = userDao.findUserByUsername(Username);
+        if (userEntity == null) {
+            throw new UserNotFoundException("User not found");
+        }
+        try {
+            LOGGER.info("Fetched basic info for user id: {}", userEntity.getId());
+            return convertUserEntitytoUserBasicInfoDto(userEntity);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching basic info for user", e);
+            throw e;
+        } finally {
+            ThreadContext.clearMap();
+        }
+    }
 
 
     /**

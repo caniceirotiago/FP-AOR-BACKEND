@@ -108,6 +108,14 @@ public class UserService {
     }
 
     @GET
+    @Path("/basic/info/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+
+    public UserBasicInfoDto getUserBasicInfo(@PathParam("username") String username) throws UserNotFoundException {
+        return userBean.getUserBasicInfo(username);
+    }
+
+    @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.USERS_FIRST_LETTER)
