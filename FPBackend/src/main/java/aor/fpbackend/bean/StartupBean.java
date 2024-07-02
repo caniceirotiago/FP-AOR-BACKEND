@@ -277,7 +277,7 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.USERS_BASIC_INFO);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.PROJECTS_REPORT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSETS_REPORT);
-        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.MARK_NOTIFICATIONS_AS_READ);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_USER_PROJECT);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_USER_PROJECT);
     }
 }
