@@ -4,6 +4,7 @@ import aor.fpbackend.bean.ConfigurationBean;
 import aor.fpbackend.dto.Configuration.ConfigurationGetDto;
 import aor.fpbackend.dto.Configuration.ConfigurationUpdateDto;
 import aor.fpbackend.enums.MethodEnum;
+import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import jakarta.ejb.EJB;
@@ -25,10 +26,10 @@ public class ConfigurationService {
     }
 
     @PUT
-    @Path("/session/timeout")
+    @Path("/config/key")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.UPDATE_CONFIG)
-    public void updateSessionTimeout(@Valid ConfigurationUpdateDto configUpdateDto) throws InputValidationException {
+    public void updateSessionTimeout(@Valid ConfigurationUpdateDto configUpdateDto) throws InputValidationException, EntityNotFoundException {
         configurationBean.updateConfigValue(configUpdateDto);
     }
 

@@ -49,7 +49,7 @@ public class MembershipService {
     @Path("/add/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException, UnknownHostException {
+    public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException, ElementAssociationException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         memberBean.addUserToProject(username, projectId, false, false, authUserEntity);

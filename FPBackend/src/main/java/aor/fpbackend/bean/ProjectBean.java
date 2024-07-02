@@ -613,7 +613,7 @@ public class ProjectBean implements Serializable {
         // Don't update CANCELLED or FINISHED projects
         ProjectStateEnum currentState = projectEntity.getState();
         if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
-            return;
+            throw new InputValidationException("Project is not editable anymore");
         }
         // When updates project name, check for duplicates
         if (!projectEntity.getName().equalsIgnoreCase(projectUpdateDto.getName())) {

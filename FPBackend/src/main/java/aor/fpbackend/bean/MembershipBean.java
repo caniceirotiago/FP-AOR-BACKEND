@@ -8,6 +8,7 @@ import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.LogTypeEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
+import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
@@ -192,10 +193,15 @@ public class MembershipBean implements Serializable {
      * @throws UnknownHostException     if an error occurs during notification creation
      */
     @Transactional
-    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, UserEntity authUser) throws EntityNotFoundException, UserNotFoundException, InputValidationException, UnknownHostException {
+    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, UserEntity authUser) throws EntityNotFoundException, UnknownHostException, ElementAssociationException {
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
+        }
+        // Don't add to CANCELLED or FINISHED projects
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
+            throw new ElementAssociationException("Project is not editable anymore");
         }
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {

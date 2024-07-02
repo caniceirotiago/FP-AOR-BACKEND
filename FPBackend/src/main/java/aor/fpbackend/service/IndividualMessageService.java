@@ -17,16 +17,13 @@ public class IndividualMessageService {
     @EJB
     IndividualMessageBean individualMessageBean;
 
-//    @POST
-//    @Path("")
-//    public void sendIndividualMessage(@Valid IndividualMessageSendDto individualMessageSendDto) throws UserNotFoundException {
-//        individualMessageBean.sendIndividualMessage(individualMessageSendDto);
-//    }
     @GET
     @Path("/{senderId}/{recipientId}")
+    @Produces(MediaType.APPLICATION_JSON)
     public List<IndividualMessageGetDto> getIndividualMessages(@PathParam("senderId") String senderId, @PathParam("recipientId") String recipientId) throws UserNotFoundException {
         return individualMessageBean.getIndividualMessages(senderId, recipientId);
     }
+
     @GET
     @Path("/filter")
     @Produces(MediaType.APPLICATION_JSON)

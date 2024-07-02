@@ -26,17 +26,4 @@ public class GroupMessageService {
         return groupMessageBean.getGroupMessagesByProjectId(projectId, securityContext);
     }
 
-    //TODO
-    // Method just to debug (To erase later)
-//    @POST
-//    @Path("/{projectId}")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @RequiresProjectMemberPermission()
-//    public void sendGroupMessage(@PathParam("projectId") long projectId, @Valid GroupMessageSendDto groupMessageSendDto) throws UserNotFoundException, EntityNotFoundException, InputValidationException {
-//        if (projectId != groupMessageSendDto.getGroupId()) {
-//            throw new InputValidationException("Invalid input Id: " + groupMessageSendDto.getGroupId());
-//        }
-//        groupMessageBean.sendGroupMessage(groupMessageSendDto);
-//    }
-
 }

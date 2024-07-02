@@ -10,6 +10,7 @@ import aor.fpbackend.dto.Project.ProjectAssetGetDto;
 import aor.fpbackend.dto.Project.ProjectAssetRemoveDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.AssetTypeEnum;
+import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -72,6 +73,11 @@ public class AssetBean implements Serializable {
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
+        }
+        // Don't add to CANCELLED or FINISHED projects
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
+            throw new ElementAssociationException("Project is not editable anymore");
         }
         // Check if the asset is already associated with the project
         for (ProjectAssetEntity existingProjectAsset : projectEntity.getProjectAssetsForProject()) {

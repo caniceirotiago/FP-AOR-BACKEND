@@ -31,7 +31,7 @@ public class InterestService {
     @Path("/add/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_INTEREST)
-    public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, InputValidationException {
+    public void addInterest(@Valid InterestAddDto interestAddDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException {
         interestBean.addInterest(interestAddDto, securityContext);
     }
 
@@ -72,7 +72,6 @@ public class InterestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.REMOVE_INTEREST)
     public void removeInterest(@Valid InterestRemoveDto interestRemoveDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
-        System.out.println("Removing interest");
         interestBean.removeInterest(interestRemoveDto, securityContext);
     }
 

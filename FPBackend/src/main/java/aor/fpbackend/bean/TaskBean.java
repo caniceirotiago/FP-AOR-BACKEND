@@ -345,7 +345,7 @@ public class TaskBean implements Serializable {
                 ProjectStateEnum.CANCELLED,
                 ProjectStateEnum.READY,
                 ProjectStateEnum.FINISHED);
-        // Don't update tasks if project state is CANCELLED or FINISHED
+        // Don't update tasks if project state is CANCELLED, READY or FINISHED
         if (dontUpdateStates.contains(taskEntity.getProject().getState())) {
             throw new InputValidationException("Project state doesn't allow task updates");
         }
@@ -456,7 +456,6 @@ public class TaskBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Validates the planned start and end dates for a task update.

@@ -102,7 +102,7 @@ public class AssetService {
         assetBean.removeAsset(assetRemoveDto);
     }
 
-    // /{projectId} just for filter validation
+    // {projectId} just for filter validation
     @PUT
     @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)

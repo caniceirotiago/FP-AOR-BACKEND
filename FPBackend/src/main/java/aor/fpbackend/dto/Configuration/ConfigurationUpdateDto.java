@@ -1,5 +1,6 @@
 package aor.fpbackend.dto.Configuration;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -13,6 +14,7 @@ public class ConfigurationUpdateDto implements Serializable {
     private String configKey;
     @XmlElement
     @NotNull
+    @Min(value = 1, message = "Config value must be greater than 0")
     private int configValue;
 
     public ConfigurationUpdateDto() {
