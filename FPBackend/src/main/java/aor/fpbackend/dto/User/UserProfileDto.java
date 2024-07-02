@@ -1,5 +1,6 @@
 package aor.fpbackend.dto.User;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -18,6 +19,7 @@ public class UserProfileDto implements Serializable {
 
     @XmlElement
     @NotNull
+    @Email(message = "Invalid email format")
     private String email;
 
     @XmlElement

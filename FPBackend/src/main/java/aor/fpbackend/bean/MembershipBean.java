@@ -2,6 +2,7 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Project.ProjectMembershipDto;
 import aor.fpbackend.dto.Project.ProjectNameIdDto;
 import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.entity.*;
@@ -382,5 +383,28 @@ public class MembershipBean implements Serializable {
      */
     public List<UserEntity> getProjectMembersByProjId(long projectId) {
         return projectMemberDao.findProjectMembersByProjectId(projectId);
+    }
+
+    /**
+     * Retrieves a list of project memberships for users associated with a specific project.
+     * <p>
+     * This method fetches the list of project memberships from the database using the provided project ID.
+     * It logs the operation for auditing purposes and handles any exceptions that may occur during the process.
+     * </p>
+     *
+     * @param projectId the ID of the project for which to retrieve user memberships.
+     * @return a list of ProjectMembershipDto objects representing the users associated with the specified project.
+     * @throws RuntimeException if an error occurs while fetching the project memberships.
+     */
+    public List<ProjectMembershipDto> getProjectMembershipsByProject(long projectId) {
+        try {
+            LOGGER.info("Fetching users by project");
+            return projectMemberDao.getUsersByProject(projectId);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching users by project", e);
+            throw e;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 }

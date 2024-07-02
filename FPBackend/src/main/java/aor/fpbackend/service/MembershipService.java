@@ -3,6 +3,7 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.MembershipBean;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Project.ProjectMembershipDto;
 import aor.fpbackend.dto.Project.ProjectNameIdDto;
 import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.entity.UserEntity;
