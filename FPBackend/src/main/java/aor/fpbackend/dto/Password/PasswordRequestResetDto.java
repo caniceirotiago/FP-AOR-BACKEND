@@ -1,5 +1,6 @@
 package aor.fpbackend.dto.Password;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -12,6 +13,7 @@ public class PasswordRequestResetDto implements Serializable {
 
     @XmlElement
     @NotNull
+    @Email(message = "Invalid email format")
     private String email;
 
     public PasswordRequestResetDto() {

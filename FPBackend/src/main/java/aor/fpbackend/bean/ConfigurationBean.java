@@ -4,6 +4,7 @@ import aor.fpbackend.dao.ConfigurationDao;
 import aor.fpbackend.dto.Configuration.ConfigurationGetDto;
 import aor.fpbackend.dto.Configuration.ConfigurationUpdateDto;
 import aor.fpbackend.entity.ConfigurationEntity;
+import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -33,10 +34,13 @@ public class ConfigurationBean implements Serializable {
         return configurationDao.findConfigValueByKey(configKey);
     }
 
-    public void updateConfigValue(ConfigurationUpdateDto configUpdateDto) throws InputValidationException {
+    public void updateConfigValue(ConfigurationUpdateDto configUpdateDto) throws InputValidationException, EntityNotFoundException {
         ConfigurationEntity configEntity = configurationDao.findConfigEntityByKey(configUpdateDto.getConfigKey());
-        if(configUpdateDto.getConfigKey().equals("sessionTimeout")){
-            if (configUpdateDto.getConfigValue()<10){
+        if (configEntity == null) {
+            throw new EntityNotFoundException("Configuration not found");
+        }
+        if (configUpdateDto.getConfigKey().equals("sessionTimeout")) {
+            if (configUpdateDto.getConfigValue() < 10) {
                 throw new InputValidationException("New config value lower than minimum session timeout value");
             }
         }

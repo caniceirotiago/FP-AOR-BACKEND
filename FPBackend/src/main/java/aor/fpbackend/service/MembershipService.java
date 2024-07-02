@@ -3,6 +3,7 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.MembershipBean;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Project.ProjectMembershipDto;
 import aor.fpbackend.dto.Project.ProjectNameIdDto;
 import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.entity.UserEntity;
@@ -48,7 +49,7 @@ public class MembershipService {
     @Path("/add/{username}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UserNotFoundException, InputValidationException, UnknownHostException {
+    public void addUserToProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException, ElementAssociationException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         memberBean.addUserToProject(username, projectId, false, false, authUserEntity);

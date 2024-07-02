@@ -2,11 +2,13 @@ package aor.fpbackend.bean;
 
 import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.Authentication.AuthUserDto;
+import aor.fpbackend.dto.Project.ProjectMembershipDto;
 import aor.fpbackend.dto.Project.ProjectNameIdDto;
 import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.LogTypeEnum;
 import aor.fpbackend.enums.ProjectRoleEnum;
+import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ejb.EJB;
@@ -191,10 +193,15 @@ public class MembershipBean implements Serializable {
      * @throws UnknownHostException     if an error occurs during notification creation
      */
     @Transactional
-    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, UserEntity authUser) throws EntityNotFoundException, UserNotFoundException, InputValidationException, UnknownHostException {
+    public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, UserEntity authUser) throws EntityNotFoundException, UnknownHostException, ElementAssociationException {
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
+        }
+        // Don't add to CANCELLED or FINISHED projects
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
+            throw new ElementAssociationException("Project is not editable anymore");
         }
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
@@ -382,5 +389,28 @@ public class MembershipBean implements Serializable {
      */
     public List<UserEntity> getProjectMembersByProjId(long projectId) {
         return projectMemberDao.findProjectMembersByProjectId(projectId);
+    }
+
+    /**
+     * Retrieves a list of project memberships for users associated with a specific project.
+     * <p>
+     * This method fetches the list of project memberships from the database using the provided project ID.
+     * It logs the operation for auditing purposes and handles any exceptions that may occur during the process.
+     * </p>
+     *
+     * @param projectId the ID of the project for which to retrieve user memberships.
+     * @return a list of ProjectMembershipDto objects representing the users associated with the specified project.
+     * @throws RuntimeException if an error occurs while fetching the project memberships.
+     */
+    public List<ProjectMembershipDto> getProjectMembershipsByProject(long projectId) {
+        try {
+            LOGGER.info("Fetching users by project");
+            return projectMemberDao.getUsersByProject(projectId);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching users by project", e);
+            throw e;
+        } finally {
+            ThreadContext.clearMap();
+        }
     }
 }

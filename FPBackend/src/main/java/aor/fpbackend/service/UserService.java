@@ -1,5 +1,6 @@
 package aor.fpbackend.service;
 
+import aor.fpbackend.bean.MembershipBean;
 import aor.fpbackend.bean.SessionBean;
 import aor.fpbackend.bean.UserBean;
 import aor.fpbackend.dto.Email.EmailDto;
@@ -29,6 +30,8 @@ public class UserService {
     UserBean userBean;
     @EJB
     SessionBean sessionBean;
+    @EJB
+    MembershipBean memberBean;
 
     @POST
     @Path("/register")
@@ -44,6 +47,8 @@ public class UserService {
     public void confirmRegistration(@QueryParam("token") String token) throws InputValidationException, UserNotFoundException {
         userBean.confirmUser(token);
     }
+
+    // TODO: verificar se este método está a ser usado
     @POST
     @Path("/request/confirmation/email")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -110,7 +115,6 @@ public class UserService {
     @GET
     @Path("/basic/info/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-
     public UserBasicInfoDto getUserBasicInfo(@PathParam("username") String username) throws UserNotFoundException {
         return userBean.getUserBasicInfo(username);
     }
@@ -145,14 +149,6 @@ public class UserService {
     public UserProfileDto userInfo(@PathParam("usernameProfile") String usernameProfile, @Context SecurityContext securityContext) throws UserNotFoundException, ForbiddenAccessException {
         return userBean.getProfileDto(usernameProfile, securityContext);
     }
-
-    //TODO comentei porque acho que nao esta a ser utilizado
-//    @GET
-//    @Path("")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public List<UsernameDto> getAllUsers() {
-//        return userBean.getAllRegUsers();
-//    }
 
     /**
      * Allows an authenticated user to update their own data. It checks for valid authentication and
@@ -192,6 +188,7 @@ public class UserService {
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ProjectMembershipDto> getUsersByProject(@PathParam("projectId") long projectId) {
-        return userBean.getUsersByProject(projectId);
+        return memberBean.getProjectMembershipsByProject(projectId);
     }
+
 }

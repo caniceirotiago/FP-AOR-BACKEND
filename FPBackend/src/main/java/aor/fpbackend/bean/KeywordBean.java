@@ -6,6 +6,8 @@ import aor.fpbackend.dto.Keyword.KeywordGetDto;
 import aor.fpbackend.dto.Keyword.KeywordRemoveDto;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
+import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.exception.ElementAssociationException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -66,12 +68,17 @@ public class KeywordBean implements Serializable {
      * @throws EntityNotFoundException if the project is not found
      */
     @Transactional
-    public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException {
+    public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException, ElementAssociationException {
         checkKeywordExist(keywordName);
         KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordName);
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if(projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
+        }
+        // Don't add to CANCELLED or FINISHED projects
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
+            throw new ElementAssociationException("Project is not editable anymore");
         }
         Set<KeywordEntity> projectKeywords = projectEntity.getProjectKeywords();
         if (projectKeywords == null) {

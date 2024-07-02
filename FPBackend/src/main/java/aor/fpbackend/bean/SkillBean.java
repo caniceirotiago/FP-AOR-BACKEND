@@ -11,11 +11,9 @@ import aor.fpbackend.dto.Skill.SkillRemoveUserDto;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.entity.SkillEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.SkillTypeEnum;
-import aor.fpbackend.exception.DatabaseOperationException;
-import aor.fpbackend.exception.DuplicatedAttributeException;
-import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.UserNotFoundException;
+import aor.fpbackend.exception.*;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.PersistenceException;
@@ -199,6 +197,11 @@ public class SkillBean implements Serializable {
 
             // Find the project by id
             ProjectEntity projectEntity = findProjectById(projectId);
+//            // Don't add to CANCELLED or FINISHED projects
+//            ProjectStateEnum currentState = projectEntity.getState();
+//            if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
+//                throw new ElementAssociationException("Project is not editable anymore");
+//            }
 
             // Add the skill to the project's skills
             addSkillToProject(skillEntity, projectEntity);
