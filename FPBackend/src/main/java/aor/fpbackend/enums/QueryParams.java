@@ -18,6 +18,7 @@ public class QueryParams {
     public static final String CREATION_DATE = "creationDate";
     public static final String OPEN_POSITIONS = "openPositions";
     public static final String DATA = "data";
+    public static final String SHOW_ONLY_OWN_PROJECTS = "showMyProjectsOnly";
 
 }
 

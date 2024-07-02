@@ -122,7 +122,7 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
                     break;
                 default:
                     // Default sorting
-                    order = cb.asc(projectRoot.get(QueryParams.CREATION_DATE));
+                    order = cb.desc(projectRoot.get(QueryParams.CREATION_DATE));
                     break;
             }
             query.orderBy(order);
@@ -186,6 +186,13 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
                 case QueryParams.LABORATORY:
                     Join<ProjectEntity, LaboratoryEntity> labJoin = projectRoot.join("laboratory");
                     predicates.add(cb.equal(labJoin.get("id"), Long.parseLong(values.get(0))));
+                    break;
+                case QueryParams.SHOW_ONLY_OWN_PROJECTS:
+                    Join<ProjectEntity, ProjectMembershipEntity> membershipJoin = projectRoot.join("members");
+                    predicates.add(cb.and(
+                            cb.equal(membershipJoin.get("user").get("id"), Long.parseLong(values.get(0))),
+                            cb.isTrue(membershipJoin.get("isAccepted"))
+                    ));
                     break;
             }
         });
