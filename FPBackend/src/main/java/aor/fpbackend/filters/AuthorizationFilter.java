@@ -128,7 +128,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     private boolean isPublicEndpoint(String path) {
         return path.endsWith("/login")
-                || path.endsWith("/individual/message/filter") //temporário
                 || path.endsWith("/register")
                 || path.contains("/confirm")
                 || path.contains("/request/password/reset")
@@ -226,26 +225,21 @@ public class AuthorizationFilter implements ContainerRequestFilter {
         }
         if(method.isAnnotationPresent(RequiresPermissionByUserOnIndividualMessage.class)){
             MultivaluedMap<String, String> pathParams = requestContext.getUriInfo().getPathParameters();
-            MultivaluedMap<String, String> queryParam = requestContext.getUriInfo().getQueryParameters();
 
-            //On individual message between users endpoint, only the users involved can access the messages
             String senderId = pathParams.getFirst("senderId");
-            String receiverId = pathParams.getFirst("receiverId");
-
-            //On User all messages endpoint, only the user can access the messages
-            String userId = queryParam.getFirst("userId");
-
-            if(senderId != null || receiverId != null){
-                if(!senderId.equals(String.valueOf(authUserDto.getUserId())) && !receiverId.equals(String.valueOf(authUserDto.getUserId()))){
-                    requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
-                }
+            String receiverId = pathParams.getFirst("recipientId");
+            boolean hasPermission = senderId.equals(String.valueOf(authUserDto.getUserId())) || receiverId.equals(String.valueOf(authUserDto.getUserId()));
+            if (!hasPermission) {
+                requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
             }
-            if(userId != null){
-                if(!userId.equals(String.valueOf(authUserDto.getUserId()))){
-                    requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
-                }
+        }
+        if(method.isAnnotationPresent(RequiresPermissionByUserOnIndividualMessageAllMessages.class)){
+            MultivaluedMap<String, String> queryParameters = requestContext.getUriInfo().getQueryParameters();
+            String senderId = queryParameters.getFirst("userId");
+            boolean hasPermission = senderId.equals(String.valueOf(authUserDto.getUserId()));
+            if (!hasPermission) {
+                requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
             }
-
         }
     }
 
