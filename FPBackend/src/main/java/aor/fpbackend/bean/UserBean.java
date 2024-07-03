@@ -455,7 +455,7 @@ public class UserBean implements Serializable {
      * @return a list of UserBasicInfoDto objects representing the basic information of users whose usernames start with the specified letter.
      */
     public List<UserBasicInfoDto> getUsersBasicInfoByFirstLetter(String firstLetter) {
-        if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
+        if (firstLetter == null || firstLetter.length() != 1) {
             return new ArrayList<>();
         }
         try {
@@ -486,7 +486,7 @@ public class UserBean implements Serializable {
      * @return a list of UserMessageInfoDto objects representing the basic information of users whose usernames start with the specified letter.
      */
     public List<UserMessageInfoDto> getUserEmailRecipientByFirstLetter(String firstLetter) {
-        if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
+        if (firstLetter == null || firstLetter.length() != 1) {
             return new ArrayList<>();
         }
         try {

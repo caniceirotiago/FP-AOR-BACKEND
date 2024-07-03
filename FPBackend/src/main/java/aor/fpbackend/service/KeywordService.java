@@ -56,7 +56,7 @@ public class KeywordService {
         return keywordBean.getKeywordsByFirstLetter(firstLetter);
     }
 
-    // /{projectId} just for filter validation
+    // {projectId} just for filter validation
     @PUT
     @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)

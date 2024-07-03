@@ -2,7 +2,9 @@ package aor.fpbackend.dto.Project;
 
 
 import aor.fpbackend.dto.Keyword.KeywordAddDto;
+import aor.fpbackend.dto.Keyword.KeywordCreateNewProjectDto;
 import aor.fpbackend.dto.Skill.SkillAddProjectDto;
+import aor.fpbackend.dto.Skill.SkillCreateNewProjectDto;
 import aor.fpbackend.dto.User.UsernameDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -45,17 +47,19 @@ public class ProjectCreateDto implements Serializable {
     private long laboratoryId;
 
     @XmlElement
-    private Set<SkillAddProjectDto> skills;
+    @Valid
+    private Set<SkillCreateNewProjectDto> skills;
 
     @XmlElement
-    private Set<KeywordAddDto> keywords;
+    @Valid
+    private Set<KeywordCreateNewProjectDto> keywords;
+
+    @XmlElement
+    @Valid
+    private Set<ProjectAssetCreateNewProjectDto> assets;
 
     @XmlElement
     private Set<UsernameDto> users;
-
-    @XmlElement
-    private Set<ProjectAssetCreateDto> assets;
-
 
     public ProjectCreateDto() {
     }
@@ -112,19 +116,19 @@ public class ProjectCreateDto implements Serializable {
         this.laboratoryId = laboratoryId;
     }
 
-    public Set<SkillAddProjectDto> getSkills() {
+    public Set<SkillCreateNewProjectDto> getSkills() {
         return skills;
     }
 
-    public void setSkills(Set<SkillAddProjectDto> skills) {
+    public void setSkills(Set<SkillCreateNewProjectDto> skills) {
         this.skills = skills;
     }
 
-    public Set<KeywordAddDto> getKeywords() {
+    public Set<KeywordCreateNewProjectDto> getKeywords() {
         return keywords;
     }
 
-    public void setKeywords(Set<KeywordAddDto> keywords) {
+    public void setKeywords(Set<KeywordCreateNewProjectDto> keywords) {
         this.keywords = keywords;
     }
 
@@ -136,11 +140,11 @@ public class ProjectCreateDto implements Serializable {
         this.users = users;
     }
 
-    public Set<ProjectAssetCreateDto> getAssets() {
+    public Set<ProjectAssetCreateNewProjectDto> getAssets() {
         return assets;
     }
 
-    public void setAssets(Set<ProjectAssetCreateDto> assets) {
+    public void setAssets(Set<ProjectAssetCreateNewProjectDto> assets) {
         this.assets = assets;
     }
 }

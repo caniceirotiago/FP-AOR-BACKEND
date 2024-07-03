@@ -3,8 +3,10 @@ package aor.fpbackend.bean;
 import aor.fpbackend.dao.*;
 import aor.fpbackend.dto.Authentication.AuthUserDto;
 import aor.fpbackend.dto.Keyword.KeywordAddDto;
+import aor.fpbackend.dto.Keyword.KeywordCreateNewProjectDto;
 import aor.fpbackend.dto.Project.*;
 import aor.fpbackend.dto.Skill.SkillAddProjectDto;
+import aor.fpbackend.dto.Skill.SkillCreateNewProjectDto;
 import aor.fpbackend.dto.User.UsernameDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.*;
@@ -237,8 +239,8 @@ public class ProjectBean implements Serializable {
         }
         // Define relations for project Skills
         if (projectCreateDto.getSkills() != null && !projectCreateDto.getSkills().isEmpty()) {
-            Set<SkillAddProjectDto> skills = projectCreateDto.getSkills().stream().collect(Collectors.toSet());
-            for (SkillAddProjectDto skill : skills) {
+            Set<SkillCreateNewProjectDto> skills = projectCreateDto.getSkills().stream().collect(Collectors.toSet());
+            for (SkillCreateNewProjectDto skill : skills) {
                 String skillName = skill.getName();
                 SkillTypeEnum skillType = skill.getType();
                 skillBean.addSkillProject(skillName, skillType, projectEntity.getId());
@@ -246,16 +248,16 @@ public class ProjectBean implements Serializable {
         }
         // Define relations for project Keywords
         if (projectCreateDto.getKeywords() != null && !projectCreateDto.getKeywords().isEmpty()) {
-            Set<KeywordAddDto> keywords = projectCreateDto.getKeywords().stream().collect(Collectors.toSet());
-            for (KeywordAddDto keyword : keywords) {
+            Set<KeywordCreateNewProjectDto> keywords = projectCreateDto.getKeywords().stream().collect(Collectors.toSet());
+            for (KeywordCreateNewProjectDto keyword : keywords) {
                 String keywordName = keyword.getName();
                 keywordBean.addKeyword(keywordName, projectEntity.getId());
             }
         }
         // Define relations for project ProjectAssets
         if (projectCreateDto.getAssets() != null && !projectCreateDto.getAssets().isEmpty()) {
-            Set<ProjectAssetCreateDto> assets = projectCreateDto.getAssets().stream().collect(Collectors.toSet());
-            for (ProjectAssetCreateDto asset : assets) {
+            Set<ProjectAssetCreateNewProjectDto> assets = projectCreateDto.getAssets().stream().collect(Collectors.toSet());
+            for (ProjectAssetCreateNewProjectDto asset : assets) {
                 String assetName = asset.getName();
                 int assetUsedQuantity = asset.getUsedQuantity();
                 assetBean.addProjectAssetToProject(assetName, projectEntity.getId(), assetUsedQuantity);

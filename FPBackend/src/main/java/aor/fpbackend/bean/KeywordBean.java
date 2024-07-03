@@ -137,7 +137,7 @@ public class KeywordBean implements Serializable {
      * @return a list of KeywordGetDto objects
      */
     public List<KeywordGetDto> getKeywordsByFirstLetter(String firstLetter) {
-        if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
+        if (firstLetter == null || firstLetter.length() != 1) {
             return new ArrayList<>();
         }
         String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();

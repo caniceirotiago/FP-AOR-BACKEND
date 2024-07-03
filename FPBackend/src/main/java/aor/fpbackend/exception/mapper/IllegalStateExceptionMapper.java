@@ -10,16 +10,16 @@ import org.apache.logging.log4j.Logger;
 
 @Provider
 public class IllegalStateExceptionMapper implements ExceptionMapper<IllegalStateException> {
-private static final Logger LOGGER = LogManager.getLogger(IllegalStateException.class);
+    private static final Logger LOGGER = LogManager.getLogger(IllegalStateException.class);
 
-@Override
-public Response toResponse(IllegalStateException e) {
-    Error error = new Error(e.getMessage());
-    LOGGER.warn("IllegalStateException: " + error.getMessage());
-    return Response
-            .status(Response.Status.CONFLICT)
-            .entity(error)
-            .type(MediaType.APPLICATION_JSON)
-            .build();
-}
+    @Override
+    public Response toResponse(IllegalStateException e) {
+        Error error = new Error(e.getMessage());
+        LOGGER.warn("IllegalStateException: " + error.getMessage());
+        return Response
+                .status(Response.Status.CONFLICT)
+                .entity(error)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
 }
