@@ -3,6 +3,7 @@ package aor.fpbackend.dao;
 import aor.fpbackend.entity.NotificationEntity;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.Hibernate;
 
@@ -27,14 +28,18 @@ public class NotificationDao extends AbstractDao<NotificationEntity>{
         for (NotificationEntity notification : notifications) {
             Hibernate.initialize(notification.getUser().getLaboratory().getUsers());
         }
-
         return notifications;
     }
+
     public NotificationEntity findNotificationById(Long notificationId) {
-        NotificationEntity notificationEntity = em.createQuery("SELECT n FROM NotificationEntity n WHERE n.id = :notificationId", NotificationEntity.class)
-                .setParameter("notificationId", notificationId)
-                .getSingleResult();
-        return notificationEntity;
+        try {
+            NotificationEntity notificationEntity = em.createQuery("SELECT n FROM NotificationEntity n WHERE n.id = :notificationId", NotificationEntity.class)
+                    .setParameter("notificationId", notificationId)
+                    .getSingleResult();
+            return notificationEntity;
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
 }
