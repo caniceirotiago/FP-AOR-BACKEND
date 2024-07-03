@@ -5,6 +5,7 @@ import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetDto;
 import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetPaginatedDto;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresPermissionByUserOnIndividualMessage;
+import aor.fpbackend.filters.RequiresPermissionByUserOnIndividualMessageAllMessages;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -21,7 +22,7 @@ public class IndividualMessageService {
     @GET
     @Path("/{senderId}/{recipientId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermissionByUserOnIndividualMessage
+    @RequiresPermissionByUserOnIndividualMessage()
     public List<IndividualMessageGetDto> getIndividualMessages(@PathParam("senderId") String senderId, @PathParam("recipientId") String recipientId) throws UserNotFoundException {
         return individualMessageBean.getIndividualMessages(senderId, recipientId);
     }
@@ -29,7 +30,7 @@ public class IndividualMessageService {
     @GET
     @Path("/filter")
     @Produces(MediaType.APPLICATION_JSON)
-    @RequiresPermissionByUserOnIndividualMessage
+    @RequiresPermissionByUserOnIndividualMessageAllMessages()
     public IndividualMessageGetPaginatedDto getFilteredMessages(
             @QueryParam("userId") String userId,
             @QueryParam("type") String type,
