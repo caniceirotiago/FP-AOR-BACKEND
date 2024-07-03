@@ -8,7 +8,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 @XmlRootElement
-public class TaskAddDependencyDto implements Serializable {
+public class TaskDependencyDto implements Serializable {
 
     @XmlElement
     @NotNull
@@ -21,10 +21,10 @@ public class TaskAddDependencyDto implements Serializable {
     private long dependentTaskId;
 
 
-    public TaskAddDependencyDto() {
+    public TaskDependencyDto() {
     }
 
-    public TaskAddDependencyDto(long mainTaskId, long dependentTaskId) {
+    public TaskDependencyDto(long mainTaskId, long dependentTaskId) {
         this.mainTaskId = mainTaskId;
         this.dependentTaskId = dependentTaskId;
     }

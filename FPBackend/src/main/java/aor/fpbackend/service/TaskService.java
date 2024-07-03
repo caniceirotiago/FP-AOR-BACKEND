@@ -4,10 +4,7 @@ import aor.fpbackend.bean.TaskBean;
 import aor.fpbackend.dto.Task.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.TaskStateEnum;
-import aor.fpbackend.exception.DatabaseOperationException;
-import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.InputValidationException;
-import aor.fpbackend.exception.UserNotFoundException;
+import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
@@ -47,10 +44,11 @@ public class TaskService {
     @Path("/add/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void addTaskToProject(@Valid TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException, UnknownHostException {
+    public void addTaskToProject(@Valid TaskCreateDto taskCreateDto) throws EntityNotFoundException, InputValidationException, UnknownHostException, ElementAssociationException {
         taskBean.addTask(taskCreateDto.getTitle(), taskCreateDto.getDescription(), taskCreateDto.getPlannedStartDate(),
                 taskCreateDto.getPlannedEndDate(), taskCreateDto.getResponsibleId(), taskCreateDto.getProjectId());
     }
+
     @DELETE
     @Path("/{taskId}/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -63,16 +61,16 @@ public class TaskService {
     @Path("/add/dependency/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void addDependencyToTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
-        taskBean.addDependencyTask(addDependencyDto);
+    public void addDependencyToTask(@PathParam("projectId") long projectId, @Valid TaskDependencyDto dependencyDto) throws EntityNotFoundException, InputValidationException {
+        taskBean.addDependencyTask(projectId, dependencyDto);
     }
 
     @DELETE
     @Path("/dependency/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void removeDependencyFromTask(@Valid TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, DatabaseOperationException {
-        taskBean.removeDependencyTask(addDependencyDto);
+    public void removeDependencyFromTask(@PathParam("projectId") long projectId, @Valid TaskDependencyDto dependencyDto) throws EntityNotFoundException, DatabaseOperationException, InputValidationException {
+        taskBean.removeDependencyTask(projectId, dependencyDto);
     }
 
     @PUT

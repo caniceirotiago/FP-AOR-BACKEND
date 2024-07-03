@@ -5,7 +5,7 @@ import aor.fpbackend.dao.ProjectMembershipDao;
 import aor.fpbackend.dao.TaskDao;
 import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.Authentication.AuthUserDto;
-import aor.fpbackend.dto.Task.TaskAddDependencyDto;
+import aor.fpbackend.dto.Task.TaskDependencyDto;
 import aor.fpbackend.dto.Task.TaskDetailedUpdateDto;
 import aor.fpbackend.dto.Task.TaskGetDto;
 import aor.fpbackend.dto.Task.TaskUpdateDto;
@@ -16,14 +16,11 @@ import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.LogTypeEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.TaskStateEnum;
-import aor.fpbackend.exception.DatabaseOperationException;
-import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.InputValidationException;
+import aor.fpbackend.exception.*;
 
 import java.net.UnknownHostException;
 import java.time.temporal.ChronoUnit;
 
-import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.PersistenceException;
@@ -41,16 +38,16 @@ import java.util.*;
  * It interacts with various DAOs to perform CRUD operations on task entities, user entities,
  * and project entities. This bean handles the addition, update, deletion, and dependency
  * management of tasks.
- *
+ * <p>
  * The class also performs input validation, logging, and ensures that transactions are handled
  * appropriately.
- *
+ * <p>
  * Technologies Used:
  * <ul>
  *     <li>Jakarta EE: For dependency injection.</li>
  *     <li>SLF4J: For logging operations.</li>
  * </ul>
- *
+ * <p>
  * Dependencies are injected using the {@link EJB} annotation, which includes DAOs for user,
  * task, and project entities. The bean also uses utility classes for logging and input validation.
  */
@@ -117,7 +114,7 @@ public class TaskBean implements Serializable {
      * @throws EntityNotFoundException if the project ID is invalid or the project does not exist.
      */
     public List<TaskGetDto> getTasksByProject(long projectId) throws EntityNotFoundException {
-        if(projectId < 1) {
+        if (projectId < 1) {
             throw new EntityNotFoundException("Project ID cannot be negative");
         }
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
@@ -154,7 +151,7 @@ public class TaskBean implements Serializable {
      * @throws EntityNotFoundException if the task ID is invalid or the task does not exist.
      */
     public TaskGetDto getTasksById(long taskId) throws EntityNotFoundException {
-        if(taskId < 1) {
+        if (taskId < 1) {
             throw new EntityNotFoundException("Task ID cannot be negative");
         }
         TaskEntity taskEntity = taskDao.findTaskById(taskId);
@@ -186,28 +183,33 @@ public class TaskBean implements Serializable {
      * ThreadContext is utilized to log user-specific information for auditing purposes.
      * </p>
      *
-     * @param title the title of the task.
-     * @param description the description of the task.
+     * @param title            the title of the task.
+     * @param description      the description of the task.
      * @param plannedStartDate the planned start date of the task.
-     * @param plannedEndDate the planned end date of the task.
-     * @param responsibleId the ID of the user responsible for the task.
-     * @param projectId the ID of the project to which the task will be added.
-     * @throws EntityNotFoundException if the project or user is not found.
+     * @param plannedEndDate   the planned end date of the task.
+     * @param responsibleId    the ID of the user responsible for the task.
+     * @param projectId        the ID of the project to which the task will be added.
+     * @throws EntityNotFoundException  if the project or user is not found.
      * @throws InputValidationException if the planned dates are invalid.
-     * @throws UnknownHostException if there is an error with the host.
+     * @throws UnknownHostException     if there is an error with the host.
      */
     @Transactional
-    public void addTask(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException, UnknownHostException {
+    public void addTask(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException, UnknownHostException, ElementAssociationException {
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
+        }
+        // Don't add to CANCELLED or FINISHED projects
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
+            throw new ElementAssociationException("Project is not editable anymore");
         }
         UserEntity taskResponsible = userDao.findUserById(responsibleId);
         if (taskResponsible == null) {
             throw new EntityNotFoundException("User not found");
         }
         // Validate that user is project member
-        if(!projectMemberDao.isUserProjectMember(projectEntity.getId(), taskResponsible.getId())){
+        if (!projectMemberDao.isUserProjectMember(projectEntity.getId(), taskResponsible.getId())) {
             throw new InputValidationException("Responsible user is not a member of the project");
         }
         // Validate planned dates
@@ -230,7 +232,7 @@ public class TaskBean implements Serializable {
         taskEntity.setResponsibleUser(taskResponsible);
         taskEntity.setProject(projectEntity);
 
-        try{
+        try {
             taskDao.persist(taskEntity);
             taskResponsible.getResponsibleTasks().add(taskEntity);
             notificationBean.createNotificationMarkesAsResponsibleInNewTask(taskResponsible, taskEntity);
@@ -251,27 +253,31 @@ public class TaskBean implements Serializable {
      * and then defines a dependency relationship between them.
      * </p>
      *
-     * @param addDependencyDto the DTO containing the IDs of the main and dependent tasks.
+     * @param dependencyDto the DTO containing the IDs of the main and dependent tasks.
      * @throws EntityNotFoundException if either the main task or the dependent task is not found.
      */
     @Transactional
-    public void addDependencyTask(TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException {
-        TaskEntity mainTaskEntity = taskDao.findTaskById(addDependencyDto.getMainTaskId());
-        TaskEntity dependentTaskEntity = taskDao.findTaskById(addDependencyDto.getDependentTaskId());
+    public void addDependencyTask(long projectId, TaskDependencyDto dependencyDto) throws EntityNotFoundException, InputValidationException {
+        TaskEntity mainTaskEntity = taskDao.findTaskById(dependencyDto.getMainTaskId());
         if (mainTaskEntity == null) {
-            LOGGER.warn("Main task with ID: {} not found", addDependencyDto.getMainTaskId());
             throw new EntityNotFoundException("Main task not found");
         }
+        TaskEntity dependentTaskEntity = taskDao.findTaskById(dependencyDto.getDependentTaskId());
         if (dependentTaskEntity == null) {
-            LOGGER.warn("Dependent task with ID: {} not found", addDependencyDto.getDependentTaskId());
             throw new EntityNotFoundException("Dependent task not found");
         }
-        try{
+        if (mainTaskEntity.isDeleted() || dependentTaskEntity.isDeleted()) {
+            throw new InputValidationException("Cannot use deleted tasks");
+        }
+        if (mainTaskEntity.getProject().getId() != projectId || dependentTaskEntity.getProject().getId() != projectId) {
+            throw new InputValidationException("Tasks don't belong to this project");
+        }
+        try {
             Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
             dependentTasks.add(dependentTaskEntity);
             Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
             prerequisites.add(mainTaskEntity);
-            LOGGER.info("Dependency added successfully: Main Task ID: {}, Dependent Task ID: {}", addDependencyDto.getMainTaskId(), addDependencyDto.getDependentTaskId());
+            LOGGER.info("Dependency added successfully: Main Task ID: {}, Dependent Task ID: {}", dependencyDto.getMainTaskId(), dependencyDto.getDependentTaskId());
         } catch (PersistenceException e) {
             LOGGER.error("Error while adding dependency: {}", e.getMessage());
             throw new EntityNotFoundException("Error while adding dependency");
@@ -288,19 +294,25 @@ public class TaskBean implements Serializable {
      * and then removes the dependency relationship between them.
      * </p>
      *
-     * @param addDependencyDto the DTO containing the IDs of the main and dependent tasks.
-     * @throws EntityNotFoundException if either the main task or the dependent task is not found.
+     * @param dependencyDto the DTO containing the IDs of the main and dependent tasks.
+     * @throws EntityNotFoundException    if either the main task or the dependent task is not found.
      * @throws DatabaseOperationException if there is an error while removing the dependency.
      */
     @Transactional
-    public void removeDependencyTask(TaskAddDependencyDto addDependencyDto) throws EntityNotFoundException, DatabaseOperationException {
-        TaskEntity mainTaskEntity = taskDao.findTaskById(addDependencyDto.getMainTaskId());
-        if(mainTaskEntity == null) {
+    public void removeDependencyTask(long projectId, TaskDependencyDto dependencyDto) throws EntityNotFoundException, DatabaseOperationException, InputValidationException {
+        TaskEntity mainTaskEntity = taskDao.findTaskById(dependencyDto.getMainTaskId());
+        if (mainTaskEntity == null) {
             throw new EntityNotFoundException("Task not found");
         }
-        TaskEntity dependentTaskEntity = taskDao.findTaskById(addDependencyDto.getDependentTaskId());
-        if(dependentTaskEntity == null) {
+        TaskEntity dependentTaskEntity = taskDao.findTaskById(dependencyDto.getDependentTaskId());
+        if (dependentTaskEntity == null) {
             throw new EntityNotFoundException("Task not found");
+        }
+        if (mainTaskEntity.isDeleted() || dependentTaskEntity.isDeleted()) {
+            throw new InputValidationException("Cannot use deleted tasks");
+        }
+        if (mainTaskEntity.getProject().getId() != projectId || dependentTaskEntity.getProject().getId() != projectId) {
+            throw new InputValidationException("Tasks don't belong to this project");
         }
         try {
             Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
@@ -308,7 +320,7 @@ public class TaskBean implements Serializable {
             Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
             prerequisites.remove(mainTaskEntity);
             LOGGER.info("Dependency removed successfully: Main Task ID: {}, Dependent Task ID:" +
-                    " {}", addDependencyDto.getMainTaskId(), addDependencyDto.getDependentTaskId());
+                    " {}", dependencyDto.getMainTaskId(), dependencyDto.getDependentTaskId());
         } catch (PersistenceException e) {
             LOGGER.error("Error while removing dependency: {}", e.getMessage());
             throw new DatabaseOperationException("Error while removing dependency");
@@ -324,11 +336,11 @@ public class TaskBean implements Serializable {
      * This method performs several validation checks, updates task details, and logs changes.
      * </p>
      *
-     * @param taskUpdateDto    the DTO containing updated task details.
-     * @param securityContext  the security context of the authenticated user.
+     * @param taskUpdateDto   the DTO containing updated task details.
+     * @param securityContext the security context of the authenticated user.
      * @throws InputValidationException if the task details are invalid.
-     * @throws EntityNotFoundException if the task or user is not found.
-     * @throws UserNotFoundException if the authenticated user is not found.
+     * @throws EntityNotFoundException  if the task or user is not found.
+     * @throws UserNotFoundException    if the authenticated user is not found.
      */
     @Transactional
     public void updateTask(TaskUpdateDto taskUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException, UserNotFoundException {
@@ -357,7 +369,7 @@ public class TaskBean implements Serializable {
         if (daysBetween < 1) {
             throw new InputValidationException("Planned end date must be at least one day after planned start date");
         }
-        try{
+        try {
             taskEntity.setDescription(taskUpdateDto.getDescription());
             taskEntity.setPlannedStartDate(taskUpdateDto.getPlannedStartDate());
             taskEntity.setPlannedEndDate(taskUpdateDto.getPlannedEndDate());
@@ -413,11 +425,11 @@ public class TaskBean implements Serializable {
      * </p>
      *
      * @param taskDetailedUpdateDto the DTO containing the detailed update information for the task.
-     * @param securityContext the security context containing the authenticated user's details.
-     * @throws InputValidationException if any validation of input data fails.
-     * @throws EntityNotFoundException if the task, responsible user, or registered executors are not found.
-     * @throws UserNotFoundException if the authenticated user is not found.
-     * @throws UnknownHostException if there is an error related to the host environment.
+     * @param securityContext       the security context containing the authenticated user's details.
+     * @throws InputValidationException   if any validation of input data fails.
+     * @throws EntityNotFoundException    if the task, responsible user, or registered executors are not found.
+     * @throws UserNotFoundException      if the authenticated user is not found.
+     * @throws UnknownHostException       if there is an error related to the host environment.
      * @throws DatabaseOperationException if there is an error updating the task in the database.
      */
     @Transactional
@@ -496,7 +508,7 @@ public class TaskBean implements Serializable {
      * </p>
      *
      * @param taskDetailedUpdateDto the DTO containing the new planned dates for the task.
-     * @param taskEntity the task entity to be updated, containing the current dependencies and prerequisites.
+     * @param taskEntity            the task entity to be updated, containing the current dependencies and prerequisites.
      * @throws InputValidationException if the new planned dates are not compatible with the dates of dependent or prerequisite tasks.
      */
     private void validateDependenciesAndPrerequisites(TaskDetailedUpdateDto taskDetailedUpdateDto, TaskEntity taskEntity) throws InputValidationException {
@@ -537,9 +549,9 @@ public class TaskBean implements Serializable {
      * </p>
      *
      * @param taskDetailedUpdateDto the DTO containing the ID of the new responsible user.
-     * @param taskEntity the task entity to be updated, containing the current project information.
+     * @param taskEntity            the task entity to be updated, containing the current project information.
      * @return the UserEntity representing the new responsible user.
-     * @throws EntityNotFoundException if the responsible user is not found.
+     * @throws EntityNotFoundException  if the responsible user is not found.
      * @throws InputValidationException if the responsible user is not a member of the project.
      */
     private UserEntity validateResponsibleUser(TaskDetailedUpdateDto taskDetailedUpdateDto, TaskEntity taskEntity) throws EntityNotFoundException, InputValidationException {
@@ -566,9 +578,9 @@ public class TaskBean implements Serializable {
      * </p>
      *
      * @param taskDetailedUpdateDto the DTO containing the list of registered executor IDs.
-     * @param taskEntity the task entity to be updated, containing the current project information.
+     * @param taskEntity            the task entity to be updated, containing the current project information.
      * @return a set of UserEntity objects representing the validated registered executors.
-     * @throws EntityNotFoundException if any registered executor is not found.
+     * @throws EntityNotFoundException  if any registered executor is not found.
      * @throws InputValidationException if any registered executor is not a member of the project.
      */
     private Set<UserEntity> validateRegisteredExecutors(TaskDetailedUpdateDto taskDetailedUpdateDto, TaskEntity taskEntity) throws EntityNotFoundException, InputValidationException {
@@ -601,9 +613,9 @@ public class TaskBean implements Serializable {
      * The method assumes that all necessary validations have already been performed before it is called.
      * </p>
      *
-     * @param taskEntity the task entity to be updated.
-     * @param taskDetailedUpdateDto the DTO containing the updated task details.
-     * @param newResponsibleUser the new responsible user for the task.
+     * @param taskEntity             the task entity to be updated.
+     * @param taskDetailedUpdateDto  the DTO containing the updated task details.
+     * @param newResponsibleUser     the new responsible user for the task.
      * @param newRegisteredExecutors the set of new registered executors for the task.
      */
     private void updateTaskEntityFields(TaskEntity taskEntity, TaskDetailedUpdateDto taskDetailedUpdateDto, UserEntity newResponsibleUser, Set<UserEntity> newRegisteredExecutors) {
@@ -636,9 +648,9 @@ public class TaskBean implements Serializable {
      * </ul>
      * </p>
      *
-     * @param taskEntity the task entity whose state is being updated.
+     * @param taskEntity            the task entity whose state is being updated.
      * @param taskDetailedUpdateDto the DTO containing the updated task details.
-     * @param authUserEntity the authenticated user performing the update.
+     * @param authUserEntity        the authenticated user performing the update.
      */
     private void handleStateTransitions(TaskEntity taskEntity, TaskDetailedUpdateDto taskDetailedUpdateDto, UserEntity authUserEntity) {
         TaskStateEnum newState = taskDetailedUpdateDto.getState();
@@ -673,8 +685,8 @@ public class TaskBean implements Serializable {
      * </ul>
      * </p>
      *
-     * @param taskEntity the task entity with updated details.
-     * @param newResponsibleUser the new responsible user for the task.
+     * @param taskEntity             the task entity with updated details.
+     * @param newResponsibleUser     the new responsible user for the task.
      * @param newRegisteredExecutors the set of new registered executors for the task.
      * @throws UnknownHostException if there is an error sending notifications due to network issues.
      */
@@ -703,7 +715,7 @@ public class TaskBean implements Serializable {
      * </ul>
      * </p>
      *
-     * @param taskId the ID of the task to be deleted.
+     * @param taskId          the ID of the task to be deleted.
      * @param securityContext the security context containing the authenticated user's details.
      * @throws EntityNotFoundException if the user, task, or project membership is not found.
      */
@@ -722,7 +734,7 @@ public class TaskBean implements Serializable {
         if (!isProjectMember) {
             throw new EntityNotFoundException("User is not a member of the project");
         }
-        try{
+        try {
             taskEntity.setDeleted(true);
             String content = "Task deleted by " + authUserEntity.getUsername();
             projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);

@@ -78,13 +78,11 @@ public class SkillBean implements Serializable {
     @Transactional
     public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, DatabaseOperationException {
         LOGGER.info("Attempting to add skill '{}' of type '{}' to user.", skillAddUserDto.getName(), skillAddUserDto.getType());
-
         try {
             checkSkillExist(skillAddUserDto.getName(), skillAddUserDto.getType());
             SkillEntity skillEntity = skillDao.findSkillByName(skillAddUserDto.getName());
             AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
             UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-
             if (userEntity == null) {
                 LOGGER.error("Authenticated user not found in database.");
                 throw new EntityNotFoundException("Authenticated user not found.");

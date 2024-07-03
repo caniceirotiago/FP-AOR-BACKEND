@@ -16,7 +16,7 @@ public class SkillAddUserDto implements Serializable {
 
     @XmlElement
     @NotBlank
-    @Size(min = 2, max = 25, message = "Last name must be between 2 and 25 characters")
+    @Size(min = 2, max = 25, message = "Name must be between 2 and 25 characters")
     private String name;
 
     @XmlElement
