@@ -4,10 +4,7 @@ import aor.fpbackend.bean.SkillBean;
 import aor.fpbackend.dto.Skill.*;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.SkillTypeEnum;
-import aor.fpbackend.exception.DatabaseOperationException;
-import aor.fpbackend.exception.DuplicatedAttributeException;
-import aor.fpbackend.exception.EntityNotFoundException;
-import aor.fpbackend.exception.UserNotFoundException;
+import aor.fpbackend.exception.*;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
@@ -39,7 +36,7 @@ public class SkillService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_SKILL_PROJECT)
-    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException, DatabaseOperationException {
+    public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException, DatabaseOperationException, ElementAssociationException, EntityNotFoundException {
         skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), skillAddProjectDto.getProjectId());
 
     }

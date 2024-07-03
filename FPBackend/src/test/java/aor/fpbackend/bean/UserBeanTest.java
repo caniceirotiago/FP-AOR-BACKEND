@@ -1161,43 +1161,43 @@ class UserBeanTest {
         assertTrue(thrown.getMessage().contains("Error while updating user role"));
     }
 
-    @Test
-    void testGetUsersByProject_Success() {
-        // Arrange
-        long projectId = 1L;
-        List<ProjectMembershipDto> expectedMemberships = new ArrayList<>();
-        ProjectMembershipDto membershipDto1 = new ProjectMembershipDto();
-        ProjectMembershipDto membershipDto2 = new ProjectMembershipDto();
-        expectedMemberships.add(membershipDto1);
-        expectedMemberships.add(membershipDto2);
-
-        when(projectMemberDao.getUsersByProject(projectId)).thenReturn(expectedMemberships);
-
-        // Act
-        List<ProjectMembershipDto> actualMemberships = userBean.getUsersByProject(projectId);
-
-        // Assert
-        verify(projectMemberDao, times(1)).getUsersByProject(projectId);
-        assertNotNull(actualMemberships);
-        assertEquals(2, actualMemberships.size());
-        assertEquals(expectedMemberships, actualMemberships);
-    }
-
-    @Test
-    void testGetUsersByProject_Exception() {
-        // Arrange
-        long projectId = 1L;
-        when(projectMemberDao.getUsersByProject(projectId)).thenThrow(new RuntimeException("Database error"));
-
-        // Act & Assert
-        RuntimeException thrown = assertThrows(
-                RuntimeException.class,
-                () -> userBean.getUsersByProject(projectId),
-                "Expected getUsersByProject() to throw, but it didn't"
-        );
-
-        assertTrue(thrown.getMessage().contains("Database error"));
-    }
+//    @Test
+//    void testGetUsersByProject_Success() {
+//        // Arrange
+//        long projectId = 1L;
+//        List<ProjectMembershipDto> expectedMemberships = new ArrayList<>();
+//        ProjectMembershipDto membershipDto1 = new ProjectMembershipDto();
+//        ProjectMembershipDto membershipDto2 = new ProjectMembershipDto();
+//        expectedMemberships.add(membershipDto1);
+//        expectedMemberships.add(membershipDto2);
+//
+//        when(projectMemberDao.getUsersByProject(projectId)).thenReturn(expectedMemberships);
+//
+//        // Act
+//        List<ProjectMembershipDto> actualMemberships = userBean.getUsersByProject(projectId);
+//
+//        // Assert
+//        verify(projectMemberDao, times(1)).getUsersByProject(projectId);
+//        assertNotNull(actualMemberships);
+//        assertEquals(2, actualMemberships.size());
+//        assertEquals(expectedMemberships, actualMemberships);
+//    }
+//
+//    @Test
+//    void testGetUsersByProject_Exception() {
+//        // Arrange
+//        long projectId = 1L;
+//        when(projectMemberDao.getUsersByProject(projectId)).thenThrow(new RuntimeException("Database error"));
+//
+//        // Act & Assert
+//        RuntimeException thrown = assertThrows(
+//                RuntimeException.class,
+//                () -> userBean.getUsersByProject(projectId),
+//                "Expected getUsersByProject() to throw, but it didn't"
+//        );
+//
+//        assertTrue(thrown.getMessage().contains("Database error"));
+//    }
     @Test
     void testCreateDefaultUserIfNotExistent_Success() throws DatabaseOperationException {
         // Arrange

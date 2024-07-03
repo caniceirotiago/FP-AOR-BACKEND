@@ -18,7 +18,7 @@ public class KeywordAddDto implements Serializable {
 
     @XmlElement
     @NotNull
-    @Min(value = 1, message = "ID must be greater than 0")
+    @Min(value = 1, message = "Project ID must be greater than 0")
     private long projectId;
 
 
