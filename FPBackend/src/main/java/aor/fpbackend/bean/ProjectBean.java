@@ -537,7 +537,7 @@ public class ProjectBean implements Serializable {
      * @throws DatabaseOperationException if there is an error updating the project membership role in the database.
      */
     @Transactional
-    public void updateProjectMembershipRole(long projectId, ProjectRoleUpdateDto projectRoleUpdateDto, SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
+    public void updateProjectMembershipRole(long projectId, ProjectRoleUpdateDto projectRoleUpdateDto, SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, DatabaseOperationException, ElementAssociationException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         if (authUserEntity == null) {
@@ -550,6 +550,11 @@ public class ProjectBean implements Serializable {
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found with ID: " + projectId);
+        }
+        // Don't add to CANCELLED or FINISHED projects
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
+            throw new ElementAssociationException("Project is not editable anymore");
         }
         UserEntity userEntity = userDao.findUserById(projectRoleUpdateDto.getUserId());
         if (userEntity == null) {
