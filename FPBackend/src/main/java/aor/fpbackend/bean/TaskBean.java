@@ -272,6 +272,10 @@ public class TaskBean implements Serializable {
         if (mainTaskEntity.getProject().getId() != projectId || dependentTaskEntity.getProject().getId() != projectId) {
             throw new InputValidationException("Tasks don't belong to this project");
         }
+        // Check if the dependency already exists
+        if (mainTaskEntity.getDependentTasks().contains(dependentTaskEntity)) {
+            throw new InputValidationException("Dependency already exists");
+        }
         try {
             Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
             dependentTasks.add(dependentTaskEntity);
@@ -314,6 +318,10 @@ public class TaskBean implements Serializable {
         if (mainTaskEntity.getProject().getId() != projectId || dependentTaskEntity.getProject().getId() != projectId) {
             throw new InputValidationException("Tasks don't belong to this project");
         }
+        // Check if the dependency exists
+        if (!mainTaskEntity.getDependentTasks().contains(dependentTaskEntity)) {
+            throw new InputValidationException("Dependency doesn't exists");
+        }
         try {
             Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
             dependentTasks.remove(dependentTaskEntity);
@@ -353,6 +361,9 @@ public class TaskBean implements Serializable {
         if (taskEntity == null) {
             throw new EntityNotFoundException("Task not found with this Id");
         }
+        if (taskEntity.isDeleted()) {
+            throw new InputValidationException("Cannot update deleted tasks");
+        }
         EnumSet<ProjectStateEnum> dontUpdateStates = EnumSet.of(
                 ProjectStateEnum.CANCELLED,
                 ProjectStateEnum.READY,
@@ -362,41 +373,13 @@ public class TaskBean implements Serializable {
             throw new InputValidationException("Project state doesn't allow task updates");
         }
         // Validate planned dates
-        if (taskUpdateDto.getPlannedEndDate().isBefore(taskUpdateDto.getPlannedStartDate())) {
-            throw new InputValidationException("Planned end date cannot be before planned start date");
-        }
-        long daysBetween = ChronoUnit.DAYS.between(taskUpdateDto.getPlannedStartDate(), taskUpdateDto.getPlannedEndDate());
-        if (daysBetween < 1) {
-            throw new InputValidationException("Planned end date must be at least one day after planned start date");
-        }
+        validatePlannedDates(taskUpdateDto.getPlannedStartDate(), taskUpdateDto.getPlannedEndDate());
         try {
             taskEntity.setDescription(taskUpdateDto.getDescription());
             taskEntity.setPlannedStartDate(taskUpdateDto.getPlannedStartDate());
             taskEntity.setPlannedEndDate(taskUpdateDto.getPlannedEndDate());
             // Validate state and handle state transitions
-            TaskStateEnum newState = taskUpdateDto.getState();
-            TaskStateEnum currentState = taskEntity.getState();
-            if (newState != currentState) {
-                // Handle state transitions
-                if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.IN_PROGRESS) {
-                    taskEntity.setStartDate(Instant.now()); // Set startDate to current date
-                } else {
-                    if (currentState == TaskStateEnum.IN_PROGRESS && newState == TaskStateEnum.FINISHED) {
-                        taskEntity.setEndDate(Instant.now()); // Set endDate to current date
-                    } else if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.FINISHED) {
-                        taskEntity.setStartDate(Instant.now()); // Set startDate to current date
-                        taskEntity.setEndDate(Instant.now()); // Set endDate to current date
-                    }
-                    // Calculate duration if end date is set
-                    if (taskEntity.getEndDate() != null) {
-                        long duration = ChronoUnit.DAYS.between(taskEntity.getStartDate(), taskEntity.getEndDate());
-                        taskEntity.setDuration(duration);
-                    }
-                }
-                taskEntity.setState(newState);
-                String content = "Task state updated from " + currentState + " to " + newState + ", by " + authUserEntity.getUsername();
-                projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
-            }
+            validateAndHandleStateTransition(taskEntity, taskUpdateDto.getState(), authUserEntity);
             LOGGER.info("Task updated successfully: Task ID: {}", taskUpdateDto.getTaskId());
         } catch (PersistenceException e) {
             LOGGER.error("Error while updating task: {}", e.getMessage());
@@ -406,6 +389,56 @@ public class TaskBean implements Serializable {
         }
     }
 
+    /**
+     * Handles state transitions for a task entity based on the provided taskUpdate DTO.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Checks if the new state differs from the current state.</li>
+     *     <li>Updates the task's start and end dates based on state transitions:
+     *         <ul>
+     *             <li>If transitioning from PLANNED to IN_PROGRESS, sets the start date to now.</li>
+     *             <li>If transitioning from IN_PROGRESS to FINISHED, sets the end date to now.</li>
+     *             <li>If transitioning directly from PLANNED to FINISHED, sets both start and end dates to now.</li>
+     *         </ul>
+     *     </li>
+     *     <li>Calculates and sets the duration of the task if the end date is set.</li>
+     *     <li>Updates the task's state to the new state.</li>
+     *     <li>Logs the state transition in the project log.</li>
+     * </ul>
+     * </p>
+     *
+     * @param taskEntity     the task entity whose state is being updated.
+     * @param newState       the new TaskStateEnum.
+     * @param authUserEntity the authenticated user performing the update.
+     */
+    private void validateAndHandleStateTransition(TaskEntity taskEntity, TaskStateEnum newState, UserEntity authUserEntity) {
+        TaskStateEnum currentState = taskEntity.getState();
+        if (newState != currentState) {
+            // Handle state transitions
+            if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.IN_PROGRESS) {
+                taskEntity.setStartDate(Instant.now()); // Set startDate to current date
+            } else if (currentState == TaskStateEnum.IN_PROGRESS && newState == TaskStateEnum.FINISHED) {
+                taskEntity.setEndDate(Instant.now()); // Set endDate to current date
+            } else if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.FINISHED) {
+                taskEntity.setStartDate(Instant.now()); // Set startDate to current date
+                taskEntity.setEndDate(Instant.now()); // Set endDate to current date
+            }
+            // Handle transitions from FINISHED to other states
+            if (currentState == TaskStateEnum.FINISHED && newState != TaskStateEnum.FINISHED) {
+                taskEntity.setEndDate(null); // Clear endDate
+                taskEntity.setDuration(null); // Clear duration
+            }
+            // Calculate duration if end date is set and state is FINISHED
+            if (newState == TaskStateEnum.FINISHED && taskEntity.getEndDate() != null) {
+                long duration = ChronoUnit.DAYS.between(taskEntity.getStartDate(), taskEntity.getEndDate());
+                taskEntity.setDuration(duration);
+            }
+            taskEntity.setState(newState);
+            String content = "Task state updated from " + currentState + " to " + newState + ", by " + authUserEntity.getUsername();
+            projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
+        }
+    }
 
     /**
      * Updates the details of a task, including state transitions, dependencies, and notifications.
@@ -450,15 +483,13 @@ public class TaskBean implements Serializable {
         if (dontUpdateStates.contains(taskEntity.getProject().getState())) {
             throw new InputValidationException("Project state doesn't allow task updates");
         }
-        validatePlannedDates(taskDetailedUpdateDto);
+        validatePlannedDates(taskDetailedUpdateDto.getPlannedStartDate(), taskDetailedUpdateDto.getPlannedEndDate());
         validateDependenciesAndPrerequisites(taskDetailedUpdateDto, taskEntity);
-
         UserEntity newResponsibleUser = validateResponsibleUser(taskDetailedUpdateDto, taskEntity);
         Set<UserEntity> newRegisteredExecutors = validateRegisteredExecutors(taskDetailedUpdateDto, taskEntity);
-
         try {
             updateTaskEntityFields(taskEntity, taskDetailedUpdateDto, newResponsibleUser, newRegisteredExecutors);
-            handleStateTransitions(taskEntity, taskDetailedUpdateDto, authUserEntity);
+            validateAndHandleStateTransition(taskEntity, taskDetailedUpdateDto.getState(), authUserEntity);
             notifyChanges(taskEntity, newResponsibleUser, newRegisteredExecutors);
             LOGGER.info("Task updated successfully: Task ID: {}", taskDetailedUpdateDto.getTaskId());
         } catch (PersistenceException e) {
@@ -480,14 +511,15 @@ public class TaskBean implements Serializable {
      * If any of these validations fail, an InputValidationException is thrown.
      * </p>
      *
-     * @param taskDetailedUpdateDto the DTO containing the planned start and end dates for the task.
+     * @param plannedStartDate the Instant containing the planned start date for the task.
+     * @param plannedEndDate   the Instant containing the planned end date for the task.
      * @throws InputValidationException if the planned end date is before the planned start date or if the duration is less than one day.
      */
-    private void validatePlannedDates(TaskDetailedUpdateDto taskDetailedUpdateDto) throws InputValidationException {
-        if (taskDetailedUpdateDto.getPlannedEndDate().isBefore(taskDetailedUpdateDto.getPlannedStartDate())) {
+    private void validatePlannedDates(Instant plannedStartDate, Instant plannedEndDate) throws InputValidationException {
+        if (plannedEndDate.isBefore(plannedStartDate)) {
             throw new InputValidationException("Planned end date cannot be before planned start date");
         }
-        long daysBetween = ChronoUnit.DAYS.between(taskDetailedUpdateDto.getPlannedStartDate(), taskDetailedUpdateDto.getPlannedEndDate());
+        long daysBetween = ChronoUnit.DAYS.between(plannedStartDate, plannedEndDate);
         if (daysBetween < 1) {
             throw new InputValidationException("Planned end date must be at least one day after planned start date");
         }
@@ -626,52 +658,6 @@ public class TaskBean implements Serializable {
         taskEntity.setPlannedEndDate(taskDetailedUpdateDto.getPlannedEndDate());
         taskEntity.setRegisteredExecutors(newRegisteredExecutors);
         taskEntity.setAdditionalExecutors(taskDetailedUpdateDto.getNonRegisteredExecutors());
-    }
-
-
-    /**
-     * Handles state transitions for a task entity based on the provided detailed update DTO.
-     * <p>
-     * This method performs the following steps:
-     * <ul>
-     *     <li>Checks if the new state differs from the current state.</li>
-     *     <li>Updates the task's start and end dates based on state transitions:
-     *         <ul>
-     *             <li>If transitioning from PLANNED to IN_PROGRESS, sets the start date to now.</li>
-     *             <li>If transitioning from IN_PROGRESS to FINISHED, sets the end date to now.</li>
-     *             <li>If transitioning directly from PLANNED to FINISHED, sets both start and end dates to now.</li>
-     *         </ul>
-     *     </li>
-     *     <li>Calculates and sets the duration of the task if the end date is set.</li>
-     *     <li>Updates the task's state to the new state.</li>
-     *     <li>Logs the state transition in the project log.</li>
-     * </ul>
-     * </p>
-     *
-     * @param taskEntity            the task entity whose state is being updated.
-     * @param taskDetailedUpdateDto the DTO containing the updated task details.
-     * @param authUserEntity        the authenticated user performing the update.
-     */
-    private void handleStateTransitions(TaskEntity taskEntity, TaskDetailedUpdateDto taskDetailedUpdateDto, UserEntity authUserEntity) {
-        TaskStateEnum newState = taskDetailedUpdateDto.getState();
-        TaskStateEnum currentState = taskEntity.getState();
-        if (newState != currentState) {
-            if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.IN_PROGRESS) {
-                taskEntity.setStartDate(Instant.now());
-            } else if (currentState == TaskStateEnum.IN_PROGRESS && newState == TaskStateEnum.FINISHED) {
-                taskEntity.setEndDate(Instant.now());
-            } else if (currentState == TaskStateEnum.PLANNED && newState == TaskStateEnum.FINISHED) {
-                taskEntity.setStartDate(Instant.now());
-                taskEntity.setEndDate(Instant.now());
-            }
-            if (taskEntity.getEndDate() != null) {
-                long duration = ChronoUnit.DAYS.between(taskEntity.getStartDate(), taskEntity.getEndDate());
-                taskEntity.setDuration(duration);
-            }
-            taskEntity.setState(newState);
-            String content = "Task state updated from " + currentState + " to " + newState + ", by " + authUserEntity.getUsername();
-            projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
-        }
     }
 
 

@@ -174,7 +174,7 @@ public class TaskEntity implements Serializable {
         return duration;
     }
 
-    public void setDuration(long duration) {
+    public void setDuration(Long duration) {
         this.duration = duration;
     }
 
