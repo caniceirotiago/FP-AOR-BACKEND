@@ -1,4 +1,5 @@
 package aor.fpbackend.bean;
+
 import aor.fpbackend.dao.ProjectDao;
 import aor.fpbackend.dao.ProjectMembershipDao;
 import aor.fpbackend.dao.TaskDao;
@@ -67,7 +68,6 @@ class TaskBeanTest {
     private TaskUpdateDto taskUpdateDto;
     private SecurityContext securityContext;
 
-
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -102,7 +102,6 @@ class TaskBeanTest {
 
         taskUpdateDto = new TaskUpdateDto();
         taskUpdateDto.setTaskId(1L);
-
         taskUpdateDto.setDescription("Updated Description");
         taskUpdateDto.setPlannedStartDate(Instant.now());
         taskUpdateDto.setPlannedEndDate(Instant.now().plus(2, ChronoUnit.DAYS));
@@ -121,9 +120,7 @@ class TaskBeanTest {
     @Test
     void testGetTasksByProject_ValidProjectId() throws EntityNotFoundException {
         long projectId = 1L;
-        ProjectEntity projectEntity = new ProjectEntity();
         when(projectDao.findProjectById(projectId)).thenReturn(projectEntity);
-        TaskEntity taskEntity = new TaskEntity();
         when(taskDao.getTasksByProjectId(projectId)).thenReturn(Collections.singletonList(taskEntity));
 
         List<TaskGetDto> tasks = taskBean.getTasksByProject(projectId);
@@ -137,306 +134,279 @@ class TaskBeanTest {
     @Test
     void testGetTasksByProject_InvalidProjectId() {
         long projectId = -1L;
-
         assertThrows(EntityNotFoundException.class, () -> taskBean.getTasksByProject(projectId));
     }
 
-//    @Test
-//    void testAddTask_Valid() throws EntityNotFoundException, InputValidationException, UnknownHostException, ElementAssociationException {
-//        long projectId = 1L;
-//        long responsibleId = 1L;
-//        ProjectEntity projectEntity = new ProjectEntity();
-//        UserEntity userEntity = new UserEntity();
-//        when(projectDao.findProjectById(projectId)).thenReturn(projectEntity);
-//        when(userDao.findUserById(responsibleId)).thenReturn(userEntity);
-//        when(projectMemberDao.isUserProjectMember(projectId, responsibleId)).thenReturn(true);
-//
-//        taskBean.addTask("Title", "Description", Instant.now(), Instant.now().plusSeconds(86400), responsibleId, projectId);
-//
-//        verify(taskDao).persist(any(TaskEntity.class));
-//        verify(notificationBean).createNotificationMarkesAsResponsibleInNewTask(any(UserEntity.class), any(TaskEntity.class));
-//    }
-//
-//    @Test
-//    void testAddTask_InvalidProject() {
-//        long projectId = 1L;
-//        when(projectDao.findProjectById(projectId)).thenReturn(null);
-//
-//        assertThrows(EntityNotFoundException.class, () -> taskBean.addTask("Title", "Description", Instant.now(), Instant.now().plusSeconds(86400), 1L, projectId));
-//    }
-//
-//    @Test
-//    void testAddDependencyTask_Valid() throws EntityNotFoundException, InputValidationException {
-//        long mainTaskId = 1L;
-//        long dependentTaskId = 2L;
-//        TaskEntity mainTaskEntity = new TaskEntity();
-//        TaskEntity dependentTaskEntity = new TaskEntity();
-//        when(taskDao.findTaskById(mainTaskId)).thenReturn(mainTaskEntity);
-//        when(taskDao.findTaskById(dependentTaskId)).thenReturn(dependentTaskEntity);
-//
-//        TaskDependencyDto addDependencyDto = new TaskDependencyDto();
-//        addDependencyDto.setMainTaskId(mainTaskId);
-//        addDependencyDto.setDependentTaskId(dependentTaskId);
-//
-//        taskBean.addDependencyTask(long projectId, addDependencyDto);
-//
-//        verify(taskDao).findTaskById(mainTaskId);
-//        verify(taskDao).findTaskById(dependentTaskId);
-//    }
-//
-//    @Test
-//    void testAddDependencyTask_MainTaskNotFound() {
-//        long mainTaskId = 1L;
-//        long dependentTaskId = 2L;
-//        when(taskDao.findTaskById(mainTaskId)).thenReturn(null);
-//
-//        TaskDependencyDto addDependencyDto = new TaskDependencyDto();
-//        addDependencyDto.setMainTaskId(mainTaskId);
-//        addDependencyDto.setDependentTaskId(dependentTaskId);
-//
-//        assertThrows(EntityNotFoundException.class, () -> taskBean.addDependencyTask(addDependencyDto));
-//    }
-//    @Test
-//    void testGetTasksById_ValidTaskId() throws EntityNotFoundException {
-//        long taskId = 1L;
-//        TaskEntity taskEntity = new TaskEntity();
-//        when(taskDao.findTaskById(taskId)).thenReturn(taskEntity);
-//        TaskGetDto taskGetDto = new TaskGetDto();
-//        when(taskBean.convertTaskEntityToTaskDto(taskEntity)).thenReturn(taskGetDto);
-//
-//        TaskGetDto result = taskBean.getTasksById(taskId);
-//
-//        assertNotNull(result);
-//        verify(taskDao).findTaskById(taskId);
-//        verify(taskBean).convertTaskEntityToTaskDto(taskEntity);
-//    }
-//
-//    @Test
-//    void testGetTasksById_InvalidTaskId() {
-//        long taskId = -1L;
-//
-//        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
-//            taskBean.getTasksById(taskId);
-//        });
-//
-//        String expectedMessage = "Task ID cannot be negative";
-//        String actualMessage = exception.getMessage();
-//
-//        assertTrue(actualMessage.contains(expectedMessage));
-//    }
-//
-//    @Test
-//    void testGetTasksById_TaskNotFound() {
-//        long taskId = 1L;
-//        when(taskDao.findTaskById(taskId)).thenReturn(null);
-//
-//        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
-//            taskBean.getTasksById(taskId);
-//        });
-//
-//        String expectedMessage = "Task not found";
-//        String actualMessage = exception.getMessage();
-//
-//        assertTrue(actualMessage.contains(expectedMessage));
-//        verify(taskDao).findTaskById(taskId);
-//    }
-//    @Test
-//    public void testAddTask_Success() throws EntityNotFoundException, InputValidationException, UnknownHostException, ElementAssociationException {
-//        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
-//        when(userDao.findUserById(1L)).thenReturn(userEntity);
-//        when(projectMemberDao.isUserProjectMember(1L, 1L)).thenReturn(true);
-//
-//        taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
-//
-//        verify(taskDao, times(1)).persist(any(TaskEntity.class));
-//        verify(notificationBean, times(1)).createNotificationMarkesAsResponsibleInNewTask(any(UserEntity.class), any(TaskEntity.class));
-//    }
-//
-//    @Test
-//    public void testAddTask_ProjectNotFound() {
-//        when(projectDao.findProjectById(1L)).thenReturn(null);
-//
-//        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-//            taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
-//        });
-//
-//        assertEquals("Project not found", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void testAddTask_UserNotFound() {
-//        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
-//        when(userDao.findUserById(1L)).thenReturn(null);
-//
-//        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-//            taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
-//        });
-//
-//        assertEquals("User not found", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void testAddTask_UserNotProjectMember() {
-//        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
-//        when(userDao.findUserById(1L)).thenReturn(userEntity);
-//        when(projectMemberDao.isUserProjectMember(1L, 1L)).thenReturn(false);
-//
-//        InputValidationException exception = assertThrows(InputValidationException.class, () -> {
-//            taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
-//        });
-//
-//        assertEquals("Responsible user is not a member of the project", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void testAddTask_InvalidDates() {
-//        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
-//        when(userDao.findUserById(1L)).thenReturn(userEntity);
-//        when(projectMemberDao.isUserProjectMember(1L, 1L)).thenReturn(true);
-//
-//        InputValidationException exception = assertThrows(InputValidationException.class, () -> {
-//            taskBean.addTask("Test Task", "Task Description", Instant.now().plus(2, ChronoUnit.DAYS), Instant.now(), 1L, 1L);
-//        });
-//
-//        assertEquals("Planned end date cannot be before planned start date", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void testAddTask_PersistenceException() {
-//        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
-//        when(userDao.findUserById(1L)).thenReturn(userEntity);
-//        when(projectMemberDao.isUserProjectMember(1L, 1L)).thenReturn(true);
-//        doThrow(PersistenceException.class).when(taskDao).persist(any(TaskEntity.class));
-//
-//        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-//            taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
-//        });
-//
-//        assertEquals("Error while persisting task entity", exception.getMessage());
-//    }
-//    @Test
-//    public void testAddDependencyTask_Success() throws EntityNotFoundException, InputValidationException {
-//        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
-//        when(taskDao.findTaskById(2L)).thenReturn(dependentTaskEntity);
-//
-//        taskBean.addDependencyTask(taskDependencyDto);
-//
-//        assertTrue(mainTaskEntity.getDependentTasks().contains(dependentTaskEntity));
-//        assertTrue(dependentTaskEntity.getPrerequisites().contains(mainTaskEntity));
-//
-//        verify(taskDao, times(1)).findTaskById(1L);
-//        verify(taskDao, times(1)).findTaskById(2L);
-//    }
+    @Test
+    void testAddTask_Valid() throws EntityNotFoundException, InputValidationException, UnknownHostException, ElementAssociationException {
+        long projectId = 1L;
+        long responsibleId = 1L;
+        when(projectDao.findProjectById(projectId)).thenReturn(projectEntity);
+        when(userDao.findUserById(responsibleId)).thenReturn(userEntity);
+        when(projectMemberDao.isUserProjectMember(projectId, responsibleId)).thenReturn(true);
 
+        taskBean.addTask("Title", "Description", Instant.now(), Instant.now().plusSeconds(86400), responsibleId, projectId);
 
-//    @Test
-//    public void testAddDependencyTask_DependentTaskNotFound() {
-//        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
-//        when(taskDao.findTaskById(2L)).thenReturn(null);
-//
-//        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-//            taskBean.addDependencyTask(taskDependencyDto);
-//        });
-//
-//        assertEquals("Dependent task not found", exception.getMessage());
-//
-//        verify(taskDao, times(1)).findTaskById(1L);
-//        verify(taskDao, times(1)).findTaskById(2L);
-//    }
-//
-//    @Test
-//    public void testAddDependencyTask_PersistenceException() {
-//        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
-//        when(taskDao.findTaskById(2L)).thenReturn(dependentTaskEntity);
-//        doThrow(PersistenceException.class).when(taskDao).persist(any(TaskEntity.class));
-//
-//        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-//            taskBean.addDependencyTask(taskDependencyDto);
-//        });
-//
-//        assertEquals("Error while adding dependency", exception.getMessage());
-//
-//        verify(taskDao, times(1)).findTaskById(1L);
-//        verify(taskDao, times(1)).findTaskById(2L);
-//    }
-//    @Test
-//    public void testRemoveDependencyTask_Success() throws EntityNotFoundException, DatabaseOperationException {
-//        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
-//        when(taskDao.findTaskById(2L)).thenReturn(dependentTaskEntity);
-//
-//        taskBean.removeDependencyTask(taskDependencyDto);
-//
-//        assertFalse(mainTaskEntity.getDependentTasks().contains(dependentTaskEntity));
-//        assertFalse(dependentTaskEntity.getPrerequisites().contains(mainTaskEntity));
-//
-//        verify(taskDao, times(1)).findTaskById(1L);
-//        verify(taskDao, times(1)).findTaskById(2L);
-//    }
-//
-//    @Test
-//    public void testRemoveDependencyTask_MainTaskNotFound() {
-//        when(taskDao.findTaskById(1L)).thenReturn(null);
-//
-//        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-//            taskBean.removeDependencyTask(taskDependencyDto);
-//        });
-//
-//        assertEquals("Task not found", exception.getMessage());
-//
-//        verify(taskDao, times(1)).findTaskById(1L);
-//        verify(taskDao, times(0)).findTaskById(2L);
-//    }
-//
-//    @Test
-//    public void testRemoveDependencyTask_DependentTaskNotFound() {
-//        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
-//        when(taskDao.findTaskById(2L)).thenReturn(null);
-//
-//        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-//            taskBean.removeDependencyTask(taskDependencyDto);
-//        });
-//
-//        assertEquals("Task not found", exception.getMessage());
-//
-//        verify(taskDao, times(1)).findTaskById(1L);
-//        verify(taskDao, times(1)).findTaskById(2L);
-//    }
-//
-//    @Test
-//    public void testRemoveDependencyTask_PersistenceException() {
-//        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
-//        when(taskDao.findTaskById(2L)).thenReturn(dependentTaskEntity);
-//        doThrow(PersistenceException.class).when(taskDao).persist(any(TaskEntity.class));
-//
-//        DatabaseOperationException exception = assertThrows(DatabaseOperationException.class, () -> {
-//            taskBean.removeDependencyTask(taskDependencyDto);
-//        });
-//
-//        assertEquals("Error while removing dependency", exception.getMessage());
-//
-//        verify(taskDao, times(1)).findTaskById(1L);
-//        verify(taskDao, times(1)).findTaskById(2L);
-//    }
-//
-//    @Test
-//    void testUpdateTask_Success() throws InputValidationException, EntityNotFoundException, UserNotFoundException {
-//        taskBean.updateTask(taskUpdateDto, securityContext);
-//
-//        verify(taskDao).persist(taskEntity);
-//        assertEquals(TaskStateEnum.IN_PROGRESS, taskEntity.getState());
-//        assertNotNull(taskEntity.getStartDate());
-//    }
-//
-//    @Test
-//    void testUpdateTask_UserNotFound() {
-//        when(userDao.findUserById(userEntity.getId())).thenReturn(null);
-//
-//        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-//            taskBean.updateTask(taskUpdateDto, securityContext);
-//        });
-//
-//        assertEquals("User not found with this Id", exception.getMessage());
-//    }
+        verify(taskDao).persist(any(TaskEntity.class));
+        verify(notificationBean).createNotificationMarkesAsResponsibleInNewTask(any(UserEntity.class), any(TaskEntity.class));
+    }
+
+    @Test
+    void testAddTask_InvalidProject() {
+        long projectId = 1L;
+        when(projectDao.findProjectById(projectId)).thenReturn(null);
+
+        assertThrows(EntityNotFoundException.class, () -> taskBean.addTask("Title", "Description", Instant.now(), Instant.now().plusSeconds(86400), 1L, projectId));
+    }
+
+    @Test
+    void testAddDependencyTask_Valid() throws EntityNotFoundException, InputValidationException {
+        long projectId = 1L;
+        when(taskDao.findTaskById(taskDependencyDto.getMainTaskId())).thenReturn(mainTaskEntity);
+        when(taskDao.findTaskById(taskDependencyDto.getDependentTaskId())).thenReturn(dependentTaskEntity);
+
+        taskBean.addDependencyTask(projectId, taskDependencyDto);
+
+        verify(taskDao).findTaskById(taskDependencyDto.getMainTaskId());
+        verify(taskDao).findTaskById(taskDependencyDto.getDependentTaskId());
+    }
+
+    @Test
+    void testAddDependencyTask_MainTaskNotFound() {
+        long projectId = 1L;
+        when(taskDao.findTaskById(taskDependencyDto.getMainTaskId())).thenReturn(null);
+
+        assertThrows(EntityNotFoundException.class, () -> taskBean.addDependencyTask(projectId, taskDependencyDto));
+    }
+
+    @Test
+    void testGetTasksById_ValidTaskId() throws EntityNotFoundException {
+        long taskId = 1L;
+        when(taskDao.findTaskById(taskId)).thenReturn(taskEntity);
+
+        TaskGetDto result = taskBean.getTasksById(taskId);
+
+        assertNotNull(result);
+        verify(taskDao).findTaskById(taskId);
+    }
+
+    @Test
+    void testGetTasksById_InvalidTaskId() {
+        long taskId = -1L;
+        assertThrows(EntityNotFoundException.class, () -> taskBean.getTasksById(taskId));
+    }
+
+    @Test
+    void testGetTasksById_TaskNotFound() {
+        long taskId = 1L;
+        when(taskDao.findTaskById(taskId)).thenReturn(null);
+
+        assertThrows(EntityNotFoundException.class, () -> taskBean.getTasksById(taskId));
+        verify(taskDao).findTaskById(taskId);
+    }
+
+    @Test
+    void testAddTask_Success() throws EntityNotFoundException, InputValidationException, UnknownHostException, ElementAssociationException {
+        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
+        when(userDao.findUserById(1L)).thenReturn(userEntity);
+        when(projectMemberDao.isUserProjectMember(1L, 1L)).thenReturn(true);
+
+        taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
+
+        verify(taskDao, times(1)).persist(any(TaskEntity.class));
+        verify(notificationBean, times(1)).createNotificationMarkesAsResponsibleInNewTask(any(UserEntity.class), any(TaskEntity.class));
+    }
+
+    @Test
+    void testAddTask_ProjectNotFound() {
+        when(projectDao.findProjectById(1L)).thenReturn(null);
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
+        });
+
+        assertEquals("Project not found", exception.getMessage());
+    }
+
+    @Test
+    void testAddTask_UserNotFound() {
+        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
+        when(userDao.findUserById(1L)).thenReturn(null);
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
+        });
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    void testAddTask_UserNotProjectMember() {
+        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
+        when(userDao.findUserById(1L)).thenReturn(userEntity);
+        when(projectMemberDao.isUserProjectMember(1L, 1L)).thenReturn(false);
+
+        InputValidationException exception = assertThrows(InputValidationException.class, () -> {
+            taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
+        });
+
+        assertEquals("Responsible user is not a member of the project", exception.getMessage());
+    }
+
+    @Test
+    void testAddTask_InvalidDates() {
+        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
+        when(userDao.findUserById(1L)).thenReturn(userEntity);
+        when(projectMemberDao.isUserProjectMember(1L, 1L)).thenReturn(true);
+
+        InputValidationException exception = assertThrows(InputValidationException.class, () -> {
+            taskBean.addTask("Test Task", "Task Description", Instant.now().plus(2, ChronoUnit.DAYS), Instant.now(), 1L, 1L);
+        });
+
+        assertEquals("Planned end date cannot be before planned start date", exception.getMessage());
+    }
+
+    @Test
+    void testAddTask_PersistenceException() {
+        when(projectDao.findProjectById(1L)).thenReturn(projectEntity);
+        when(userDao.findUserById(1L)).thenReturn(userEntity);
+        when(projectMemberDao.isUserProjectMember(1L, 1L)).thenReturn(true);
+        doThrow(PersistenceException.class).when(taskDao).persist(any(TaskEntity.class));
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
+        });
+
+        assertEquals("Error while persisting task entity", exception.getMessage());
+    }
+
+    @Test
+    void testAddDependencyTask_Success() throws EntityNotFoundException, InputValidationException {
+        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
+        when(taskDao.findTaskById(2L)).thenReturn(dependentTaskEntity);
+
+        taskBean.addDependencyTask(1L, taskDependencyDto);
+
+        assertTrue(mainTaskEntity.getDependentTasks().contains(dependentTaskEntity));
+        assertTrue(dependentTaskEntity.getPrerequisites().contains(mainTaskEntity));
+
+        verify(taskDao, times(1)).findTaskById(1L);
+        verify(taskDao, times(1)).findTaskById(2L);
+    }
+
+    @Test
+    void testAddDependencyTask_DependentTaskNotFound() {
+        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
+        when(taskDao.findTaskById(2L)).thenReturn(null);
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            taskBean.addDependencyTask(1L, taskDependencyDto);
+        });
+
+        assertEquals("Dependent task not found", exception.getMessage());
+
+        verify(taskDao, times(1)).findTaskById(1L);
+        verify(taskDao, times(1)).findTaskById(2L);
+    }
+
+    @Test
+    void testAddDependencyTask_PersistenceException() {
+        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
+        when(taskDao.findTaskById(2L)).thenReturn(dependentTaskEntity);
+        doThrow(PersistenceException.class).when(taskDao).persist(any(TaskEntity.class));
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            taskBean.addDependencyTask(1L, taskDependencyDto);
+        });
+
+        assertEquals("Error while adding dependency", exception.getMessage());
+
+        verify(taskDao, times(1)).findTaskById(1L);
+        verify(taskDao, times(1)).findTaskById(2L);
+    }
+
+    @Test
+    void testRemoveDependencyTask_Success() throws EntityNotFoundException, DatabaseOperationException, InputValidationException {
+        long projectId = 1L;
+        when(taskDao.findTaskById(taskDependencyDto.getMainTaskId())).thenReturn(mainTaskEntity);
+        when(taskDao.findTaskById(taskDependencyDto.getDependentTaskId())).thenReturn(dependentTaskEntity);
+
+        taskBean.removeDependencyTask(projectId, taskDependencyDto);
+
+        assertFalse(mainTaskEntity.getDependentTasks().contains(dependentTaskEntity));
+        assertFalse(dependentTaskEntity.getPrerequisites().contains(mainTaskEntity));
+
+        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getMainTaskId());
+        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getDependentTaskId());
+    }
+
+    @Test
+    void testRemoveDependencyTask_MainTaskNotFound() {
+        long projectId = 1L;
+        when(taskDao.findTaskById(taskDependencyDto.getMainTaskId())).thenReturn(null);
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            taskBean.removeDependencyTask(projectId, taskDependencyDto);
+        });
+
+        assertEquals("Task not found", exception.getMessage());
+
+        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getMainTaskId());
+        verify(taskDao, times(0)).findTaskById(taskDependencyDto.getDependentTaskId());
+    }
+
+    @Test
+    void testRemoveDependencyTask_DependentTaskNotFound() {
+        long projectId = 1L;
+        when(taskDao.findTaskById(taskDependencyDto.getMainTaskId())).thenReturn(mainTaskEntity);
+        when(taskDao.findTaskById(taskDependencyDto.getDependentTaskId())).thenReturn(null);
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            taskBean.removeDependencyTask(projectId, taskDependencyDto);
+        });
+
+        assertEquals("Task not found", exception.getMessage());
+
+        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getMainTaskId());
+        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getDependentTaskId());
+    }
+
+    @Test
+    void testRemoveDependencyTask_PersistenceException() {
+        long projectId = 1L;
+        when(taskDao.findTaskById(taskDependencyDto.getMainTaskId())).thenReturn(mainTaskEntity);
+        when(taskDao.findTaskById(taskDependencyDto.getDependentTaskId())).thenReturn(dependentTaskEntity);
+        doThrow(PersistenceException.class).when(taskDao).persist(any(TaskEntity.class));
+
+        DatabaseOperationException exception = assertThrows(DatabaseOperationException.class, () -> {
+            taskBean.removeDependencyTask(projectId, taskDependencyDto);
+        });
+
+        assertEquals("Error while removing dependency", exception.getMessage());
+
+        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getMainTaskId());
+        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getDependentTaskId());
+    }
+
+    @Test
+    void testUpdateTask_Success() throws InputValidationException, EntityNotFoundException, UserNotFoundException {
+        taskBean.updateTask(taskUpdateDto, securityContext);
+
+        verify(taskDao).persist(taskEntity);
+        assertEquals(TaskStateEnum.IN_PROGRESS, taskEntity.getState());
+        assertNotNull(taskEntity.getStartDate());
+    }
+
+    @Test
+    void testUpdateTask_UserNotFound() {
+        when(userDao.findUserById(userEntity.getId())).thenReturn(null);
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
+            taskBean.updateTask(taskUpdateDto, securityContext);
+        });
+
+        assertEquals("User not found with this Id", exception.getMessage());
+    }
 
     @Test
     void testUpdateTask_TaskNotFound() {
