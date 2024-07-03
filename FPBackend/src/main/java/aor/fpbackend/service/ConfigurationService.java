@@ -21,6 +21,7 @@ public class ConfigurationService {
     @GET
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
+
     public List<ConfigurationGetDto> getAllConfiguration() {
         return configurationBean.getAllConfiguration();
     }

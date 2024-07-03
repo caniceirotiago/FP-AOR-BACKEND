@@ -186,6 +186,8 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.PROJECTS_REPORT, "retrieves a summary of projects info in pdf", MethodEnum.PROJECTS_REPORT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ASSETS_REPORT, "retrieves a summary of assets info in pdf", MethodEnum.ASSETS_REPORT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_USER_PROJECT, "remove user from project", MethodEnum.REMOVE_USER_PROJECT.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.GET_ALL_CONFIG, "get all configurations", MethodEnum.GET_ALL_CONFIG.getValue());
+
     }
 
     /**
@@ -279,5 +281,7 @@ public class StartupBean implements Serializable {
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.ASSETS_REPORT);
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.REMOVE_USER_PROJECT);
         roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.REMOVE_USER_PROJECT);
+        roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.GET_ALL_CONFIG);
+        roleBean.addPermission(UserRoleEnum.STANDARD_USER, MethodEnum.GET_ALL_CONFIG);
     }
 }

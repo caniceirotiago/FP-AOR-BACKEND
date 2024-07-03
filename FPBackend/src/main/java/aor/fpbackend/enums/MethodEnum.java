@@ -44,7 +44,8 @@ public enum MethodEnum {
     USERS_BASIC_INFO(41L),
     PROJECTS_REPORT(42L),
     ASSETS_REPORT(43L),
-    REMOVE_USER_PROJECT(44L);
+    REMOVE_USER_PROJECT(44L),
+    GET_ALL_CONFIG(45L);
 
 
     private final long value;

@@ -7,4 +7,5 @@ public class GlobalSettings {
     public static final int CONFIRMATION_EMAIL_PREVENT_TIMER_MIN = 1;
     public static final int DEFAULT_SESSION_TIMEOUT_MILLIS = 36000000;
     public static final int DEFAULT_NUMBER_MEMBERS_PER_PROJECT = 4;
+    public static final int TIME_OUT_RATIO = 2; // denominator of the ratio for renovating the session timeout
 }
