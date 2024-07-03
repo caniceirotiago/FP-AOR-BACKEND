@@ -48,7 +48,6 @@ public class ProjectCreateDto implements Serializable {
     private Set<SkillAddProjectDto> skills;
 
     @XmlElement
-    @Valid
     private Set<KeywordAddDto> keywords;
 
     @XmlElement
