@@ -28,7 +28,6 @@ public class InterestRemoveDto implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-        System.out.println("InterestRemoveDto: setId: " + id);
     }
 
 }

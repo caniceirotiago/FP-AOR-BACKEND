@@ -55,7 +55,7 @@ public class MembershipBean implements Serializable {
      * @throws DuplicatedAttributeException if the user is already a member of the project
      * @throws UnknownHostException         if an unknown host exception occurs
      */
-    public void askToJoinProject(long projectId, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, UnknownHostException {
+    public void askToJoinProject(long projectId, SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, UnknownHostException, ElementAssociationException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         if (userEntity == null) {
@@ -64,6 +64,11 @@ public class MembershipBean implements Serializable {
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
+        }
+        // Don't add to CANCELLED or FINISHED projects
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
+            throw new ElementAssociationException("Project is not editable anymore");
         }
         int maxProjectElements = configurationBean.getConfigValueByKey("maxProjectMembers");
         if (projectEntity.getMembers().size() >= maxProjectElements) {
