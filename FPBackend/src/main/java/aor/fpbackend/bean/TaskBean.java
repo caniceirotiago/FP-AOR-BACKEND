@@ -272,6 +272,9 @@ public class TaskBean implements Serializable {
         if (mainTaskEntity.getProject().getId() != projectId || dependentTaskEntity.getProject().getId() != projectId) {
             throw new InputValidationException("Tasks don't belong to this project");
         }
+        if (dependentTaskEntity.getPlannedStartDate().isBefore(mainTaskEntity.getPlannedEndDate())) {
+            throw new InputValidationException("Task is not compatible for dependent task");
+        }
         // Check if the dependency already exists
         if (mainTaskEntity.getDependentTasks().contains(dependentTaskEntity)) {
             throw new InputValidationException("Dependency already exists");
@@ -695,6 +698,7 @@ public class TaskBean implements Serializable {
      * <ul>
      *     <li>Retrieves the authenticated user's details from the security context.</li>
      *     <li>Validates the existence of the user, task, and project membership.</li>
+     *     <li>Ensures that all task dependencies are removed, both the dependent tasks and the prerequisites.</li>
      *     <li>Marks the task as deleted by setting the deleted flag to true.</li>
      *     <li>Logs the deletion action in the project logs for auditing purposes.</li>
      *     <li>Handles any persistence exceptions and logs errors that occur during the deletion process.</li>
@@ -721,6 +725,16 @@ public class TaskBean implements Serializable {
             throw new EntityNotFoundException("User is not a member of the project");
         }
         try {
+            // Remove task dependencies
+            for (TaskEntity dependentTask : taskEntity.getDependentTasks()) {
+                dependentTask.getPrerequisites().remove(taskEntity);
+            }
+            taskEntity.getDependentTasks().clear();
+            for (TaskEntity prerequisite : taskEntity.getPrerequisites()) {
+                prerequisite.getDependentTasks().remove(taskEntity);
+            }
+            taskEntity.getPrerequisites().clear();
+            // Mark the task as deleted
             taskEntity.setDeleted(true);
             String content = "Task deleted by " + authUserEntity.getUsername();
             projectBean.createProjectLog(taskEntity.getProject(), authUserEntity, LogTypeEnum.PROJECT_TASKS, content);
@@ -732,7 +746,6 @@ public class TaskBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Converts a TaskEntity object to a TaskGetDto object.
