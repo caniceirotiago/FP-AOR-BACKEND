@@ -4,6 +4,7 @@ package aor.fpbackend.dto.Project;
 import aor.fpbackend.dto.Keyword.KeywordAddDto;
 import aor.fpbackend.dto.Skill.SkillAddProjectDto;
 import aor.fpbackend.dto.User.UsernameDto;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

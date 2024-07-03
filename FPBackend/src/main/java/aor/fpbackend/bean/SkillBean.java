@@ -185,36 +185,31 @@ public class SkillBean implements Serializable {
      * @throws DuplicatedAttributeException if the project already has the specified skill or if the skill already has the project.
      */
     @Transactional
-    public void addSkillProject(String skillName, SkillTypeEnum type, long projectId) throws DuplicatedAttributeException, DatabaseOperationException {
+    public void addSkillProject(String skillName, SkillTypeEnum type, long projectId) throws DuplicatedAttributeException, DatabaseOperationException, ElementAssociationException, EntityNotFoundException {
         LOGGER.info("Attempting to add skill '{}' of type '{}' to project ID '{}'.", skillName, type, projectId);
-
+        // Ensure the skill exists, creating it if necessary
+        checkSkillExist(skillName, type);
+        // Find the skill by name
+        SkillEntity skillEntity = skillDao.findSkillByName(skillName);
+        if(skillEntity == null) {
+            throw new EntityNotFoundException("Skill not found.");
+        }
+        // Find the project by id
+        ProjectEntity projectEntity = findProjectById(projectId);
+        // Don't add to CANCELLED or FINISHED projects
+        ProjectStateEnum currentState = projectEntity.getState();
+        if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
+            throw new ElementAssociationException("Project is not editable anymore");
+        }
         try {
-            // Ensure the skill exists, creating it if necessary
-            checkSkillExist(skillName, type);
-
-            // Find the skill by name
-            SkillEntity skillEntity = skillDao.findSkillByName(skillName);
-
-            // Find the project by id
-            ProjectEntity projectEntity = findProjectById(projectId);
-//            // Don't add to CANCELLED or FINISHED projects
-//            ProjectStateEnum currentState = projectEntity.getState();
-//            if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
-//                throw new ElementAssociationException("Project is not editable anymore");
-//            }
-
             // Add the skill to the project's skills
             addSkillToProject(skillEntity, projectEntity);
-
             // Add the project to the skill's projects
             addProjectToSkill(skillEntity, projectEntity);
-
             LOGGER.info("Successfully added skill '{}' to project '{}'.", skillName, projectId);
         } catch (PersistenceException e) {
             LOGGER.error("Error while adding skill to project: {}", e.getMessage());
             throw new DatabaseOperationException("Error while adding skill to project");
-        } catch (EntityNotFoundException e) {
-            throw new RuntimeException(e);
         } finally {
             ThreadContext.clearMap();
         }

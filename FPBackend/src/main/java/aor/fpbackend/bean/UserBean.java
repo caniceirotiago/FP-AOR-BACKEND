@@ -384,6 +384,20 @@ public class UserBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
+
+    /**
+     * Retrieves the basic information of a user by their username.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Retrieves the user entity from the database by the provided username.</li>
+     *     <li>Converts the user entity to a UserBasicInfoDto object.</li>
+     * </ul>
+     * </p>
+     * @param Username the username of the user whose basic information is to be retrieved.
+     * @return a UserBasicInfoDto object representing the user's basic information.
+     * @throws UserNotFoundException if no user is found for the provided username.
+     */
     public UserBasicInfoDto getUserBasicInfo(String Username) throws UserNotFoundException {
         UserEntity userEntity = userDao.findUserByUsername(Username);
         if (userEntity == null) {
@@ -629,6 +643,7 @@ public class UserBean implements Serializable {
         }
         try{
             userEntity.setRole(newRole);
+            userDao.merge(userEntity);
             LOGGER.info("User Role updated successfully");
         } catch (PersistenceException e) {
             LOGGER.error("Error while updating user role at: " + e.getMessage());
@@ -703,8 +718,14 @@ public class UserBean implements Serializable {
      * <p>
      * @param userEntity the UserEntity containing the user data.
      * @return a UserProfileDto object populated with the data from the entity.
+     * @throws IllegalStateException if the laboratory of the user is null.
      */
     public UserProfileDto convertUserEntitytoUserProfileDto(UserEntity userEntity) {
+        if (userEntity.getLaboratory() == null) {
+            LOGGER.error("Laboratory is null for user: " + userEntity.getUsername());
+            throw new IllegalStateException("Laboratory cannot be null for user: " + userEntity.getUsername());
+        }
+
         UserProfileDto userProfileDto = new UserProfileDto();
         userProfileDto.setId(userEntity.getId());
         userProfileDto.setEmail(userEntity.getEmail());
@@ -718,6 +739,8 @@ public class UserBean implements Serializable {
         return userProfileDto;
     }
 
+
+
     /**
      * Converts a UserEntity object to a UserBasicInfoDto object.
      * <p>
@@ -729,9 +752,15 @@ public class UserBean implements Serializable {
         userBasicInfo.setId(userEntity.getId());
         userBasicInfo.setUsername(userEntity.getUsername());
         userBasicInfo.setPhoto(userEntity.getPhoto());
-        userBasicInfo.setRole(userEntity.getRole().getId());
+        RoleEntity role = userEntity.getRole();
+        if (role != null) {
+            userBasicInfo.setRole(role.getId());
+        } else {
+            LOGGER.warn("Role is null for user: " + userEntity.getUsername());
+        }
         return userBasicInfo;
     }
+
 
     /**
      * Converts a list of UserEntity objects to a list of UserBasicInfoDto objects.
@@ -747,4 +776,5 @@ public class UserBean implements Serializable {
         }
         return userBasicInfoDtos;
     }
+
 }
