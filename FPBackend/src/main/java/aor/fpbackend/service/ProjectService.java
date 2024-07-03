@@ -102,7 +102,7 @@ public class ProjectService {
     @Path("/role/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectRolePermission(ProjectRoleEnum.PROJECT_MANAGER)
-    public void updateProjectRole(@PathParam("projectId") long projectId, @Valid ProjectRoleUpdateDto projectRoleUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
+    public void updateProjectRole(@PathParam("projectId") long projectId, @Valid ProjectRoleUpdateDto projectRoleUpdateDto, @Context SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, DatabaseOperationException, ElementAssociationException {
         projectBean.updateProjectMembershipRole(projectId, projectRoleUpdateDto, securityContext);
     }
 
