@@ -128,7 +128,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     private boolean isPublicEndpoint(String path) {
         return path.endsWith("/login")
-                || path.endsWith("/individualMessage") //temporário
                 || path.endsWith("/individual/message/filter") //temporário
                 || path.endsWith("/register")
                 || path.contains("/confirm")
@@ -224,6 +223,29 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             if (membership == null) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
             }
+        }
+        if(method.isAnnotationPresent(RequiresPermissionByUserOnIndividualMessage.class)){
+            MultivaluedMap<String, String> pathParams = requestContext.getUriInfo().getPathParameters();
+            MultivaluedMap<String, String> queryParam = requestContext.getUriInfo().getQueryParameters();
+
+            //On individual message between users endpoint, only the users involved can access the messages
+            String senderId = pathParams.getFirst("senderId");
+            String receiverId = pathParams.getFirst("receiverId");
+
+            //On User all messages endpoint, only the user can access the messages
+            String userId = queryParam.getFirst("userId");
+
+            if(senderId != null || receiverId != null){
+                if(!senderId.equals(String.valueOf(authUserDto.getUserId())) && !receiverId.equals(String.valueOf(authUserDto.getUserId()))){
+                    requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                }
+            }
+            if(userId != null){
+                if(!userId.equals(String.valueOf(authUserDto.getUserId()))){
+                    requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                }
+            }
+
         }
     }
 
