@@ -151,8 +151,7 @@ public class InterestBean implements Serializable {
      * @return a list of InterestGetDto objects representing the interests that start with the specified letter
      */
     public List<InterestGetDto> getInterestsByFirstLetter(String firstLetter) {
-        if (firstLetter == null || firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
-            LOGGER.warn("Invalid first letter input: {}", firstLetter);
+        if (firstLetter == null || firstLetter.length() != 1) {
             return new ArrayList<>();
         }
         try {

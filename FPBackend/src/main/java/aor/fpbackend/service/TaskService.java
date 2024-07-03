@@ -27,15 +27,6 @@ public class TaskService {
     @EJB
     TaskBean taskBean;
 
-    //TODO acho que não está a ser utilizado
-//    @GET
-//    @Path("")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @RequiresProjectMemberPermission()
-//    public List<TaskGetDto> getAllTasks() {
-//        return taskBean.getTasks();
-//    }
-
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)

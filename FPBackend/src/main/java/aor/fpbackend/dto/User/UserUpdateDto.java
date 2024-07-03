@@ -45,7 +45,7 @@ public class UserUpdateDto implements Serializable {
     public UserUpdateDto() {
     }
 
-    public UserUpdateDto(String username, String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
+    public UserUpdateDto(String firstName, String lastName, String photo, String biography, long laboratoryId, boolean isPrivate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.photo = photo;

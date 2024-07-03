@@ -10,18 +10,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Provider
-    public class InputValidationExceptionMapper implements ExceptionMapper<InputValidationException> {
-        private static final Logger LOGGER = LogManager.getLogger(InputValidationExceptionMapper.class);
+public class InputValidationExceptionMapper implements ExceptionMapper<InputValidationException> {
+    private static final Logger LOGGER = LogManager.getLogger(InputValidationExceptionMapper.class);
 
-        @Override
-        public Response toResponse(InputValidationException e) {
-            Error error = new Error(e.getMessage());
-            LOGGER.warn("Invalid inputs : " + error.getMessage());
+    @Override
+    public Response toResponse(InputValidationException e) {
+        Error error = new Error(e.getMessage());
+        LOGGER.warn("Invalid inputs : " + error.getMessage());
 
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(error)
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
+        return Response
+                .status(Response.Status.BAD_REQUEST)
+                .entity(error)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
+}

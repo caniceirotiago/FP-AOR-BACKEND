@@ -1,4 +1,5 @@
 package aor.fpbackend.exception.mapper;
+
 import aor.fpbackend.dto.Error.Error;
 import aor.fpbackend.exception.InvalidCredentialsException;
 import jakarta.ws.rs.core.MediaType;

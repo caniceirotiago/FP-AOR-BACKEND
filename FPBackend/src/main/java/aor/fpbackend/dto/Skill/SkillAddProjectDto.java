@@ -14,7 +14,6 @@ public class SkillAddProjectDto implements Serializable {
     @XmlElement
     @NotBlank
     @Size(min = 2, max = 25, message = "Last name must be between 2 and 25 characters")
-    @Pattern(regexp = "^[a-zA-Z].*", message = "Name must start with a letter")
     private String name;
 
     @XmlElement

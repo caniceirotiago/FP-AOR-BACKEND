@@ -364,8 +364,7 @@ public class SkillBean implements Serializable {
      */
     public List<SkillGetDto> getSkillsByFirstLetter(String firstLetter) throws DatabaseOperationException {
         try {
-            if (firstLetter.length() != 1 || !Character.isLetter(firstLetter.charAt(0))) {
-                LOGGER.warn("Invalid input for first letter: {}", firstLetter);
+            if (firstLetter == null || firstLetter.length() != 1) {
                 return new ArrayList<>();
             }
             String lowerCaseFirstLetter = firstLetter.substring(0, 1).toLowerCase();

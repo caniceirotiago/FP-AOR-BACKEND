@@ -48,7 +48,6 @@ public class UserService {
         userBean.confirmUser(token);
     }
 
-    // TODO: verificar se este método está a ser usado
     @POST
     @Path("/request/confirmation/email")
     @Consumes(MediaType.APPLICATION_JSON)

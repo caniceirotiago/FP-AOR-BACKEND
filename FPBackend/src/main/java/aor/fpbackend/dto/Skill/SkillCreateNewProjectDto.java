@@ -2,9 +2,9 @@ package aor.fpbackend.dto.Skill;
 
 import aor.fpbackend.enums.SkillTypeEnum;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -12,7 +12,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 @XmlRootElement
-public class SkillAddUserDto implements Serializable {
+public class SkillCreateNewProjectDto implements Serializable {
 
     @XmlElement
     @NotBlank
@@ -21,13 +21,13 @@ public class SkillAddUserDto implements Serializable {
 
     @XmlElement
     @Enumerated
-    @NotNull
     private SkillTypeEnum type;
 
-    public SkillAddUserDto() {
+
+    public SkillCreateNewProjectDto() {
     }
 
-    public SkillAddUserDto(String name, SkillTypeEnum type) {
+    public SkillCreateNewProjectDto(String name, SkillTypeEnum type) {
         this.name = name;
         this.type = type;
     }
@@ -35,7 +35,6 @@ public class SkillAddUserDto implements Serializable {
     public String getName() {
         return name;
     }
-
 
     public void setName(String name) {
         this.name = name;
@@ -48,5 +47,5 @@ public class SkillAddUserDto implements Serializable {
     public void setType(SkillTypeEnum type) {
         this.type = type;
     }
-}
 
+}

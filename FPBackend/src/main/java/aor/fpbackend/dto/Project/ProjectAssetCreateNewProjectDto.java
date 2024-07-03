@@ -1,7 +1,9 @@
 package aor.fpbackend.dto.Project;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -9,7 +11,7 @@ import java.io.Serializable;
 
 
 @XmlRootElement
-public class ProjectAssetCreateDto implements Serializable {
+public class ProjectAssetCreateNewProjectDto implements Serializable {
 
     @XmlElement
     @NotBlank
@@ -21,19 +23,13 @@ public class ProjectAssetCreateDto implements Serializable {
     @Min(value = 1, message = "quantity must be greater than 0")
     private int usedQuantity;
 
-    @XmlElement
-    @NotNull
-    @Min(value = 1, message = "ID must be greater than 0")
-    private long projectId;
 
-
-    public ProjectAssetCreateDto() {
+    public ProjectAssetCreateNewProjectDto() {
     }
 
-    public ProjectAssetCreateDto(String name, int usedQuantity, long projectId) {
+    public ProjectAssetCreateNewProjectDto(String name, int usedQuantity) {
         this.name = name;
         this.usedQuantity = usedQuantity;
-        this.projectId = projectId;
     }
 
     public String getName() {
@@ -50,13 +46,5 @@ public class ProjectAssetCreateDto implements Serializable {
 
     public void setUsedQuantity(int usedQuantity) {
         this.usedQuantity = usedQuantity;
-    }
-
-    public long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(long projectId) {
-        this.projectId = projectId;
     }
 }
