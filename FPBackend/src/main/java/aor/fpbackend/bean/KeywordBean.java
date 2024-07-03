@@ -9,6 +9,7 @@ import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.ElementAssociationException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -72,7 +73,7 @@ public class KeywordBean implements Serializable {
         checkKeywordExist(keywordName);
         KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordName);
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
-        if(projectEntity == null) {
+        if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
         // Don't add to CANCELLED or FINISHED projects
@@ -97,6 +98,7 @@ public class KeywordBean implements Serializable {
             keywordEntity.setProjects(keywordProjects);
         }
     }
+
     /**
      * Checks if a keyword exists and creates it if it doesn't.
      *
@@ -150,7 +152,7 @@ public class KeywordBean implements Serializable {
      * @throws EntityNotFoundException if the keyword or project is not found
      */
     @Transactional
-    public void removeKeyword(KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {
+    public void removeKeyword(KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException, InputValidationException {
         // Find the project by id
         ProjectEntity projectEntity = projectDao.findProjectById(keywordRemoveDto.getProjectId());
         if (projectEntity == null) {
@@ -161,17 +163,22 @@ public class KeywordBean implements Serializable {
         if (keywordEntity == null) {
             throw new EntityNotFoundException("Keyword not found");
         }
-        // Remove the keyword from the project's keywords
+        // Get the project's keywords
         Set<KeywordEntity> projectKeywords = projectEntity.getProjectKeywords();
-        if (projectKeywords.contains(keywordEntity)) {
-            projectKeywords.remove(keywordEntity);
-            projectEntity.setProjectKeywords(projectKeywords);
-            Set<ProjectEntity> keywordProjects = keywordEntity.getProjects();
-            keywordProjects.remove(projectEntity);
-            keywordEntity.setProjects(keywordProjects);
-        } else {
-            throw new IllegalStateException("Project does not have the specified keyword");
+        // Check if the keyword is present and not the last one
+        if (!projectKeywords.contains(keywordEntity)) {
+            throw new InputValidationException("Project does not have the specified keyword");
         }
+        if (projectKeywords.size() <= 1) {
+            throw new InputValidationException("Cannot remove the last keyword from the project");
+        }
+        // Remove the keyword from the project's keywords
+        projectKeywords.remove(keywordEntity);
+        projectEntity.setProjectKeywords(projectKeywords);
+        // Update the keyword's projects
+        Set<ProjectEntity> keywordProjects = keywordEntity.getProjects();
+        keywordProjects.remove(projectEntity);
+        keywordEntity.setProjects(keywordProjects);
     }
 
     /**

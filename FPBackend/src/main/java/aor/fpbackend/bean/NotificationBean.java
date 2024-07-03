@@ -10,6 +10,7 @@ import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.NotificationTypeENUM;
 import aor.fpbackend.enums.ProjectRoleEnum;
 import aor.fpbackend.enums.UserRoleEnum;
+import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.websocket.GlobalWebSocket;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -67,7 +68,6 @@ public class NotificationBean implements Serializable {
 
     }
 
-
     /**
      * Creates notification(s) for project administrators when a user requests to join their project.
      * Each project manager/administrator receives a notification if the requesting user's role is
@@ -120,7 +120,6 @@ public class NotificationBean implements Serializable {
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
     }
 
-
     /**
      * Creates a notification for a user who has been invited by a project manager to join a project.
      *
@@ -139,7 +138,6 @@ public class NotificationBean implements Serializable {
         NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
     }
-
 
     /**
      * Creates a notification for project managers informing them about user approval or rejection for project membership.
@@ -206,7 +204,6 @@ public class NotificationBean implements Serializable {
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
     }
 
-
     /**
      * Creates notifications for all members of a project about its approval or rejection by a user.
      *
@@ -236,7 +233,6 @@ public class NotificationBean implements Serializable {
         }
     }
 
-
     /**
      * Creates notifications for all platform administrators about a project awaiting approval.
      *
@@ -260,7 +256,6 @@ public class NotificationBean implements Serializable {
         }
     }
 
-
     /**
      * Creates a notification for a user who has been marked as responsible in a new task.
      *
@@ -282,7 +277,6 @@ public class NotificationBean implements Serializable {
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
     }
 
-
     /**
      * Creates a notification for a user who has been marked as executor in a new task.
      *
@@ -303,7 +297,6 @@ public class NotificationBean implements Serializable {
         GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
     }
 
-
     /**
      * Retrieves unread notifications for the authenticated user.
      *
@@ -316,18 +309,19 @@ public class NotificationBean implements Serializable {
         return convertEntetiesToDtos(notificationsEntety);
     }
 
-
     /**
      * Marks a notification as read by setting its 'read' flag to true.
      *
      * @param notificationId The ID of the notification to mark as read.
      */
-    public void markNotificationsAsRead(Long notificationId) {
+    public void markNotificationsAsRead(Long notificationId) throws EntityNotFoundException {
         NotificationEntity notificationEntity = notificationDao.findNotificationById(notificationId);
+        if (notificationEntity == null) {
+            throw new EntityNotFoundException("No notification found for this Id");
+        }
         notificationEntity.setRead(true);
         notificationDao.merge(notificationEntity);
     }
-
 
     /**
      * Converts a list of NotificationEntity objects to a list of NotificationGetDto objects.
@@ -343,7 +337,6 @@ public class NotificationBean implements Serializable {
         }
         return notificationGetDtos;
     }
-
 
     /**
      * Converts a NotificationEntity object to a NotificationGetDto object.
@@ -374,7 +367,6 @@ public class NotificationBean implements Serializable {
         return notificationGetDto;
     }
 
-
     /**
      * Creates notifications for a group message sent to project members.
      *
@@ -400,7 +392,6 @@ public class NotificationBean implements Serializable {
                 NotificationGetDto notificationGetDto = convertEntityToDto(notificationEntity);
                 GlobalWebSocket.tryToSendNotificationToUserSessions(notificationGetDto);
                 LOGGER.info("Creating notification for group message");
-
             }
         }
     }

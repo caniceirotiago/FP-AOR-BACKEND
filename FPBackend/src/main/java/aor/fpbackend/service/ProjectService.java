@@ -65,6 +65,7 @@ public class ProjectService {
     public ProjectGetDto getProjectDetails(@PathParam("projectId") long projectId) throws EntityNotFoundException {
         return projectBean.getProjectDetailsById(projectId);
     }
+    
     @GET
     @Path("/enum/states")
     @Produces(MediaType.APPLICATION_JSON)

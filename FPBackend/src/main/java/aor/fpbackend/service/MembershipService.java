@@ -34,7 +34,7 @@ public class MembershipService {
     @Path("/ask/join/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASK_TO_JOIN)
-    public void askToJoinProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, UnknownHostException {
+    public void askToJoinProject(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, DuplicatedAttributeException, UnknownHostException, ElementAssociationException {
         memberBean.askToJoinProject(projectId, securityContext);
     }
 

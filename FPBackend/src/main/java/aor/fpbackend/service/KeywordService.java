@@ -6,6 +6,7 @@ import aor.fpbackend.dto.Keyword.KeywordGetDto;
 import aor.fpbackend.dto.Keyword.KeywordRemoveDto;
 import aor.fpbackend.exception.ElementAssociationException;
 import aor.fpbackend.exception.EntityNotFoundException;
+import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.filters.RequiresProjectMemberPermission;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -60,7 +61,7 @@ public class KeywordService {
     @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException {
+    public void removeKeyword(@Valid KeywordRemoveDto keywordRemoveDto) throws EntityNotFoundException, InputValidationException {
         keywordBean.removeKeyword(keywordRemoveDto);
     }
 
