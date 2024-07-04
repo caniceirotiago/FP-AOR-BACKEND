@@ -41,6 +41,7 @@ public class ProjectService {
     public List<ProjectGetDto> getAllProjects() {
         return projectBean.getAllProjects();
     }
+
     @GET
     @Path("/all/ids")
     @Produces(MediaType.APPLICATION_JSON)

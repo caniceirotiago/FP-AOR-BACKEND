@@ -38,7 +38,6 @@ public class SkillService {
     @RequiresMethodPermission(MethodEnum.ADD_SKILL_PROJECT)
     public void addSkill(@Valid SkillAddProjectDto skillAddProjectDto) throws DuplicatedAttributeException, DatabaseOperationException, ElementAssociationException, EntityNotFoundException {
         skillBean.addSkillProject(skillAddProjectDto.getName(), skillAddProjectDto.getType(), skillAddProjectDto.getProjectId());
-
     }
 
     @GET
@@ -87,7 +86,6 @@ public class SkillService {
     @RequiresMethodPermission(MethodEnum.REMOVE_SKILL_USER)
     public void removeSkillFromUser(@Valid SkillRemoveUserDto skillRemoveUserDto, @Context SecurityContext securityContext) throws UserNotFoundException, EntityNotFoundException {
         skillBean.removeSkillUser(skillRemoveUserDto, securityContext);
-
     }
 
     // /{projectId} just for filter validation
