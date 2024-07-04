@@ -118,8 +118,8 @@ public class StartupBean implements Serializable {
         userBean.createDefaultUserIfNotExistent("standardUser", "https://i.pinimg.com/474x/0a/a8/58/0aa8581c2cb0aa948d63ce3ddad90c81.jpg",2, 2);
         userBean.createDefaultUserIfNotExistent("David", "https://cdn.pixabay.com/photo/2013/07/12/14/36/man-148582_640.png",2, 3);
         userBean.createDefaultUserIfNotExistent("Diogo", "https://cdn.pixabay.com/photo/2015/03/04/22/35/avatar-659651_640.png", 2, 4);
-        userBean.createDefaultUserIfNotExistent("Mario", "https://img.freepik.com/premium-vector/user-woman-avatar-female-profile-icon-woman-character-portrait-with-smile-vector_555028-184.jpg", 2, 5);
-        userBean.createDefaultUserIfNotExistent("Manuel", "https://i.pinimg.com/originals/54/8a/65/548a659c2b06a877516d3c998f5b0939.png", 2, 5);
+        userBean.createDefaultUserIfNotExistent("Maria", "https://img.freepik.com/premium-vector/user-woman-avatar-female-profile-icon-woman-character-portrait-with-smile-vector_555028-184.jpg", 2, 5);
+        userBean.createDefaultUserIfNotExistent("Manuela", "https://i.pinimg.com/originals/54/8a/65/548a659c2b06a877516d3c998f5b0939.png", 2, 5);
     }
 
     /**
@@ -187,7 +187,6 @@ public class StartupBean implements Serializable {
         methodBean.createMethodIfNotExistent(MethodEnum.ASSETS_REPORT, "retrieves a summary of assets info in pdf", MethodEnum.ASSETS_REPORT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.REMOVE_USER_PROJECT, "remove user from project", MethodEnum.REMOVE_USER_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.GET_ALL_CONFIG, "get all configurations", MethodEnum.GET_ALL_CONFIG.getValue());
-
     }
 
     /**

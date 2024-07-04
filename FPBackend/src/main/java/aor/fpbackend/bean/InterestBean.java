@@ -53,24 +53,16 @@ public class InterestBean implements Serializable {
             // Get the authenticated user
             AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
             UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
-
             // Add the interest to the user's interests
             Set<InterestEntity> userInterests = userEntity.getUserInterests();
-            if (userInterests == null) {
-                userInterests = new HashSet<>();
-            }
             if (!userInterests.contains(interestEntity)) {
                 userInterests.add(interestEntity);
                 userEntity.setUserInterests(userInterests);
             } else {
                 throw new DuplicatedAttributeException("User already has the specified interest");
             }
-
             // Add the user to the interest's users
             Set<UserEntity> interestUsers = interestEntity.getUsers();
-            if (interestUsers == null) {
-                interestUsers = new HashSet<>();
-            }
             if (!interestUsers.contains(userEntity)) {
                 interestUsers.add(userEntity);
                 interestEntity.setUsers(interestUsers);

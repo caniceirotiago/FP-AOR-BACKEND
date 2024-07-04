@@ -59,6 +59,7 @@ public class ProjectCreateDto implements Serializable {
     private Set<ProjectAssetCreateNewProjectDto> assets;
 
     @XmlElement
+    @Valid
     private Set<UsernameDto> users;
 
     public ProjectCreateDto() {

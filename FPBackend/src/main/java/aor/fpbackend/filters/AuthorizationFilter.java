@@ -94,8 +94,6 @@ import java.util.List;
 public class AuthorizationFilter implements ContainerRequestFilter {
     private static final Logger logger = LogManager.getLogger(AuthorizationFilter.class);
 
-
-
     @EJB
     UserBean userBean;
     @Context
@@ -108,7 +106,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     private ProjectMembershipDao projectMembershipDao;
     @EJB
     private SessionBean sessionBean;
-
 
     /**
      * Filters incoming requests to enforce authorization rules.
@@ -162,6 +159,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             requestContext.abortWith(response);
         }
     }
+
     /**
      * Handles token renewal if the token is about to expire.
      *
@@ -306,7 +304,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
         });
     }
 
-
     /**
      * Verifies if the user has the necessary permissions to access the requested resource.
      *
@@ -395,7 +392,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
         String receiverId = pathParams.getFirst("recipientId");
         boolean hasPermission = senderId.equals(String.valueOf(authUserDto.getUserId())) || receiverId.equals(String.valueOf(authUserDto.getUserId()));
         if (!hasPermission) {
-            logger.error("User does not have permission to access the message");
+            logger.error("User does not have permission to access the messages");
             requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
         }
     }

@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *     <li>SLF4J: For logging operations.</li>
  * </ul>
  * </p>
- *
+ * <p>
  * Dependencies are injected using the {@link EJB} annotation, which includes DAOs for user,
  * skill, and project entities. The bean also uses utility classes for logging and ensures
  * that transactions are handled appropriately.
@@ -58,7 +58,6 @@ public class SkillBean implements Serializable {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SkillBean.class);
 
 
-
     /**
      * Adds a skill to the authenticated user's skill set.
      * <p>
@@ -71,8 +70,8 @@ public class SkillBean implements Serializable {
      * exceptions to handle database-related errors.
      * </p>
      *
-     * @param skillAddUserDto  The DTO containing the skill name and type to add.
-     * @param securityContext  The security context containing the authenticated user's information.
+     * @param skillAddUserDto The DTO containing the skill name and type to add.
+     * @param securityContext The security context containing the authenticated user's information.
      * @throws DuplicatedAttributeException if the user already has the specified skill or if the skill already has the user.
      */
     @Transactional
@@ -113,15 +112,12 @@ public class SkillBean implements Serializable {
      */
     private void addUserSkill(UserEntity userEntity, SkillEntity skillEntity) throws DuplicatedAttributeException {
         Set<SkillEntity> userSkills = userEntity.getUserSkills();
-        if (userSkills == null) {
-            userSkills = new HashSet<>();
-            userEntity.setUserSkills(userSkills);
-        }
-        if (userSkills.contains(skillEntity)) {
+        if (!userSkills.contains(skillEntity)) {
+            userSkills.add(skillEntity);
+        } else {
             LOGGER.warn("User '{}' already has the skill '{}'.", userEntity.getId(), skillEntity.getName());
             throw new DuplicatedAttributeException("User already has the specified skill");
         }
-        userSkills.add(skillEntity);
     }
 
     /**
@@ -137,15 +133,12 @@ public class SkillBean implements Serializable {
      */
     private void addSkillUser(SkillEntity skillEntity, UserEntity userEntity) throws DuplicatedAttributeException {
         Set<UserEntity> skillUsers = skillEntity.getUsers();
-        if (skillUsers == null) {
-            skillUsers = new HashSet<>();
-            skillEntity.setUsers(skillUsers);
-        }
-        if (skillUsers.contains(userEntity)) {
+        if (!skillUsers.contains(userEntity)) {
+            skillUsers.add(userEntity);
+        } else {
             LOGGER.warn("Skill '{}' already has the user '{}'.", skillEntity.getName(), userEntity.getId());
             throw new DuplicatedAttributeException("Skill already has the specified user");
         }
-        skillUsers.add(userEntity);
     }
 
     /**
@@ -155,8 +148,8 @@ public class SkillBean implements Serializable {
      * If the skill does not exist, it creates a new SkillEntity and persists it.
      * </p>
      *
-     * @param name  The name of the skill.
-     * @param type  The type of the skill.
+     * @param name The name of the skill.
+     * @param type The type of the skill.
      */
     private void checkSkillExist(String name, SkillTypeEnum type) {
         if (!skillDao.checkSkillExist(name)) {
@@ -177,9 +170,9 @@ public class SkillBean implements Serializable {
      * exceptions to handle database-related errors.
      * </p>
      *
-     * @param skillName  The name of the skill to add.
-     * @param type       The type of the skill.
-     * @param projectId  The ID of the project to which the skill will be added.
+     * @param skillName The name of the skill to add.
+     * @param type      The type of the skill.
+     * @param projectId The ID of the project to which the skill will be added.
      * @throws DuplicatedAttributeException if the project already has the specified skill or if the skill already has the project.
      */
     @Transactional
@@ -189,7 +182,7 @@ public class SkillBean implements Serializable {
         checkSkillExist(skillName, type);
         // Find the skill by name
         SkillEntity skillEntity = skillDao.findSkillByName(skillName);
-        if(skillEntity == null) {
+        if (skillEntity == null) {
             throw new EntityNotFoundException("Skill not found.");
         }
         // Find the project by id
@@ -232,18 +225,14 @@ public class SkillBean implements Serializable {
     /**
      * Adds a skill to a project's skills.
      *
-     * @param skillEntity the skill to add.
+     * @param skillEntity   the skill to add.
      * @param projectEntity the project to which the skill is added.
      * @throws DuplicatedAttributeException if the project already has the specified skill.
      */
     private void addSkillToProject(SkillEntity skillEntity, ProjectEntity projectEntity) throws DuplicatedAttributeException {
         Set<SkillEntity> projectSkills = projectEntity.getProjectSkills();
-        if (projectSkills == null) {
-            projectSkills = new HashSet<>();
-        }
         if (!projectSkills.contains(skillEntity)) {
             projectSkills.add(skillEntity);
-            projectEntity.setProjectSkills(projectSkills);
         } else {
             LOGGER.warn("Project '{}' already has the skill '{}'.", projectEntity.getId(), skillEntity.getName());
             throw new DuplicatedAttributeException("Project already has the specified skill");
@@ -253,18 +242,14 @@ public class SkillBean implements Serializable {
     /**
      * Adds a project to a skill's projects.
      *
-     * @param skillEntity the skill to which the project is added.
+     * @param skillEntity   the skill to which the project is added.
      * @param projectEntity the project to add.
      * @throws DuplicatedAttributeException if the skill already has the specified project.
      */
     private void addProjectToSkill(SkillEntity skillEntity, ProjectEntity projectEntity) throws DuplicatedAttributeException {
         Set<ProjectEntity> skillProjects = skillEntity.getProjects();
-        if (skillProjects == null) {
-            skillProjects = new HashSet<>();
-        }
         if (!skillProjects.contains(projectEntity)) {
             skillProjects.add(projectEntity);
-            skillEntity.setProjects(skillProjects);
         } else {
             LOGGER.warn("Skill '{}' already has the project '{}'.", skillEntity.getName(), projectEntity.getId());
             throw new DuplicatedAttributeException("Skill already has the specified project");
@@ -318,7 +303,7 @@ public class SkillBean implements Serializable {
      *
      * @param username the username of the user whose skills are to be retrieved.
      * @return a list of {@link SkillGetDto} representing the skills associated with the specified user.
-     * @throws EntityNotFoundException if no skills are associated with the specified user.
+     * @throws EntityNotFoundException    if no skills are associated with the specified user.
      * @throws DatabaseOperationException if there is an error while fetching the skills from the database.
      */
     public List<SkillGetDto> getSkillsByUser(String username) throws EntityNotFoundException, DatabaseOperationException {
@@ -456,8 +441,8 @@ public class SkillBean implements Serializable {
      * </p>
      *
      * @param skillRemoveUserDto the DTO containing the skill ID to be removed from the user.
-     * @param securityContext the security context containing the authenticated user's details.
-     * @throws UserNotFoundException if the authenticated user is not found.
+     * @param securityContext    the security context containing the authenticated user's details.
+     * @throws UserNotFoundException   if the authenticated user is not found.
      * @throws EntityNotFoundException if the skill is not found.
      */
     @Transactional
@@ -541,7 +526,7 @@ public class SkillBean implements Serializable {
      * </ul>
      * </p>
      *
-     * @param userEntity the user entity from which the skill will be removed.
+     * @param userEntity  the user entity from which the skill will be removed.
      * @param skillEntity the skill entity to be removed from the user's list of skills.
      */
     private void removeSkillFromUser(UserEntity userEntity, SkillEntity skillEntity) {
@@ -568,7 +553,7 @@ public class SkillBean implements Serializable {
      * </p>
      *
      * @param skillEntity the skill entity from which the user will be removed.
-     * @param userEntity the user entity to be removed from the skill's list of users.
+     * @param userEntity  the user entity to be removed from the skill's list of users.
      */
     private void removeUserFromSkill(SkillEntity skillEntity, UserEntity userEntity) {
         Set<UserEntity> skillUsers = skillEntity.getUsers();
@@ -677,7 +662,7 @@ public class SkillBean implements Serializable {
      * </p>
      *
      * @param projectEntity the project entity from which the skill will be removed.
-     * @param skillEntity the skill entity to be removed from the project's list of skills.
+     * @param skillEntity   the skill entity to be removed from the project's list of skills.
      */
     private void removeSkillFromProject(ProjectEntity projectEntity, SkillEntity skillEntity) {
         Set<SkillEntity> projectSkills = projectEntity.getProjectSkills();
@@ -702,7 +687,7 @@ public class SkillBean implements Serializable {
      * </ul>
      * </p>
      *
-     * @param skillEntity the skill entity from which the project will be removed.
+     * @param skillEntity   the skill entity from which the project will be removed.
      * @param projectEntity the project entity to be removed from the skill's list of projects.
      */
     private void removeProjectFromSkill(SkillEntity skillEntity, ProjectEntity projectEntity) {
@@ -715,7 +700,6 @@ public class SkillBean implements Serializable {
             throw new IllegalStateException("Skill does not have the specified project");
         }
     }
-
 
 
     /**

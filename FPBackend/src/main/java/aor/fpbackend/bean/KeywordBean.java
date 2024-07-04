@@ -7,6 +7,7 @@ import aor.fpbackend.dto.Keyword.KeywordRemoveDto;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.ElementAssociationException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -69,7 +70,7 @@ public class KeywordBean implements Serializable {
      * @throws EntityNotFoundException if the project is not found
      */
     @Transactional
-    public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException, ElementAssociationException {
+    public void addKeyword(String keywordName, long projectId) throws EntityNotFoundException, ElementAssociationException, DuplicatedAttributeException {
         checkKeywordExist(keywordName);
         KeywordEntity keywordEntity = keywordDao.findKeywordByName(keywordName);
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
@@ -82,17 +83,13 @@ public class KeywordBean implements Serializable {
             throw new ElementAssociationException("Project is not editable anymore");
         }
         Set<KeywordEntity> projectKeywords = projectEntity.getProjectKeywords();
-        if (projectKeywords == null) {
-            projectKeywords = new HashSet<>();
-        }
         if (!projectKeywords.contains(keywordEntity)) {
             projectKeywords.add(keywordEntity);
             projectEntity.setProjectKeywords(projectKeywords);
+        }else{
+            throw new DuplicatedAttributeException("Project already has the specified keyword");
         }
         Set<ProjectEntity> keywordProjects = keywordEntity.getProjects();
-        if (keywordProjects == null) {
-            keywordProjects = new HashSet<>();
-        }
         if (!keywordProjects.contains(projectEntity)) {
             keywordProjects.add(projectEntity);
             keywordEntity.setProjects(keywordProjects);

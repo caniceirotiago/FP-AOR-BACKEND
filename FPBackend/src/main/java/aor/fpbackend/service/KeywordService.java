@@ -4,6 +4,7 @@ import aor.fpbackend.bean.KeywordBean;
 import aor.fpbackend.dto.Keyword.KeywordAddDto;
 import aor.fpbackend.dto.Keyword.KeywordGetDto;
 import aor.fpbackend.dto.Keyword.KeywordRemoveDto;
+import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.ElementAssociationException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -28,7 +29,7 @@ public class KeywordService {
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ADD_KEYWORD)
-    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, ElementAssociationException {
+    public void addKeyword(@Valid KeywordAddDto keywordAddDto) throws EntityNotFoundException, ElementAssociationException, DuplicatedAttributeException {
         keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
     }
 
