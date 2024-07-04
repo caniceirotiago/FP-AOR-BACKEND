@@ -84,6 +84,7 @@ class ProjectBeanTest {
         projectCreateDto.setName("Test Project");
         projectCreateDto.setConclusionDate(Instant.now().plusSeconds(3600));
         projectCreateDto.setKeywords(Set.of(new KeywordCreateNewProjectDto("keyword")));
+        projectCreateDto.setLaboratoryId(1L);  // Adicionando o laboratório
 
         AuthUserDto authUserDto = new AuthUserDto();
         authUserDto.setUserId(1L);
@@ -109,12 +110,14 @@ class ProjectBeanTest {
         verify(projectDao, times(1)).persist(any(ProjectEntity.class));
     }
 
+
     @Test
     void testCreateProject_DuplicatedName() {
         ProjectCreateDto projectCreateDto = new ProjectCreateDto();
         projectCreateDto.setName("Test Project");
         projectCreateDto.setConclusionDate(Instant.now().plusSeconds(3600));
         projectCreateDto.setKeywords(Set.of(new KeywordCreateNewProjectDto("keyword")));
+        projectCreateDto.setLaboratoryId(1L);  // Set the laboratory ID
 
         AuthUserDto authUserDto = new AuthUserDto();
         authUserDto.setUserId(1L);
@@ -122,13 +125,17 @@ class ProjectBeanTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
 
+        LaboratoryEntity labEntity = new LaboratoryEntity();
+        labEntity.setId(1L);
+
         when(securityContext.getUserPrincipal()).thenReturn(authUserDto);
         when(userDao.findUserById(1L)).thenReturn(userEntity);
-        when(labDao.findLaboratoryById(1L)).thenReturn(new LaboratoryEntity());
+        when(labDao.findLaboratoryById(1L)).thenReturn(labEntity);  // Ensure lab is found
         when(projectDao.checkProjectNameExist("Test Project")).thenReturn(true);
 
         assertThrows(InputValidationException.class, () -> projectBean.createProject(projectCreateDto, securityContext));
     }
+
 
     @Test
     void testGetAllProjects_Success() {
@@ -183,10 +190,12 @@ class ProjectBeanTest {
 
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setId(1L);
+        projectEntity.setName("Old Project Name");
         projectEntity.setState(ProjectStateEnum.PLANNING);
 
         LaboratoryEntity labEntity = new LaboratoryEntity();
         labEntity.setId(1L);
+        projectEntity.setLaboratory(labEntity);  // Set the laboratory
 
         when(securityContext.getUserPrincipal()).thenReturn(authUserDto);
         when(userDao.findUserById(1L)).thenReturn(userEntity);
@@ -196,6 +205,9 @@ class ProjectBeanTest {
 
         assertDoesNotThrow(() -> projectBean.updateProject(1L, projectUpdateDto, securityContext));
     }
+
+
+
 
     @Test
     void testUpdateProject_DuplicatedName() {
@@ -213,6 +225,7 @@ class ProjectBeanTest {
 
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setId(1L);
+        projectEntity.setName("Old Project Name"); // Definindo o nome antigo do projeto
         projectEntity.setState(ProjectStateEnum.PLANNING);
 
         when(securityContext.getUserPrincipal()).thenReturn(authUserDto);
@@ -223,13 +236,19 @@ class ProjectBeanTest {
         assertThrows(InputValidationException.class, () -> projectBean.updateProject(1L, projectUpdateDto, securityContext));
     }
 
+
     @Test
     void testUpdateProject_NotFound() {
         ProjectUpdateDto projectUpdateDto = new ProjectUpdateDto();
         projectUpdateDto.setName("Updated Project");
 
+        AuthUserDto authUserDto = new AuthUserDto();
+        authUserDto.setUserId(1L);
+
+        when(securityContext.getUserPrincipal()).thenReturn(authUserDto);
         when(projectDao.findProjectById(1L)).thenReturn(null);
 
         assertThrows(EntityNotFoundException.class, () -> projectBean.updateProject(1L, projectUpdateDto, securityContext));
     }
+
 }

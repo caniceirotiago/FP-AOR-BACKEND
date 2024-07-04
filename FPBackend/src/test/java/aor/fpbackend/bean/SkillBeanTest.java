@@ -171,6 +171,5 @@ class SkillBeanTest {
         assertTrue(skillTypes.contains(SkillTypeEnum.TOOLS));
     }
 
-    // Additional tests can be added for other methods
 
 }

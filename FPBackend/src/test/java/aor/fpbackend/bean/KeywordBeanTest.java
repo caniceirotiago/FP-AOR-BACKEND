@@ -91,9 +91,11 @@ class KeywordBeanTest {
         long projectId = 1L;
         KeywordRemoveDto keywordRemoveDto = new KeywordRemoveDto(keywordId, projectId);
         KeywordEntity keywordEntity = new KeywordEntity("TestKeyword");
+        KeywordEntity additionalKeywordEntity = new KeywordEntity("AdditionalKeyword");
         ProjectEntity projectEntity = new ProjectEntity();
         Set<KeywordEntity> keywords = new HashSet<>();
         keywords.add(keywordEntity);
+        keywords.add(additionalKeywordEntity);
         projectEntity.setProjectKeywords(keywords);
         Set<ProjectEntity> projects = new HashSet<>();
         projects.add(projectEntity);
@@ -107,6 +109,8 @@ class KeywordBeanTest {
         assertFalse(projectEntity.getProjectKeywords().contains(keywordEntity));
         assertFalse(keywordEntity.getProjects().contains(projectEntity));
     }
+
+
 
     @Test
     void testRemoveKeyword_ProjectNotFound() {

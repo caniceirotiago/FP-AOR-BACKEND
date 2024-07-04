@@ -43,12 +43,14 @@ class IndividualMessageBeanTest {
 
     @Test
     void testSendIndividualMessage_Success() throws UserNotFoundException {
-        IndividualMessageSendDto sendDto = new IndividualMessageSendDto("senderId", 1L, 2L, "content");
+        IndividualMessageSendDto sendDto = new IndividualMessageSendDto("content", 1L, 2L, "subject");
         UserEntity sender = new UserEntity();
+        sender.setId(1L);
         UserEntity recipient = new UserEntity();
+        recipient.setId(2L);
 
-        when(userDao.find("senderId")).thenReturn(sender);
-        when(userDao.find("recipientId")).thenReturn(recipient);
+        when(userDao.find(1L)).thenReturn(sender);
+        when(userDao.find(2L)).thenReturn(recipient);
 
         IndividualMessageEntity result = individualMessageBean.sendIndividualMessage(sendDto);
 
@@ -62,6 +64,8 @@ class IndividualMessageBeanTest {
 
         verify(individualMessageDao, times(1)).persist(any(IndividualMessageEntity.class));
     }
+
+
 
     @Test
     void testSendIndividualMessage_UserNotFound() {

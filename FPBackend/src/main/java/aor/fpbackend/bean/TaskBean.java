@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
@@ -257,7 +258,7 @@ public class TaskBean implements Serializable {
      * @throws EntityNotFoundException if either the main task or the dependent task is not found.
      */
     @Transactional
-    public void addDependencyTask(long projectId, TaskDependencyDto dependencyDto) throws EntityNotFoundException, InputValidationException {
+    public void addDependencyTask(long projectId, TaskDependencyDto dependencyDto) throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
         TaskEntity mainTaskEntity = taskDao.findTaskById(dependencyDto.getMainTaskId());
         if (mainTaskEntity == null) {
             throw new EntityNotFoundException("Main task not found");
@@ -287,7 +288,7 @@ public class TaskBean implements Serializable {
             LOGGER.info("Dependency added successfully: Main Task ID: {}, Dependent Task ID: {}", dependencyDto.getMainTaskId(), dependencyDto.getDependentTaskId());
         } catch (PersistenceException e) {
             LOGGER.error("Error while adding dependency: {}", e.getMessage());
-            throw new EntityNotFoundException("Error while adding dependency");
+            throw new DatabaseOperationException("Error while adding dependency");
         } finally {
             ThreadContext.clearMap();
         }
@@ -383,6 +384,7 @@ public class TaskBean implements Serializable {
             taskEntity.setPlannedEndDate(taskUpdateDto.getPlannedEndDate());
             // Validate state and handle state transitions
             validateAndHandleStateTransition(taskEntity, taskUpdateDto.getState(), authUserEntity);
+            taskDao.persist(taskEntity);
             LOGGER.info("Task updated successfully: Task ID: {}", taskUpdateDto.getTaskId());
         } catch (PersistenceException e) {
             LOGGER.error("Error while updating task: {}", e.getMessage());
@@ -850,4 +852,6 @@ public class TaskBean implements Serializable {
         }
         return taskStateEnums;
     }
+
+
 }

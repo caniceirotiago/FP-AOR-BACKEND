@@ -54,7 +54,7 @@ public class RoleBean implements Serializable {
      *
      * @param name the name of the role to be created.
      */
-    public void createRoleIfNotExists(UserRoleEnum name) {
+    public void createRoleIfNotExists(UserRoleEnum name) throws DatabaseOperationException {
         try {
             if (!roleDao.checkRoleExist(name)) {
                 RoleEntity role = new RoleEntity(name);
@@ -65,6 +65,7 @@ public class RoleBean implements Serializable {
             }
         } catch (Exception e) {
             LOGGER.error("Error creating role: {}", name, e);
+            throw new DatabaseOperationException("Error creating role");
         } finally {
             ThreadContext.clearMap();
         }

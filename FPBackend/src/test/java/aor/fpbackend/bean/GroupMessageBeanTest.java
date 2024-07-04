@@ -109,6 +109,9 @@ class GroupMessageBeanTest {
         UserEntity user = new UserEntity();
         user.setId(1L);
         GroupMessageEntity message = new GroupMessageEntity();
+        ProjectEntity project = new ProjectEntity();
+        project.setId(projectId);
+        message.setGroup(project);
 
         when(securityContext.getUserPrincipal()).thenReturn(authUserDto);
         when(userDao.findUserById(authUserDto.getUserId())).thenReturn(user);
@@ -119,6 +122,7 @@ class GroupMessageBeanTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
+
 
     @Test
     void testGetGroupMessagesByProjectId_UserNotFound() {
@@ -136,6 +140,9 @@ class GroupMessageBeanTest {
     void testGetGroupMessagesByMessageIds_Success() {
         List<Long> messageIds = Collections.singletonList(1L);
         GroupMessageEntity message = new GroupMessageEntity();
+        ProjectEntity project = new ProjectEntity();
+        project.setId(1L); // Defina o ID do projeto
+        message.setGroup(project); // Associe o projeto ao grupo
 
         when(groupMessageDao.getMessagesByIds(messageIds)).thenReturn(Collections.singletonList(message));
 
@@ -144,6 +151,7 @@ class GroupMessageBeanTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
+
 
     @Test
     void testMarkMessageAsReadByUser_Success() {
@@ -167,7 +175,12 @@ class GroupMessageBeanTest {
         Long userId = 1L;
         GroupMessageEntity message = new GroupMessageEntity();
         UserEntity user = new UserEntity();
-        message.setReadByUsers(Set.of(user));
+        user.setId(userId);
+        message.setId(1L);
+        ProjectEntity project = new ProjectEntity();
+        project.setId(1L);
+        message.setGroup(project);
+        message.setReadByUsers(new HashSet<>(Set.of(user))); // Use um conjunto mutável
 
         when(groupMessageDao.findGroupMessageById(anyLong())).thenReturn(message);
         when(userDao.findUserById(userId)).thenReturn(user);
@@ -176,4 +189,6 @@ class GroupMessageBeanTest {
 
         assertTrue(result);
     }
+
+
 }

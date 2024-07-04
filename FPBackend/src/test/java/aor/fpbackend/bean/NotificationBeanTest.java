@@ -6,6 +6,7 @@ import aor.fpbackend.dao.UserDao;
 import aor.fpbackend.dto.Authentication.AuthUserDto;
 import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetDto;
 import aor.fpbackend.dto.Notification.NotificationGetDto;
+import aor.fpbackend.dto.User.UserBasicInfoDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.NotificationTypeENUM;
 import aor.fpbackend.enums.ProjectRoleEnum;
@@ -55,12 +56,27 @@ class NotificationBeanTest {
     @Test
     void testCreateIndividualMessageNotification() throws UnknownHostException {
         IndividualMessageEntity messageEntity = new IndividualMessageEntity();
+
+        RoleEntity role = new RoleEntity(UserRoleEnum.ADMIN);
+        role.setId(1L); // Initialize the role id
+
         UserEntity recipient = new UserEntity();
+        recipient.setId(1L);
         recipient.setUsername("recipientUser");
+        recipient.setPhoto("http://photo.url/recipient");
+        recipient.setRole(role);
+
         UserEntity sender = new UserEntity();
+        sender.setId(2L);
         sender.setUsername("senderUser");
+        sender.setPhoto("http://photo.url/sender");
+        sender.setRole(role);
+
         messageEntity.setRecipient(recipient);
         messageEntity.setSender(sender);
+
+        when(userBean.convertUserEntitytoUserBasicInfoDto(recipient)).thenReturn(new UserBasicInfoDto(recipient.getId(), recipient.getUsername(), recipient.getPhoto(), recipient.getRole().getId()));
+        when(userBean.convertUserEntitytoUserBasicInfoDto(sender)).thenReturn(new UserBasicInfoDto(sender.getId(), sender.getUsername(), sender.getPhoto(), sender.getRole().getId()));
 
         notificationBean.createIndividualMessageNotification(messageEntity);
 
@@ -69,8 +85,14 @@ class NotificationBeanTest {
 
     @Test
     void testCreateProjectJoinRequestNotificationsForProjectAdmins() throws UnknownHostException {
+        RoleEntity role = new RoleEntity(UserRoleEnum.ADMIN);
+        role.setId(1L); // Initialize the role id
+
         UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
         userEntity.setUsername("testUser");
+        userEntity.setPhoto("http://photo.url/testUser");
+        userEntity.setRole(role);
 
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setName("testProject");
@@ -85,6 +107,8 @@ class NotificationBeanTest {
 
         projectEntity.setMembers(Set.of(adminMembership));
 
+        when(userBean.convertUserEntitytoUserBasicInfoDto(any(UserEntity.class))).thenReturn(new UserBasicInfoDto(userEntity.getId(), userEntity.getUsername(), userEntity.getPhoto(), userEntity.getRole().getId()));
+
         notificationBean.createProjectJoinRequestNotificationsForProjectAdmins(projectMembershipEntity);
 
         verify(notificationDao, times(1)).persist(any(NotificationEntity.class));
@@ -92,8 +116,14 @@ class NotificationBeanTest {
 
     @Test
     void testCreateNotificationForProjectJoinRequestApprovedOrRejected() throws UnknownHostException {
+        RoleEntity role = new RoleEntity(UserRoleEnum.ADMIN);
+        role.setId(1L); // Initialize the role id
+
         UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
         userEntity.setUsername("testUser");
+        userEntity.setPhoto("http://photo.url/testUser");
+        userEntity.setRole(role);
 
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setName("testProject");
@@ -101,6 +131,8 @@ class NotificationBeanTest {
         ProjectMembershipEntity projectMembershipEntity = new ProjectMembershipEntity();
         projectMembershipEntity.setUser(userEntity);
         projectMembershipEntity.setProject(projectEntity);
+
+        when(userBean.convertUserEntitytoUserBasicInfoDto(any(UserEntity.class))).thenReturn(new UserBasicInfoDto(userEntity.getId(), userEntity.getUsername(), userEntity.getPhoto(), userEntity.getRole().getId()));
 
         notificationBean.createNotificationForProjectJoinRequestApprovedOrRejected(projectMembershipEntity, true);
 
@@ -109,8 +141,14 @@ class NotificationBeanTest {
 
     @Test
     void testCreateNotificationForUserRemovedFromProject() throws UnknownHostException {
+        RoleEntity role = new RoleEntity(UserRoleEnum.ADMIN);
+        role.setId(1L); // Initialize the role id
+
         UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
         userEntity.setUsername("testUser");
+        userEntity.setPhoto("http://photo.url/testUser");
+        userEntity.setRole(role);
 
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setName("testProject");
@@ -119,6 +157,8 @@ class NotificationBeanTest {
         projectMembershipEntity.setUser(userEntity);
         projectMembershipEntity.setProject(projectEntity);
         projectMembershipEntity.setAccepted(true);
+
+        when(userBean.convertUserEntitytoUserBasicInfoDto(any(UserEntity.class))).thenReturn(new UserBasicInfoDto(userEntity.getId(), userEntity.getUsername(), userEntity.getPhoto(), userEntity.getRole().getId()));
 
         notificationBean.createNotificationForUserRemovedFromProject(projectMembershipEntity);
 

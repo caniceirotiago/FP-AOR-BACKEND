@@ -61,7 +61,7 @@ public class TaskService {
     @Path("/add/dependency/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresProjectMemberPermission()
-    public void addDependencyToTask(@PathParam("projectId") long projectId, @Valid TaskDependencyDto dependencyDto) throws EntityNotFoundException, InputValidationException {
+    public void addDependencyToTask(@PathParam("projectId") long projectId, @Valid TaskDependencyDto dependencyDto) throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
         taskBean.addDependencyTask(projectId, dependencyDto);
     }
 

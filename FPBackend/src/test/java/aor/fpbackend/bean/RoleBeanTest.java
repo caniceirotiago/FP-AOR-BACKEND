@@ -33,7 +33,7 @@ class RoleBeanTest {
     }
 
     @Test
-    void testCreateRoleIfNotExists_RoleDoesNotExist() {
+    void testCreateRoleIfNotExists_RoleDoesNotExist() throws DatabaseOperationException {
         UserRoleEnum roleEnum = UserRoleEnum.ADMIN;
 
         when(roleDao.checkRoleExist(roleEnum)).thenReturn(false);
@@ -45,7 +45,7 @@ class RoleBeanTest {
     }
 
     @Test
-    void testCreateRoleIfNotExists_RoleExists() {
+    void testCreateRoleIfNotExists_RoleExists() throws DatabaseOperationException {
         UserRoleEnum roleEnum = UserRoleEnum.ADMIN;
 
         when(roleDao.checkRoleExist(roleEnum)).thenReturn(true);
@@ -62,7 +62,7 @@ class RoleBeanTest {
 
         when(roleDao.checkRoleExist(roleEnum)).thenThrow(new RuntimeException("Database error"));
 
-        assertDoesNotThrow(() -> roleBean.createRoleIfNotExists(roleEnum));
+        assertThrows(DatabaseOperationException.class, () -> roleBean.createRoleIfNotExists(roleEnum));
 
         verify(roleDao, times(1)).checkRoleExist(roleEnum);
         verify(roleDao, times(0)).persist(any(RoleEntity.class));

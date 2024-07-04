@@ -4,11 +4,8 @@ import aor.fpbackend.enums.LocationEnum;
 import aor.fpbackend.enums.MethodEnum;
 import aor.fpbackend.enums.UserRoleEnum;
 import aor.fpbackend.exception.DatabaseOperationException;
-import jakarta.annotation.PostConstruct;
+import aor.fpbackend.utils.GlobalSettings;
 import jakarta.ejb.EJB;
-import jakarta.ejb.Singleton;
-import jakarta.ejb.Startup;
-import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +61,7 @@ class StartupBeanTest {
         verify(labBean, times(1)).createLaboratoryIfNotExists(LocationEnum.LISBOA);
         verify(labBean, times(1)).createLaboratoryIfNotExists(LocationEnum.COIMBRA);
         verify(userBean, times(1)).createDefaultUserIfNotExistent("admin", "https://i.pinimg.com/474x/7e/71/9b/7e719be79d55353a3ce6551d704e43ca.jpg", 1, 2);
-        verify(configBean, times(1)).createDefaultConfigIfNotExistent("sessionTimeout", 3600000);
+        verify(configBean, times(1)).createDefaultConfigIfNotExistent("sessionTimeout", 36000000);
         verify(methodBean, times(1)).createMethodIfNotExistent(MethodEnum.UPDATE_ROLE, "updates user role", MethodEnum.UPDATE_ROLE.getValue());
         verify(roleBean, times(1)).addPermission(UserRoleEnum.ADMIN, MethodEnum.UPDATE_ROLE);
     }
@@ -73,10 +70,11 @@ class StartupBeanTest {
     void testInitDatabaseOperationException() throws DatabaseOperationException {
         doThrow(new DatabaseOperationException("Error creating roles")).when(roleBean).createRoleIfNotExists(any(UserRoleEnum.class));
 
-        assertThrows(IllegalStateException.class, () -> startupBean.init());
+        assertThrows(DatabaseOperationException.class, () -> startupBean.init());
 
         verify(roleBean, times(1)).createRoleIfNotExists(UserRoleEnum.ADMIN);
     }
+
 
     @Test
     void testCreateRoles() throws DatabaseOperationException {
@@ -102,8 +100,8 @@ class StartupBeanTest {
     @Test
     void testCreateDefaultConfigs() throws DatabaseOperationException {
         invokePrivateMethod("createDefaultConfigs");
-        verify(configBean, times(1)).createDefaultConfigIfNotExistent("sessionTimeout", 3600000);
-        verify(configBean, times(1)).createDefaultConfigIfNotExistent("maxProjectMembers", 5);
+        verify(configBean, times(1)).createDefaultConfigIfNotExistent("sessionTimeout", GlobalSettings.DEFAULT_SESSION_TIMEOUT_MILLIS);
+        verify(configBean, times(1)).createDefaultConfigIfNotExistent("maxProjectMembers", GlobalSettings.DEFAULT_NUMBER_MEMBERS_PER_PROJECT);
     }
 
     @Test

@@ -484,4 +484,26 @@ public class SessionBean implements Serializable {
        }
 
     }
+    public void setSessionDao(SessionDao sessionDao) {
+        this.sessionDao = sessionDao;
+    }
+
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public void setRoleDao(RoleDao roleDao) {
+        this.roleDao = roleDao;
+    }
+
+    public void setConfigurationBean(ConfigurationBean configurationBean) {
+        this.configurationBean = configurationBean;
+    }
+
+    public void setPassEncoder(PassEncoder passEncoder) {
+        this.passEncoder = passEncoder;
+    }
+
+
+
 }

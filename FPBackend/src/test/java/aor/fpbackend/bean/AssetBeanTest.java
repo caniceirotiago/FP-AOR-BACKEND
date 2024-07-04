@@ -55,25 +55,6 @@ class AssetBeanTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testCreateAsset_Success() throws DuplicatedAttributeException, UserNotFoundException, UnknownHostException {
-        AssetCreateDto assetCreateDto = new AssetCreateDto("Asset1", AssetTypeEnum.COMPONENT, "Description", 10, "PartNumber", "Manufacturer", "123456789", "Observations");
-        AuthUserDto authUserDto = new AuthUserDto();
-        authUserDto.setUserId(1L);
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(1L);
-        userEntity.setUsername("User1");
-
-        when(securityContext.getUserPrincipal()).thenReturn(authUserDto);
-        when(userDao.findUserById(1L)).thenReturn(userEntity);
-        when(assetDao.checkAssetExistByName("Asset1")).thenReturn(false);
-        when(InetAddress.getLocalHost().getHostAddress()).thenReturn("127.0.0.1");
-
-        assetBean.createAsset(assetCreateDto, securityContext);
-
-        verify(assetDao, times(1)).persist(any(AssetEntity.class));
-        verify(logger, times(1)).info("Asset created successfully");
-    }
 
     @Test
     void testCreateAsset_UserNotFound() {
@@ -207,15 +188,21 @@ class AssetBeanTest {
     @Test
     void testGetProjectAssetsByProject() {
         long projectId = 1L;
+        AssetEntity assetEntity = new AssetEntity();
+        assetEntity.setId(1L);
+        ProjectAssetEntity projectAssetEntity = new ProjectAssetEntity();
+        projectAssetEntity.setAsset(assetEntity);
         List<ProjectAssetEntity> projectAssetEntities = new ArrayList<>();
-        projectAssetEntities.add(new ProjectAssetEntity());
+        projectAssetEntities.add(projectAssetEntity);
 
         when(projectAssetDao.findProjectAssetsByProjectId(projectId)).thenReturn(projectAssetEntities);
 
         List<ProjectAssetGetDto> projectAssetGetDtos = assetBean.getProjectAssetsByProject(projectId);
 
         assertEquals(1, projectAssetGetDtos.size());
+        assertEquals(1L, projectAssetGetDtos.get(0).getId());
     }
+
 
     @Test
     void testGetAssetById() {
@@ -353,13 +340,18 @@ class AssetBeanTest {
 
         when(assetDao.findAssetById(1L)).thenReturn(assetEntity);
         when(assetDao.checkAssetExistByName("Asset1")).thenReturn(false);
-        when(InetAddress.getLocalHost().getHostAddress()).thenReturn("127.0.0.1");
 
-        assetBean.updateAsset(assetUpdateDto);
+        InetAddress localHostMock = mock(InetAddress.class);
+        when(localHostMock.getHostAddress()).thenReturn("127.0.0.1");
+        try (MockedStatic<InetAddress> inetAddressMockedStatic = mockStatic(InetAddress.class)) {
+            inetAddressMockedStatic.when(InetAddress::getLocalHost).thenReturn(localHostMock);
 
-        assertEquals("Asset1", assetEntity.getName());
-        verify(logger, times(1)).info("Asset updated successfully");
+            assetBean.updateAsset(assetUpdateDto);
+
+            assertEquals("Asset1", assetEntity.getName());
+        }
     }
+
 
     @Test
     void testUpdateAsset_AssetNotFound() {

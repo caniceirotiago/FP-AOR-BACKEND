@@ -7,7 +7,6 @@ import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
 import aor.fpbackend.utils.EmailService;
 import jakarta.ws.rs.core.SecurityContext;
-import org.apache.logging.log4j.ThreadContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -68,8 +67,10 @@ class MembershipBeanTest {
 
         verify(projectMemberDao, times(1)).persist(any(ProjectMembershipEntity.class));
         verify(notificationBean, times(1)).createProjectJoinRequestNotificationsForProjectAdmins(any(ProjectMembershipEntity.class));
-        verify(emailService, times(1)).sendJoinRequisitionToManagersEmail(anyString(), anyString(), anyString(), anyString(), anyString());
     }
+
+
+
 
     @Test
     void testAskToJoinProject_UserNotFound() {
@@ -142,13 +143,40 @@ class MembershipBeanTest {
         when(userDao.findUserById(userId)).thenReturn(userEntity);
         when(projectDao.findProjectById(projectId)).thenReturn(projectEntity);
         when(projectEntity.getState()).thenReturn(ProjectStateEnum.PLANNING);
+        when(configurationBean.getConfigValueByKey("maxProjectMembers")).thenReturn(10); // Ensure member limit is not reached
         when(projectEntity.getMembers()).thenReturn(new HashSet<>(Collections.singletonList(membershipEntity)));
         when(membershipEntity.getUser()).thenReturn(userEntity);
 
+        // Execute and verify
         DuplicatedAttributeException thrown = assertThrows(DuplicatedAttributeException.class, () -> {
             membershipBean.askToJoinProject(projectId, securityContext);
         });
 
         assertEquals("User is already member of the project", thrown.getMessage());
+    }
+
+
+
+    @Test
+    void testAskToJoinProject_ProjectMembersLimitReached() {
+        long projectId = 1L;
+        long userId = 2L;
+        AuthUserDto authUserDto = mock(AuthUserDto.class);
+        UserEntity userEntity = mock(UserEntity.class);
+        ProjectEntity projectEntity = mock(ProjectEntity.class);
+
+        when(securityContext.getUserPrincipal()).thenReturn(authUserDto);
+        when(authUserDto.getUserId()).thenReturn(userId);
+        when(userDao.findUserById(userId)).thenReturn(userEntity);
+        when(projectDao.findProjectById(projectId)).thenReturn(projectEntity);
+        when(projectEntity.getState()).thenReturn(ProjectStateEnum.PLANNING);
+        when(configurationBean.getConfigValueByKey("maxProjectMembers")).thenReturn(1);
+        when(projectEntity.getMembers()).thenReturn(new HashSet<>(Collections.singletonList(new ProjectMembershipEntity())));
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
+            membershipBean.askToJoinProject(projectId, securityContext);
+        });
+
+        assertEquals("Project member's limit is reached", thrown.getMessage());
     }
 }

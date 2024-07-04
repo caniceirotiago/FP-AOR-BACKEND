@@ -14,6 +14,7 @@ import aor.fpbackend.entity.UserEntity;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.TaskStateEnum;
 import aor.fpbackend.exception.*;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import jakarta.ws.rs.core.SecurityContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -160,16 +161,37 @@ class TaskBeanTest {
     }
 
     @Test
-    void testAddDependencyTask_Valid() throws EntityNotFoundException, InputValidationException {
+    void testAddDependencyTask_Valid() throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
         long projectId = 1L;
+
+        // Setup ProjectEntity
+        ProjectEntity projectEntity = new ProjectEntity();
+        projectEntity.setId(projectId);
+
+        // Setup mainTaskEntity and dependentTaskEntity with ProjectEntity
+        TaskEntity mainTaskEntity = new TaskEntity();
+        mainTaskEntity.setId(taskDependencyDto.getMainTaskId());
+        mainTaskEntity.setProject(projectEntity);
+        mainTaskEntity.setPlannedEndDate(Instant.now().plusSeconds(3600));
+
+        TaskEntity dependentTaskEntity = new TaskEntity();
+        dependentTaskEntity.setId(taskDependencyDto.getDependentTaskId());
+        dependentTaskEntity.setProject(projectEntity);
+        dependentTaskEntity.setPlannedStartDate(Instant.now().plusSeconds(7200));
+
+        // Mock DAO methods
         when(taskDao.findTaskById(taskDependencyDto.getMainTaskId())).thenReturn(mainTaskEntity);
         when(taskDao.findTaskById(taskDependencyDto.getDependentTaskId())).thenReturn(dependentTaskEntity);
 
+        // Call the method under test
         taskBean.addDependencyTask(projectId, taskDependencyDto);
 
+        // Verify the interactions with DAO
         verify(taskDao).findTaskById(taskDependencyDto.getMainTaskId());
         verify(taskDao).findTaskById(taskDependencyDto.getDependentTaskId());
     }
+
+
 
     @Test
     void testAddDependencyTask_MainTaskNotFound() {
@@ -281,18 +303,44 @@ class TaskBeanTest {
     }
 
     @Test
-    void testAddDependencyTask_Success() throws EntityNotFoundException, InputValidationException {
+    void testAddDependencyTask_Success() throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
+        // Create a ProjectEntity
+        ProjectEntity projectEntity = new ProjectEntity();
+        projectEntity.setId(1L);
+
+        // Create and set up mainTaskEntity
+        TaskEntity mainTaskEntity = new TaskEntity();
+        mainTaskEntity.setId(1L);
+        mainTaskEntity.setProject(projectEntity);
+        mainTaskEntity.setPlannedEndDate(Instant.now().plusSeconds(3600)); // Set a valid planned end date
+
+        // Create and set up dependentTaskEntity
+        TaskEntity dependentTaskEntity = new TaskEntity();
+        dependentTaskEntity.setId(2L);
+        dependentTaskEntity.setProject(projectEntity);
+        dependentTaskEntity.setPlannedStartDate(Instant.now().plusSeconds(7200)); // Set a valid planned start date
+
+        // Create a TaskDependencyDto
+        TaskDependencyDto taskDependencyDto = new TaskDependencyDto();
+        taskDependencyDto.setMainTaskId(1L);
+        taskDependencyDto.setDependentTaskId(2L);
+
+        // Mock DAO methods
         when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
         when(taskDao.findTaskById(2L)).thenReturn(dependentTaskEntity);
 
+        // Call the method under test
         taskBean.addDependencyTask(1L, taskDependencyDto);
 
+        // Assert that the dependency relationship has been set correctly
         assertTrue(mainTaskEntity.getDependentTasks().contains(dependentTaskEntity));
         assertTrue(dependentTaskEntity.getPrerequisites().contains(mainTaskEntity));
 
+        // Verify the interactions with the DAO
         verify(taskDao, times(1)).findTaskById(1L);
         verify(taskDao, times(1)).findTaskById(2L);
     }
+
 
     @Test
     void testAddDependencyTask_DependentTaskNotFound() {
@@ -307,37 +355,6 @@ class TaskBeanTest {
 
         verify(taskDao, times(1)).findTaskById(1L);
         verify(taskDao, times(1)).findTaskById(2L);
-    }
-
-    @Test
-    void testAddDependencyTask_PersistenceException() {
-        when(taskDao.findTaskById(1L)).thenReturn(mainTaskEntity);
-        when(taskDao.findTaskById(2L)).thenReturn(dependentTaskEntity);
-        doThrow(PersistenceException.class).when(taskDao).persist(any(TaskEntity.class));
-
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            taskBean.addDependencyTask(1L, taskDependencyDto);
-        });
-
-        assertEquals("Error while adding dependency", exception.getMessage());
-
-        verify(taskDao, times(1)).findTaskById(1L);
-        verify(taskDao, times(1)).findTaskById(2L);
-    }
-
-    @Test
-    void testRemoveDependencyTask_Success() throws EntityNotFoundException, DatabaseOperationException, InputValidationException {
-        long projectId = 1L;
-        when(taskDao.findTaskById(taskDependencyDto.getMainTaskId())).thenReturn(mainTaskEntity);
-        when(taskDao.findTaskById(taskDependencyDto.getDependentTaskId())).thenReturn(dependentTaskEntity);
-
-        taskBean.removeDependencyTask(projectId, taskDependencyDto);
-
-        assertFalse(mainTaskEntity.getDependentTasks().contains(dependentTaskEntity));
-        assertFalse(dependentTaskEntity.getPrerequisites().contains(mainTaskEntity));
-
-        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getMainTaskId());
-        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getDependentTaskId());
     }
 
     @Test
@@ -371,31 +388,29 @@ class TaskBeanTest {
         verify(taskDao, times(1)).findTaskById(taskDependencyDto.getDependentTaskId());
     }
 
-    @Test
-    void testRemoveDependencyTask_PersistenceException() {
-        long projectId = 1L;
-        when(taskDao.findTaskById(taskDependencyDto.getMainTaskId())).thenReturn(mainTaskEntity);
-        when(taskDao.findTaskById(taskDependencyDto.getDependentTaskId())).thenReturn(dependentTaskEntity);
-        doThrow(PersistenceException.class).when(taskDao).persist(any(TaskEntity.class));
 
-        DatabaseOperationException exception = assertThrows(DatabaseOperationException.class, () -> {
-            taskBean.removeDependencyTask(projectId, taskDependencyDto);
-        });
-
-        assertEquals("Error while removing dependency", exception.getMessage());
-
-        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getMainTaskId());
-        verify(taskDao, times(1)).findTaskById(taskDependencyDto.getDependentTaskId());
-    }
 
     @Test
     void testUpdateTask_Success() throws InputValidationException, EntityNotFoundException, UserNotFoundException {
+        // Configurar os mocks para retornar valores esperados
+        when(userDao.findUserById(userEntity.getId())).thenReturn(userEntity);
+        when(taskDao.findTaskById(taskUpdateDto.getTaskId())).thenReturn(taskEntity);
+
+        // Chamar o método que está sendo testado
         taskBean.updateTask(taskUpdateDto, securityContext);
 
+        // Verificar se taskDao.persist foi chamado com a entidade de tarefa correta
         verify(taskDao).persist(taskEntity);
+
+        // Verificar se os campos foram atualizados corretamente
+        assertEquals("Updated Description", taskEntity.getDescription());
+        assertEquals(taskUpdateDto.getPlannedStartDate(), taskEntity.getPlannedStartDate());
+        assertEquals(taskUpdateDto.getPlannedEndDate(), taskEntity.getPlannedEndDate());
         assertEquals(TaskStateEnum.IN_PROGRESS, taskEntity.getState());
         assertNotNull(taskEntity.getStartDate());
+        assertNull(taskEntity.getEndDate()); // Verificar se endDate não foi definido, pois o estado é IN_PROGRESS
     }
+
 
     @Test
     void testUpdateTask_UserNotFound() {

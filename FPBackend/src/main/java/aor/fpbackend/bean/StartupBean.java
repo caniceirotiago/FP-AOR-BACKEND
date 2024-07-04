@@ -53,11 +53,12 @@ public class StartupBean implements Serializable {
      * This method is called after the bean's construction and dependency injection.
      */
     @PostConstruct
-    public void init() {
+    public void init() throws DatabaseOperationException {
         try {
             createData();
         } catch (DatabaseOperationException e) {
-            throw new IllegalStateException("Failed to initialize application data", e);
+            LOGGER.error("Error creating initial data: " + e.getMessage());
+            throw e;
         }
     }
 
