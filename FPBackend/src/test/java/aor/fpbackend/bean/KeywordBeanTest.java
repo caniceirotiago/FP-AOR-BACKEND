@@ -6,6 +6,7 @@ import aor.fpbackend.dto.Keyword.KeywordRemoveDto;
 import aor.fpbackend.entity.KeywordEntity;
 import aor.fpbackend.entity.ProjectEntity;
 import aor.fpbackend.enums.ProjectStateEnum;
+import aor.fpbackend.exception.DuplicatedAttributeException;
 import aor.fpbackend.exception.ElementAssociationException;
 import aor.fpbackend.exception.EntityNotFoundException;
 import aor.fpbackend.exception.InputValidationException;
@@ -36,7 +37,7 @@ class KeywordBeanTest {
     }
 
     @Test
-    void testAddKeyword_Success() throws EntityNotFoundException, ElementAssociationException {
+    void testAddKeyword_Success() throws EntityNotFoundException, ElementAssociationException, DuplicatedAttributeException {
         String keywordName = "TestKeyword";
         long projectId = 1L;
         KeywordEntity keywordEntity = new KeywordEntity(keywordName);
