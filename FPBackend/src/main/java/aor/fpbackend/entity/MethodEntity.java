@@ -40,6 +40,9 @@ public class MethodEntity implements Serializable {
         this.id = id;
     }
 
+    public MethodEntity(MethodEnum methodEnum) {
+    }
+
     public long getId() {
         return id;
     }

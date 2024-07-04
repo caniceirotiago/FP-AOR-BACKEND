@@ -267,7 +267,7 @@ public class ProjectBean implements Serializable {
         String title = "Final Presentation nº" + projectEntity.getId();
         String description = "Presentation of project: " + projectEntity.getName();
         Instant plannedEndDate = projectEntity.getConclusionDate();
-        Instant plannedStartDate = plannedEndDate.minus(1, ChronoUnit.DAYS);
+        Instant plannedStartDate = plannedEndDate != null ? plannedEndDate.minus(1, ChronoUnit.DAYS) : Instant.now().plus(1, ChronoUnit.DAYS);
         taskBean.addTask(title, description, plannedStartDate, plannedEndDate, userCreator.getId(), projectEntity.getId());
     }
 
@@ -609,6 +609,9 @@ public class ProjectBean implements Serializable {
     public void updateProject(long projectId, ProjectUpdateDto projectUpdateDto, SecurityContext securityContext) throws EntityNotFoundException, InputValidationException, UnknownHostException {
         // Get the authenticated user
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        if (authUserDto == null) {
+            throw new EntityNotFoundException("User not found");
+        }
         UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
@@ -723,7 +726,9 @@ public class ProjectBean implements Serializable {
             createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getConclusionDate(), newProject.getConclusionDate())) {
-            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Conclusion Date", oldProject.getConclusionDate().toString(), newProject.getConclusionDate().toString());
+            String oldConclusionDate = oldProject.getConclusionDate() != null ? oldProject.getConclusionDate().toString() : "null";
+            String newConclusionDate = newProject.getConclusionDate() != null ? newProject.getConclusionDate().toString() : "null";
+            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Conclusion Date", oldConclusionDate, newConclusionDate);
             createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getLaboratory().getId(), newProject.getLaboratory().getId())) {
