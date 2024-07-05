@@ -26,13 +26,10 @@ class IndividualMessageBeanTest {
 
     @InjectMocks
     private IndividualMessageBean individualMessageBean;
-
     @Mock
     private UserDao userDao;
-
     @Mock
     private IndividualMessageDao individualMessageDao;
-
     @Mock
     private UserBean userBean;
 

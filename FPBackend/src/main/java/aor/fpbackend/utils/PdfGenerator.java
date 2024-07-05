@@ -14,6 +14,8 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Stateless
 public class PdfGenerator {
@@ -47,6 +49,13 @@ public class PdfGenerator {
                 // Title
                 yPosition[0] -= 40;
                 yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 16, "Project Report", xMargin + 100, yPosition[0]);
+                yPosition[0] -= lineHeight * 1;
+
+                // Add timestamp
+                LocalDateTime now = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                String timestamp = now.format(formatter);
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA, 10, "Generated on: " + timestamp, xMargin + 270, yPosition[0]);
                 yPosition[0] -= lineHeight * 4;
 
                 // Average Members per Project - title and value
@@ -136,6 +145,13 @@ public class PdfGenerator {
                 // Title
                 yPosition[0] -= 40;
                 yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA_BOLD, 16, "Asset Report", xMargin + 100, yPosition[0]);
+                yPosition[0] -= lineHeight * 1;
+
+                // Add timestamp
+                LocalDateTime now = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                String timestamp = now.format(formatter);
+                yPosition[0] = drawText(contentStream, PDType1Font.HELVETICA, 10, "Generated on: " + timestamp, xMargin + 270, yPosition[0]);
                 yPosition[0] -= lineHeight * 4;
 
                 // Used Quantity by Project - title and value

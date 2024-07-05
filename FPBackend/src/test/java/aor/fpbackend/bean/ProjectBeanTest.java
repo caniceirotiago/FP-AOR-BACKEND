@@ -39,7 +39,6 @@ class ProjectBeanTest {
 
     @Mock
     private UserDao userDao;
-
     @Mock
     private ProjectLogDao projectLogDao;
 
@@ -84,7 +83,7 @@ class ProjectBeanTest {
         projectCreateDto.setName("Test Project");
         projectCreateDto.setConclusionDate(Instant.now().plusSeconds(3600));
         projectCreateDto.setKeywords(Set.of(new KeywordCreateNewProjectDto("keyword")));
-        projectCreateDto.setLaboratoryId(1L);  // Adicionando o laboratório
+        projectCreateDto.setLaboratoryId(1L);
 
         AuthUserDto authUserDto = new AuthUserDto();
         authUserDto.setUserId(1L);

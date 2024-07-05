@@ -6,7 +6,6 @@ import aor.fpbackend.dto.Email.EmailDto;
 import aor.fpbackend.dto.Password.PasswordRequestResetDto;
 import aor.fpbackend.dto.Password.PasswordResetDto;
 import aor.fpbackend.dto.Password.PasswordUpdateDto;
-import aor.fpbackend.dto.Project.ProjectMembershipDto;
 import aor.fpbackend.dto.User.*;
 import aor.fpbackend.entity.LaboratoryEntity;
 import aor.fpbackend.entity.RoleEntity;
@@ -21,6 +20,10 @@ import jakarta.ws.rs.core.SecurityContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import java.lang.reflect.Method;
@@ -32,18 +35,29 @@ import java.util.List;
 
 class UserBeanTest {
 
+    @InjectMocks
     private UserBean userBean;
+    @Mock
     private UserDao userDao;
+    @Mock
     private RoleDao roleDao;
+    @Mock
     private LaboratoryDao labDao;
+    @Mock
     private EmailService emailService;
+    @Mock
     private PassEncoder passEncoder;
+    @Mock
     private SessionBean sessionBean;
+    @Mock
     private SecurityContext securityContext;
+    @Mock
     private ProjectMembershipDao projectMemberDao;
 
     @BeforeEach
     void setup() {
+        MockitoAnnotations.openMocks(this);
+
         userBean = new UserBean();
 
         userDao = mock(UserDao.class);
