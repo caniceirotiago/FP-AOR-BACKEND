@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class StartupBeanTest {
+    @InjectMocks
+    private StartupBean startupBean;
 
     @Mock
     private RoleBean roleBean;
@@ -37,8 +39,6 @@ class StartupBeanTest {
     @Mock
     private MethodBean methodBean;
 
-    @InjectMocks
-    private StartupBean startupBean;
 
     @BeforeEach
     public void setUp() {

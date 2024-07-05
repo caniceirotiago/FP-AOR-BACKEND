@@ -5,13 +5,11 @@ import aor.fpbackend.dto.Authentication.AuthUserDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
-import aor.fpbackend.utils.EmailService;
 import jakarta.ws.rs.core.SecurityContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
-import java.net.UnknownHostException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,9 +19,6 @@ class MembershipBeanTest {
 
     @InjectMocks
     private MembershipBean membershipBean;
-
-    @Mock
-    private EmailService emailService;
     @Mock
     private UserDao userDao;
     @Mock
@@ -31,14 +26,9 @@ class MembershipBeanTest {
     @Mock
     private ProjectMembershipDao projectMemberDao;
     @Mock
-    private ProjectBean projectBean;
-    @Mock
     private ConfigurationBean configurationBean;
     @Mock
-    private SessionBean sessionBean;
-    @Mock
     private NotificationBean notificationBean;
-
     @Mock
     private SecurityContext securityContext;
 

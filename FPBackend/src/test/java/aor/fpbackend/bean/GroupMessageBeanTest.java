@@ -27,22 +27,16 @@ class GroupMessageBeanTest {
 
     @InjectMocks
     private GroupMessageBean groupMessageBean;
-
-    @Mock
-    private UserBean userBean;
-
     @Mock
     private UserDao userDao;
-
+    @Mock
+    private UserBean userBean;
     @Mock
     private GroupMessageDao groupMessageDao;
-
-    @Mock
-    private ProjectMembershipDao projectMemberDao;
-
     @Mock
     private ProjectDao projectDao;
-
+    @Mock
+    private ProjectMembershipDao projectMemberDao;
     @Mock
     private SecurityContext securityContext;
 

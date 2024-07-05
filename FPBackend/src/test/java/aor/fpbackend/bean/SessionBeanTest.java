@@ -44,16 +44,7 @@ class SessionBeanTest {
     private UserDao userDao;
 
     @Mock
-    private RoleDao roleDao;
-
-    @Mock
     private ConfigurationBean configurationBean;
-
-    @Mock
-    private PassEncoder passEncoder;
-
-    @Mock
-    private JwtKeyProvider jwtKeyProvider;
 
     @Mock
     private SecurityContext securityContext;

@@ -36,37 +36,37 @@ import static org.mockito.Mockito.*;
 
 class TaskBeanTest {
 
-    @Mock
-    private TaskDao taskDao;
-
-    @Mock
-    private UserBean userBean;
-
-    @Mock
-    private ProjectDao projectDao;
-
-    @Mock
-    private UserDao userDao;
-
-    @Mock
-    private ProjectBean projectBean;
-
-    @Mock
-    private ProjectMembershipDao projectMemberDao;
-
-    @Mock
-    private NotificationBean notificationBean;
-
     @InjectMocks
     private TaskBean taskBean;
-
+    @Mock
+    private TaskDao taskDao;
+    @Mock
+    private ProjectDao projectDao;
+    @Mock
+    private UserDao userDao;
+    @Mock
+    private UserBean userBean;
+    @Mock
+    private ProjectMembershipDao projectMemberDao;
+    @Mock
+    private NotificationBean notificationBean;
+    @Mock
+    private ProjectBean projectBean;
+    @Mock
     private ProjectEntity projectEntity;
+    @Mock
     private UserEntity userEntity;
+    @Mock
     private TaskEntity taskEntity;
+    @Mock
     private TaskEntity mainTaskEntity;
+    @Mock
     private TaskEntity dependentTaskEntity;
+    @Mock
     private TaskDependencyDto taskDependencyDto;
+    @Mock
     private TaskUpdateDto taskUpdateDto;
+    @Mock
     private SecurityContext securityContext;
 
     @BeforeEach

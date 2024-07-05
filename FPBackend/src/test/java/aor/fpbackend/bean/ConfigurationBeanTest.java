@@ -24,9 +24,6 @@ class ConfigurationBeanTest {
     @Mock
     private ConfigurationDao configurationDao;
 
-    @Mock
-    private Logger logger;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);

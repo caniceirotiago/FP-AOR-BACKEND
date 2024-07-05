@@ -10,9 +10,6 @@ import aor.fpbackend.enums.AssetTypeEnum;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.exception.*;
 import jakarta.ws.rs.core.SecurityContext;
-import jakarta.ws.rs.core.UriInfo;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -22,7 +19,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -46,9 +42,6 @@ class AssetBeanTest {
 
     @Mock
     private SecurityContext securityContext;
-
-    @Mock
-    private Logger logger;
 
     @BeforeEach
     void setUp() {

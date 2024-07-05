@@ -40,12 +40,6 @@ class NotificationBeanTest {
     private UserBean userBean;
 
     @Mock
-    private UserDao userDao;
-
-    @Mock
-    private RoleDao roleDao;
-
-    @Mock
     private SecurityContext securityContext;
 
     @BeforeEach
