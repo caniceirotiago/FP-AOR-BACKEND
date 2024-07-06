@@ -31,10 +31,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.gson.Gson;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @ApplicationScoped
 @ServerEndpoint("/emailChat/{sessionToken}/{receiverId}")
 public class IndividualMessageWebSocket {
+
+    private static final Logger LOGGER = LogManager.getLogger(IndividualMessageWebSocket.class);
     private static final Map<Long, List<Session>> userSessions = new ConcurrentHashMap<>();
     Gson gson = GsonSetup.createGson();
 
@@ -79,14 +83,14 @@ public class IndividualMessageWebSocket {
 
     @OnError
     public void onError(Session session, Throwable throwable) {
-        System.out.println("WebSocket error: " + throwable.getMessage());
+        LOGGER.error("WebSocket error: " + throwable.getMessage());
     }
 
+    //On message receive two types of messages: markAsRead and sendMessage
+    //markAsRead: mark messages as read
+    //sendMessage: persists message in database and sends it to the receiver if the receiver is online
     @OnMessage
     public void onMessage(Session session, String message) {
-        //On message receive two types of messages: markAsRead and sendMessage
-        //markAsRead: mark messages as read
-        //sendMessage: persists message in database and sends it to the receiver if the receiver is online
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
@@ -96,12 +100,12 @@ public class IndividualMessageWebSocket {
                 receiveSendMessage(session, json);
             }
         } catch (Exception e) {
-            System.err.println("Error processing message: " + e.getMessage());
+            LOGGER.error("Error processing message: " + e.getMessage());
         }
     }
 
     public void markAsRead(JsonObject json) throws IOException {
-        JsonElement dataElement = json.get("data");
+        JsonElement dataElement = json.get(QueryParams.DATA);
         Type listType = new TypeToken<List<Long>>() {
         }.getType();
         List<Long> messageIds = gson.fromJson(dataElement, listType);

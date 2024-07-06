@@ -32,7 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @ApplicationScoped
 @ServerEndpoint("/ws/{sessionToken}")
 public class GlobalWebSocket {
-    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(GlobalWebSocket.class);
+    private static final Logger LOGGER = LogManager.getLogger(GlobalWebSocket.class);
 
     private static final ConcurrentHashMap<Long, List<Session>> sessions = new ConcurrentHashMap<>();
     static Gson gson = GsonSetup.createGson();
@@ -71,7 +71,6 @@ public class GlobalWebSocket {
         }
     }
 
-
     @OnClose
     public void onClose(Session session, CloseReason reason) {
         Long userId = (Long) session.getUserProperties().get("userId");
@@ -91,17 +90,16 @@ public class GlobalWebSocket {
         }
     }
 
-
     @OnMessage
     public void onMessage(String message, Session session) {
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
             if (type.equals(WebSocketMessageType.FORCED_LOGOUT_FAILED.toString())) {
-                System.out.println("Forced logout failed for session token: " + session.getQueryString().split("=")[1]);
+                LOGGER.info("Forced logout failed for session token: " + session.getQueryString().split("=")[1]);
             }
         } catch (Exception e) {
-            System.err.println("Error processing message: " + e.getMessage());
+            LOGGER.error("Error processing message: " + e.getMessage());
         }
     }
 
@@ -109,9 +107,7 @@ public class GlobalWebSocket {
         Long userId = sessionEntity.getUser().getId();
         String sessionToken = sessionEntity.getSessionToken();
         List<Session> userSessions = sessions.get(userId);
-        System.out.println("User sessions: " + userSessions);
         if (userSessions != null) {
-            System.out.println("User sessions size: " + userSessions.size());
             Session session = userSessions.stream()
                     .filter(s -> sessionToken.equals(s.getUserProperties().get("token")))
                     .findFirst()
@@ -119,25 +115,22 @@ public class GlobalWebSocket {
 
             if (session != null && session.isOpen()) {
                 try {
-                    System.out.println("Sending forced logout request to session: " + session.getId());
                     String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.FORCED_LOGOUT.toString(), null));
                     session.getBasicRemote().sendText(jsonResponse);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
-                // Se a sessão não estiver aberta ou não for encontrada, desativar sessão
-                System.out.println("Session not found or not open");
+                // If the session is not open or cannot be found, deactivate the session
                 sessionEntity.setActive(false);
                 sessionDao.merge(sessionEntity);
             }
         } else {
-            // Se não houver sessões para o usuário, desativar sessão
+            // If there are no sessions for the user, deactivate session
             sessionEntity.setActive(false);
             sessionDao.merge(sessionEntity);
         }
     }
-
 
     public static void tryToSendNotificationToUserSessions(NotificationGetDto notification) {
         Long userId = notification.getUser().getId();
@@ -153,7 +146,7 @@ public class GlobalWebSocket {
                 }
             }
         } else {
-            System.out.println("No sessions found for user id: " + userId);
+            LOGGER.error("No sessions found for user id: " + userId);
         }
     }
 }
