@@ -26,6 +26,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -38,6 +40,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @ApplicationScoped
 @ServerEndpoint("/groupChat/{sessionToken}/{projectId}")
 public class GroupMessageWebSocket {
+
+    private static final Logger LOGGER = LogManager.getLogger(GroupMessageWebSocket.class);
 
     private static final Map<Long, List<Session>> userSessions = new ConcurrentHashMap<>();
     Gson gson = GsonSetup.createGson();
@@ -84,6 +88,9 @@ public class GroupMessageWebSocket {
         }
     }
 
+    //On message receive two types of messages: markAsRead and newGroupMessage
+    //markAsRead: mark messages as read
+    //newGroupMessage: persists message in database and sends it to the project members if they are online
     @OnMessage
     public void onMessage(Session session, String message) {
         try {
@@ -95,7 +102,7 @@ public class GroupMessageWebSocket {
                 markAsRead(session, json);
             }
         } catch (Exception e) {
-            System.err.println("Error processing message: " + e.getMessage());
+            LOGGER.error("Error processing message: " + e.getMessage());
         }
     }
 
@@ -122,7 +129,7 @@ public class GroupMessageWebSocket {
                         }
                     }
                 } else {
-                    System.out.println("Group session is null or closed");
+                    LOGGER.warn("Group session is null or closed");
                 }
                 if (projectMembers != null || !projectMembers.isEmpty()) {
                     notificationBean.createNotificationForGroupMessage(savedGroupMessage, projectMembers);
