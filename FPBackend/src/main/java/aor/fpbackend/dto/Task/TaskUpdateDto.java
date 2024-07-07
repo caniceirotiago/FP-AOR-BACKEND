@@ -20,7 +20,8 @@ public class TaskUpdateDto implements Serializable {
     private long taskId;
 
     @XmlElement
-    @Size( max = 2048)
+    @NotNull
+    @Size(min = 1, max = 2048, message = "Description must be between 1 and 2048 characters")
     private String description;
 
     @XmlElement
