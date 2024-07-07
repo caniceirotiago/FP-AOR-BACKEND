@@ -129,7 +129,7 @@ public class GroupMessageWebSocket {
                         }
                     }
                 } else {
-                    LOGGER.warn("Group session is null or closed");
+                    System.out.println("Group session is null or closed");
                 }
                 if (projectMembers != null || !projectMembers.isEmpty()) {
                     notificationBean.createNotificationForGroupMessage(savedGroupMessage, projectMembers);

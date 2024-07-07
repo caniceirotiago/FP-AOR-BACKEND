@@ -90,8 +90,8 @@ public class ReportBean implements Serializable {
         for (Object[] result : results) {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
-            Number percentage = (Number) result[2]; // Use Number aqui
-            projectCountDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue())); // Converta para Double
+            Number percentage = (Number) result[2]; // Use Number here
+            projectCountDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue())); // Convert to Double
         }
         return projectCountDtos;
     }
@@ -103,8 +103,8 @@ public class ReportBean implements Serializable {
         for (Object[] result : results) {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
-            Number percentage = (Number) result[2]; // Use Number aqui
-            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue())); // Converta para Double
+            Number percentage = (Number) result[2]; // Use Number here
+            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue())); // Convert to Double
         }
         return projectsByLocationDtos;
     }
