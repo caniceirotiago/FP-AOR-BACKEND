@@ -1,8 +1,8 @@
 package aor.fpbackend.enums;
 
 public enum NotificationTypeENUM {
-    INDIVIDUAL_MESSAGE(1),
-    GROUP_MESSAGE(2),
+    INDIVIDUAL_MESSAGE(0),
+    GROUP_MESSAGE(1),
     PROJECT(3),
     PROJECT_JOIN_REQUEST(4),
     PROJECT_APPROVAL(5),
