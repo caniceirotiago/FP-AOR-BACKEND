@@ -83,7 +83,7 @@ public class IndividualMessageWebSocket {
 
     @OnError
     public void onError(Session session, Throwable throwable) {
-        LOGGER.error("WebSocket error: " + throwable.getMessage());
+        System.out.println("WebSocket error: " + throwable.getMessage());
     }
 
     //On message receive two types of messages: markAsRead and sendMessage
@@ -100,7 +100,7 @@ public class IndividualMessageWebSocket {
                 receiveSendMessage(session, json);
             }
         } catch (Exception e) {
-            LOGGER.error("Error processing message: " + e.getMessage());
+            System.err.println("Error processing message: " + e.getMessage());
         }
     }
 

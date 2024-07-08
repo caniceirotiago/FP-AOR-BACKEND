@@ -88,6 +88,11 @@ public class GroupMessageWebSocket {
         }
     }
 
+    @OnError
+    public void onError(Session session, Throwable throwable) {
+        System.out.println("WebSocket error: " + throwable.getMessage());
+    }
+
     //On message receive two types of messages: markAsRead and newGroupMessage
     //markAsRead: mark messages as read
     //newGroupMessage: persists message in database and sends it to the project members if they are online
@@ -102,7 +107,7 @@ public class GroupMessageWebSocket {
                 markAsRead(session, json);
             }
         } catch (Exception e) {
-            LOGGER.error("Error processing message: " + e.getMessage());
+            System.err.println("Error processing message: " + e.getMessage());
         }
     }
 
