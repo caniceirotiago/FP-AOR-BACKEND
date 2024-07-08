@@ -306,7 +306,7 @@ public class NotificationBean implements Serializable {
     public List<NotificationGetDto> getUnreadNotifications(SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         List<NotificationEntity> notificationsEntety = notificationDao.getUnreadbByUserNotifications(authUserDto.getUserId());
-        return convertEntetiesToDtos(notificationsEntety);
+        return convertEntitiesToDtos(notificationsEntety);
     }
 
     /**
@@ -326,12 +326,12 @@ public class NotificationBean implements Serializable {
     /**
      * Converts a list of NotificationEntity objects to a list of NotificationGetDto objects.
      *
-     * @param notificationsEntety The list of NotificationEntity objects to convert.
+     * @param notificationsEntity The list of NotificationEntity objects to convert.
      * @return The list of NotificationGetDto objects converted from NotificationEntity objects.
      */
-    private List<NotificationGetDto> convertEntetiesToDtos(List<NotificationEntity> notificationsEntety) {
+    private List<NotificationGetDto> convertEntitiesToDtos(List<NotificationEntity> notificationsEntity) {
         List<NotificationGetDto> notificationGetDtos = new ArrayList<>();
-        for (NotificationEntity notificationEntity : notificationsEntety) {
+        for (NotificationEntity notificationEntity : notificationsEntity) {
             NotificationGetDto newDto = convertEntityToDto(notificationEntity);
             notificationGetDtos.add(newDto);
         }
@@ -374,7 +374,7 @@ public class NotificationBean implements Serializable {
      * @param projectMembers     The list of project members to receive the notification.
      * @throws UnknownHostException If there is an issue with host resolution.
      */
-    public void createNotificationForGroupMessage(GroupMessageEntity groupMessageEntity, List<UserEntity> projectMembers) throws UnknownHostException {
+    public void createNotificationForGroupMessage(GroupMessageEntity groupMessageEntity, List<UserEntity> projectMembers) {
         if (projectMembers == null) {
             throw new IllegalArgumentException("Project members list is null");
         }

@@ -96,10 +96,10 @@ public class GlobalWebSocket {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String type = json.get(QueryParams.TYPE).getAsString();
             if (type.equals(WebSocketMessageType.FORCED_LOGOUT_FAILED.toString())) {
-                LOGGER.info("Forced logout failed for session token: " + session.getQueryString().split("=")[1]);
+                System.out.println("Forced logout failed for session token: " + session.getQueryString().split("=")[1]);
             }
         } catch (Exception e) {
-            LOGGER.error("Error processing message: " + e.getMessage());
+            System.err.println("Error processing message: " + e.getMessage());
         }
     }
 
@@ -107,7 +107,9 @@ public class GlobalWebSocket {
         Long userId = sessionEntity.getUser().getId();
         String sessionToken = sessionEntity.getSessionToken();
         List<Session> userSessions = sessions.get(userId);
+        System.out.println("User sessions: " + userSessions);
         if (userSessions != null) {
+            System.out.println("User sessions size: " + userSessions.size());
             Session session = userSessions.stream()
                     .filter(s -> sessionToken.equals(s.getUserProperties().get("token")))
                     .findFirst()
@@ -115,6 +117,7 @@ public class GlobalWebSocket {
 
             if (session != null && session.isOpen()) {
                 try {
+                    System.out.println("Sending forced logout request to session: " + session.getId());
                     String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.FORCED_LOGOUT.toString(), null));
                     session.getBasicRemote().sendText(jsonResponse);
                 } catch (IOException e) {
@@ -127,6 +130,7 @@ public class GlobalWebSocket {
             }
         } else {
             // If there are no sessions for the user, deactivate session
+            System.out.println("Session not found or not open");
             sessionEntity.setActive(false);
             sessionDao.merge(sessionEntity);
         }
@@ -146,7 +150,7 @@ public class GlobalWebSocket {
                 }
             }
         } else {
-            LOGGER.error("No sessions found for user id: " + userId);
+            System.out.println("No sessions found for user id: " + userId);
         }
     }
 }

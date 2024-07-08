@@ -4,6 +4,7 @@ import aor.fpbackend.enums.TaskStateEnum;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -22,11 +23,13 @@ public class TaskDetailedUpdateDto implements Serializable {
 
     @XmlElement
     @NotNull
-    @Size(min = 1, max = 25)
+    @Size(min = 2, max = 25, message = "Title must be between 2 and 25 characters")
+    @Pattern(regexp = "^[a-zA-Z].*", message = "Title must start with a letter")
     private String title;
 
     @XmlElement
-    @Size(max = 2048)
+    @NotNull
+    @Size(min = 1, max = 2048, message = "Description must be between 1 and 2048 characters")
     private String description;
 
     @XmlElement
@@ -44,6 +47,7 @@ public class TaskDetailedUpdateDto implements Serializable {
 
     @XmlElement
     @NotNull
+    @Min(value = 1, message = "ID must be greater than 0")
     private long responsibleUserId;
 
     @XmlElement
@@ -52,9 +56,9 @@ public class TaskDetailedUpdateDto implements Serializable {
     @XmlElement
     @Size(max = 2048)
     private String nonRegisteredExecutors;
+
     @XmlElement
     private boolean isDeleted;
-
 
 
     public TaskDetailedUpdateDto() {

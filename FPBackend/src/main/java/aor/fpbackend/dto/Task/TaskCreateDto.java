@@ -20,7 +20,7 @@ public class TaskCreateDto implements Serializable {
 
     @XmlElement
     @NotNull
-    @Size(min = 1, max = 2048, message = "Motivation must be between 1 and 2048 characters")
+    @Size(min = 1, max = 2048, message = "Description must be between 1 and 2048 characters")
     private String description;
 
     @XmlElement
