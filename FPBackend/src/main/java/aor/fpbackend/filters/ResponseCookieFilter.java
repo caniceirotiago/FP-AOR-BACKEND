@@ -49,8 +49,8 @@ public class ResponseCookieFilter implements ContainerResponseFilter {
         String newAuthToken = (String) requestContext.getProperty("newAuthToken");
         String newSessionToken = (String) requestContext.getProperty("newSessionToken");
         if (newAuthToken != null) {
-            NewCookie newAuthCookie = new NewCookie("authToken", newAuthToken, "/", null, "Auth Token", 3600, false, true);
-            NewCookie newSessionCookie = new NewCookie("sessionToken", newSessionToken, "/", null, "Session Token", 3600, false, false);
+            NewCookie newAuthCookie = new NewCookie("authToken", newAuthToken, "/", null, "Auth Token", 3600, true, true);
+            NewCookie newSessionCookie = new NewCookie("sessionToken", newSessionToken, "/", null, "Session Token", 3600, true, false);
             responseContext.getHeaders().add("Set-Cookie", newAuthCookie.toString());
             responseContext.getHeaders().add("Set-Cookie", newSessionCookie.toString());
         }

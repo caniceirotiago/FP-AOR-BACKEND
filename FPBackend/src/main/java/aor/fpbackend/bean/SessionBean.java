@@ -124,9 +124,9 @@ public class SessionBean implements Serializable {
             String authToken = generateJwtToken(userEntity, definedTimeOut, "auth");
             int cookieExpiration = (int) Duration.ofMillis(definedTimeOut).getSeconds();
 
-            NewCookie authCookie = new NewCookie("authToken", authToken, "/", null, "Auth Token", cookieExpiration, false, true);
+            NewCookie authCookie = new NewCookie("authToken", authToken, "/", null, "Auth Token", cookieExpiration, true, true);
             String sessionToken = generateJwtToken(userEntity, definedTimeOut, "session");
-            NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", cookieExpiration, false, false);
+            NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", cookieExpiration, true, false);
 
             sessionDao.persist(new SessionEntity(authToken, sessionToken, expirationInstant, userEntity));
             LOGGER.info("Successful login new session created");
