@@ -22,8 +22,8 @@ public class GroupMessageEntity extends MessageEntity implements Serializable {
     @JoinColumn(name = "group_id", nullable = false)
     private ProjectEntity group;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private Set<NotificationEntity> notifications= new HashSet<>();
+    @OneToMany(mappedBy = "groupMessage", fetch = FetchType.LAZY)
+    private Set<NotificationEntity> notifications = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
