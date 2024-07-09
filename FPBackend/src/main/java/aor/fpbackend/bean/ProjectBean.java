@@ -150,7 +150,7 @@ public class ProjectBean implements Serializable {
             addRelationsToProject(projectCreateDto, persistedProject, user);
 
             String content = "Creation of " + projectEntity.getName();
-            createProjectLog(projectEntity, user, LogTypeEnum.GENERAL_PROJECT_DATA, content);
+            createProjectLog(projectEntity, user, LogTypeEnum.PROJECT_DATA, content);
 
             LOGGER.info("Project created successfully: {}", projectCreateDto.getName());
         } catch (PersistenceException e) {
@@ -471,7 +471,7 @@ public class ProjectBean implements Serializable {
                 comment = "Rejected with justification: " + projectApproveDto.getComment();
                 LOGGER.info("Project with ID: {} rejected by user: {}", projectApproveDto.getProjectId(), userEntity.getUsername());
             }
-            createProjectLog(projectEntity, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, comment);
+            createProjectLog(projectEntity, userEntity, LogTypeEnum.PROJECT_DATA, comment);
             notificationBean.createNotificationProjectApprovalSendAllMembers(projectEntity, userEntity, projectApproveDto.isConfirm());
         } catch (Exception e) {
             LOGGER.error("Error approving project with ID: {}: {}", projectApproveDto.getProjectId(), e.getMessage());
@@ -568,7 +568,7 @@ public class ProjectBean implements Serializable {
         try {
             projectMembershipEntity.setRole(projectRoleUpdateDto.getNewRole());
             projectMemberDao.merge(projectMembershipEntity);
-            String content = "User " + userEntity.getUsername() + " has new project role: " + projectRoleUpdateDto.getNewRole();
+            String content = "User: " + userEntity.getUsername() + " has new project role: " + projectRoleUpdateDto.getNewRole();
             createProjectLog(projectEntity, authUserEntity, LogTypeEnum.PROJECT_MEMBERS, content);
         } catch (PersistenceException e) {
             LOGGER.error("Error updating project membership role: {}", e.getMessage());
@@ -714,30 +714,30 @@ public class ProjectBean implements Serializable {
      */
     private void compareAndLogChanges(ProjectEntity oldProject, ProjectEntity newProject, UserEntity userEntity) {
         if (!Objects.equals(oldProject.getName(), newProject.getName())) {
-            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Name", oldProject.getName(), newProject.getName());
-            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+            String logContent = String.format("'%s' changed from '%s' to '%s'", "Name", oldProject.getName(), newProject.getName());
+            createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getDescription(), newProject.getDescription())) {
-            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Description", oldProject.getDescription(), newProject.getDescription());
-            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+            String logContent = String.format("'%s' changed from '%s' to '%s'", "Description", oldProject.getDescription(), newProject.getDescription());
+            createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getMotivation(), newProject.getMotivation())) {
-            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Motivation", oldProject.getMotivation(), newProject.getMotivation());
-            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+            String logContent = String.format("'%s' changed from '%s' to '%s'", "Motivation", oldProject.getMotivation(), newProject.getMotivation());
+            createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getConclusionDate(), newProject.getConclusionDate())) {
             String oldConclusionDate = oldProject.getConclusionDate() != null ? oldProject.getConclusionDate().toString() : "null";
             String newConclusionDate = newProject.getConclusionDate() != null ? newProject.getConclusionDate().toString() : "null";
-            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Conclusion Date", oldConclusionDate, newConclusionDate);
-            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+            String logContent = String.format("'%s' changed from '%s' to '%s'", "Conclusion Date", oldConclusionDate, newConclusionDate);
+            createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getLaboratory().getId(), newProject.getLaboratory().getId())) {
-            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "Laboratory", oldProject.getLaboratory().getLocation(), newProject.getLaboratory().getLocation());
-            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+            String logContent = String.format("'%s' changed from '%s' to '%s'", "Laboratory", oldProject.getLaboratory().getLocation(), newProject.getLaboratory().getLocation());
+            createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getState(), newProject.getState())) {
-            String logContent = String.format("Attribute '%s' changed from '%s' to '%s'", "State", oldProject.getState(), newProject.getState());
-            createProjectLog(newProject, userEntity, LogTypeEnum.GENERAL_PROJECT_DATA, logContent);
+            String logContent = String.format("'%s' changed from '%s' to '%s'", "State", oldProject.getState(), newProject.getState());
+            createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
     }
 
@@ -754,6 +754,16 @@ public class ProjectBean implements Serializable {
         return projectDao.getAllProjectsIds();
     }
 
+
+    /**
+     * Creates a project log entry for the given project, user, log type, and content.
+     *
+     * @param projectEntity The project entity for which the log is created.
+     * @param userEntity    The user entity who performed the action.
+     * @param type          The type of the log entry (e.g., automatic, manual).
+     * @param content       The content or description of the log entry.
+     * @throws PersistenceException If there is an error while persisting the log entity.
+     */
     @Transactional
     public void createProjectLog(ProjectEntity projectEntity, UserEntity userEntity, LogTypeEnum type, String content)  {
         try{
@@ -774,6 +784,44 @@ public class ProjectBean implements Serializable {
         }
     }
 
+    /**
+     * Creates a manual project log entry for the given project ID, log details, and authenticated user.
+     *
+     * @param projectId          The ID of the project for which the log is created.
+     * @param createProjectLogDto The DTO containing details for creating the project log.
+     * @param securityContext    The security context containing the authenticated user information.
+     * @throws EntityNotFoundException If the project or authenticated user cannot be found.
+     * @throws PersistenceException    If there is an error while persisting the log entity.
+     */
+    public void createManualProjectLog(long projectId, ProjectLogCreateDto createProjectLogDto,SecurityContext securityContext) throws EntityNotFoundException {
+        // Get the project by Id
+        ProjectEntity projectEntity = projectDao.findProjectById(projectId);
+        if (projectEntity==null){
+            throw new EntityNotFoundException("Project not found with this Id");
+        }
+        // Get the authenticated user
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
+        if (authUserEntity == null) {
+            throw new EntityNotFoundException("User not found");
+        }
+        try{
+            ProjectLogEntity projectLogEntity = new ProjectLogEntity();
+            projectLogEntity.setProject(projectEntity);
+            projectLogEntity.setUser(authUserEntity);
+            projectLogEntity.setCreationDate(Instant.now());
+            projectLogEntity.setType(LogTypeEnum.MANUAL_ENTRY);
+            projectLogEntity.setContent(createProjectLogDto.getContent());
+            projectLogDao.persist(projectLogEntity);
+            projectEntity.getProjectLogs().add(projectLogEntity);
+            LOGGER.info("Project log created successfully: {}", createProjectLogDto.getContent());
+        } catch (PersistenceException e) {
+            LOGGER.error("Error creating project log: {}", e.getMessage());
+            throw new PersistenceException("Error creating project log");
+        } finally {
+            ThreadContext.clearMap();
+        }
+    }
 
     /**
      * Converts a ProjectEntity object to a ProjectGetDto object.

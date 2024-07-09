@@ -236,7 +236,7 @@ public class TaskBean implements Serializable {
         try {
             taskDao.persist(taskEntity);
             taskResponsible.getResponsibleTasks().add(taskEntity);
-            notificationBean.createNotificationMarkesAsResponsibleInNewTask(taskResponsible, taskEntity);
+            notificationBean.createNotificationMarksAsResponsibleInNewTask(taskResponsible, taskEntity);
             LOGGER.info("Task entity persisted successfully: " + taskEntity.getTitle() + "on project: " + projectEntity.getName());
         } catch (PersistenceException e) {
             LOGGER.error("Error while persisting task entity: {}", e.getMessage());
@@ -683,11 +683,11 @@ public class TaskBean implements Serializable {
      */
     private void notifyChanges(TaskEntity taskEntity, UserEntity newResponsibleUser, Set<UserEntity> newRegisteredExecutors) throws UnknownHostException {
         if (taskEntity.getResponsibleUser().getId() != newResponsibleUser.getId()) {
-            notificationBean.createNotificationMarkesAsResponsibleInNewTask(newResponsibleUser, taskEntity);
+            notificationBean.createNotificationMarksAsResponsibleInNewTask(newResponsibleUser, taskEntity);
         }
         for (UserEntity newExecutor : newRegisteredExecutors) {
             if (!taskEntity.getRegisteredExecutors().contains(newExecutor)) {
-                notificationBean.createNotificationMarkesAsExecutorInNewTask(newExecutor, taskEntity);
+                notificationBean.createNotificationMarksAsExecutorInNewTask(newExecutor, taskEntity);
             }
         }
     }

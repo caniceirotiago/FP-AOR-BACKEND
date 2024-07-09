@@ -51,7 +51,7 @@ public class TaskDao extends AbstractDao<TaskEntity> {
     }
 
     public List<TaskEntity> getTasksByProjectId(long projectId) {
-        TypedQuery<TaskEntity> query = em.createQuery("SELECT t FROM TaskEntity t JOIN t.project p WHERE p.id = :projectId ORDER BY t.creationDate", TaskEntity.class);
+        TypedQuery<TaskEntity> query = em.createQuery("SELECT t FROM TaskEntity t JOIN t.project p WHERE p.id = :projectId ORDER BY t.plannedStartDate", TaskEntity.class);
         query.setParameter("projectId", projectId);
         return query.getResultList();
     }

@@ -91,6 +91,14 @@ public class ProjectService {
         return projectBean.getListProjectLogs(projectId);
     }
 
+    @POST
+    @Path("/logs/create/{projectId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RequiresProjectMemberPermission()
+    public void createProjectLog(@PathParam("projectId") long projectId, @Valid ProjectLogCreateDto createProjectLogDto, @Context SecurityContext securityContext) throws EntityNotFoundException {
+        projectBean.createManualProjectLog(projectId, createProjectLogDto, securityContext);
+    }
+
     @PUT
     @Path("/approve")
     @Consumes(MediaType.APPLICATION_JSON)
