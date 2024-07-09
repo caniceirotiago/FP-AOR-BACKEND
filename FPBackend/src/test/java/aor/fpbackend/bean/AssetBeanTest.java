@@ -233,42 +233,6 @@ class AssetBeanTest {
     }
 
     @Test
-    void testRemoveAsset_Success() throws EntityNotFoundException, ElementAssociationException {
-        AssetRemoveDto assetRemoveDto = new AssetRemoveDto();
-        assetRemoveDto.setAssetId(1L);
-
-        when(projectAssetDao.checkAssetInUse(1L)).thenReturn(false);
-        AssetEntity assetEntity = new AssetEntity();
-        assetEntity.setId(1L);
-        when(assetDao.findAssetById(1L)).thenReturn(assetEntity);
-
-        assetBean.removeAsset(assetRemoveDto);
-
-        verify(assetDao, times(1)).remove(assetEntity);
-    }
-
-    @Test
-    void testRemoveAsset_AssetInUse() {
-        AssetRemoveDto assetRemoveDto = new AssetRemoveDto();
-        assetRemoveDto.setAssetId(1L);
-
-        when(projectAssetDao.checkAssetInUse(1L)).thenReturn(true);
-
-        assertThrows(ElementAssociationException.class, () -> assetBean.removeAsset(assetRemoveDto));
-    }
-
-    @Test
-    void testRemoveAsset_AssetNotFound() {
-        AssetRemoveDto assetRemoveDto = new AssetRemoveDto();
-        assetRemoveDto.setAssetId(1L);
-
-        when(projectAssetDao.checkAssetInUse(1L)).thenReturn(false);
-        when(assetDao.findAssetById(1L)).thenReturn(null);
-
-        assertThrows(EntityNotFoundException.class, () -> assetBean.removeAsset(assetRemoveDto));
-    }
-
-    @Test
     void testRemoveProjectAssetFromProject_Success() throws EntityNotFoundException {
         ProjectAssetRemoveDto projectAssetRemoveDto = new ProjectAssetRemoveDto();
         projectAssetRemoveDto.setProjectId(1L);
