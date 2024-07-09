@@ -95,6 +95,7 @@ public class InterestBean implements Serializable {
         } else {
             LOGGER.info("Interest already exists: '{}'", name);
         }
+        ThreadContext.clearAll();
     }
 
     /**
@@ -147,6 +148,7 @@ public class InterestBean implements Serializable {
             return new ArrayList<>();
         }
         try {
+            // Convert first letter to lowercase for case-insensitive comparison
             String lowerCaseFirstLetter = firstLetter.toLowerCase();
             List<InterestEntity> interestEntities = interestDao.getInterestsByFirstLetter(lowerCaseFirstLetter);
             List<InterestGetDto> interestDtos = convertInterestEntityListToInterestDtoList(interestEntities);
@@ -197,7 +199,7 @@ public class InterestBean implements Serializable {
         if (userEntity == null) {
             throw new UserNotFoundException("User not found");
         }
-        // Find the interest by name
+        // Find the interest by Id
         InterestEntity interestEntity = interestDao.findInterestById(interestRemoveDto.getId());
         if (interestEntity == null) {
             throw new EntityNotFoundException("Interest not found");

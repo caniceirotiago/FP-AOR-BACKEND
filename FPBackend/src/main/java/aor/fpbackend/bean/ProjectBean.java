@@ -161,15 +161,36 @@ public class ProjectBean implements Serializable {
         }
     }
 
+    /**
+     * Validates the ProjectCreateDto object.
+     *
+     * This method checks if the conclusion date is in the future and if at least one keyword is defined.
+     * If any of these validations fail, an InputValidationException is thrown.
+     *
+     * @param projectCreateDto the DTO object containing project creation details
+     * @throws InputValidationException if the conclusion date is in the past or no keywords are defined
+     */
     private void validateProjectCreateDto(ProjectCreateDto projectCreateDto) throws InputValidationException {
+        // Check if the conclusion date is not null and is not in the past
         if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
             throw new InputValidationException("Choose a conclusion date that is at least one day later than today.");
         }
+        // Check if the keywords are null or empty
         if (projectCreateDto.getKeywords() == null || projectCreateDto.getKeywords().isEmpty()) {
             throw new InputValidationException("Define at least one keyword");
         }
     }
 
+    /**
+     * Retrieves a UserEntity by user ID.
+     *
+     * This method retrieves the user entity from the database using the provided user ID.
+     * If the user is not found, a UserNotFoundException is thrown.
+     *
+     * @param userId the ID of the user to retrieve
+     * @return the UserEntity corresponding to the provided user ID
+     * @throws UserNotFoundException if the user is not found
+     */
     private UserEntity getUserById(Long userId) throws UserNotFoundException {
         UserEntity user = userDao.findUserById(userId);
         if (user == null) {
@@ -178,6 +199,16 @@ public class ProjectBean implements Serializable {
         return user;
     }
 
+    /**
+     * Retrieves a LaboratoryEntity by laboratory ID.
+     *
+     * This method retrieves the laboratory entity from the database using the provided laboratory ID.
+     * If the laboratory is not found, an EntityNotFoundException is thrown.
+     *
+     * @param laboratoryId the ID of the laboratory to retrieve
+     * @return the LaboratoryEntity corresponding to the provided laboratory ID
+     * @throws EntityNotFoundException if the laboratory is not found
+     */
     private LaboratoryEntity getLaboratoryById(Long laboratoryId) throws EntityNotFoundException {
         LaboratoryEntity laboratoryEntity = labDao.findLaboratoryById(laboratoryId);
         if (laboratoryEntity == null) {
@@ -186,6 +217,17 @@ public class ProjectBean implements Serializable {
         return laboratoryEntity;
     }
 
+    /**
+     * Populates a ProjectEntity with details from a ProjectCreateDto.
+     *
+     * This method maps the properties from the ProjectCreateDto to the ProjectEntity.
+     * It also sets additional properties such as the laboratory, creator, state, creation date, and approval status.
+     *
+     * @param projectCreateDto the DTO object containing project creation details
+     * @param projectEntity the entity object to populate with the DTO details
+     * @param user the user entity representing the creator of the project
+     * @param laboratoryEntity the laboratory entity associated with the project
+     */
     private void populateProjectEntity(ProjectCreateDto projectCreateDto, ProjectEntity projectEntity,
                                        UserEntity user, LaboratoryEntity laboratoryEntity) {
         projectEntity.setName(projectCreateDto.getName());
@@ -193,12 +235,15 @@ public class ProjectBean implements Serializable {
         projectEntity.setMotivation(projectCreateDto.getMotivation());
         projectEntity.setConclusionDate(projectCreateDto.getConclusionDate());
         projectEntity.setLaboratory(laboratoryEntity);
+        // Set the user who created the project
         projectEntity.setCreatedBy(user);
+        // Set the initial state of the project to PLANNING
         projectEntity.setState(ProjectStateEnum.PLANNING);
+        // Set the creation date of the project to the current time
         projectEntity.setCreationDate(Instant.now());
+        // Set the project as not approved initially
         projectEntity.setApproved(false);
     }
-
 
     /**
      * Adds various relations (users, skills, keywords, assets) to the newly created project.
@@ -299,7 +344,6 @@ public class ProjectBean implements Serializable {
         }
     }
 
-
     /**
      * Retrieves the details of a specific project by its ID.
      * <p>
@@ -334,7 +378,6 @@ public class ProjectBean implements Serializable {
         }
     }
 
-
     /**
      * Retrieves a list of all possible project states.
      * <p>
@@ -361,7 +404,6 @@ public class ProjectBean implements Serializable {
         }
     }
 
-
     /**
      * Retrieves a list of all possible project roles.
      * <p>
@@ -387,7 +429,6 @@ public class ProjectBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Retrieves a list of project logs for a specific project.
@@ -425,7 +466,6 @@ public class ProjectBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Approves or rejects a project based on the provided approval DTO.
@@ -481,7 +521,6 @@ public class ProjectBean implements Serializable {
         }
     }
 
-
     /**
      * Retrieves a paginated list of filtered projects based on the given page number, page size, and filter criteria.
      * <p>
@@ -517,7 +556,6 @@ public class ProjectBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Updates the role of a project member.
@@ -577,7 +615,6 @@ public class ProjectBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Updates the details of an existing project.
@@ -677,7 +714,6 @@ public class ProjectBean implements Serializable {
         compareAndLogChanges(originalProject, projectEntity, userEntity);
     }
 
-
     /**
      * Creates a copy of the given ProjectEntity.
      * <p>
@@ -698,7 +734,6 @@ public class ProjectBean implements Serializable {
         originalProject.setState(projectEntity.getState());
         return originalProject;
     }
-
 
     /**
      * Compares the attributes of the old and new project entities and logs any changes.
@@ -753,7 +788,6 @@ public class ProjectBean implements Serializable {
     public List<Long> getAllProjectsIds() {
         return projectDao.getAllProjectsIds();
     }
-
 
     /**
      * Creates a project log entry for the given project, user, log type, and content.
@@ -852,7 +886,6 @@ public class ProjectBean implements Serializable {
         return projectGetDto;
     }
 
-
     /**
      * Converts a list of ProjectEntity objects to a list of ProjectGetDto objects.
      * <p>
@@ -872,7 +905,6 @@ public class ProjectBean implements Serializable {
         }
         return projectGetDtos;
     }
-
 
     /**
      * Converts a ProjectMembershipEntity object to a ProjectMembershipDto object.
@@ -896,7 +928,6 @@ public class ProjectBean implements Serializable {
         projectMembershipDto.setUser(userBean.convertUserEntitytoUserBasicInfoDto(projectMembershipEntity.getUser()));
         return projectMembershipDto;
     }
-
 
     /**
      * Converts a Set of ProjectMembershipEntity objects to an ArrayList of ProjectMembershipDto objects.

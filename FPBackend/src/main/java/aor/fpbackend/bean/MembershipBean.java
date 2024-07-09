@@ -113,7 +113,6 @@ public class MembershipBean implements Serializable {
         }
     }
 
-
     /**
      * Confirms or rejects a user's request to join a project based on a provided token.
      *
@@ -158,7 +157,6 @@ public class MembershipBean implements Serializable {
         } finally {
             ThreadContext.clearAll();
         }
-
     }
 
     /**
@@ -183,7 +181,6 @@ public class MembershipBean implements Serializable {
         }
     }
 
-
     /**
      * Adds a user to a project, either directly or via an invite, and creates the necessary notifications and logs.
      *
@@ -199,6 +196,7 @@ public class MembershipBean implements Serializable {
      */
     @Transactional
     public void addUserToProject(String username, long projectId, boolean createHasAccepted, boolean isTheCreator, UserEntity authUser) throws EntityNotFoundException, UnknownHostException, ElementAssociationException {
+        // Retrieve the project entity by ID
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
@@ -208,36 +206,48 @@ public class MembershipBean implements Serializable {
         if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
             throw new ElementAssociationException("Project is not editable anymore");
         }
+        // Retrieve the user entity by username
         UserEntity userEntity = userDao.findUserByUsername(username);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
         }
+        // Check if the project has reached its member limit
         int maxProjectElements = configurationBean.getConfigValueByKey("maxProjectMembers");
         if (projectEntity.getMembers().size() >= maxProjectElements) {
             throw new IllegalStateException("Project member's limit is reached");
         }
+        // Check if the user is already a member of the project
         if (projectDao.isProjectMember(projectId, userEntity.getId())) {
             throw new IllegalStateException("User is already a member of the project");
         }
         try {
+            // Create a new ProjectMembershipEntity
             ProjectMembershipEntity membershipEntity = new ProjectMembershipEntity();
             membershipEntity.setUser(userEntity);
             membershipEntity.setProject(projectEntity);
+            // As default define the roles for the creator of the project and for the other members
             if (isTheCreator) {
                 membershipEntity.setRole(ProjectRoleEnum.PROJECT_MANAGER);
             } else {
                 membershipEntity.setRole(ProjectRoleEnum.NORMAL_USER);
             }
             membershipEntity.setAccepted(createHasAccepted);
+            // If the user has not accepted, generate an acceptance token
             if (!createHasAccepted) {
                 String acceptanceToken = sessionBean.generateNewToken();
                 membershipEntity.setAcceptanceToken(acceptanceToken);
             }
+            // Persist the membership entity and update the user and project entities
             projectMemberDao.persist(membershipEntity);
             userEntity.getProjects().add(membershipEntity);
             projectEntity.getMembers().add(membershipEntity);
-            if (!createHasAccepted) sendInviteToUser(membershipEntity, userEntity, projectEntity);
-            else notificationBean.createNotificationForUserAutomaticallyAddedToProject(membershipEntity);
+            // Send an invite or create a notification based on the acceptance status
+            if (!createHasAccepted) {
+                sendInviteToUser(membershipEntity, userEntity, projectEntity);
+            } else {
+                notificationBean.createNotificationForUserAutomaticallyAddedToProject(membershipEntity);
+            }
+            // Log the addition of the user to the project if the user added is different from the authenticated user
             if (!userEntity.getUsername().equals(authUser.getUsername())) {
                 String content = "User: " + userEntity.getUsername() + " added to project";
                 projectBean.createProjectLog(projectEntity, authUser, LogTypeEnum.PROJECT_MEMBERS, content);
@@ -258,29 +268,38 @@ public class MembershipBean implements Serializable {
      * @param token   the acceptance token associated with the project invite
      * @param approve flag indicating whether the invite is approved or not
      * @throws EntityNotFoundException if the project membership is not found
-     * @throws UnknownHostException    if an error occurs during notification creation
      */
-    public void acceptProjectInvite(String token, boolean approve) throws EntityNotFoundException, UnknownHostException {
+    public void acceptProjectInvite(String token, boolean approve) throws EntityNotFoundException {
         if (token == null) {
             throw new EntityNotFoundException("Project membership not found");
         }
+        // Retrieve the project membership entity using the acceptance token
         ProjectMembershipEntity membershipEntity = projectMemberDao.findProjectMembershipByAcceptanceToken(token);
         if (membershipEntity == null) {
             throw new EntityNotFoundException("Project membership not found");
         }
         try {
+            // If the user approves the invite
             if (approve) {
+                // Mark the membership as accepted and clear the acceptance token
                 membershipEntity.setAccepted(true);
                 membershipEntity.setAcceptanceToken(null);
+                // Create content for logging
                 String content = "User " + membershipEntity.getUser().getUsername() + ", accepted become project member";
-                notificationBean.createNotificationForProjectManagersKnowUserApproval(membershipEntity, true);
                 projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
+                // Notify project managers of the user's approval
+                notificationBean.createNotificationForProjectManagersKnowUserApproval(membershipEntity, true);
+                // Log the user's approval
                 LOGGER.info("User " + membershipEntity.getUser().getUsername() + " accepted to become project member");
             } else {
+                // If the user rejects the invite, create content for logging
                 String content = "User " + membershipEntity.getUser().getUsername() + ", refused become project member";
-                notificationBean.createNotificationForProjectManagersKnowUserApproval(membershipEntity, false);
                 projectBean.createProjectLog(membershipEntity.getProject(), membershipEntity.getUser(), LogTypeEnum.PROJECT_MEMBERS, content);
+                // Notify project managers of the user's rejection
+                notificationBean.createNotificationForProjectManagersKnowUserApproval(membershipEntity, false);
+                // Remove the membership entity from the database
                 projectMemberDao.remove(membershipEntity);
+                // Log the rejection action
                 LOGGER.info("User " + membershipEntity.getUser().getUsername() + " refused to become project member");
             }
         } catch (Exception e) {
