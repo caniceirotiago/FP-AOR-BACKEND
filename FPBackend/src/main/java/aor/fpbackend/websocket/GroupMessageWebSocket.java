@@ -31,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,6 +67,7 @@ public class GroupMessageWebSocket {
                 session.getUserProperties().put("userId", user.getUserId());
                 session.getUserProperties().put("token", sessionToken);
                 userSessions.computeIfAbsent(projectId, k -> new CopyOnWriteArrayList<>()).add(session);
+                System.out.println("Session opened: " + session.getId() + " for user: " + user.getUserId() + " in project: " + projectId);
             } else {
                 session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized"));
             }
@@ -121,14 +123,16 @@ public class GroupMessageWebSocket {
             if (savedGroupMessage != null) {
                 String jsonResponse = gson.toJson(new WebSocketMessageDto(WebSocketMessageType.NEW_GROUP_MESSAGE.toString(), savedGroupMessageGetDto));
                 List<Session> groupSessions = userSessions.get(savedGroupMessage.getGroup().getId());
-                List<UserEntity> projectMembers = projectMembershipDao.findProjectMembersByProjectId(savedGroupMessage.getGroup().getId());
+                List<UserEntity> projectMembers = projectMembershipDao.findProjectActiveMembersByProjectId(savedGroupMessage.getGroup().getId());
                 if (groupSessions != null && !groupSessions.isEmpty()) {
                     for (Session groupSession : groupSessions) {
                         if (groupSession.isOpen() && groupSession.getUserProperties().get("projectId").equals(savedGroupMessageGetDto.getGroupId())) {
                             groupSession.getBasicRemote().sendText(jsonResponse);
-                            for (UserEntity projectMember : projectMembers) {
+                            Iterator<UserEntity> iterator = projectMembers.iterator();
+                            while (iterator.hasNext()) {
+                                UserEntity projectMember = iterator.next();
                                 if (projectMember.getId() == (long) groupSession.getUserProperties().get("userId")) {
-                                    projectMembers.remove(projectMember);
+                                    iterator.remove();
                                 }
                             }
                         }

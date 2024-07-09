@@ -44,7 +44,7 @@ public class EmailService {
                     + "<h1>Confirm Your Account</h1>"
                     + "<p>Thank you for registering. Please click the button below to activate your account:</p>"
                     + "<table cellspacing=\"0\" cellpadding=\"0\"><tr><td>"
-                    + "<a href='http://localhost:3000/confirm?token=" + confirmationToken + "' style='background-color:#007bff;border:1px solid #007bff;border-radius:5px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;line-height:44px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;mso-hide:all;'>Confirm Account</a>"
+                    + "<a href='https://localhost:3000/confirm?token=" + confirmationToken + "' style='background-color:#007bff;border:1px solid #007bff;border-radius:5px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;line-height:44px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;mso-hide:all;'>Confirm Account</a>"
                     + "</td></tr></table>"
                     + "</body></html>";
             message.setContent(confirmButton, "text/html; charset=utf-8");
@@ -72,7 +72,7 @@ public class EmailService {
             message.setFrom(new InternetAddress("antnestservice@gmail.com")); // Sender e-mail
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // Receiver e-mail
             message.setSubject("Reset Password"); // E-mail subject
-            String resetUrl = "http://localhost:3000/reset-password?token=" + resetToken;
+            String resetUrl = "https://localhost:3000/reset-password?token=" + resetToken;
             String resetButton = "<html><body>"
                     + "<h1>Reset Your Password</h1>"
                     + "<p>You have requested to reset your password. Please click the button below to create a new password:</p>"
@@ -103,8 +103,8 @@ public class EmailService {
             message.setFrom(new InternetAddress("antnestservice@gmail.com")); // Sender e-mail
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // Receiver e-mail
             message.setSubject("Project Membership Invitation"); // E-mail subject
-            String acceptUrl = "http://localhost:3000/accept/project?token=" + acceptanceToken + "&approve=true";
-            String rejectUrl = "http://localhost:3000/accept/project?token=" + acceptanceToken + "&approve=false";
+            String acceptUrl = "https://localhost:3000/accept/project?token=" + acceptanceToken + "&approve=true";
+            String rejectUrl = "https://localhost:3000/accept/project?token=" + acceptanceToken + "&approve=false";
             String emailContent = "<html><body>"
                     + "<h1>Project Invitation</h1>"
                     + "<p>You have been invited to join the project: " + projectName + ". Please click one of the buttons below to accept or reject the invitation:</p>"
@@ -140,8 +140,8 @@ public class EmailService {
             message.setFrom(new InternetAddress("antnestservice@gmail.com")); // Sender e-mail
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(approverEmail)); // Receiver e-mail
             message.setSubject(username + " asked to join to " + projectName + " project! "); // E-mail subject
-            String acceptUrl = "http://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=true&approver=" + approverUsername;
-            String rejectUrl = "http://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=false&approver=" + approverUsername;
+            String acceptUrl = "https://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=true&approver=" + approverUsername;
+            String rejectUrl = "https://localhost:3000/confirm/project?token=" + acceptanceToken + "&approve=false&approver=" + approverUsername;
             String emailContent = "<html><body>"
                     + "<h1>Project Join Requisition</h1>"
                     + "<p>The user: " + username + " asked to join the project: " + projectName + ". Please click one of the buttons below to accept or reject this request:</p>"

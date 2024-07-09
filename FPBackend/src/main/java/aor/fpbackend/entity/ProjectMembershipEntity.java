@@ -20,6 +20,8 @@ import java.io.Serializable;
 @NamedQuery(name = "ProjectMembership.findProjectManagers", query = "SELECT p.user FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.role = aor.fpbackend.enums.ProjectRoleEnum.PROJECT_MANAGER")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipByProjectIdAndUserIdAndRole",
         query = "SELECT pm FROM ProjectMembershipEntity pm WHERE pm.project.id = :projectId AND pm.user.id = :userId AND pm.role = :role")
+@NamedQuery(name = "ProjectMembership.findProjectActiveMembersByProjectId",
+        query = "SELECT pm.user FROM ProjectMembershipEntity pm WHERE pm.project.id = :projectId AND pm.isAccepted = true")
 
 public class ProjectMembershipEntity implements Serializable {
     private static final long serialVersionUID = 1L;
