@@ -31,7 +31,7 @@ public class AssetService {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.CREATE_ASSET)
-    public void createAsset(@Valid AssetCreateDto assetCreateDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, UserNotFoundException, UnknownHostException {
+    public void createAsset(@Valid AssetCreateDto assetCreateDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, UserNotFoundException {
         assetBean.createAsset(assetCreateDto, securityContext);
     }
 
@@ -94,13 +94,6 @@ public class AssetService {
         return assetBean.getEnumListAssetTypes();
     }
 
-    @DELETE
-    @Path("")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RequiresMethodPermission(MethodEnum.ASSET_REMOVE)
-    public void removeAsset(@Valid AssetRemoveDto assetRemoveDto) throws EntityNotFoundException, ElementAssociationException {
-        assetBean.removeAsset(assetRemoveDto);
-    }
 
     // {projectId} just for filter validation
     @PUT
@@ -115,7 +108,7 @@ public class AssetService {
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.ASSET_UPDATE)
-    public void updateAsset(@Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException, UnknownHostException {
+    public void updateAsset(@Valid AssetUpdateDto assetUpdateDto) throws EntityNotFoundException, InputValidationException {
         assetBean.updateAsset(assetUpdateDto);
     }
 }
