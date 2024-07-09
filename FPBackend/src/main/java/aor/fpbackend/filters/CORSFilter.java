@@ -22,6 +22,7 @@ public class CORSFilter implements Filter {
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
             response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
             response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Vary", "Origin");
 
             if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -33,7 +34,7 @@ public class CORSFilter implements Filter {
     }
 
     private boolean isAllowedOrigin(String origin) {
-        return origin.equals("http://localhost:3000");
+        return origin.equals("http://localhost:3000") || origin.equals("https://localhost:3000");
     }
 
     @Override
