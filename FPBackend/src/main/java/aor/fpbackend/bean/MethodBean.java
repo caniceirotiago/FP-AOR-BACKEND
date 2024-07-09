@@ -9,6 +9,7 @@ import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.io.Serializable;
 
@@ -42,6 +43,8 @@ public class MethodBean implements Serializable {
         } catch (Exception e) {
             LOGGER.error("Error creating method {}: {}", name, e.getMessage());
             throw new DatabaseOperationException("Error creating method: " + name);
+        } finally {
+            ThreadContext.clearMap();
         }
     }
 }
