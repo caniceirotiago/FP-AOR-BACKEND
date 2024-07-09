@@ -163,7 +163,7 @@ public class ProjectBean implements Serializable {
 
     private void validateProjectCreateDto(ProjectCreateDto projectCreateDto) throws InputValidationException {
         if (projectCreateDto.getConclusionDate() != null && projectCreateDto.getConclusionDate().isBefore(Instant.now())) {
-            throw new InputValidationException("Conclusion date cannot be in the past");
+            throw new InputValidationException("Choose a conclusion date that is at least one day later than today.");
         }
         if (projectCreateDto.getKeywords() == null || projectCreateDto.getKeywords().isEmpty()) {
             throw new InputValidationException("Define at least one keyword");
