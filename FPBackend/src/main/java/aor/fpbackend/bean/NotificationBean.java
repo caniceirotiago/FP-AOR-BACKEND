@@ -263,7 +263,7 @@ public class NotificationBean implements Serializable {
      * @param taskEntity The task entity in which the user is marked as responsible.
      * @throws UnknownHostException If the host IP address cannot be determined.
      */
-    public void createNotificationMarkesAsResponsibleInNewTask(UserEntity userEntity, TaskEntity taskEntity) throws UnknownHostException {
+    public void createNotificationMarksAsResponsibleInNewTask(UserEntity userEntity, TaskEntity taskEntity) throws UnknownHostException {
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.TASK_RESPONSIBLE);
         notificationEntity.setUser(userEntity);
@@ -284,7 +284,7 @@ public class NotificationBean implements Serializable {
      * @param taskEntity The task entity in which the user is marked as executor.
      * @throws UnknownHostException If the host IP address cannot be determined.
      */
-    public void createNotificationMarkesAsExecutorInNewTask(UserEntity userEntity, TaskEntity taskEntity) throws UnknownHostException {
+    public void createNotificationMarksAsExecutorInNewTask(UserEntity userEntity, TaskEntity taskEntity) throws UnknownHostException {
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setType(NotificationTypeENUM.TASK_EXECUTER);
         notificationEntity.setUser(userEntity);
@@ -305,8 +305,8 @@ public class NotificationBean implements Serializable {
      */
     public List<NotificationGetDto> getUnreadNotifications(SecurityContext securityContext) {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
-        List<NotificationEntity> notificationsEntety = notificationDao.getUnreadbByUserNotifications(authUserDto.getUserId());
-        return convertEntitiesToDtos(notificationsEntety);
+        List<NotificationEntity> notificationsEntity = notificationDao.getUnreadbByUserNotifications(authUserDto.getUserId());
+        return convertEntitiesToDtos(notificationsEntity);
     }
 
     /**

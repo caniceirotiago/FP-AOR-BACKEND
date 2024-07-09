@@ -239,7 +239,7 @@ public class MembershipBean implements Serializable {
             if (!createHasAccepted) sendInviteToUser(membershipEntity, userEntity, projectEntity);
             else notificationBean.createNotificationForUserAutomaticallyAddedToProject(membershipEntity);
             if (!userEntity.getUsername().equals(authUser.getUsername())) {
-                String content = "User " + userEntity.getUsername() + " added to project";
+                String content = "User: " + userEntity.getUsername() + " added to project";
                 projectBean.createProjectLog(projectEntity, authUser, LogTypeEnum.PROJECT_MEMBERS, content);
             }
             LOGGER.info("User " + userEntity.getUsername() + " added to project " + projectEntity.getName());

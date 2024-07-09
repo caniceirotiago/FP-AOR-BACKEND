@@ -1,7 +1,8 @@
 package aor.fpbackend.enums;
 
 public enum LogTypeEnum {
-    GENERAL_PROJECT_DATA,
+    PROJECT_DATA,
     PROJECT_MEMBERS,
-    PROJECT_TASKS
+    PROJECT_TASKS,
+    MANUAL_ENTRY
 }

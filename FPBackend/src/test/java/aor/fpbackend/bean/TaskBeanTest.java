@@ -149,7 +149,7 @@ class TaskBeanTest {
         taskBean.addTask("Title", "Description", Instant.now(), Instant.now().plusSeconds(86400), responsibleId, projectId);
 
         verify(taskDao).persist(any(TaskEntity.class));
-        verify(notificationBean).createNotificationMarkesAsResponsibleInNewTask(any(UserEntity.class), any(TaskEntity.class));
+        verify(notificationBean).createNotificationMarksAsResponsibleInNewTask(any(UserEntity.class), any(TaskEntity.class));
     }
 
     @Test
@@ -236,7 +236,7 @@ class TaskBeanTest {
         taskBean.addTask("Test Task", "Task Description", Instant.now(), Instant.now().plus(2, ChronoUnit.DAYS), 1L, 1L);
 
         verify(taskDao, times(1)).persist(any(TaskEntity.class));
-        verify(notificationBean, times(1)).createNotificationMarkesAsResponsibleInNewTask(any(UserEntity.class), any(TaskEntity.class));
+        verify(notificationBean, times(1)).createNotificationMarksAsResponsibleInNewTask(any(UserEntity.class), any(TaskEntity.class));
     }
 
     @Test
