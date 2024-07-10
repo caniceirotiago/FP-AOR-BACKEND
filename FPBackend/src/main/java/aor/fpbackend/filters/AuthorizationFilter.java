@@ -172,10 +172,9 @@ public class AuthorizationFilter implements ContainerRequestFilter {
      * @param requestContext the context of the incoming request
      * @throws UserNotFoundException if the user is not found
      * @throws DatabaseOperationException if a database operation fails
-     * @throws UnknownHostException if there is an issue with the host
      * @throws InputValidationException if there is a validation error
      */
-    private  void handleTokenRenewal(String token, AuthUserDto authUserDto, String path, ContainerRequestContext requestContext) throws UserNotFoundException, DatabaseOperationException, UnknownHostException, InputValidationException {
+    private  void handleTokenRenewal(String token, AuthUserDto authUserDto, String path, ContainerRequestContext requestContext) throws UserNotFoundException, DatabaseOperationException, InputValidationException {
         Instant now = Instant.now();
         Date expiration = Jwts.parserBuilder()
                 .setSigningKey(JwtKeyProvider.getKey())
