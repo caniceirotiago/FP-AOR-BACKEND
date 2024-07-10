@@ -102,6 +102,15 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
+    public UserEntity findValidatedUserByUsername(String username) {
+        try {
+            return (UserEntity) em.createNamedQuery("User.findValidatedUserByUsername").setParameter("username", username)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     public ArrayList<UserEntity> findAllUsers() {
         try {
             return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
@@ -112,14 +121,14 @@ public class UserDao extends AbstractDao<UserEntity> {
 
     public List<UserEntity> getUsersByFirstLetter(String firstLetter) {
         TypedQuery<UserEntity> query = em.createQuery(
-                "SELECT u FROM UserEntity u WHERE LOWER(u.username) LIKE :pattern", UserEntity.class);
+                "SELECT u FROM UserEntity u WHERE LOWER(u.username) LIKE :pattern AND u.isConfirmed = true", UserEntity.class);
         query.setParameter("pattern", firstLetter + "%");
         return query.getResultList();
     }
 
     public List<UserEntity> getUsersByFirstLetterUsernameOrFirstName(String firstLetter) {
         TypedQuery<UserEntity> query = em.createQuery(
-                "SELECT u FROM UserEntity u WHERE LOWER(u.username) LIKE :pattern OR LOWER(u.firstName) LIKE :pattern", UserEntity.class);
+                "SELECT u FROM UserEntity u WHERE LOWER(u.username) LIKE :pattern OR LOWER(u.firstName) LIKE :pattern AND u.isConfirmed = true", UserEntity.class);
         query.setParameter("pattern", firstLetter.toLowerCase() + "%");
         return query.getResultList();
     }

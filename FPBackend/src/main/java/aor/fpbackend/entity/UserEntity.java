@@ -14,6 +14,7 @@ import java.util.Set;
 @NamedQuery(name = "User.findUserByResetPasswordToken", query = "SELECT u FROM UserEntity u WHERE u.resetPasswordToken = :resetPasswordToken")
 @NamedQuery(name = "User.findUserById", query = "SELECT u FROM UserEntity u WHERE u.id = :userId")
 @NamedQuery(name = "User.findUserByUsername", query = "SELECT u FROM UserEntity u WHERE u.username = :username")
+@NamedQuery(name = "User.findValidatedUserByUsername", query = "SELECT u FROM UserEntity u WHERE u.username = :username AND u.isConfirmed = true")
 @NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u WHERE u.email = :email")
 @NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u WHERE u.id != 1")
 @NamedQuery(name = "User.countUserByEmail", query = "SELECT COUNT(u) FROM UserEntity u WHERE LOWER(u.email) = LOWER(:email)")

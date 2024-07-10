@@ -206,8 +206,8 @@ public class MembershipBean implements Serializable {
         if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
             throw new ElementAssociationException("Project is not editable anymore");
         }
-        // Retrieve the user entity by username
-        UserEntity userEntity = userDao.findUserByUsername(username);
+        // Retrieve the user entity by username and check if he is validated
+        UserEntity userEntity = userDao.findValidatedUserByUsername(username);
         if (userEntity == null) {
             throw new EntityNotFoundException("User not found");
         }
