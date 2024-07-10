@@ -82,7 +82,7 @@ public class SessionBean implements Serializable {
 
 
     /**
-     * Authenticates a user and initiates a session.
+     * Authenticates a user and creates a new session.
      * <p>
      * This method performs the following steps:
      * <ul>
@@ -105,31 +105,32 @@ public class SessionBean implements Serializable {
      * @return a Response containing the authentication and session cookies.
      * @throws InvalidCredentialsException if the email or password is incorrect.
      */
-
     public Response login(UserLoginDto userLogin) throws InvalidCredentialsException {
+        // Find the user by email
         UserEntity userEntity = userDao.findUserByEmail(userLogin.getEmail());
+        // Check if user exists and password matches
         if (userEntity == null || !passEncoder.matches(userLogin.getPassword(), userEntity.getPassword())) {
             throw new InvalidCredentialsException("Invalid credentials");
         }
+        // Get session timeout from configuration entity
         Integer definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
         if(definedTimeOut == null) {
             throw new IllegalStateException("Session timeout not defined");
         }
         try{
-            ThreadContext.put("username", userEntity.getUsername());
-            ThreadContext.put("userId", String.valueOf(userEntity.getId()));
-
+            // Generate tokens and calculate expiration time
             Instant now = Instant.now();
             Instant expirationInstant = now.plus(Duration.ofMillis(definedTimeOut));
             String authToken = generateJwtToken(userEntity, definedTimeOut, "auth");
             int cookieExpiration = (int) Duration.ofMillis(definedTimeOut).getSeconds();
-
+            // Create authentication and session cookies
             NewCookie authCookie = new NewCookie("authToken", authToken, "/", null, "Auth Token", cookieExpiration, true, true);
             String sessionToken = generateJwtToken(userEntity, definedTimeOut, "session");
             NewCookie sessionCookie = new NewCookie("sessionToken", sessionToken, "/", null, "Session Token", cookieExpiration, true, false);
-
+            // Persist the new session in the database
             sessionDao.persist(new SessionEntity(authToken, sessionToken, expirationInstant, userEntity));
             LOGGER.info("Successful login new session created");
+            // Return the response with the cookies
             return Response.ok().cookie(authCookie).cookie(sessionCookie).build();
         } catch (UserNotFoundException e) {
             throw new RuntimeException(e);
@@ -139,7 +140,6 @@ public class SessionBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Logs out a user by invalidating their session token.
@@ -156,10 +156,12 @@ public class SessionBean implements Serializable {
      */
     public void logout(SecurityContext securityContext) throws UserNotFoundException {
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        // Check if authentication details are valid
         if (authUserDto == null || authUserDto.getToken() == null || authUserDto.getToken().isEmpty()) {
             throw new UserNotFoundException("Invalid or missing token");
         }
         try{
+            // Invalidate session in the database using the authentication token
             sessionDao.inativateSessionbyAuthToken(authUserDto.getToken());
             LOGGER.info("Successful logout");
         } catch (NoResultException e) {
@@ -200,31 +202,38 @@ public class SessionBean implements Serializable {
     @Transactional
     @Schedule(hour = "*", minute = "*/1", persistent = false)
     public void cleanupExpiredTokens() throws DatabaseOperationException {
+        // Find sessions expiring within 3 minutes
         List<SessionEntity> sessions = sessionDao.findSessionsExpiringInThreeMinutes();
         Instant now = Instant.now();
-        LOGGER.info("Number of sessions expiring in 3 minutes: " + sessions.size());
+        // Iterate through each session
         for (SessionEntity session : sessions) {
             Instant expirationTime = session.getTokenExpiration();
+            // Calculate minutes until expiration
             long minutesUntilExpiration = ChronoUnit.MINUTES.between(now, expirationTime);
+            // Check if session is within 1 minute of expiration
             if (minutesUntilExpiration <= 1) {
                 if (session.isActive()) {
                     try {
+                        // Mark session as inactive in the database
                         session.setActive(false);
                         sessionDao.merge(session);
                         LOGGER.info("Session inactivated: " + session.getId());
                     } catch (PersistenceException e) {
                         throw new DatabaseOperationException("Error inactivating session: " + e.getMessage());
+                    } finally {
+                        ThreadContext.clearMap();
                     }
                 }
             } else {
+                // Session has expired
                 if (session.isActive()) {
                     GlobalWebSocket.sendForcedLogoutRequest(session);
                     LOGGER.info("Forced logout sent for session: " + session.getId());
+                    ThreadContext.clearMap();
                 }
             }
         }
     }
-
 
     /**
      * Generates a JSON Web Token (JWT) for the given user with specified expiration time and token type.
@@ -248,34 +257,38 @@ public class SessionBean implements Serializable {
      * @throws InputValidationException if the expiration time is less than or equal to 0 or the token type is empty.
      */
     public String generateJwtToken(UserEntity user, long expirationTime, String tokenType) throws UserNotFoundException, InputValidationException {
+        // Validate input parameters
         if(user == null) {
             throw new UserNotFoundException("User cannot be null on token generation");
         }
         if(expirationTime <= 0 || tokenType == null || tokenType.isEmpty()) {
             throw new InputValidationException("Expiration time must be greater than 0 or token type cannot be empty");
         }
+        // Retrieve secret key for signing JWT
         Key secretKey = JwtKeyProvider.getKey();
+        // Build JWT token
         JwtBuilder builder = Jwts.builder()
                 .setId(UUID.randomUUID().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .claim("type", tokenType)
                 .signWith(secretKey, SignatureAlgorithm.HS512);
-
+        // Add user-specific claims to the token
         if (user != null) {
             builder.setSubject(String.valueOf(user.getId()));
             builder.claim("username", user.getUsername());
             builder.claim("role", user.getRole().getName());
         }
-
         try {
+            // Generate and return the compact representation of the JWT token
             return builder.compact();
         } catch (Exception e) {
             LOGGER.error("Error generating JWT token", e);
             throw new RuntimeException("Error generating JWT token", e);
+        } finally {
+            ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Generates a new secure random token.
@@ -300,9 +313,10 @@ public class SessionBean implements Serializable {
         } catch (Exception e) {
             LOGGER.error("Error generating new token", e);
             throw new RuntimeException("Error generating new token", e);
+        }finally {
+            ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Validates a JSON Web Token (JWT) and retrieves the authenticated user's details.
@@ -374,29 +388,43 @@ public class SessionBean implements Serializable {
      * @throws InvalidCredentialsException if the token is invalid, expired, or if any error occurs during processing.
      */
     public AuthUserDto validateSessionTokenAndGetUserDetails(String token) throws InvalidCredentialsException {
+        // Retrieve secret key for JWT verification
         Key secretKey = JwtKeyProvider.getKey();
+        // Ensure secret key is configured
         if (secretKey == null) {
             throw new InvalidCredentialsException("Secret key not configured");
         }
-        SessionEntity se = sessionDao.findSessionBySessionToken(token);
-        if (se == null) {
+        // Find session information from token in the database
+        SessionEntity session = sessionDao.findSessionBySessionToken(token);
+        // Validate session existence and status
+        if (session == null) {
             throw new InvalidCredentialsException("Invalid token");
         }
-        if (!se.isActive()) {
+        if (!session.isActive()) {
             throw new InvalidCredentialsException("Token inativated");
         }
-        if (se.getTokenExpiration().isBefore(Instant.now())) {
+        if (session.getTokenExpiration().isBefore(Instant.now())) {
             throw new InvalidCredentialsException("Token expired");
         }
         try {
+            // Parse and verify JWT claims using the secret key
             Jws<Claims> jwsClaims = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
+            // Extract user ID from JWT claims
             Claims claims = jwsClaims.getBody();
             Long userId = Long.parseLong(claims.getSubject());
+            // Retrieve user details from database using user ID
             UserEntity user = userDao.findUserById(userId);
-            AuthUserDto authUserDto = new AuthUserDto(user.getId(), user.getRole().getId(), roleDao.findPermissionsByRoleId(user.getRole().getId()), token, se.getId(), user.getUsername());
+            // Create AuthUserDto containing user details and token information
+            AuthUserDto authUserDto = new AuthUserDto(
+                    user.getId(),
+                    user.getRole().getId(),
+                    roleDao.findPermissionsByRoleId(user.getRole().getId()),
+                    token,
+                    session.getId(),
+                    user.getUsername());
             return authUserDto;
         } catch (ExpiredJwtException e) {
             throw new InvalidCredentialsException("Token expired: " + e.getMessage());
@@ -406,7 +434,6 @@ public class SessionBean implements Serializable {
             throw new InvalidCredentialsException("Error processing token: " + e.getMessage());
         }
     }
-
 
     /**
      * Creates a new session for the user and invalidates the old session.
@@ -427,33 +454,40 @@ public class SessionBean implements Serializable {
      * @param requestContext the container request context to set new tokens.
      * @param definedTimeout the defined timeout duration for the session.
      * @param oldToken the old session token to be invalidated.
-     * @throws UnknownHostException if there is an error retrieving host information.
      * @throws UserNotFoundException if the user is not found in the database.
      * @throws InputValidationException if there is an error with the input validation.
      * @throws DatabaseOperationException if there is an error persisting the new session.
      */
     @Transactional
-    public void createNewSessionAndInvalidateOld(AuthUserDto authUserDto, ContainerRequestContext requestContext, long definedTimeout, String oldToken) throws UnknownHostException, UserNotFoundException, InputValidationException, DatabaseOperationException {
+    public void createNewSessionAndInvalidateOld(AuthUserDto authUserDto, ContainerRequestContext requestContext, long definedTimeout, String oldToken) throws UserNotFoundException, InputValidationException, DatabaseOperationException {
+        // Retrieve user details from database using user ID in authUserDto
         UserEntity user = userDao.findUserById(authUserDto.getUserId());
         if(user == null) {
             throw new UserNotFoundException("User not found");
         }
+        // Generate new authentication and session tokens for the user
         String newAuthToken = generateJwtToken(user, definedTimeout, "auth");
-        Instant now = Instant.now();
         String newSessionToken = generateJwtToken(user, definedTimeout, "session");
+        // Calculate expiration time for the new session
+        Instant now = Instant.now();
         Instant expirationInstant = now.plus(Duration.ofMillis(definedTimeout));
         try{
+            // Persist new session entity with generated tokens and expiration time
             sessionDao.persist(new SessionEntity(newAuthToken, newSessionToken, expirationInstant, user));
+            // Update request context properties with new tokens
             requestContext.setProperty("newAuthToken", newAuthToken);
             requestContext.setProperty("newSessionToken", newSessionToken);
+            // Invalidate old session identified by oldToken
             sessionDao.inativateSessionbyAuthToken(oldToken);
+            // Log successful session restoration
             LOGGER.info("Session restored for user: " + user.getUsername());
         } catch (PersistenceException e) {
             throw new DatabaseOperationException("Error creating new session: " + e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException("Error creating new session: " + e.getMessage());
+        }finally {
+            ThreadContext.clearMap();
         }
-
     }
 
     /**
@@ -481,9 +515,11 @@ public class SessionBean implements Serializable {
        } catch (Exception e) {
            LOGGER.error("Error invalidating session", e);
            throw new RuntimeException("Error invalidating session", e);
+       }finally {
+           ThreadContext.clearMap();
        }
-
     }
+
     public void setSessionDao(SessionDao sessionDao) {
         this.sessionDao = sessionDao;
     }
@@ -499,11 +535,8 @@ public class SessionBean implements Serializable {
     public void setConfigurationBean(ConfigurationBean configurationBean) {
         this.configurationBean = configurationBean;
     }
-
     public void setPassEncoder(PassEncoder passEncoder) {
         this.passEncoder = passEncoder;
     }
-
-
 
 }

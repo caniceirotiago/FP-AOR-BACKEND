@@ -11,6 +11,8 @@ import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.io.Serializable;
 
@@ -26,7 +28,7 @@ import java.io.Serializable;
  *     <li>SLF4J: For logging operations.</li>
  * </ul>
  * </p>
- *
+ * <p>
  * Dependencies are injected using the {@link EJB} annotation, which includes beans for role,
  * laboratory, user, configuration, and method management. The bean uses utility classes for
  * logging and ensures that transactions are handled appropriately.
@@ -45,7 +47,7 @@ public class StartupBean implements Serializable {
     ConfigurationBean configBean;
     @EJB
     MethodBean methodBean;
-    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(StartupBean.class);
+    private static final Logger LOGGER = LogManager.getLogger(StartupBean.class);
 
 
     /**
@@ -59,9 +61,10 @@ public class StartupBean implements Serializable {
         } catch (DatabaseOperationException e) {
             LOGGER.error("Error creating initial data: " + e.getMessage());
             throw e;
+        } finally {
+            ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Creates the initial data for the application.
@@ -77,7 +80,6 @@ public class StartupBean implements Serializable {
         createMethods();
         addPermissions();
     }
-
 
     /**
      * Creates the initial roles for the application.
@@ -115,9 +117,9 @@ public class StartupBean implements Serializable {
      */
     @Transactional
     private void createUsers() throws DatabaseOperationException {
-        userBean.createDefaultUserIfNotExistent("admin", "https://i.pinimg.com/474x/7e/71/9b/7e719be79d55353a3ce6551d704e43ca.jpg",1, 2);
-        userBean.createDefaultUserIfNotExistent("standardUser", "https://i.pinimg.com/474x/0a/a8/58/0aa8581c2cb0aa948d63ce3ddad90c81.jpg",2, 2);
-        userBean.createDefaultUserIfNotExistent("David", "https://cdn.pixabay.com/photo/2013/07/12/14/36/man-148582_640.png",2, 3);
+        userBean.createDefaultUserIfNotExistent("admin", "https://i.pinimg.com/474x/7e/71/9b/7e719be79d55353a3ce6551d704e43ca.jpg", 1, 2);
+        userBean.createDefaultUserIfNotExistent("standardUser", "https://i.pinimg.com/474x/0a/a8/58/0aa8581c2cb0aa948d63ce3ddad90c81.jpg", 2, 2);
+        userBean.createDefaultUserIfNotExistent("David", "https://cdn.pixabay.com/photo/2013/07/12/14/36/man-148582_640.png", 2, 3);
         userBean.createDefaultUserIfNotExistent("Diogo", "https://cdn.pixabay.com/photo/2015/03/04/22/35/avatar-659651_640.png", 2, 4);
         userBean.createDefaultUserIfNotExistent("Maria", "https://img.freepik.com/premium-vector/user-woman-avatar-female-profile-icon-woman-character-portrait-with-smile-vector_555028-184.jpg", 2, 5);
         userBean.createDefaultUserIfNotExistent("Manuela", "https://i.pinimg.com/originals/54/8a/65/548a659c2b06a877516d3c998f5b0939.png", 2, 5);
@@ -143,7 +145,7 @@ public class StartupBean implements Serializable {
      */
     @Transactional
     private void createMethods() throws DatabaseOperationException {
-        methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_ROLE, "updates user role",MethodEnum.UPDATE_ROLE.getValue());
+        methodBean.createMethodIfNotExistent(MethodEnum.UPDATE_ROLE, "updates user role", MethodEnum.UPDATE_ROLE.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ADD_SKILL_USER, "add skill to user's list", MethodEnum.ADD_SKILL_USER.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ADD_SKILL_PROJECT, "add skill to project's list", MethodEnum.ADD_SKILL_PROJECT.getValue());
         methodBean.createMethodIfNotExistent(MethodEnum.ALL_SKILLS, "retrieves all persisted skills", MethodEnum.ALL_SKILLS.getValue());
@@ -196,7 +198,6 @@ public class StartupBean implements Serializable {
      *
      * @throws DatabaseOperationException if there is an error during permission addition.
      */
-
     @Transactional
     private void addPermissions() throws DatabaseOperationException {
         roleBean.addPermission(UserRoleEnum.ADMIN, MethodEnum.UPDATE_ROLE);

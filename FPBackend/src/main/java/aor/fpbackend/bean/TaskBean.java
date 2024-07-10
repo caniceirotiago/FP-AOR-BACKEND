@@ -23,11 +23,11 @@ import java.time.temporal.ChronoUnit;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 
 import java.io.Serializable;
@@ -70,28 +70,7 @@ public class TaskBean implements Serializable {
     NotificationBean notificationBean;
     private static final long serialVersionUID = 1L;
 
-    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(TaskBean.class);
-
-//TODO acho que não está a ser utilizado
-    /**
-     * Retrieves a list of all tasks from the system.
-     * <p>
-     * This method fetches all task entities from the database and converts them
-     * into a list of {@link TaskGetDto} objects for easier handling and presentation
-     * in the application layer.
-     * </p>
-     *
-     * @return a list of {@link TaskGetDto} representing all tasks in the system.
-     */
-//    public List<TaskGetDto> getTasks() {
-//        try {
-//            List<TaskGetDto> tasks = convertTaskEntityListToTaskDtoList(taskDao.findAllTasks());
-//            LOGGER.info("Successfully fetched {} tasks", tasks.size());
-//            return tasks;
-//        } finally {
-//            ThreadContext.clearMap();
-//        }
-//    }
+    private static final Logger LOGGER = LogManager.getLogger(TaskBean.class);
 
 
     /**
@@ -196,15 +175,17 @@ public class TaskBean implements Serializable {
      */
     @Transactional
     public void addTask(String title, String description, Instant plannedStartDate, Instant plannedEndDate, long responsibleId, long projectId) throws EntityNotFoundException, InputValidationException, UnknownHostException, ElementAssociationException {
+        // Find the project by ID
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             throw new EntityNotFoundException("Project not found");
         }
-        // Don't add to CANCELLED or FINISHED projects
+        // Ensure project is editable (not CANCELLED or FINISHED)
         ProjectStateEnum currentState = projectEntity.getState();
         if (currentState == ProjectStateEnum.CANCELLED || currentState == ProjectStateEnum.FINISHED) {
             throw new ElementAssociationException("Project is not editable anymore");
         }
+        // Find the responsible user by ID
         UserEntity taskResponsible = userDao.findUserById(responsibleId);
         if (taskResponsible == null) {
             throw new EntityNotFoundException("User not found");
@@ -221,7 +202,7 @@ public class TaskBean implements Serializable {
         if (daysBetween < 1) {
             throw new InputValidationException("Planned end date must be at least one day after planned start date");
         }
-
+        // Create a new TaskEntity and set its properties
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setTitle(title);
         taskEntity.setDescription(description);
@@ -232,11 +213,14 @@ public class TaskBean implements Serializable {
         taskEntity.setState(TaskStateEnum.PLANNED);
         taskEntity.setResponsibleUser(taskResponsible);
         taskEntity.setProject(projectEntity);
-
         try {
+            // Persist the task entity in the database
             taskDao.persist(taskEntity);
+            // Add the task to the responsible user's list of responsible tasks
             taskResponsible.getResponsibleTasks().add(taskEntity);
+            // Create notifications for the responsible user about the new task
             notificationBean.createNotificationMarksAsResponsibleInNewTask(taskResponsible, taskEntity);
+            // Log successful persistence of the task entity
             LOGGER.info("Task entity persisted successfully: " + taskEntity.getTitle() + "on project: " + projectEntity.getName());
         } catch (PersistenceException e) {
             LOGGER.error("Error while persisting task entity: {}", e.getMessage());
@@ -245,7 +229,6 @@ public class TaskBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Adds a dependency between two tasks.
@@ -259,20 +242,25 @@ public class TaskBean implements Serializable {
      */
     @Transactional
     public void addDependencyTask(long projectId, TaskDependencyDto dependencyDto) throws EntityNotFoundException, InputValidationException, DatabaseOperationException {
+        // Find the main task by ID
         TaskEntity mainTaskEntity = taskDao.findTaskById(dependencyDto.getMainTaskId());
         if (mainTaskEntity == null) {
             throw new EntityNotFoundException("Main task not found");
         }
+        // Find the dependent task by ID
         TaskEntity dependentTaskEntity = taskDao.findTaskById(dependencyDto.getDependentTaskId());
         if (dependentTaskEntity == null) {
             throw new EntityNotFoundException("Dependent task not found");
         }
+        // Validate that neither task is deleted
         if (mainTaskEntity.isDeleted() || dependentTaskEntity.isDeleted()) {
             throw new InputValidationException("Cannot use deleted tasks");
         }
+        // Validate that both tasks belong to the specified project
         if (mainTaskEntity.getProject().getId() != projectId || dependentTaskEntity.getProject().getId() != projectId) {
             throw new InputValidationException("Tasks don't belong to this project");
         }
+        // Validate that the dependent task starts after the main task ends
         if (dependentTaskEntity.getPlannedStartDate().isBefore(mainTaskEntity.getPlannedEndDate())) {
             throw new InputValidationException("Task is not compatible for dependent task");
         }
@@ -281,10 +269,12 @@ public class TaskBean implements Serializable {
             throw new InputValidationException("Dependency already exists");
         }
         try {
+            // Establish the dependency relationship
             Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
             dependentTasks.add(dependentTaskEntity);
             Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
             prerequisites.add(mainTaskEntity);
+            // Log successful addition of dependency
             LOGGER.info("Dependency added successfully: Main Task ID: {}, Dependent Task ID: {}", dependencyDto.getMainTaskId(), dependencyDto.getDependentTaskId());
         } catch (PersistenceException e) {
             LOGGER.error("Error while adding dependency: {}", e.getMessage());
@@ -293,7 +283,6 @@ public class TaskBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Removes a dependency between two tasks.
@@ -308,17 +297,21 @@ public class TaskBean implements Serializable {
      */
     @Transactional
     public void removeDependencyTask(long projectId, TaskDependencyDto dependencyDto) throws EntityNotFoundException, DatabaseOperationException, InputValidationException {
+        // Find the main task by ID
         TaskEntity mainTaskEntity = taskDao.findTaskById(dependencyDto.getMainTaskId());
         if (mainTaskEntity == null) {
             throw new EntityNotFoundException("Task not found");
         }
+        // Find the dependent task by ID
         TaskEntity dependentTaskEntity = taskDao.findTaskById(dependencyDto.getDependentTaskId());
         if (dependentTaskEntity == null) {
             throw new EntityNotFoundException("Task not found");
         }
+        // Validate that neither task is deleted
         if (mainTaskEntity.isDeleted() || dependentTaskEntity.isDeleted()) {
             throw new InputValidationException("Cannot use deleted tasks");
         }
+        // Validate that both tasks belong to the specified project
         if (mainTaskEntity.getProject().getId() != projectId || dependentTaskEntity.getProject().getId() != projectId) {
             throw new InputValidationException("Tasks don't belong to this project");
         }
@@ -327,10 +320,12 @@ public class TaskBean implements Serializable {
             throw new InputValidationException("Dependency doesn't exists");
         }
         try {
+            // Remove the dependency relationship
             Set<TaskEntity> dependentTasks = mainTaskEntity.getDependentTasks();
             dependentTasks.remove(dependentTaskEntity);
             Set<TaskEntity> prerequisites = dependentTaskEntity.getPrerequisites();
             prerequisites.remove(mainTaskEntity);
+            // Log removal addition of dependency
             LOGGER.info("Dependency removed successfully: Main Task ID: {}, Dependent Task ID:" +
                     " {}", dependencyDto.getMainTaskId(), dependencyDto.getDependentTaskId());
         } catch (PersistenceException e) {
@@ -340,7 +335,6 @@ public class TaskBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Updates the details of an existing task.
@@ -472,15 +466,18 @@ public class TaskBean implements Serializable {
      */
     @Transactional
     public void taskDetailedUpdate(TaskDetailedUpdateDto taskDetailedUpdateDto, SecurityContext securityContext) throws InputValidationException, EntityNotFoundException, UserNotFoundException, UnknownHostException, DatabaseOperationException {
+        // Retrieve authenticated user details from security context
         AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
         UserEntity authUserEntity = userDao.findUserById(authUserDto.getUserId());
         if (authUserEntity == null) {
             throw new UserNotFoundException("User not found with this Id");
         }
+        // Find the task entity to be updated
         TaskEntity taskEntity = taskDao.findTaskById(taskDetailedUpdateDto.getTaskId());
         if (taskEntity == null) {
             throw new EntityNotFoundException("Task not found");
         }
+        // Define project states where task updates are not allowed
         EnumSet<ProjectStateEnum> dontUpdateStates = EnumSet.of(
                 ProjectStateEnum.CANCELLED,
                 ProjectStateEnum.READY,
@@ -488,14 +485,22 @@ public class TaskBean implements Serializable {
         if (dontUpdateStates.contains(taskEntity.getProject().getState())) {
             throw new InputValidationException("Project state doesn't allow task updates");
         }
+        // Validate planned dates of the task
         validatePlannedDates(taskDetailedUpdateDto.getPlannedStartDate(), taskDetailedUpdateDto.getPlannedEndDate());
+        // Validate dependencies and prerequisites of the task
         validateDependenciesAndPrerequisites(taskDetailedUpdateDto, taskEntity);
+        // Validate and retrieve the new responsible user for the task
         UserEntity newResponsibleUser = validateResponsibleUser(taskDetailedUpdateDto, taskEntity);
+        // Validate and retrieve the new set of registered executors for the task
         Set<UserEntity> newRegisteredExecutors = validateRegisteredExecutors(taskDetailedUpdateDto, taskEntity);
         try {
+            // Update task entity fields based on DTO and validated entities
             updateTaskEntityFields(taskEntity, taskDetailedUpdateDto, newResponsibleUser, newRegisteredExecutors);
+            // Validate and handle state transition of the task
             validateAndHandleStateTransition(taskEntity, taskDetailedUpdateDto.getState(), authUserEntity);
+            // Notify relevant parties about the task updates
             notifyChanges(taskEntity, newResponsibleUser, newRegisteredExecutors);
+            // Log successful task update
             LOGGER.info("Task updated successfully: Task ID: {}", taskDetailedUpdateDto.getTaskId());
         } catch (PersistenceException e) {
             LOGGER.error("Error while updating task: {}", e.getMessage());
@@ -529,7 +534,6 @@ public class TaskBean implements Serializable {
             throw new InputValidationException("Planned end date must be at least one day after planned start date");
         }
     }
-
 
     /**
      * Validates the compatibility of new planned dates with the dependencies and prerequisites of a task.
@@ -573,7 +577,6 @@ public class TaskBean implements Serializable {
         }
     }
 
-
     /**
      * Validates the new responsible user for a task.
      * <p>
@@ -601,7 +604,6 @@ public class TaskBean implements Serializable {
         }
         return newResponsibleUser;
     }
-
 
     /**
      * Validates the registered executors for a task.
@@ -665,7 +667,6 @@ public class TaskBean implements Serializable {
         taskEntity.setAdditionalExecutors(taskDetailedUpdateDto.getNonRegisteredExecutors());
     }
 
-
     /**
      * Sends notifications for changes in task responsibility and registered executors.
      * <p>
@@ -691,7 +692,6 @@ public class TaskBean implements Serializable {
             }
         }
     }
-
 
     /**
      * Deletes a task identified by its ID.
@@ -806,7 +806,6 @@ public class TaskBean implements Serializable {
         return taskGetDto;
     }
 
-
     /**
      * Converts a list of TaskEntity objects to a list of TaskGetDto objects.
      * <p>
@@ -831,7 +830,6 @@ public class TaskBean implements Serializable {
         return taskGetDtos;
     }
 
-
     /**
      * Retrieves a list of all TaskStateEnum values.
      * <p>
@@ -852,6 +850,5 @@ public class TaskBean implements Serializable {
         }
         return taskStateEnums;
     }
-
 
 }

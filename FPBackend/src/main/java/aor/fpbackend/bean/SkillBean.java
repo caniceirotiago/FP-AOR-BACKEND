@@ -78,15 +78,20 @@ public class SkillBean implements Serializable {
     public void addSkillUser(SkillAddUserDto skillAddUserDto, @Context SecurityContext securityContext) throws DuplicatedAttributeException, DatabaseOperationException {
         LOGGER.info("Attempting to add skill '{}' of type '{}' to user.", skillAddUserDto.getName(), skillAddUserDto.getType());
         try {
+            // Check if the skill already exists, creating it if necessary.
             checkSkillExist(skillAddUserDto.getName(), skillAddUserDto.getType());
+            // Retrieve skill entity from database based on skill name
             SkillEntity skillEntity = skillDao.findSkillByName(skillAddUserDto.getName());
+            // Retrieve authenticated user details from security context
             AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
             UserEntity userEntity = userDao.findUserById(authUserDto.getUserId());
             if (userEntity == null) {
                 LOGGER.error("Authenticated user not found in database.");
                 throw new EntityNotFoundException("Authenticated user not found.");
             }
+            // Add the skill to the user entity
             addUserSkill(userEntity, skillEntity);
+            // Add the user to the skill entity
             addSkillUser(skillEntity, userEntity);
             LOGGER.info("Successfully added skill '{}' to user '{}'.", skillAddUserDto.getName(), authUserDto.getUserId());
         } catch (PersistenceException e) {
@@ -116,6 +121,7 @@ public class SkillBean implements Serializable {
             userSkills.add(skillEntity);
         } else {
             LOGGER.warn("User '{}' already has the skill '{}'.", userEntity.getId(), skillEntity.getName());
+            ThreadContext.clearMap();
             throw new DuplicatedAttributeException("User already has the specified skill");
         }
     }
@@ -137,6 +143,7 @@ public class SkillBean implements Serializable {
             skillUsers.add(userEntity);
         } else {
             LOGGER.warn("Skill '{}' already has the user '{}'.", skillEntity.getName(), userEntity.getId());
+            ThreadContext.clearMap();
             throw new DuplicatedAttributeException("Skill already has the specified user");
         }
     }
@@ -217,6 +224,7 @@ public class SkillBean implements Serializable {
         ProjectEntity projectEntity = projectDao.findProjectById(projectId);
         if (projectEntity == null) {
             LOGGER.error("Project with ID '{}' not found.", projectId);
+            ThreadContext.clearMap();
             throw new EntityNotFoundException("Project not found.");
         }
         return projectEntity;
@@ -235,6 +243,7 @@ public class SkillBean implements Serializable {
             projectSkills.add(skillEntity);
         } else {
             LOGGER.warn("Project '{}' already has the skill '{}'.", projectEntity.getId(), skillEntity.getName());
+            ThreadContext.clearMap();
             throw new DuplicatedAttributeException("Project already has the specified skill");
         }
     }
@@ -252,6 +261,7 @@ public class SkillBean implements Serializable {
             skillProjects.add(projectEntity);
         } else {
             LOGGER.warn("Skill '{}' already has the project '{}'.", skillEntity.getName(), projectEntity.getId());
+            ThreadContext.clearMap();
             throw new DuplicatedAttributeException("Skill already has the specified project");
         }
     }
@@ -323,7 +333,6 @@ public class SkillBean implements Serializable {
         }
     }
 
-
     /**
      * Retrieves a list of skills whose names start with a specified letter.
      * <p>
@@ -362,7 +371,6 @@ public class SkillBean implements Serializable {
         }
     }
 
-
     /**
      * Retrieves a list of skills associated with a specific project.
      * <p>
@@ -396,7 +404,6 @@ public class SkillBean implements Serializable {
         }
     }
 
-
     /**
      * Retrieves a list of all skill type enumerations.
      * <p>
@@ -422,7 +429,6 @@ public class SkillBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
 
     /**
      * Removes a skill from a user's list of skills.
@@ -463,7 +469,6 @@ public class SkillBean implements Serializable {
         }
     }
 
-
     /**
      * Retrieves the authenticated user entity from the database.
      * <p>
@@ -485,9 +490,9 @@ public class SkillBean implements Serializable {
             throw new UserNotFoundException("User not found");
         }
         LOGGER.debug("Authenticated user found: {}", userEntity.getUsername());
+        ThreadContext.clearMap();
         return userEntity;
     }
-
 
     /**
      * Retrieves the skill entity from the database.
@@ -510,9 +515,9 @@ public class SkillBean implements Serializable {
             throw new EntityNotFoundException("Skill not found");
         }
         LOGGER.debug("Skill found: {}", skillEntity.getName());
+        ThreadContext.clearMap();
         return skillEntity;
     }
-
 
     /**
      * Removes a skill from the user's list of skills.
@@ -535,11 +540,11 @@ public class SkillBean implements Serializable {
             userSkills.remove(skillEntity);
             userEntity.setUserSkills(userSkills);
             LOGGER.debug("Skill removed from user's skills");
+            ThreadContext.clearMap();
         } else {
             throw new IllegalStateException("User does not have the specified skill");
         }
     }
-
 
     /**
      * Removes a user from the skill's list of users.
@@ -560,8 +565,8 @@ public class SkillBean implements Serializable {
         skillUsers.remove(userEntity);
         skillEntity.setUsers(skillUsers);
         LOGGER.debug("User removed from skill's users");
+        ThreadContext.clearMap();
     }
-
 
     /**
      * Removes a skill from a project's list of skills.
@@ -598,7 +603,6 @@ public class SkillBean implements Serializable {
         }
     }
 
-
     /**
      * Retrieves the project entity from the database.
      * <p>
@@ -620,9 +624,9 @@ public class SkillBean implements Serializable {
             throw new EntityNotFoundException("Project not found");
         }
         LOGGER.debug("Project found: {}", projectEntity.getName());
+        ThreadContext.clearMap();
         return projectEntity;
     }
-
 
     /**
      * Retrieves the skill entity from the database.
@@ -645,9 +649,9 @@ public class SkillBean implements Serializable {
             throw new EntityNotFoundException("Skill not found");
         }
         LOGGER.debug("Skill found: {}", skillEntity.getName());
+        ThreadContext.clearMap();
         return skillEntity;
     }
-
 
     /**
      * Removes a skill from the project's list of skills.
@@ -670,6 +674,7 @@ public class SkillBean implements Serializable {
             projectSkills.remove(skillEntity);
             projectEntity.setProjectSkills(projectSkills);
             LOGGER.debug("Skill removed from project's skills");
+            ThreadContext.clearMap();
         } else {
             throw new IllegalStateException("Project does not have the specified skill");
         }
@@ -696,11 +701,11 @@ public class SkillBean implements Serializable {
             skillProjects.remove(projectEntity);
             skillEntity.setProjects(skillProjects);
             LOGGER.debug("Project removed from skill's projects");
+            ThreadContext.clearMap();
         } else {
             throw new IllegalStateException("Skill does not have the specified project");
         }
     }
-
 
     /**
      * Converts a SkillEntity object to a SkillGetDto object.
@@ -714,15 +719,12 @@ public class SkillBean implements Serializable {
         if (skillEntity == null) {
             throw new NullPointerException("The skillEntity cannot be null.");
         }
-
         // Initialize the result DTO
         SkillGetDto skillGetDto = new SkillGetDto();
-
         // Populate the DTO fields
         skillGetDto.setId(skillEntity.getId());
         skillGetDto.setName(skillEntity.getName());
         skillGetDto.setType(skillEntity.getType());
-
         return skillGetDto;
     }
 
@@ -738,7 +740,6 @@ public class SkillBean implements Serializable {
         if (skillEntities == null) {
             throw new NullPointerException("The skillEntities list cannot be null.");
         }
-
         // Convert the list using Stream API
         return skillEntities.stream()
                 .map(this::convertSkillEntitytoSkillDto)

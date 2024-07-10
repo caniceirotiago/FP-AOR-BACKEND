@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.time.Instant;
 import aor.fpbackend.exception.UserNotFoundException;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -59,7 +60,7 @@ import java.util.*;
 @Stateless
 public class UserBean implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(UserBean.class);
+    private static final Logger LOGGER = LogManager.getLogger(UserBean.class);
     @EJB
     PassEncoder passEncoder;
     @EJB
@@ -284,32 +285,6 @@ public class UserBean implements Serializable {
             ThreadContext.clearMap();
         }
     }
-
-
-
-
-
-        //todo: para já comentado.. acho que não está a ser utilziado
-//    public List<UsernameDto> getAllRegUsers() {
-//        try {
-//            ArrayList<UserEntity> userEntities = userDao.findAllUsers();
-//            if (userEntities != null && !userEntities.isEmpty()) {
-//                ArrayList<UsernameDto> usernameDtos = new ArrayList<>();
-//                for (UserEntity u : userEntities) {
-//                    UsernameDto usernameDto = new UsernameDto();
-//                    usernameDto.setId(u.getId());
-//                    usernameDto.setUsername(u.getUsername());
-//                    usernameDtos.add(usernameDto);
-//                }
-//                return usernameDtos;
-//            } else {
-//                LOGGER.warn("No users found");
-//                return Collections.emptyList(); // Return empty list when no users found
-//            }
-//        } finally {
-//            ThreadContext.clearMap();
-//        }
-//    }
 
     /**
      * Updates the authenticated user's profile with the provided details.
@@ -696,6 +671,7 @@ public class UserBean implements Serializable {
         } else {
             LOGGER.info("Default user already exists: " + username);
         }
+        ThreadContext.clearMap();
     }
 
     /**
@@ -723,9 +699,9 @@ public class UserBean implements Serializable {
     public UserProfileDto convertUserEntitytoUserProfileDto(UserEntity userEntity) {
         if (userEntity.getLaboratory() == null) {
             LOGGER.error("Laboratory is null for user: " + userEntity.getUsername());
+            ThreadContext.clearMap();
             throw new IllegalStateException("Laboratory cannot be null for user: " + userEntity.getUsername());
         }
-
         UserProfileDto userProfileDto = new UserProfileDto();
         userProfileDto.setId(userEntity.getId());
         userProfileDto.setEmail(userEntity.getEmail());
@@ -738,8 +714,6 @@ public class UserBean implements Serializable {
         userProfileDto.setPrivate(userEntity.isPrivate());
         return userProfileDto;
     }
-
-
 
     /**
      * Converts a UserEntity object to a UserBasicInfoDto object.
@@ -757,10 +731,10 @@ public class UserBean implements Serializable {
             userBasicInfo.setRole(role.getId());
         } else {
             LOGGER.warn("Role is null for user: " + userEntity.getUsername());
+            ThreadContext.clearMap();
         }
         return userBasicInfo;
     }
-
 
     /**
      * Converts a list of UserEntity objects to a list of UserBasicInfoDto objects.
