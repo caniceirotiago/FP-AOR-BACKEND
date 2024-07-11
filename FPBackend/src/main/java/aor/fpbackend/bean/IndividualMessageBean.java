@@ -7,6 +7,7 @@ import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetPaginatedDto;
 import aor.fpbackend.dto.IndividualMessage.IndividualMessageSendDto;
 import aor.fpbackend.entity.IndividualMessageEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -105,11 +106,14 @@ public class IndividualMessageBean {
      * @throws UserNotFoundException if the user is not found
      *                               * @throws IllegalArgumentException if the message type is invalid
      */
-    public IndividualMessageGetPaginatedDto getFilteredMessages(String userId, String type, int page, int pageSize, UriInfo uriInfo) throws UserNotFoundException {
+    public IndividualMessageGetPaginatedDto getFilteredMessages(String userId, String type, int page, int pageSize, UriInfo uriInfo) throws UserNotFoundException, InputValidationException {
         // Check if the user exists
         boolean userExists = userDao.confirmUserIdExists(userId);
         if (!userExists) {
             throw new UserNotFoundException("Invalid user id");
+        }
+        if (!"sent".equalsIgnoreCase(type) && !"inbox".equalsIgnoreCase(type)) {
+            throw new InputValidationException("Invalid message type: " + type);
         }
         List<IndividualMessageEntity> messageEntities;
         long totalMessages;

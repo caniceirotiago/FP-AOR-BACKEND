@@ -3,6 +3,7 @@ package aor.fpbackend.service;
 import aor.fpbackend.bean.IndividualMessageBean;
 import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetDto;
 import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetPaginatedDto;
+import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import aor.fpbackend.filters.RequiresPermissionByUserOnIndividualMessage;
 import aor.fpbackend.filters.RequiresPermissionByUserOnIndividualMessageAllMessages;
@@ -36,7 +37,7 @@ public class IndividualMessageService {
             @QueryParam("type") String type,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("pageSize") @DefaultValue("8") int pageSize,
-            @Context UriInfo uriInfo) throws UserNotFoundException {
+            @Context UriInfo uriInfo) throws UserNotFoundException, InputValidationException {
         return individualMessageBean.getFilteredMessages(userId, type, page, pageSize, uriInfo);
     }
 }

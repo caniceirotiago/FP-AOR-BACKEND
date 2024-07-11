@@ -114,6 +114,10 @@ public class IndividualMessageDao extends AbstractDao<IndividualMessageEntity> {
 
                     // Combine all OR predicates into a single predicate
                     predicates.add(cb.or(orPredicates.toArray(new Predicate[0])));
+                    break;
+                    default:
+                        System.out.println("Unknown filter: " + key);
+                        break;
 
             }
         });
