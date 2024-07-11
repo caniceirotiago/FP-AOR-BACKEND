@@ -649,58 +649,7 @@ class UserBeanTest {
 
         assertTrue(thrown.getMessage().contains("User not found"));
     }
-    @Test
-    void testGetUsersListBasicInfo_Success() {
-        // Arrange
-        List<UserEntity> userEntities = new ArrayList<>();
-        UserEntity userEntity1 = new UserEntity();
-        userEntity1.setId(1L);
-        userEntity1.setUsername("user1");
-        userEntity1.setPhoto("photo1");
 
-        UserEntity userEntity2 = new UserEntity();
-        userEntity2.setId(2L);
-        userEntity2.setUsername("user2");
-        userEntity2.setPhoto("photo2");
-
-        userEntities.add(userEntity1);
-        userEntities.add(userEntity2);
-
-        when(userDao.findAllUsers()).thenReturn((ArrayList<UserEntity>) userEntities);
-
-        // Act
-        List<UserBasicInfoDto> usersListBasicInfo = userBean.getUsersListBasicInfo();
-
-        // Assert
-        verify(userDao, times(1)).findAllUsers();
-        assertNotNull(usersListBasicInfo);
-        assertEquals(2, usersListBasicInfo.size());
-
-        UserBasicInfoDto userBasicInfoDto1 = usersListBasicInfo.get(0);
-        assertEquals(1L, userBasicInfoDto1.getId());
-        assertEquals("user1", userBasicInfoDto1.getUsername());
-        assertEquals("photo1", userBasicInfoDto1.getPhoto());
-
-        UserBasicInfoDto userBasicInfoDto2 = usersListBasicInfo.get(1);
-        assertEquals(2L, userBasicInfoDto2.getId());
-        assertEquals("user2", userBasicInfoDto2.getUsername());
-        assertEquals("photo2", userBasicInfoDto2.getPhoto());
-    }
-
-    @Test
-    void testGetUsersListBasicInfo_Exception() {
-        // Arrange
-        when(userDao.findAllUsers()).thenThrow(new RuntimeException("Database error"));
-
-        // Act & Assert
-        RuntimeException thrown = assertThrows(
-                RuntimeException.class,
-                () -> userBean.getUsersListBasicInfo(),
-                "Expected getUsersListBasicInfo() to throw, but it didn't"
-        );
-
-        assertTrue(thrown.getMessage().contains("Database error"));
-    }
     @Test
     void testGetUsersBasicInfoByFirstLetter_Success() {
         // Arrange

@@ -1,6 +1,5 @@
 package aor.fpbackend.dao;
 
-import aor.fpbackend.dto.Project.ProjectMembershipDto;
 import aor.fpbackend.entity.RoleEntity;
 import aor.fpbackend.entity.UserEntity;
 import jakarta.ejb.Stateless;
@@ -111,9 +110,11 @@ public class UserDao extends AbstractDao<UserEntity> {
         }
     }
 
-    public ArrayList<UserEntity> findAllUsers() {
+    public ArrayList<UserEntity> findUsersSettingsPage(Long loggedId) {
         try {
-            return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();
+            return (ArrayList<UserEntity>) em.createNamedQuery("User.findUsersSettingsPage")
+                    .setParameter("loggedId", loggedId)
+                    .getResultList();
         } catch (NoResultException e) {
             return new ArrayList<>();
         }

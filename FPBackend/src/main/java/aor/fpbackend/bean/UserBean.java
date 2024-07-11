@@ -6,7 +6,6 @@ import aor.fpbackend.dto.Email.EmailDto;
 import aor.fpbackend.dto.Password.PasswordRequestResetDto;
 import aor.fpbackend.dto.Password.PasswordResetDto;
 import aor.fpbackend.dto.Password.PasswordUpdateDto;
-import aor.fpbackend.dto.Project.ProjectMembershipDto;
 import aor.fpbackend.dto.User.*;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.UserRoleEnum;
@@ -389,24 +388,29 @@ public class UserBean implements Serializable {
         }
     }
 
-
     /**
-     * Retrieves a list of basic information for all registered users.
+     * Retrieves a list of basic information for all registered users except the logged-in user.
      * <p>
      * This method performs the following steps:
      * <ul>
-     *     <li>Fetches all user entities from the database.</li>
+     *     <li>Fetches all user entities from the database except the logged-in user.</li>
      *     <li>Converts the list of user entities to a list of UserBasicInfoDto objects.</li>
      * </ul>
      * </p>
      * Note: Security and access control are managed at the endpoint level.
      * </p>
-     * @return a list of UserBasicInfoDto objects representing the basic information of all registered users.
+     * @param securityContext the security context containing the authenticated user's details
+     * @return a list of UserBasicInfoDto objects representing the basic information of all registered users except the logged-in user
+     * @throws UserNotFoundException if the logged-in user is not found in the security context
      */
-    public List<UserBasicInfoDto> getUsersListBasicInfo() {
+    public List<UserBasicInfoDto> getUsersListBasicInfo(SecurityContext securityContext) throws UserNotFoundException {
+        AuthUserDto authUserDto = (AuthUserDto) securityContext.getUserPrincipal();
+        if(authUserDto== null){
+            throw new UserNotFoundException("User not found");
+        }
         try {
             LOGGER.info("Fetching all users basic info");
-            return convertUserEntityListToUserBasicInfoDtoList(userDao.findAllUsers());
+            return convertUserEntityListToUserBasicInfoDtoList(userDao.findUsersSettingsPage(authUserDto.getUserId()));
         } catch (Exception e) {
             LOGGER.error("Error fetching all users basic info", e);
             throw e;

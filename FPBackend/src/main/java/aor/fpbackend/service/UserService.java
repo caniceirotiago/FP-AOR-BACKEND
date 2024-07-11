@@ -107,8 +107,8 @@ public class UserService {
     @Path("/all/basic/info")
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.USERS_BASIC_INFO)
-    public List<UserBasicInfoDto> getUsersListBasicInfo() {
-        return userBean.getUsersListBasicInfo();
+    public List<UserBasicInfoDto> getUsersListBasicInfo(@Context SecurityContext securityContext) throws UserNotFoundException {
+        return userBean.getUsersListBasicInfo(securityContext);
     }
 
     @GET
