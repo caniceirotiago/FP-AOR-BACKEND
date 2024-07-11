@@ -21,7 +21,6 @@ public class SkillAddUserDto implements Serializable {
 
     @XmlElement
     @Enumerated
-    @NotNull
     private SkillTypeEnum type;
 
     public SkillAddUserDto() {

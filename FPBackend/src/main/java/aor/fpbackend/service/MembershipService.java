@@ -67,6 +67,7 @@ public class MembershipService {
     @Consumes(MediaType.APPLICATION_JSON)
     @RequiresMethodPermission(MethodEnum.REMOVE_USER_PROJECT)
     public void removeUserFromProject(@PathParam("username") String username, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) throws EntityNotFoundException, UnknownHostException, ForbiddenAccessException {
+        System.out.println("Removing user from project");
         memberBean.removeUserFromProject(username, projectId, securityContext);
     }
 

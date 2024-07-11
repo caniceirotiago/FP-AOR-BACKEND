@@ -277,7 +277,9 @@ public class SessionBean implements Serializable {
         if (user != null) {
             builder.setSubject(String.valueOf(user.getId()));
             builder.claim("username", user.getUsername());
-            builder.claim("role", user.getRole().getName());
+            builder.claim("role", user.getRole().getId());
+            builder.claim("photo", user.getPhoto());
+            builder.claim("userId", user.getId());
         }
         try {
             // Generate and return the compact representation of the JWT token
