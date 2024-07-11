@@ -128,7 +128,7 @@ public class UserDao extends AbstractDao<UserEntity> {
 
     public List<UserEntity> getUsersByFirstLetterUsernameOrFirstName(String firstLetter) {
         TypedQuery<UserEntity> query = em.createQuery(
-                "SELECT u FROM UserEntity u WHERE LOWER(u.username) LIKE :pattern OR LOWER(u.firstName) LIKE :pattern AND u.isConfirmed = true", UserEntity.class);
+                "SELECT u FROM UserEntity u WHERE (LOWER(u.username) LIKE :pattern OR LOWER(u.firstName) LIKE :pattern) AND u.isConfirmed = true", UserEntity.class);
         query.setParameter("pattern", firstLetter.toLowerCase() + "%");
         return query.getResultList();
     }
