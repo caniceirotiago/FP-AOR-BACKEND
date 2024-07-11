@@ -7,6 +7,7 @@ import aor.fpbackend.dto.IndividualMessage.IndividualMessageGetPaginatedDto;
 import aor.fpbackend.dto.IndividualMessage.IndividualMessageSendDto;
 import aor.fpbackend.entity.IndividualMessageEntity;
 import aor.fpbackend.entity.UserEntity;
+import aor.fpbackend.exception.InputValidationException;
 import aor.fpbackend.exception.UserNotFoundException;
 import jakarta.ws.rs.core.UriInfo;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,7 +103,7 @@ class IndividualMessageBeanTest {
     }
 
     @Test
-    void testGetFilteredMessages_Sent_Success() throws UserNotFoundException {
+    void testGetFilteredMessages_Sent_Success() throws UserNotFoundException, InputValidationException {
         String userId = "userId";
         int page = 0;
         int pageSize = 10;
@@ -124,7 +125,7 @@ class IndividualMessageBeanTest {
     }
 
     @Test
-    void testGetFilteredMessages_Inbox_Success() throws UserNotFoundException {
+    void testGetFilteredMessages_Inbox_Success() throws UserNotFoundException, InputValidationException {
         String userId = "userId";
         int page = 0;
         int pageSize = 10;
