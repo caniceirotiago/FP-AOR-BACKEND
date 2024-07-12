@@ -753,11 +753,11 @@ public class ProjectBean implements Serializable {
             createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getDescription(), newProject.getDescription())) {
-            String logContent = String.format("'%s' changed from '%s' to '%s'", "Description", oldProject.getDescription(), newProject.getDescription());
+            String logContent = "Description updated";
             createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getMotivation(), newProject.getMotivation())) {
-            String logContent = String.format("'%s' changed from '%s' to '%s'", "Motivation", oldProject.getMotivation(), newProject.getMotivation());
+            String logContent = "Motivation updated";
             createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getConclusionDate(), newProject.getConclusionDate())) {
