@@ -28,7 +28,19 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-
+/**
+ * GlobalWebSocket manages WebSocket connections and messages for the application.
+ *
+ * This class handles WebSocket connections, authenticates users, manages sessions,
+ * and processes messages received through WebSockets. It also provides methods to
+ * send forced logout requests and notifications to user sessions.
+ *
+ * @see SessionBean
+ * @see SessionDao
+ * @see AuthUserDto
+ * @see WebSocketMessageDto
+ * @see SessionEntity
+ */
 @ApplicationScoped
 @ServerEndpoint("/ws/{sessionToken}")
 public class GlobalWebSocket {
@@ -40,7 +52,12 @@ public class GlobalWebSocket {
     private static SessionDao sessionDao;
     @EJB
     private SessionBean sessionBean;
-
+    /**
+     * Called when a new WebSocket connection is opened.
+     *
+     * @param session The WebSocket session.
+     * @param sessionToken The session token used for authentication.
+     */
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken) {
         try {
@@ -70,7 +87,12 @@ public class GlobalWebSocket {
             }
         }
     }
-
+    /**
+     * Called when a WebSocket connection is closed.
+     *
+     * @param session The WebSocket session.
+     * @param reason The reason for closing the connection.
+     */
     @OnClose
     public void onClose(Session session, CloseReason reason) {
         Long userId = (Long) session.getUserProperties().get("userId");
@@ -89,7 +111,12 @@ public class GlobalWebSocket {
             LOGGER.warn("Session closed but no userId found in session properties");
         }
     }
-
+    /**
+     * Called when a message is received through the WebSocket.
+     *
+     * @param message The message received.
+     * @param session The WebSocket session.
+     */
     @OnMessage
     public void onMessage(String message, Session session) {
         try {
@@ -102,7 +129,11 @@ public class GlobalWebSocket {
             System.err.println("Error processing message: " + e.getMessage());
         }
     }
-
+    /**
+     * Sends a forced logout request to a specific session.
+     *
+     * @param sessionEntity The session entity representing the session to be logged out.
+     */
     public static void sendForcedLogoutRequest(SessionEntity sessionEntity) {
         Long userId = sessionEntity.getUser().getId();
         String sessionToken = sessionEntity.getSessionToken();
@@ -135,7 +166,11 @@ public class GlobalWebSocket {
             sessionDao.merge(sessionEntity);
         }
     }
-
+    /**
+     * Tries to send a notification to all sessions of a user.
+     *
+     * @param notification The notification to be sent.
+     */
     public static void tryToSendNotificationToUserSessions(NotificationGetDto notification) {
         Long userId = notification.getUser().getId();
         List<Session> userSessions = sessions.get(userId);

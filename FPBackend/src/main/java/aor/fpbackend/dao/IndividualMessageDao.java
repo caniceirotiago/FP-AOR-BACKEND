@@ -14,7 +14,14 @@ import jakarta.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * IndividualMessageDao class provides data access operations for {@link IndividualMessageEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to individual messages in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for individual message management.
+ * <br>
+ */
 @Stateless
 public class IndividualMessageDao extends AbstractDao<IndividualMessageEntity> {
 

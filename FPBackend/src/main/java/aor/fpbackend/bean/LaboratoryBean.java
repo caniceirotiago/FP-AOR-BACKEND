@@ -14,18 +14,18 @@ import java.util.ArrayList;
 
 /**
  * LaboratoryBean is a stateless session bean responsible for managing laboratory entities.
- * <p>
+ * <br>
  * This bean handles the creation of laboratories if they do not already exist, and the retrieval
  * of laboratory information in the form of DTOs (Data Transfer Objects).
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Key functionalities provided by this bean include:
  * <ul>
  *     <li>Creating laboratories if they do not exist.</li>
  *     <li>Retrieving all laboratories and converting them to DTOs.</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  * The class uses dependency injection to obtain instances of LaboratoryDao, promoting a clean architecture.
  */
 @Stateless

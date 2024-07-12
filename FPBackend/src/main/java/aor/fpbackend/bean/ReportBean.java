@@ -33,7 +33,7 @@ public class ReportBean implements Serializable {
     /**
      * Generates a PDF report for projects and saves it to a specified directory.
      *
-     * <p>This method retrieves the project report summary, ensures the existence of the
+     * <br>This method retrieves the project report summary, ensures the existence of the
      * directory where the PDF will be saved (using an environment variable or a default
      * relative directory if the environment variable is not set), constructs the file path
      * for the PDF, and generates the PDF report using the retrieved summary.
@@ -61,7 +61,7 @@ public class ReportBean implements Serializable {
     /**
      * Consolidates data retrieval for the project report summary.
      *
-     * <p>This method gathers various project-related metrics, including the average number of members per project,
+     * <br>This method gathers various project-related metrics, including the average number of members per project,
      * average project duration, project counts by location, and counts of approved, completed, and canceled projects
      * by location. The collected data is assembled into a {@link ReportProjectSummaryDto} object, which is then returned.
      *
@@ -81,7 +81,7 @@ public class ReportBean implements Serializable {
     /**
      * Retrieves the average number of members per project.
      *
-     * <p>This method queries the database for the average number of members per project. If no average number is found,
+     * <br>This method queries the database for the average number of members per project. If no average number is found,
      * it defaults to 0.0. The result is returned as a {@link ReportAverageResultDto} object.
      *
      * @return A {@link ReportAverageResultDto} object containing the average number of members per project.

@@ -8,7 +8,14 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 
 import java.util.ArrayList;
-
+/**
+ * LaboratoryDao class provides data access operations for {@link LaboratoryEntity}.
+ * <br>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to laboratories in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for laboratory management.
+ * <br>
+ */
 @Stateless
 public class LaboratoryDao extends AbstractDao<LaboratoryEntity> {
     private static final long serialVersionUID = 1L;

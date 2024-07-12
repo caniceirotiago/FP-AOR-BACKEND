@@ -8,7 +8,14 @@ import jakarta.persistence.PersistenceContext;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * ProjectLogDao class provides data access operations for {@link ProjectLogEntity}.
+ * <br>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to project logs in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for project log management.
+ * <br>
+ */
 @Stateless
 public class ProjectLogDao extends AbstractDao<ProjectLogEntity> {
     private static final long serialVersionUID = 1L;

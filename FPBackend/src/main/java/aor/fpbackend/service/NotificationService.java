@@ -12,11 +12,20 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
-
+/**
+ * NotificationService is a JAX-RS resource class that provides RESTful endpoints for managing notifications,
+ * including retrieving unread notifications and marking notifications as read.
+ */
 @Path("/notifications")
 public class NotificationService {
     @EJB
     NotificationBean notificationBean;
+    /**
+     * Retrieves a list of unread notifications for the authenticated user.
+     *
+     * @param securityContext the security context.
+     * @return a list of NotificationGetDto representing unread notifications.
+     */
     @GET
     @Path("")
     @Produces("application/json")
@@ -24,6 +33,13 @@ public class NotificationService {
     public List<NotificationGetDto> getNotifications(@Context SecurityContext securityContext) {
         return notificationBean.getUnreadNotifications(securityContext);
     }
+
+    /**
+     * Marks a specific notification as read.
+     *
+     * @param notificationId the ID of the notification to be marked as read.
+     * @throws EntityNotFoundException if the notification is not found.
+     */
     @PUT
     @Path("/mark/as/read/{notificationId}")
     @Consumes(MediaType.APPLICATION_JSON)

@@ -30,11 +30,11 @@ import java.util.stream.Collectors;
 
 /**
  * ProjectBean is a stateless session bean responsible for managing project-related operations within the system.
- * <p>
+ * <br>
  * This bean handles the creation, updating, retrieval, and logging of projects. It interacts with various DAOs to perform
  * CRUD operations on project entities, user entities, and related entities.
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Key functionalities provided by this bean include:
  * <ul>
  *     <li>Creating new projects and defining their relationships with users, skills, keywords, and assets.</li>
@@ -42,19 +42,19 @@ import java.util.stream.Collectors;
  *     <li>Retrieving project details and converting them to DTOs for presentation purposes.</li>
  *     <li>Logging project-related activities and changes for auditing and tracking purposes.</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  * The class uses dependency injection to obtain instances of various beans and DAOs, promoting a clean architecture
  * and separation of concerns.
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Technologies Used:
  * <ul>
  *     <li><b>Jakarta EE</b>: For EJB and transaction management.</li>
  *     <li><b>Log4j</b>: For logging operations.</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  *
  * @see ProjectDao
  * @see UserDao
@@ -101,7 +101,7 @@ public class ProjectBean implements Serializable {
 
     /**
      * Creates a new project with the provided details.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Validates the conclusion date and keywords.</li>
@@ -112,7 +112,7 @@ public class ProjectBean implements Serializable {
      *     <li>Defines relations for users, skills, keywords, and assets.</li>
      *     <li>Logs the creation of the project.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param projectCreateDto the DTO containing project creation details.
      * @param securityContext  the security context containing the authenticated user's details.
@@ -247,7 +247,7 @@ public class ProjectBean implements Serializable {
 
     /**
      * Adds various relations (users, skills, keywords, assets) to the newly created project.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Adds the project creator to the project members.</li>
@@ -318,7 +318,7 @@ public class ProjectBean implements Serializable {
 
     /**
      * Retrieves a list of all projects in the system.
-     * <p>
+     * <br>
      * This method fetches all project entities from the database and converts them into a list of
      * {@link ProjectGetDto} objects for easier handling and presentation in the application layer.
      * </p>
@@ -346,7 +346,7 @@ public class ProjectBean implements Serializable {
 
     /**
      * Retrieves the details of a specific project by its ID.
-     * <p>
+     * <br>
      * This method fetches the project entity associated with the provided project ID from the database
      * and converts it into a {@link ProjectGetDto} object for easier handling and presentation in the application layer.
      * If the project is not found, an {@link EntityNotFoundException} is thrown.
@@ -753,11 +753,11 @@ public class ProjectBean implements Serializable {
             createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getDescription(), newProject.getDescription())) {
-            String logContent = String.format("'%s' changed from '%s' to '%s'", "Description", oldProject.getDescription(), newProject.getDescription());
+            String logContent = "Description updated";
             createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getMotivation(), newProject.getMotivation())) {
-            String logContent = String.format("'%s' changed from '%s' to '%s'", "Motivation", oldProject.getMotivation(), newProject.getMotivation());
+            String logContent = "Motivation updated";
             createProjectLog(newProject, userEntity, LogTypeEnum.PROJECT_DATA, logContent);
         }
         if (!Objects.equals(oldProject.getConclusionDate(), newProject.getConclusionDate())) {

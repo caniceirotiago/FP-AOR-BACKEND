@@ -12,14 +12,21 @@ import jakarta.ws.rs.core.Response;
 
 import java.io.File;
 import java.io.IOException;
-
+/**
+ * ReportService is a JAX-RS resource class that provides RESTful endpoints for generating and retrieving
+ * project and asset reports in both JSON and PDF formats.
+ */
 @Path("/reports")
 public class ReportService {
 
     @EJB
     ReportBean reportBean;
 
-
+    /**
+     * Retrieves a summary of project reports in JSON format.
+     *
+     * @return a ReportProjectSummaryDto containing project report summary data.
+     */
     @GET
     @Path("/project/summary")
     @Produces(MediaType.APPLICATION_JSON)
@@ -28,6 +35,11 @@ public class ReportService {
         return reportBean.getProjectReportSummary();
     }
 
+    /**
+     * Retrieves a summary of asset reports in JSON format.
+     *
+     * @return a ReportAssetSummaryDto containing asset report summary data.
+     */
     @GET
     @Path("/asset/summary")
     @Produces(MediaType.APPLICATION_JSON)
@@ -36,6 +48,11 @@ public class ReportService {
         return reportBean.getAssetReportSummary();
     }
 
+    /**
+     * Generates and retrieves a PDF summary of project reports.
+     *
+     * @return a Response containing the project report summary PDF file.
+     */
     @GET
     @Path("/project/summary/pdf")
     @Produces("application/pdf")
@@ -53,6 +70,11 @@ public class ReportService {
         }
     }
 
+    /**
+     * Generates and retrieves a PDF summary of asset reports.
+     *
+     * @return a Response containing the asset report summary PDF file.
+     */
     @GET
     @Path("/asset/summary/pdf")
     @Produces("application/pdf")
@@ -69,5 +91,4 @@ public class ReportService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("PDF generation failed").build();
         }
     }
-
 }

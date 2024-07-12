@@ -12,7 +12,14 @@ import jakarta.persistence.PersistenceContext;
 
 import java.util.HashSet;
 import java.util.Set;
-
+/**
+ * RoleDao class provides data access operations for {@link RoleEntity}.
+ * <br>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to roles in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for role management.
+ * <br>
+ */
 @Stateless
 public class RoleDao extends AbstractDao<RoleEntity> {
     private static final long serialVersionUID = 1L;

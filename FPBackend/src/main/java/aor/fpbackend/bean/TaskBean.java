@@ -39,16 +39,16 @@ import java.util.*;
  * It interacts with various DAOs to perform CRUD operations on task entities, user entities,
  * and project entities. This bean handles the addition, update, deletion, and dependency
  * management of tasks.
- * <p>
+ * <br>
  * The class also performs input validation, logging, and ensures that transactions are handled
  * appropriately.
- * <p>
+ * <br>
  * Technologies Used:
  * <ul>
  *     <li>Jakarta EE: For dependency injection.</li>
  *     <li>SLF4J: For logging operations.</li>
  * </ul>
- * <p>
+ * <br>
  * Dependencies are injected using the {@link EJB} annotation, which includes DAOs for user,
  * task, and project entities. The bean also uses utility classes for logging and input validation.
  */
@@ -75,7 +75,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Retrieves a list of tasks associated with a specific project.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Validates the provided project ID to ensure it is positive.</li>
@@ -84,10 +84,10 @@ public class TaskBean implements Serializable {
      *     <li>Converts the list of task entities to a list of TaskGetDto objects.</li>
      *     <li>Logs the number of tasks fetched for monitoring purposes.</li>
      * </ul>
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * ThreadContext is cleared at the end of the method execution to ensure no residual data remains.
-     * </p>
+     * <br>
      *
      * @param projectId the ID of the project whose tasks are to be retrieved.
      * @return a list of TaskGetDto objects representing the tasks associated with the specified project.
@@ -112,7 +112,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Retrieves the details of a specific task by its ID.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Validates the provided task ID to ensure it is positive.</li>
@@ -121,10 +121,10 @@ public class TaskBean implements Serializable {
      *     <li>Converts the task entity to a TaskGetDto object.</li>
      *     <li>Logs the successful retrieval of the task for monitoring purposes.</li>
      * </ul>
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * ThreadContext is cleared at the end of the method execution to ensure no residual data remains.
-     * </p>
+     * <br>
      *
      * @param taskId the ID of the task to be retrieved.
      * @return a TaskGetDto object representing the details of the specified task.
@@ -150,7 +150,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Adds a new task to the specified project with the provided details.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Validates the existence of the project and the responsible user.</li>
@@ -158,10 +158,10 @@ public class TaskBean implements Serializable {
      *     <li>Creates and persists a new task entity associated with the project and responsible user.</li>
      *     <li>Creates a notification for the user marked as responsible for the new task.</li>
      * </ul>
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * ThreadContext is utilized to log user-specific information for auditing purposes.
-     * </p>
+     * <br>
      *
      * @param title            the title of the task.
      * @param description      the description of the task.
@@ -232,10 +232,10 @@ public class TaskBean implements Serializable {
 
     /**
      * Adds a dependency between two tasks.
-     * <p>
+     * <br>
      * This method validates the existence of the main and dependent tasks,
      * and then defines a dependency relationship between them.
-     * </p>
+     * <br>
      *
      * @param dependencyDto the DTO containing the IDs of the main and dependent tasks.
      * @throws EntityNotFoundException if either the main task or the dependent task is not found.
@@ -286,10 +286,10 @@ public class TaskBean implements Serializable {
 
     /**
      * Removes a dependency between two tasks.
-     * <p>
+     * <br>
      * This method validates the existence of the main and dependent tasks,
      * and then removes the dependency relationship between them.
-     * </p>
+     * <br>
      *
      * @param dependencyDto the DTO containing the IDs of the main and dependent tasks.
      * @throws EntityNotFoundException    if either the main task or the dependent task is not found.
@@ -338,9 +338,9 @@ public class TaskBean implements Serializable {
 
     /**
      * Updates the details of an existing task.
-     * <p>
+     * <br>
      * This method performs several validation checks, updates task details, and logs changes.
-     * </p>
+     * <br>
      *
      * @param taskUpdateDto   the DTO containing updated task details.
      * @param securityContext the security context of the authenticated user.
@@ -390,7 +390,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Handles state transitions for a task entity based on the provided taskUpdate DTO.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Checks if the new state differs from the current state.</li>
@@ -405,7 +405,7 @@ public class TaskBean implements Serializable {
      *     <li>Updates the task's state to the new state.</li>
      *     <li>Logs the state transition in the project log.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param taskEntity     the task entity whose state is being updated.
      * @param newState       the new TaskStateEnum.
@@ -441,7 +441,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Updates the details of a task, including state transitions, dependencies, and notifications.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Retrieves the authenticated user's entity from the database.</li>
@@ -454,7 +454,7 @@ public class TaskBean implements Serializable {
      *     <li>Handles state transitions and logs the changes.</li>
      *     <li>Sends notifications to the responsible user and executors if there are changes.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param taskDetailedUpdateDto the DTO containing the detailed update information for the task.
      * @param securityContext       the security context containing the authenticated user's details.
@@ -512,14 +512,14 @@ public class TaskBean implements Serializable {
 
     /**
      * Validates the planned start and end dates for a task update.
-     * <p>
+     * <br>
      * This method performs the following validations:
      * <ul>
      *     <li>Checks if the planned end date is before the planned start date.</li>
      *     <li>Ensures that the planned end date is at least one day after the planned start date.</li>
      * </ul>
      * If any of these validations fail, an InputValidationException is thrown.
-     * </p>
+     * <br>
      *
      * @param plannedStartDate the Instant containing the planned start date for the task.
      * @param plannedEndDate   the Instant containing the planned end date for the task.
@@ -537,7 +537,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Validates the compatibility of new planned dates with the dependencies and prerequisites of a task.
-     * <p>
+     * <br>
      * This method performs the following validations:
      * <ul>
      *     <li>Ensures that the new planned start date is not before the planned start dates of any dependent tasks.</li>
@@ -546,7 +546,7 @@ public class TaskBean implements Serializable {
      *     <li>Ensures that the new planned end date is not after the planned start dates of any prerequisite tasks.</li>
      * </ul>
      * If any of these validations fail, an InputValidationException is thrown.
-     * </p>
+     * <br>
      *
      * @param taskDetailedUpdateDto the DTO containing the new planned dates for the task.
      * @param taskEntity            the task entity to be updated, containing the current dependencies and prerequisites.
@@ -579,7 +579,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Validates the new responsible user for a task.
-     * <p>
+     * <br>
      * This method performs the following validations:
      * <ul>
      *     <li>Ensures that the new responsible user exists in the database.</li>
@@ -607,7 +607,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Validates the registered executors for a task.
-     * <p>
+     * <br>
      * This method performs the following validations:
      * <ul>
      *     <li>Ensures that each registered executor exists in the database.</li>
@@ -639,7 +639,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Updates the fields of a task entity with the values from a detailed update DTO.
-     * <p>
+     * <br>
      * This method updates various attributes of the task entity including:
      * <ul>
      *     <li>Responsible user</li>
@@ -669,7 +669,7 @@ public class TaskBean implements Serializable {
 
     /**
      * Sends notifications for changes in task responsibility and registered executors.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>If the responsible user for the task has changed, it sends a notification to the new responsible user.</li>

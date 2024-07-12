@@ -8,7 +8,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 
-
+/**
+ * MethodDao class provides data access operations for {@link MethodEntity}.
+ * <br>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to methods in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for method management.
+ * <br>
+ */
 @Stateless
 public class MethodDao extends AbstractDao<MethodEntity> {
     private static final long serialVersionUID = 1L;

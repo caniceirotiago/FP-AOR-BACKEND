@@ -18,13 +18,24 @@ import java.util.List;
 import aor.fpbackend.filters.RequiresMethodPermission;
 import jakarta.validation.Valid;
 import aor.fpbackend.enums.MethodEnum;
-
+/**
+ * KeywordService is a JAX-RS resource class that provides RESTful endpoints for managing keywords,
+ * including adding, retrieving, and removing keywords.
+ */
 @Path("/keywords")
 public class KeywordService {
 
     @EJB
     KeywordBean keywordBean;
 
+    /**
+     * Adds a keyword to a project.
+     *
+     * @param keywordAddDto the DTO containing the keyword name and project ID.
+     * @throws EntityNotFoundException if the project is not found.
+     * @throws ElementAssociationException if there is an issue associating the keyword with the project.
+     * @throws DuplicatedAttributeException if the keyword already exists.
+     */
     @POST
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -33,6 +44,11 @@ public class KeywordService {
         keywordBean.addKeyword(keywordAddDto.getName(), keywordAddDto.getProjectId());
     }
 
+    /**
+     * Retrieves a list of all keywords.
+     *
+     * @return a list of KeywordGetDto representing all keywords.
+     */
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
@@ -41,6 +57,12 @@ public class KeywordService {
         return keywordBean.getKeywords();
     }
 
+    /**
+     * Retrieves a list of keywords for a specific project.
+     *
+     * @param projectId the ID of the project.
+     * @return a list of KeywordGetDto representing the keywords of the specified project.
+     */
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -49,6 +71,12 @@ public class KeywordService {
         return keywordBean.getKeywordsByProject(projectId);
     }
 
+    /**
+     * Retrieves a list of keywords that start with the specified first letter.
+     *
+     * @param firstLetter the first letter to filter keywords by.
+     * @return a list of KeywordGetDto representing the keywords that start with the specified letter.
+     */
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
@@ -57,7 +85,13 @@ public class KeywordService {
         return keywordBean.getKeywordsByFirstLetter(firstLetter);
     }
 
-    // {projectId} just for filter validation
+    /**
+     * Removes a keyword from a project.
+     *
+     * @param keywordRemoveDto the DTO containing the keyword name and project ID.
+     * @throws EntityNotFoundException if the keyword or project is not found.
+     * @throws InputValidationException if there is an issue with the input data.
+     */
     @PUT
     @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)

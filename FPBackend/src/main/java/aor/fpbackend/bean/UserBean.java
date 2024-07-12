@@ -32,13 +32,13 @@ import java.util.*;
 /**
  * UserBean is a stateless EJB that provides services for user management, including registration,
  * authentication, profile updates, and password management.
- * <p>
+ * <br>
  * This bean handles the core logic for user-related operations, interacting with various DAO
  * and utility classes to perform tasks such as encoding passwords, sending emails, and managing sessions.
  * It ensures the integrity and security of user data by performing necessary checks and validations
  * before persisting or updating any information.
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Technologies Used:
  * <ul>
  *     <li><b>Java EE</b>: For building the EJB and managing transactions.</li>
@@ -48,12 +48,12 @@ import java.util.*;
  *     <li><b>Jakarta EE</b>: For RESTful web services and dependency injection.</li>
  *     <li><b>SLF4J</b>: For logging operations.</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Dependencies are injected using the {@link EJB} annotation, which includes DAOs for user, session, role,
  * and laboratory entities, as well as utility classes for password encoding, email services,
  * and session management.
- * </p>
+ * <br>
  */
 
 @Stateless
@@ -77,7 +77,7 @@ public class UserBean implements Serializable {
 
     /**
      * Registers a new user in the system.
-     * <p>
+     * <br>
      * This method performs several tasks to register a user:
      * <ul>
      *     <li>Checks if the email or username already exists.</li>
@@ -87,7 +87,7 @@ public class UserBean implements Serializable {
      *     <li>Generates a confirmation token and sends a confirmation email.</li>
      *     <li>Persists the new user entity in the database.</li>
      * </ul>
-     * </p>
+     * <br>
      * @param userRgDto the data transfer object containing user registration details.
      * @throws InvalidCredentialsException if the email or username already exists, or if there is an error during user persistence.
      * @throws EntityNotFoundException if the default role or laboratory is not found.
@@ -132,7 +132,7 @@ public class UserBean implements Serializable {
 
     /**
      * Confirms a user's registration using the provided confirmation token.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Validates the provided token to ensure it is not null or empty.</li>
@@ -140,7 +140,7 @@ public class UserBean implements Serializable {
      *     <li>Confirms the user's registration by setting the confirmation status to true and clearing the confirmation token and timestamp.</li>
      *     <li>Logs the operation and clears the ThreadContext to ensure no residual data remains.</li>
      * </ul>
-     * </p>
+     * <br>
      * @param token the confirmation token used to validate and confirm the user's registration.
      * @throws InputValidationException if the provided token is null or empty.
      * @throws UserNotFoundException if no user is found for the provided confirmation token.
@@ -185,7 +185,7 @@ public class UserBean implements Serializable {
      *     <li>Sends a password reset email to the user with the reset token.</li>
      *     <li>Logs the operation and clears the ThreadContext to ensure no residual data remains.</li>
      * </ul>
-     * </p>
+     * <br>
      * @param passwordRequestResetDto the data transfer object containing the user's email for the password reset request.
      * @throws UserNotFoundException if no user is found for the provided email.
      * @throws IllegalStateException if a password reset request has been made recently.
@@ -218,7 +218,7 @@ public class UserBean implements Serializable {
      * <p>
      * This method checks if the user exists, if they have already been confirmed, and if they are not
      * requesting confirmation emails too frequently before sending a new confirmation email.
-     * </p>
+     * <br>
      * @param email the DTO containing the email of the user requesting the resend of the confirmation email.
      * @throws InvalidRequestOnRegistConfirmationException if the user is not found,
      *         has already been confirmed, or is requesting confirmation emails
@@ -259,7 +259,7 @@ public class UserBean implements Serializable {
      * This method validates the reset token, checks if it has not expired,
      * and then updates the user's password. If the token is invalid or expired,
      * appropriate exceptions are thrown.
-     * </p>
+     * <br>
      * @param passwordResetDto the DTO containing the reset token and the new password.
      * @throws IllegalStateException if the reset token has expired.
      * @throws UserNotFoundException if the user associated with the reset token is not found.

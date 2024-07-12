@@ -44,11 +44,11 @@ import java.util.UUID;
  * SessionBean is a stateless EJB that manages user sessions, including creation, validation,
  * and cleanup of session tokens. It handles tasks such as generating JWT tokens, validating
  * authentication and session tokens, and managing session expiration and invalidation.
- * <p>
+ * <br>
  * This bean interacts with various DAOs to fetch user and session data and relies on utility
  * classes for JWT operations and websocket communication.
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Technologies Used:
  * <ul>
  *     <li><b>Java EE</b>: For building the EJB and managing transactions.</li>
@@ -56,12 +56,12 @@ import java.util.UUID;
  *     <li><b>Jakarta EE</b>: For dependency injection and scheduling.</li>
  *     <li><b>SLF4J</b>: For logging operations.</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Dependencies are injected using the {@link EJB} annotation, which includes DAOs for user,
  * session, and role entities. The bean also uses utility classes for JWT operations and
  * websocket communication.
- * </p>
+ * <br>
  */
 @Stateless
 public class SessionBean implements Serializable {
@@ -83,23 +83,23 @@ public class SessionBean implements Serializable {
 
     /**
      * Authenticates a user and creates a new session.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Validates the user's email and password.</li>
      *     <li>Generates JWT tokens for authentication and session management.</li>
      *     <li>Creates cookies to store the tokens and persists the session information.</li>
      * </ul>
-     * </p>
+     * <br>
      *
-     * <p>
+     * <br>
      * Technologies Used:
      * <ul>
      *     <li><b>BCrypt</b>: For password hashing and validation via `PassEncoder`.</li>
      *     <li><b>JWT</b>: For token generation and validation via `SessionBean`.</li>
      *     <li><b>Cookie html only</b>: For storing the tokens in the client's browser.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param userLogin the DTO containing the user's login credentials.
      * @return a Response containing the authentication and session cookies.
@@ -143,14 +143,14 @@ public class SessionBean implements Serializable {
 
     /**
      * Logs out a user by invalidating their session token.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Retrieves the authenticated user's details from the security context.</li>
      *     <li>Invalidates the session associated with the user.</li>
      *     <li>Logs the logout operation for auditing purposes.</li>
      * </ul>
-     * </p>
+     * <br>
      * @param securityContext the security context containing the authenticated user's details.
      * @throws UserNotFoundException if the token is invalid or the session cannot be found.
      */
@@ -174,7 +174,7 @@ public class SessionBean implements Serializable {
 
     /**
      * Scheduled method to clean up expired sessions and manage user sessions.
-     * <p>
+     * <br>
      * This method is executed every minute to check for user sessions that are about to expire within the next three minutes
      * or have already expired. The primary goal is to ensure that sessions are properly managed, thereby enhancing security
      * and user experience. The method performs the following tasks:
@@ -197,7 +197,7 @@ public class SessionBean implements Serializable {
      *     <li>Active sessions that are about to expire are properly closed, preventing unauthorized access.</li>
      *     <li>Users are notified of their session's imminent expiration and prompted to re-authenticate, improving security and user experience.</li>
      * </ul>
-     * </p>
+     * <br>
      */
     @Transactional
     @Schedule(hour = "*", minute = "*/1", persistent = false)
@@ -237,7 +237,7 @@ public class SessionBean implements Serializable {
 
     /**
      * Generates a JSON Web Token (JWT) for the given user with specified expiration time and token type.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Generates a new UUID as the token ID.</li>
@@ -247,7 +247,7 @@ public class SessionBean implements Serializable {
      *     <li>Signs the token with a secret key using the HS512 algorithm.</li>
      *     <li>Adds user-specific claims if the user is not null, including user ID, username, and role.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param user the user entity for whom the token is being generated. Can be null.
      * @param expirationTime the expiration time in milliseconds for the token.
@@ -294,14 +294,14 @@ public class SessionBean implements Serializable {
 
     /**
      * Generates a new secure random token.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Creates an instance of {@link SecureRandom} to generate secure random bytes.</li>
      *     <li>Generates a byte array of 24 random bytes.</li>
      *     <li>Encodes the random bytes into a URL-safe Base64 string.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @return a new secure random token as a URL-safe Base64 encoded string.
      */
@@ -322,7 +322,7 @@ public class SessionBean implements Serializable {
 
     /**
      * Validates a JSON Web Token (JWT) and retrieves the authenticated user's details.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Checks if the secret key is configured.</li>
@@ -330,7 +330,7 @@ public class SessionBean implements Serializable {
      *     <li>Parses the JWT and extracts the claims.</li>
      *     <li>Retrieves the user's details from the database and constructs an {@link AuthUserDto} object.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param token the JWT to be validated.
      * @return an {@link AuthUserDto} containing the authenticated user's details.
@@ -375,7 +375,7 @@ public class SessionBean implements Serializable {
 
     /**
      * Validates a session token and retrieves the authenticated user's details.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Checks if the secret key is configured.</li>
@@ -383,7 +383,7 @@ public class SessionBean implements Serializable {
      *     <li>Parses the JWT and extracts the claims.</li>
      *     <li>Retrieves the user's details from the database and constructs an {@link AuthUserDto} object.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param token the session token to be validated.
      * @return an {@link AuthUserDto} containing the authenticated user's details.
@@ -439,7 +439,7 @@ public class SessionBean implements Serializable {
 
     /**
      * Creates a new session for the user and invalidates the old session.
-     * <p>
+     * <br>
      * This method is called when a session is reactivated due to user activity before the session expires.
      * It performs the following steps:
      * <ul>
@@ -450,7 +450,7 @@ public class SessionBean implements Serializable {
      *     <li>Sets the new tokens in the request context properties.</li>
      *     <li>Invalidates the old session token.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param authUserDto the authenticated user DTO containing user details.
      * @param requestContext the container request context to set new tokens.
@@ -494,14 +494,14 @@ public class SessionBean implements Serializable {
 
     /**
      * Invalidates the current session and sets invalid tokens in the request context.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Invalidates the current session token in the database.</li>
      *     <li>Generates invalid tokens (value "null") to replace the current tokens.</li>
      *     <li>Sets the new invalid tokens in the request context properties.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param authUserDto the authenticated user DTO containing user details.
      * @param requestContext the container request context to set new invalid tokens.

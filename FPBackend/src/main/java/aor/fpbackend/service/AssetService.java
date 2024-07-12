@@ -21,12 +21,21 @@ import jakarta.ws.rs.core.UriInfo;
 import java.net.UnknownHostException;
 import java.util.List;
 
-
+/**
+ * AssetService is a JAX-RS resource class that provides RESTful endpoints for managing assets.
+ */
 @Path("/assets")
 public class AssetService {
     @EJB
     AssetBean assetBean;
-
+    /**
+     * Creates a new asset.
+     *
+     * @param assetCreateDto the AssetCreateDto containing asset details.
+     * @param securityContext the SecurityContext containing the security details.
+     * @throws DuplicatedAttributeException if the asset already exists.
+     * @throws UserNotFoundException if the user is not found.
+     */
     @POST
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -35,6 +44,13 @@ public class AssetService {
         assetBean.createAsset(assetCreateDto, securityContext);
     }
 
+    /**
+     * Adds an asset to a project.
+     *
+     * @param projectAssetCreateDto the ProjectAssetCreateDto containing asset and project details.
+     * @throws EntityNotFoundException if the project or asset is not found.
+     * @throws ElementAssociationException if there is an issue with the association.
+     */
     @POST
     @Path("/add/project")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -42,6 +58,12 @@ public class AssetService {
     public void addAssetToProject(@Valid ProjectAssetCreateDto projectAssetCreateDto) throws EntityNotFoundException, ElementAssociationException {
         assetBean.addProjectAssetToProject(projectAssetCreateDto.getName(), projectAssetCreateDto.getProjectId(), projectAssetCreateDto.getUsedQuantity());
     }
+
+    /**
+     * Retrieves all assets.
+     *
+     * @return a list of AssetGetDto representing all assets.
+     */
 
     @GET
     @Path("")
@@ -51,6 +73,15 @@ public class AssetService {
         return assetBean.getAllAssets();
     }
 
+    /**
+     * Retrieves filtered assets based on pagination and query parameters.
+     *
+     * @param page the page number for pagination.
+     * @param pageSize the number of items per page.
+     * @param uriInfo the UriInfo containing the query parameters.
+     * @return an AssetPaginatedDto representing the paginated and filtered assets.
+     * @throws InputValidationException if the input data is invalid.
+     */
     @GET
     @Path("/all/filter")
     @Produces(MediaType.APPLICATION_JSON)
@@ -62,6 +93,12 @@ public class AssetService {
         return assetBean.getFilteredAssets(page, pageSize, uriInfo);
     }
 
+    /**
+     * Retrieves assets associated with a specific project.
+     *
+     * @param projectId the ID of the project.
+     * @return a list of ProjectAssetGetDto representing the assets of the project.
+     */
     @GET
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -70,6 +107,12 @@ public class AssetService {
         return assetBean.getProjectAssetsByProject(projectId);
     }
 
+    /**
+     * Retrieves an asset by its ID.
+     *
+     * @param assetId the ID of the asset.
+     * @return an AssetGetDto representing the asset.
+     */
     @GET
     @Path("/id/{assetId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -78,6 +121,12 @@ public class AssetService {
         return assetBean.getAssetById(assetId);
     }
 
+    /**
+     * Retrieves assets whose names start with a specific letter.
+     *
+     * @param firstLetter the initial letter of the asset names.
+     * @return a list of AssetGetDto representing the assets.
+     */
     @GET
     @Path("/first/letter")
     @Produces(MediaType.APPLICATION_JSON)
@@ -86,6 +135,11 @@ public class AssetService {
         return assetBean.getAssetsByFirstLetter(firstLetter);
     }
 
+    /**
+     * Retrieves the list of asset types.
+     *
+     * @return a list of AssetTypeEnum representing the asset types.
+     */
     @GET
     @Path("/enum/types")
     @Produces(MediaType.APPLICATION_JSON)
@@ -95,7 +149,12 @@ public class AssetService {
     }
 
 
-    // {projectId} just for filter validation
+    /**
+     * Removes an asset from a project.
+     *
+     * @param projectAssetRemoveDto the ProjectAssetRemoveDto containing asset and project details.
+     * @throws EntityNotFoundException if the asset or project is not found.
+     */
     @PUT
     @Path("/remove/project/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -104,6 +163,13 @@ public class AssetService {
         assetBean.removeProjectAssetFromProject(projectAssetRemoveDto);
     }
 
+    /**
+     * Updates an existing asset.
+     *
+     * @param assetUpdateDto the AssetUpdateDto containing the updated asset details.
+     * @throws EntityNotFoundException if the asset is not found.
+     * @throws InputValidationException if the input data is invalid.
+     */
     @PUT
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)

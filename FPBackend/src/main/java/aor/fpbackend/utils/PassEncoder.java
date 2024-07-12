@@ -4,7 +4,10 @@ import jakarta.ejb.Stateless;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.Serializable;
-
+/**
+ * PassEncoder is a stateless EJB that provides methods for encoding passwords
+ * and verifying password matches using the BCrypt hashing algorithm.
+ */
 @Stateless
 public class PassEncoder implements Serializable {
     private static final long serialVersionUID = 1L;

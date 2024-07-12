@@ -33,14 +33,14 @@ import java.util.stream.Collectors;
  * and project entities. This bean handles the addition, update, deletion, and retrieval
  * of skills associated with users and projects.
  *
- * <p>
+ * <br>
  * Technologies Used:
  * <ul>
  *     <li>Jakarta EE: For dependency injection and EJB management.</li>
  *     <li>SLF4J: For logging operations.</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Dependencies are injected using the {@link EJB} annotation, which includes DAOs for user,
  * skill, and project entities. The bean also uses utility classes for logging and ensures
  * that transactions are handled appropriately.
@@ -60,15 +60,15 @@ public class SkillBean implements Serializable {
 
     /**
      * Adds a skill to the authenticated user's skill set.
-     * <p>
+     * <br>
      * This method ensures the skill exists (creating it if necessary),
      * and then associates the skill with the authenticated user. If the user
      * already possesses the skill, a DuplicatedAttributeException is thrown.
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * The method uses logging to track the process and catches any persistence
      * exceptions to handle database-related errors.
-     * </p>
+     * <br>
      *
      * @param skillAddUserDto The DTO containing the skill name and type to add.
      * @param securityContext The security context containing the authenticated user's information.
@@ -106,10 +106,10 @@ public class SkillBean implements Serializable {
 
     /**
      * Adds the specified skill to the user's set of skills.
-     * <p>
+     * <br>
      * This method checks if the user already has the skill and adds it if not.
      * If the user already has the skill, a DuplicatedAttributeException is thrown.
-     * </p>
+     * <br>
      *
      * @param userEntity  The user entity to which the skill will be added.
      * @param skillEntity The skill entity to be added to the user.
@@ -128,10 +128,10 @@ public class SkillBean implements Serializable {
 
     /**
      * Adds the specified user to the skill's set of users.
-     * <p>
+     * <br>
      * This method checks if the skill already has the user and adds it if not.
      * If the skill already has the user, a DuplicatedAttributeException is thrown.
-     * </p>
+     * <br>
      *
      * @param skillEntity The skill entity to which the user will be added.
      * @param userEntity  The user entity to be added to the skill.
@@ -150,10 +150,10 @@ public class SkillBean implements Serializable {
 
     /**
      * Ensures the specified skill exists, creating it if necessary.
-     * <p>
+     * <br>
      * This method checks if a skill with the given name exists in the database.
      * If the skill does not exist, it creates a new SkillEntity and persists it.
-     * </p>
+     * <br>
      *
      * @param name The name of the skill.
      * @param type The type of the skill.
@@ -167,15 +167,15 @@ public class SkillBean implements Serializable {
 
     /**
      * Adds a skill to a specified project.
-     * <p>
+     * <br>
      * This method ensures that the skill exists (creating it if necessary),
      * associates the skill with the specified project, and updates the skill's list of projects.
      * If the project already possesses the skill, a DuplicatedAttributeException is thrown.
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * The method uses logging to track the process and catches any persistence
      * exceptions to handle database-related errors.
-     * </p>
+     * <br>
      *
      * @param skillName The name of the skill to add.
      * @param type      The type of the skill.
@@ -269,15 +269,15 @@ public class SkillBean implements Serializable {
 
     /**
      * Retrieves a list of all skills in the system.
-     * <p>
+     * <br>
      * This method fetches all skill entities from the database and converts them
      * into a list of {@link SkillGetDto} objects for easier handling and presentation
      * in the application layer.
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * Logging is used to track the process, and any database-related errors are caught
      * and rethrown as a {@link DatabaseOperationException}.
-     * </p>
+     * <br>
      *
      * @return a list of {@link SkillGetDto} representing all skills in the system.
      * @throws DatabaseOperationException if there is an error while fetching the skills from the database.
@@ -298,18 +298,18 @@ public class SkillBean implements Serializable {
 
     /**
      * Retrieves a list of skills associated with a specific user.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Fetches the list of skills associated with the specified username from the database.</li>
      *     <li>Converts the list of skill entities to a list of {@link SkillGetDto} objects.</li>
      *     <li>Logs the number of skills fetched for the specified user.</li>
      * </ul>
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * Logging is used to track the process, and any database-related errors are caught
      * and rethrown as a {@link DatabaseOperationException}.
-     * </p>
+     * <br>
      *
      * @param username the username of the user whose skills are to be retrieved.
      * @return a list of {@link SkillGetDto} representing the skills associated with the specified user.
@@ -335,7 +335,7 @@ public class SkillBean implements Serializable {
 
     /**
      * Retrieves a list of skills whose names start with a specified letter.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Validates the input to ensure it is a single alphabetical character.</li>
@@ -344,11 +344,11 @@ public class SkillBean implements Serializable {
      *     <li>Converts the list of skill entities to a list of {@link SkillGetDto} objects.</li>
      *     <li>Logs the number of skills fetched for the specified letter.</li>
      * </ul>
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * Logging is used to track the process, and any database-related errors are caught
      * and rethrown as a {@link DatabaseOperationException}.
-     * </p>
+     * <br>
      *
      * @param firstLetter the letter to filter skills by.
      * @return a list of {@link SkillGetDto} representing the skills starting with the specified letter, or an empty list if the input is invalid.
@@ -373,18 +373,18 @@ public class SkillBean implements Serializable {
 
     /**
      * Retrieves a list of skills associated with a specific project.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Fetches the list of skills associated with the specified project ID from the database.</li>
      *     <li>Converts the list of skill entities to a list of {@link SkillGetDto} objects.</li>
      *     <li>Logs the number of skills fetched for the specified project ID.</li>
      * </ul>
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * Logging is used to track the process, and any database-related errors are caught
      * and rethrown as a {@link DatabaseOperationException}.
-     * </p>
+     * <br>
      *
      * @param projectId the ID of the project whose skills are to be retrieved.
      * @return a list of {@link SkillGetDto} representing the skills associated with the specified project.
@@ -406,17 +406,17 @@ public class SkillBean implements Serializable {
 
     /**
      * Retrieves a list of all skill type enumerations.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Creates a new list to hold the {@link SkillTypeEnum} values.</li>
      *     <li>Iterates over all values of the {@link SkillTypeEnum} enumeration and adds them to the list.</li>
      *     <li>Logs the retrieval of the skill type enumerations.</li>
      * </ul>
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * Logging is used to track the process.
-     * </p>
+     * <br>
      *
      * @return a list of {@link SkillTypeEnum} representing all possible skill types.
      */
@@ -432,7 +432,7 @@ public class SkillBean implements Serializable {
 
     /**
      * Removes a skill from a user's list of skills.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Retrieves the authenticated user's details from the security context.</li>
@@ -441,10 +441,10 @@ public class SkillBean implements Serializable {
      *     <li>Removes the user from the skill's list of users.</li>
      *     <li>Logs the successful removal of the skill from the user.</li>
      * </ul>
-     * </p>
-     * <p>
+     * <br>
+     * <br>
      * Logging is used to track the process.
-     * </p>
+     * <br>
      *
      * @param skillRemoveUserDto the DTO containing the skill ID to be removed from the user.
      * @param securityContext    the security context containing the authenticated user's details.
@@ -471,14 +471,14 @@ public class SkillBean implements Serializable {
 
     /**
      * Retrieves the authenticated user entity from the database.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Retrieves the authenticated user's details using their ID.</li>
      *     <li>Validates the existence of the user.</li>
      *     <li>Logs the successful retrieval of the user.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param authUserDto the authenticated user's DTO.
      * @return the UserEntity representing the authenticated user.
@@ -496,14 +496,14 @@ public class SkillBean implements Serializable {
 
     /**
      * Retrieves the skill entity from the database.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Retrieves the skill entity using the provided skill ID.</li>
      *     <li>Validates the existence of the skill.</li>
      *     <li>Logs the successful retrieval of the skill.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param skillRemoveUserDto the DTO containing the skill ID to be retrieved.
      * @return the SkillEntity representing the skill to be removed.
@@ -521,7 +521,7 @@ public class SkillBean implements Serializable {
 
     /**
      * Removes a skill from the user's list of skills.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Retrieves the user's current list of skills.</li>
@@ -529,7 +529,7 @@ public class SkillBean implements Serializable {
      *     <li>Removes the skill from the user's list of skills and updates the user entity.</li>
      *     <li>Logs the successful removal of the skill from the user's list of skills.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param userEntity  the user entity from which the skill will be removed.
      * @param skillEntity the skill entity to be removed from the user's list of skills.
@@ -548,14 +548,14 @@ public class SkillBean implements Serializable {
 
     /**
      * Removes a user from the skill's list of users.
-     * <p>
+     * <br>
      * This method performs the following steps:
      * <ul>
      *     <li>Retrieves the skill's current list of users.</li>
      *     <li>Removes the user from the skill's list of users and updates the skill entity.</li>
      *     <li>Logs the successful removal of the user from the skill's list of users.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param skillEntity the skill entity from which the user will be removed.
      * @param userEntity  the user entity to be removed from the skill's list of users.
@@ -579,10 +579,10 @@ public class SkillBean implements Serializable {
      *     <li>Removes the project from the skill's list of projects.</li>
      *     <li>Logs the successful removal of the skill from the project.</li>
      * </ul>
-     * </p>
+     * <br>
      * <p>
      * Logging is used to track the process, and thread context is cleared after execution.
-     * </p>
+     * <br>
      *
      * @param skillRemoveProjectDto the DTO containing the skill ID and project ID.
      * @throws EntityNotFoundException if the project or skill is not found.
@@ -612,7 +612,7 @@ public class SkillBean implements Serializable {
      *     <li>Validates the existence of the project.</li>
      *     <li>Logs the successful retrieval of the project.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param skillRemoveProjectDto the DTO containing the project ID.
      * @return the ProjectEntity representing the project to be updated.
@@ -637,7 +637,7 @@ public class SkillBean implements Serializable {
      *     <li>Validates the existence of the skill.</li>
      *     <li>Logs the successful retrieval of the skill.</li>
      * </ul>
-     * </p>
+     * <br>
      *
      * @param skillRemoveProjectDto the DTO containing the skill ID.
      * @return the SkillEntity representing the skill to be updated.

@@ -37,7 +37,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-
+/**
+ * GroupMessageWebSocket manages WebSocket connections and messages for group chat functionality.
+ * This class handles WebSocket connections for group chats, validates users, manages sessions,
+ * and processes incoming messages. It also provides methods to broadcast messages and mark them as read.
+ *
+ * @see SessionBean
+ * @see ProjectMembershipDao
+ * @see GroupMessageBean
+ * @see NotificationBean
+ * @see WebSocketMessageDto
+ */
 @ApplicationScoped
 @ServerEndpoint("/groupChat/{sessionToken}/{projectId}")
 public class GroupMessageWebSocket {
@@ -54,7 +64,13 @@ public class GroupMessageWebSocket {
     private SessionBean sessionBean;
     @EJB
     private NotificationBean notificationBean;
-
+    /**
+     * Called when a new WebSocket connection is opened.
+     *
+     * @param session The WebSocket session.
+     * @param sessionToken The session token used for authentication.
+     * @param projectId The project ID to which the group chat belongs.
+     */
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("projectId") Long projectId) {
         try {
@@ -75,7 +91,13 @@ public class GroupMessageWebSocket {
             e.printStackTrace();
         }
     }
-
+    /**
+     * Called when a WebSocket connection is closed.
+     *
+     * @param session The WebSocket session.
+     * @param sessionToken The session token used for authentication.
+     * @throws InvalidCredentialsException If the session token is invalid.
+     */
     @OnClose
     public void onClose(Session session, @PathParam("sessionToken") String sessionToken) throws InvalidCredentialsException {
         AuthUserDto user = sessionBean.validateSessionTokenAndGetUserDetails(sessionToken);
@@ -89,15 +111,22 @@ public class GroupMessageWebSocket {
             }
         }
     }
-
+    /**
+     * Called when an error occurs in the WebSocket connection.
+     *
+     * @param session The WebSocket session.
+     * @param throwable The throwable error.
+     */
     @OnError
     public void onError(Session session, Throwable throwable) {
         System.out.println("WebSocket error: " + throwable.getMessage());
     }
-
-    //On message receive two types of messages: markAsRead and newGroupMessage
-    //markAsRead: mark messages as read
-    //newGroupMessage: persists message in database and sends it to the project members if they are online
+    /**
+     * Called when a message is received through the WebSocket.
+     *
+     * @param session The WebSocket session.
+     * @param message The message received.
+     */
     @OnMessage
     public void onMessage(Session session, String message) {
         try {
@@ -112,7 +141,14 @@ public class GroupMessageWebSocket {
             System.err.println("Error processing message: " + e.getMessage());
         }
     }
-
+    /**
+     * Broadcasts a group message to all members of the group.
+     *
+     * @param json The JSON object containing the message data.
+     * @throws IOException If an I/O error occurs.
+     * @throws UserNotFoundException If the user is not found.
+     * @throws EntityNotFoundException If the entity is not found.
+     */
     public void broadcastGroupMessage(JsonObject json) throws IOException, UserNotFoundException, EntityNotFoundException {
         JsonObject data = json.getAsJsonObject(QueryParams.DATA);
         GroupMessageSendDto msg = gson.fromJson(data, GroupMessageSendDto.class);
@@ -146,7 +182,13 @@ public class GroupMessageWebSocket {
             }
         }
     }
-
+    /**
+     * Marks messages as read for a user.
+     *
+     * @param session The WebSocket session.
+     * @param json The JSON object containing the message IDs to mark as read.
+     * @throws IOException If an I/O error occurs.
+     */
     public void markAsRead(Session session, JsonObject json) throws IOException {
         JsonElement dataElement = json.get(QueryParams.DATA);
         Type listType = new TypeToken<List<Long>>() {

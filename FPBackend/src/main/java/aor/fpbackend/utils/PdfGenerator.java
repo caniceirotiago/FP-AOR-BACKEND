@@ -16,11 +16,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
+/**
+ * PdfGenerator is a stateless EJB that provides methods for generating PDF reports
+ * for project and asset summaries using Apache PDFBox.
+ */
 @Stateless
 public class PdfGenerator {
 
-    // Method for Project Report!
+    /**
+     * Generates a project report PDF.
+     *
+     * @param reportSummary the data transfer object containing project summary details.
+     * @param dest the destination file path where the PDF will be saved.
+     * @throws IOException if an I/O error occurs while creating the PDF.
+     */
     public void generateProjectReport(ReportProjectSummaryDto reportSummary, String dest) throws IOException {
         // Load the logo image
         try (InputStream logoStream = getClass().getClassLoader().getResourceAsStream("CriticalLogo.png")) {
@@ -116,7 +125,13 @@ public class PdfGenerator {
         }
     }
 
-    // Method for Asset Report!
+    /**
+     * Generates an asset report PDF.
+     *
+     * @param assetReportSummary the data transfer object containing asset summary details.
+     * @param dest the destination file path where the PDF will be saved.
+     * @throws IOException if an I/O error occurs while creating the PDF.
+     */
     public void generateAssetReport(ReportAssetSummaryDto assetReportSummary, String dest) throws IOException {
         // Load the logo image
         try (InputStream logoStream = getClass().getClassLoader().getResourceAsStream("CriticalLogo.png")) {
@@ -207,12 +222,30 @@ public class PdfGenerator {
         }
     }
 
-    // Helper method to insert logo
+    /**
+     * Helper method to insert a logo into the PDF.
+     *
+     * @param contentStream the PDPageContentStream to draw the image on.
+     * @param logo the PDImageXObject representing the logo.
+     * @param pageWidth the width of the page.
+     * @throws IOException if an I/O error occurs while inserting the logo.
+     */
     private void insertLogo(PDPageContentStream contentStream, PDImageXObject logo, float pageWidth) throws IOException {
         contentStream.drawImage(logo, pageWidth - 150, 700, 100, 50); // Adjust x, y, width, height as needed
     }
 
-    // Helper method to draw text on the PDF
+    /**
+     * Helper method to draw text on the PDF.
+     *
+     * @param contentStream the PDPageContentStream to draw the text on.
+     * @param font the PDType1Font to use for the text.
+     * @param fontSize the size of the font.
+     * @param text the text to draw.
+     * @param x the x-coordinate of the text.
+     * @param y the y-coordinate of the text.
+     * @return the updated y position after drawing the text.
+     * @throws IOException if an I/O error occurs while drawing the text.
+     */
     private float drawText(PDPageContentStream contentStream, PDType1Font font, int fontSize, String text, float x, float y) throws IOException {
         contentStream.setFont(font, fontSize);
         contentStream.beginText();
@@ -225,7 +258,17 @@ public class PdfGenerator {
         return y - textHeight;
     }
 
-    // Helper method to draw location data on the PDF
+    /**
+     * Helper method to draw location data on the PDF.
+     *
+     * @param contentStream the PDPageContentStream to draw the location data on.
+     * @param locationData the iterable collection of location data to draw.
+     * @param x the x-coordinate of the location data.
+     * @param y the y-coordinate of the location data.
+     * @param lineHeight the height of each line of text.
+     * @return the updated y position after drawing the location data.
+     * @throws IOException if an I/O error occurs while drawing the location data.
+     */
     private float drawLocationData(PDPageContentStream contentStream, Iterable<ReportProjectsLocationDto> locationData, float x, float y, float lineHeight) throws IOException {
         for (ReportProjectsLocationDto locationDto : locationData) {
             String locationText = locationDto.getLocation().toString() + ": " + locationDto.getProjectCount() + " projects; " + locationDto.getProjectPercentage() + "%";

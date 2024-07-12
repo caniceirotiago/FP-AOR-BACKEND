@@ -5,7 +5,13 @@ import com.google.gson.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-
+/**
+ * InstantAdapter is a custom serializer and deserializer for {@link Instant} objects.
+ * <p>
+ * This class implements {@link JsonSerializer} and {@link JsonDeserializer} to handle
+ * the conversion of {@link Instant} objects to and from their JSON representation.
+ * <br>
+ */
 public class InstantAdapter implements JsonSerializer<Instant>, JsonDeserializer<Instant> {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
 

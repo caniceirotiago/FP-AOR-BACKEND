@@ -16,7 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+/**
+ * AssetDao class provides data access operations for {@link AssetEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to assets in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for asset management.
+ * </p>
+ */
 @Stateless
 public class AssetDao extends AbstractDao<AssetEntity> {
     private static final long serialVersionUID = 1L;

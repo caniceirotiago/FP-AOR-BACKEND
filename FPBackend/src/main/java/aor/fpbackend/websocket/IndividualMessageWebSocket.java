@@ -33,7 +33,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+/**
+ * IndividualMessageWebSocket handles WebSocket connections for individual chat messages.
+ *
+ * This class manages WebSocket connections, validates users, processes incoming messages,
+ * and sends notifications for individual chat messages.
+ *
+ * @see IndividualMessageBean
+ * @see NotificationBean
+ * @see SessionBean
+ * @see WebSocketMessageDto
+ */
 @ApplicationScoped
 @ServerEndpoint("/emailChat/{sessionToken}/{receiverId}")
 public class IndividualMessageWebSocket {
@@ -48,7 +58,13 @@ public class IndividualMessageWebSocket {
     private NotificationBean notificationBean;
     @EJB
     private SessionBean sessionBean;
-
+    /**
+     * Called when a new WebSocket connection is opened.
+     *
+     * @param session The WebSocket session.
+     * @param sessionToken The session token used for authentication.
+     * @param receiverId The ID of the message receiver.
+     */
     @OnOpen
     public void onOpen(Session session, @PathParam("sessionToken") String sessionToken, @PathParam("receiverId") Long receiverId) {
         try {
@@ -66,7 +82,13 @@ public class IndividualMessageWebSocket {
             e.printStackTrace();
         }
     }
-
+    /**
+     * Called when a WebSocket connection is closed.
+     *
+     * @param session The WebSocket session.
+     * @param sessionToken The session token used for authentication.
+     * @throws InvalidCredentialsException If the session token is invalid.
+     */
     @OnClose
     public void onClose(Session session, @PathParam("sessionToken") String sessionToken) throws InvalidCredentialsException {
         AuthUserDto user = sessionBean.validateSessionTokenAndGetUserDetails(sessionToken);
@@ -80,15 +102,22 @@ public class IndividualMessageWebSocket {
             }
         }
     }
-
+    /**
+     * Called when an error occurs in the WebSocket connection.
+     *
+     * @param session The WebSocket session.
+     * @param throwable The throwable error.
+     */
     @OnError
     public void onError(Session session, Throwable throwable) {
         System.out.println("WebSocket error: " + throwable.getMessage());
     }
-
-    //On message receive two types of messages: markAsRead and sendMessage
-    //markAsRead: mark messages as read
-    //sendMessage: persists message in database and sends it to the receiver if the receiver is online
+    /**
+     * Called when a message is received through the WebSocket.
+     *
+     * @param session The WebSocket session.
+     * @param message The message received.
+     */
     @OnMessage
     public void onMessage(Session session, String message) {
         try {
@@ -103,7 +132,12 @@ public class IndividualMessageWebSocket {
             System.err.println("Error processing message: " + e.getMessage());
         }
     }
-
+    /**
+     * Marks messages as read for a user.
+     *
+     * @param json The JSON object containing the message IDs to mark as read.
+     * @throws IOException If an I/O error occurs.
+     */
     public void markAsRead(JsonObject json) throws IOException {
         JsonElement dataElement = json.get(QueryParams.DATA);
         Type listType = new TypeToken<List<Long>>() {
@@ -132,7 +166,14 @@ public class IndividualMessageWebSocket {
             }
         }
     }
-
+    /**
+     * Receives and sends an individual message.
+     *
+     * @param session The WebSocket session.
+     * @param json The JSON object containing the message data.
+     * @throws IOException If an I/O error occurs.
+     * @throws UserNotFoundException If the user is not found.
+     */
     public void receiveSendMessage(Session session, JsonObject json) throws IOException, UserNotFoundException {
         JsonObject data = json.getAsJsonObject(QueryParams.DATA);
         IndividualMessageSendDto msg = gson.fromJson(data, IndividualMessageSendDto.class);

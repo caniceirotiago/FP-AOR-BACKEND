@@ -21,14 +21,14 @@ import java.io.Serializable;
  * It sets up initial roles, laboratories, users, configurations, methods, and permissions.
  * This bean ensures that the necessary data is available for the application to function correctly.
  *
- * <p>
+ * <br>
  * Technologies Used:
  * <ul>
  *     <li>Jakarta EE: For dependency injection and EJB management.</li>
  *     <li>SLF4J: For logging operations.</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Dependencies are injected using the {@link EJB} annotation, which includes beans for role,
  * laboratory, user, configuration, and method management. The bean uses utility classes for
  * logging and ensures that transactions are handled appropriately.

@@ -12,7 +12,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Properties;
-
+/**
+ * EmailService is a stateless EJB that provides methods for sending various types of emails,
+ * such as confirmation emails, password reset emails, project invitations, and join requisitions.
+ * <p>
+ * This service uses the Jakarta Mail API to compose and send emails via an SMTP server.
+ * </p>
+ */
 @Stateless
 public class EmailService {
 
@@ -20,7 +26,12 @@ public class EmailService {
 
     private final String USERNAME = "antnestservice@gmail.com";
     private final String PASSWORD = "xnowuqeoyylbxzjw";
-
+    /**
+     * Sends an account confirmation email to the specified email address.
+     *
+     * @param toEmail The recipient's email address.
+     * @param confirmationToken The confirmation token to be included in the email.
+     */
     public void sendConfirmationEmail(String toEmail, String confirmationToken) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -53,7 +64,12 @@ public class EmailService {
             throw new RuntimeException(e);
         }
     }
-
+    /**
+     * Sends a password reset email to the specified email address.
+     *
+     * @param toEmail The recipient's email address.
+     * @param resetToken The password reset token to be included in the email.
+     */
     public void sendPasswordResetEmail(String toEmail, String resetToken) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -86,7 +102,13 @@ public class EmailService {
             throw new RuntimeException(e);
         }
     }
-
+    /**
+     * Sends an invitation email to join a project to the specified email address.
+     *
+     * @param toEmail The recipient's email address.
+     * @param acceptanceToken The token used to accept the invitation.
+     * @param projectName The name of the project.
+     */
     public void sendInvitationToProjectEmail(String toEmail, String acceptanceToken, String projectName) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -121,7 +143,15 @@ public class EmailService {
             throw new RuntimeException("Failed to send invitation email", e);
         }
     }
-
+    /**
+     * Sends an email to project managers with a join requisition request.
+     *
+     * @param approverEmail The email address of the approver.
+     * @param approverUsername The username of the approver.
+     * @param username The username of the user requesting to join the project.
+     * @param projectName The name of the project.
+     * @param acceptanceToken The token used to accept the join request.
+     */
     public void sendJoinRequisitionToManagersEmail(String approverEmail, String approverUsername, String username, String projectName, String acceptanceToken) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");

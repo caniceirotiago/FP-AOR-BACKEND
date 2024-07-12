@@ -8,7 +8,14 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
 import java.util.List;
-
+/**
+ * KeywordDao class provides data access operations for {@link KeywordEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to keywords in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for keyword management.
+ * <br>
+ */
 @Stateless
 public class KeywordDao extends AbstractDao<KeywordEntity> {
     private static final long serialVersionUID = 1L;

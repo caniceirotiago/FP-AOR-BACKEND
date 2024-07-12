@@ -11,7 +11,14 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
 import java.util.List;
-
+/**
+ * ProjectMembershipDao class provides data access operations for {@link ProjectMembershipEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to project memberships in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for project membership management.
+ * <br>
+ */
 @Stateless
 public class ProjectMembershipDao extends AbstractDao<ProjectMembershipEntity> {
     private static final long serialVersionUID = 1L;

@@ -10,7 +10,14 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
 import java.util.List;
-
+/**
+ * InterestDao class provides data access operations for {@link InterestEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to interests in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for interest management.
+ * <br>
+ */
 @Stateless
 public class InterestDao extends AbstractDao<InterestEntity> {
     private static final long serialVersionUID = 1L;

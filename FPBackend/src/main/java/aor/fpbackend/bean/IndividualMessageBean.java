@@ -77,7 +77,7 @@ public class IndividualMessageBean {
 
     /**
      * Converts a list of IndividualMessageEntity objects to a list of IndividualMessageGetDto objects.
-     * <p>
+     * <br>
      * This method uses Java Streams to map each IndividualMessageEntity to an IndividualMessageGetDto
      * by invoking the `convertToDto` method on each entity.
      *
@@ -91,7 +91,7 @@ public class IndividualMessageBean {
 
     /**
      * Retrieves paginated individual messages filtered by type.
-     * <p>
+     * <br>
      * This method checks if the user exists, and based on the type of messages
      * ("sent" or "inbox"), retrieves the appropriate messages from the database.
      * It then converts the message entities to DTOs, calculates the total number

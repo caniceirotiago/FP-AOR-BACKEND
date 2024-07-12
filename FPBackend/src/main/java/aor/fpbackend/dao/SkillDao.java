@@ -9,7 +9,14 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
 import java.util.List;
-
+/**
+ * SkillDao class provides data access operations for {@link SkillEntity}.
+ * <br>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to skills in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for skill management.
+ * <br>
+ */
 @Stateless
 public class SkillDao extends AbstractDao<SkillEntity> {
     private static final long serialVersionUID = 1L;

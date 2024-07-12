@@ -8,7 +8,14 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
 import java.util.List;
-
+/**
+ * TaskDao class provides data access operations for {@link TaskEntity}.
+ * <br>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to tasks in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for task management.
+ * <br>
+ */
 @Stateless
 public class TaskDao extends AbstractDao<TaskEntity> {
     private static final long serialVersionUID = 1L;

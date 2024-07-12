@@ -24,33 +24,33 @@ import java.util.List;
 
 /**
  * KeywordBean is a stateless session bean responsible for managing keywords and their associations with projects.
- * <p>
+ * <br>
  * This bean handles the creation of keywords if they do not already exist,
  * as well as the addition and removal of keywords from projects.
  * It also provides methods for retrieving keywords.
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Key functionalities provided by this bean include:
  * <ul>
  *     <li>Adding keywords to projects.</li>
  *     <li>Removing keywords from projects.</li>
  *     <li>Retrieving keywords and converting them to DTOs (Data Transfer Objects).</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  * The class uses dependency injection to obtain instances of KeywordDao and ProjectDao,
  * promoting a clean architecture.
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Technologies Used:
  * <ul>
  *     <li><b>Jakarta EE</b>: For EJB and transaction management.</li>
  *     <li><b>Log4j</b>: For logging operations.</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Note: This bean is thread-safe as it is a stateless session bean.
- * </p>
+ * <br>
  */
 @Stateless
 public class KeywordBean implements Serializable {

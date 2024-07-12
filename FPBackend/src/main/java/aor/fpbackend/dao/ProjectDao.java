@@ -1,6 +1,5 @@
 package aor.fpbackend.dao;
 
-import aor.fpbackend.dto.Report.ReportProjectsLocationDto;
 import aor.fpbackend.entity.*;
 import aor.fpbackend.enums.ProjectStateEnum;
 import aor.fpbackend.enums.QueryParams;
@@ -16,7 +15,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
+/**
+ * ProjectDao class provides data access operations for {@link ProjectEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to projects in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for project management.
+ * <br>
+ */
 @Stateless
 public class ProjectDao extends AbstractDao<ProjectEntity> {
     private static final long serialVersionUID = 1L;
@@ -89,6 +95,7 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
     }
 
     public List<ProjectEntity> findFilteredProjects(int page, int pageSize, UriInfo uriInfo) {
+        System.out.println("findFilteredProjects");
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<ProjectEntity> query = cb.createQuery(ProjectEntity.class);
         Root<ProjectEntity> projectRoot = query.from(ProjectEntity.class);
@@ -100,13 +107,15 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
         // Adding logic for sorting
         String orderBy = uriInfo.getQueryParameters().getFirst(QueryParams.ORDER_BY);
         String sortBy = uriInfo.getQueryParameters().getFirst(QueryParams.SORT_BY);
+        System.out.println(uriInfo.getQueryParameters());
+
+        List<Order> orderList = new ArrayList<>();
 
         // Apply sorting if 'sortBy' parameter is provided
         if (sortBy != null && !sortBy.isEmpty()) {
-            Order order;
             switch (sortBy) {
                 case QueryParams.CREATION_DATE:
-                    order = QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(projectRoot.get(QueryParams.CREATION_DATE)) : cb.asc(projectRoot.get(QueryParams.CREATION_DATE));
+                    orderList.add(QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(projectRoot.get(QueryParams.CREATION_DATE)) : cb.asc(projectRoot.get(QueryParams.CREATION_DATE)));
                     break;
                 case QueryParams.OPEN_POSITIONS:
                     Subquery<Long> subquery = query.subquery(Long.class);
@@ -115,18 +124,24 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
                     Expression<Integer> maxMembersExpr = cb.literal(configDao.getMaxProjectMembers());
                     Expression<Long> currentMembersExpr = cb.coalesce(subquery.getSelection(), 0L);
                     Expression<Integer> openPositionsExpr = cb.diff(maxMembersExpr, currentMembersExpr.as(Integer.class));
-                    order = QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(openPositionsExpr) : cb.asc(openPositionsExpr);
+                    orderList.add(QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(openPositionsExpr) : cb.asc(openPositionsExpr));
                     break;
                 case QueryParams.STATE:
-                    order = QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(projectRoot.get(QueryParams.STATE)) : cb.asc(projectRoot.get(QueryParams.STATE));
+                    orderList.add(QueryParams.DESC.equalsIgnoreCase(orderBy) ? cb.desc(projectRoot.get(QueryParams.STATE)) : cb.asc(projectRoot.get(QueryParams.STATE)));
                     break;
                 default:
-                    // Default sorting
-                    order = cb.desc(projectRoot.get(QueryParams.CREATION_DATE));
+                    // Invalid 'sortBy' parameter, use default sorting
+                    orderList.add(cb.asc(projectRoot.get(QueryParams.STATE)));
                     break;
             }
-            query.orderBy(order);
+        } else {
+            // Default sorting if 'sortBy' parameter is not provided
+            orderList.add(cb.desc(projectRoot.get(QueryParams.STATE)));
+            orderList.add(cb.desc(projectRoot.get(QueryParams.CREATION_DATE)));
         }
+
+
+        query.orderBy(orderList);
 
         TypedQuery<ProjectEntity> typedQuery = em.createQuery(query)
                 .setFirstResult((page - 1) * pageSize)
@@ -134,6 +149,7 @@ public class ProjectDao extends AbstractDao<ProjectEntity> {
 
         return typedQuery.getResultList();
     }
+
 
     public long countFilteredProjects(UriInfo uriInfo) {
         CriteriaBuilder cb = em.getCriteriaBuilder();

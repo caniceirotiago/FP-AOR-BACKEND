@@ -417,10 +417,10 @@ public class MembershipBean implements Serializable {
 
     /**
      * Retrieves a list of project memberships for users associated with a specific project.
-     * <p>
+     * <br>
      * This method fetches the list of project memberships from the database using the provided project ID.
      * It logs the operation for auditing purposes and handles any exceptions that may occur during the process.
-     * </p>
+     * <br>
      *
      * @param projectId the ID of the project for which to retrieve user memberships.
      * @return a list of ProjectMembershipDto objects representing the users associated with the specified project.

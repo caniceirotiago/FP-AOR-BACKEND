@@ -17,18 +17,18 @@ import java.io.Serializable;
 
 /**
  * RoleBean is a stateless session bean responsible for managing roles and their associated permissions within the system.
- * <p>
+ * <br>
  * This bean handles the creation of roles and the assignment of permissions (methods) to these roles. It interacts with
  * the RoleDao and MethodDao to persist and retrieve role and method entities.
- * </p>
- * <p>
+ * <br>
+ * <br>
  * Key functionalities provided by this bean include:
  * <ul>
  *     <li>Creating roles if they do not already exist.</li>
  *     <li>Assigning permissions to roles, ensuring that the role-method associations are maintained.</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
+ * <br>
  *
  * @see UserRoleEnum
  * @see MethodEnum

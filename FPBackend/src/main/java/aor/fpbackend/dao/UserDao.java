@@ -7,7 +7,14 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * UserDao class provides data access operations for {@link UserEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to users in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for user management.
+ * <br>
+ */
 @Stateless
 public class UserDao extends AbstractDao<UserEntity> {
     private static final long serialVersionUID = 1L;

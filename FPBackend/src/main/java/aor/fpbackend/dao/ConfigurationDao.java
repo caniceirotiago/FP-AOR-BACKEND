@@ -11,7 +11,14 @@ import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 
-
+/**
+ * ConfigurationDao class provides data access operations for {@link ConfigurationEntity}.
+ * <br>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to configuration settings in the database. It extends the {@link AbstractDao}
+ * class to inherit generic data access operations and adds specific methods for configuration management.
+ * <br>
+ */
 @Stateless
 public class ConfigurationDao extends AbstractDao<ConfigurationEntity> {
     private static final long serialVersionUID = 1L;

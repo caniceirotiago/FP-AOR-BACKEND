@@ -14,7 +14,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
+/**
+ * SessionDao class provides data access operations for {@link SessionEntity}.
+ * <br>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to sessions in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for session management.
+ * <br>
+ */
 @Stateless
 public class SessionDao extends AbstractDao<SessionEntity> {
     private static final long serialVersionUID = 1L;

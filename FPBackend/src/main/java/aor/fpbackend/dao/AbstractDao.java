@@ -9,7 +9,17 @@ import jakarta.persistence.criteria.CriteriaQuery;
 
 import java.io.Serializable;
 import java.util.List;
-
+/**
+ * AbstractDao class provides a generic implementation of common database operations.
+ * <p>
+ * This abstract class defines standard CRUD operations (Create, Read, Update, Delete)
+ * that can be extended by specific DAO implementations for different entity types.
+ * The class is annotated with {@link TransactionAttribute} to specify the transaction
+ * management behavior, ensuring that each method runs within a required transaction context.
+ * <br>
+ *
+ * @param <T> the type of the entity for which this DAO is responsible.
+ */
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public abstract class AbstractDao<T extends Serializable> implements Serializable {
 

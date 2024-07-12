@@ -7,7 +7,14 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 
 import java.util.List;
-
+/**
+ * ProjectAssetDao class provides data access operations for {@link ProjectAssetEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to project assets in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for project asset management.
+ * <br>
+ */
 @Stateless
 public class ProjectAssetDao extends AbstractDao<ProjectAssetEntity> {
     private static final long serialVersionUID = 1L;

@@ -5,7 +5,14 @@ import com.google.gson.*;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
+/**
+ * LocalDateAdapter is a custom serializer and deserializer for {@link LocalDate} objects
+ * to and from JSON using the Gson library.
+ * <p>
+ * This adapter ensures that {@link LocalDate} objects are serialized to and deserialized
+ * from the ISO-8601 date format.
+ * </p>
+ */
 public class LocalDateAdapter implements JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 

@@ -8,7 +8,14 @@ import jakarta.persistence.PersistenceContext;
 import org.hibernate.Hibernate;
 
 import java.util.List;
-
+/**
+ * NotificationDao class provides data access operations for {@link NotificationEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to notifications in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for notification management.
+ * <br>
+ */
 @Stateless
 public class NotificationDao extends AbstractDao<NotificationEntity>{
     private static final long serialVersionUID = 1L;

@@ -13,7 +13,14 @@ import jakarta.persistence.TypedQuery;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * GroupMessageDao class provides data access operations for {@link GroupMessageEntity}.
+ * <p>
+ * This class implements methods to perform CRUD operations and custom queries
+ * related to group messages in the database. It extends the {@link AbstractDao} class to inherit
+ * generic data access operations and adds specific methods for group message management.
+ * <br>
+ */
 @Stateless
 public class GroupMessageDao extends AbstractDao<GroupMessageEntity> {
 
