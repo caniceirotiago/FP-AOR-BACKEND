@@ -33,7 +33,6 @@ import org.apache.logging.log4j.ThreadContext;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.UnknownHostException;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.Date;
