@@ -14,6 +14,8 @@ import jakarta.ejb.Stateless;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,7 +35,7 @@ public class ReportBean implements Serializable {
     /**
      * Generates a PDF report for projects and saves it to a specified directory.
      *
-     * <br>This method retrieves the project report summary, ensures the existence of the
+     * <p>This method retrieves the project report summary, ensures the existence of the
      * directory where the PDF will be saved (using an environment variable or a default
      * relative directory if the environment variable is not set), constructs the file path
      * for the PDF, and generates the PDF report using the retrieved summary.
@@ -61,7 +63,7 @@ public class ReportBean implements Serializable {
     /**
      * Consolidates data retrieval for the project report summary.
      *
-     * <br>This method gathers various project-related metrics, including the average number of members per project,
+     * <p>This method gathers various project-related metrics, including the average number of members per project,
      * average project duration, project counts by location, and counts of approved, completed, and canceled projects
      * by location. The collected data is assembled into a {@link ReportProjectSummaryDto} object, which is then returned.
      *
@@ -81,7 +83,7 @@ public class ReportBean implements Serializable {
     /**
      * Retrieves the average number of members per project.
      *
-     * <br>This method queries the database for the average number of members per project. If no average number is found,
+     * <p>This method queries the database for the average number of members per project. If no average number is found,
      * it defaults to 0.0. The result is returned as a {@link ReportAverageResultDto} object.
      *
      * @return A {@link ReportAverageResultDto} object containing the average number of members per project.
@@ -128,7 +130,7 @@ public class ReportBean implements Serializable {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
             Number percentage = (Number) result[2];
-            projectCountDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue()));
+            projectCountDtos.add(new ReportProjectsLocationDto(location, count, roundToTwoDecimalPlaces(percentage.doubleValue())));
         }
         return projectCountDtos;
     }
@@ -150,7 +152,7 @@ public class ReportBean implements Serializable {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
             Number percentage = (Number) result[2];
-            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue()));
+            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, roundToTwoDecimalPlaces(percentage.doubleValue())));
         }
         return projectsByLocationDtos;
     }
@@ -172,11 +174,15 @@ public class ReportBean implements Serializable {
             LocationEnum location = (LocationEnum) result[0];
             Long count = (Long) result[1];
             Number percentage = (Number) result[2];
-            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, percentage.doubleValue()));
+            projectsByLocationDtos.add(new ReportProjectsLocationDto(location, count, roundToTwoDecimalPlaces(percentage.doubleValue())));
         }
         return projectsByLocationDtos;
     }
 
+    // Utility method to round to two decimal places using BigDecimal
+    private double roundToTwoDecimalPlaces(double value) {
+        return new BigDecimal(Double.toString(value)).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
 
     /**
      * Generates a PDF report for assets and saves it to a specified directory.
@@ -228,5 +234,4 @@ public class ReportBean implements Serializable {
         assetReportSummary.setTopAssetsByUsedQuantity(topAssetsByUsedQuantity);
         return assetReportSummary;
     }
-
 }
