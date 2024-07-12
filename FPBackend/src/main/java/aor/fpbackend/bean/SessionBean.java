@@ -114,8 +114,11 @@ public class SessionBean implements Serializable {
         }
         // Get session timeout from configuration entity
         Integer definedTimeOut = configurationBean.getConfigValueByKey("sessionTimeout");
-        if(definedTimeOut == null) {
+        if (definedTimeOut == null) {
             throw new IllegalStateException("Session timeout not defined");
+        }
+        if (!userEntity.isConfirmed()) {
+            throw new InvalidCredentialsException("User not confirmed");
         }
         try{
             // Generate tokens and calculate expiration time
