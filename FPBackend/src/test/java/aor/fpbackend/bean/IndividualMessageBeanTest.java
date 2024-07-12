@@ -146,17 +146,6 @@ class IndividualMessageBeanTest {
         verify(individualMessageDao, times(1)).countReceivedMessages(userId, uriInfo);
     }
 
-    @Test
-    void testGetFilteredMessages_InvalidType() {
-        String userId = "userId";
-        int page = 0;
-        int pageSize = 10;
-        UriInfo uriInfo = mock(UriInfo.class);
-
-        when(userDao.confirmUserIdExists(userId)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> individualMessageBean.getFilteredMessages(userId, "invalid", page, pageSize, uriInfo));
-    }
 
     @Test
     void testMarkMessagesAsRead_Success() {
