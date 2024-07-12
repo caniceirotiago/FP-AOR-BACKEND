@@ -11,12 +11,12 @@ import java.io.Serializable;
 @NamedQuery(
         name = "ProjectMembership.findUsersByFirstLetterAndProjId",
         query = "SELECT u FROM ProjectMembershipEntity p JOIN p.user u WHERE p.project.id = :projectId AND u.username LIKE :firstLetter || '%' AND u.isConfirmed = true")
-@NamedQuery(name = "ProjectMembership.findProjectIdsByUserId", query = "SELECT p.project.id FROM ProjectMembershipEntity p WHERE p.user.id = :userId")
+@NamedQuery(name = "ProjectMembership.findProjectIdsByUserId", query = "SELECT p.project.id FROM ProjectMembershipEntity p WHERE p.user.id = :userId AND p.isAccepted = true")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipsByProject", query = "SELECT new aor.fpbackend.dto.Project.ProjectMembershipDto(" +
         "p.id, u.id, pr.id, p.role, p.isAccepted, new aor.fpbackend.dto.User.UserBasicInfoDto(u.id, u.username, u.photo, u.role.id)) " +
         "FROM ProjectMembershipEntity p JOIN p.user u JOIN p.project pr WHERE pr.id = :projectId")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipByAcceptanceToken", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.acceptanceToken = :acceptanceToken")
-@NamedQuery(name = "ProjectMembership.findProjectMembershipByProjectIdAndUserId", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.user.id = :userId")
+@NamedQuery(name = "ProjectMembership.findProjectMembershipByProjectIdAndUserId", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.user.id = :userId AND p.isAccepted = true")
 @NamedQuery(name = "ProjectMembership.isUserProjectMember", query = "SELECT p FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.user.id = :userId AND p.isAccepted = true")
 @NamedQuery(name = "ProjectMembership.findProjectManagers", query = "SELECT p.user FROM ProjectMembershipEntity p WHERE p.project.id = :projectId AND p.role = aor.fpbackend.enums.ProjectRoleEnum.PROJECT_MANAGER")
 @NamedQuery(name = "ProjectMembership.findProjectMembershipByProjectIdAndUserIdAndRole",
