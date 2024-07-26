@@ -1,4 +1,4 @@
-<img width="659" alt="Captura de ecrã 2024-07-26, às 08 58 51" src="https://github.com/user-attachments/assets/27a34fbf-7b23-4b93-90c7-9062c0cfe4e6"># FP-AOR-BACKEND
+# FP-AOR-BACKEND
 
 FPBackend is a robust backend application developed in Java, designed to provide an efficient API for managing data and processes within an enterprise application. This project utilizes a combination of modern technologies and frameworks, including Jakarta EE for backend API, Hibernate ORM for data persistence, and JWT for authentication and authorization.
 
@@ -105,4 +105,4 @@ Run the unit tests to verify that the application functions as expected. Ensure 
 
 ## Entity-Relationship Diagram
 
-![ER Diagram](path/to/your/er-diagram.png)
+<img width="659" alt="Captura de ecrã 2024-07-26, às 08 58 51" src="https://github.com/user-attachments/assets/27a34fbf-7b23-4b93-90c7-9062c0cfe4e6">
