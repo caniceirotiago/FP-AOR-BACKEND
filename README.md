@@ -98,7 +98,6 @@ To use the FPBackend application, follow these instructions:
 Start the Server
 Ensure that the JBoss WildFly server is running and that the application has been successfully deployed. This server must be up and running to host your application.
 Access the API
-You can access the application's API at the specified URL. For HTTPS, it is typically accessible at https://localhost:8443/FPBackend/api. Use a REST client or browser to interact with the API endpoints.
 
 ## Testing
 Run the unit tests to verify that the application functions as expected. Ensure that all tests pass to confirm the correctness of your application.
