@@ -107,7 +107,7 @@ Run the unit tests to verify that the application functions as expected. Ensure 
 
 <img width="659" alt="Captura de ecrã 2024-07-26, às 08 58 51" src="https://github.com/user-attachments/assets/27a34fbf-7b23-4b93-90c7-9062c0cfe4e6">
 
-## Arquitechture 
+## Architecture
 <img width="541" alt="Captura de ecrã 2024-07-26, às 09 02 23" src="https://github.com/user-attachments/assets/f98fe0d1-c120-4898-accc-38f552ba708e">
 
 
