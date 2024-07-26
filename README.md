@@ -7,14 +7,7 @@ The "Innovation Lab Management" project aims to develop a comprehensive backend 
 
 The backend of this project is designed to support a robust web application for the innovation lab. It handles core functionalities such as user management, authentication, data processing, and integration with external systems. The backend system is built using modern technologies and frameworks to ensure scalability, security, and performance.
 
-This documentation provides a detailed overview of the backend development process, including the technologies used, the architectural design, and the implementation strategies. It also covers the challenges faced during development and the solutions implemented to address them.
-
-Key aspects documented in this report include:
-
 Technologies and Architecture: A description of the technologies employed (e.g., Java, WildFly, Hibernate) and the architectural decisions made to structure the backend system.
-Implementation Details: Insights into the development process, including code structure, data models, and integration points.
-Challenges and Solutions: An analysis of the difficulties encountered and the approaches taken to resolve them.
-This comprehensive documentation aims to provide a clear understanding of the backend system's design and functionality, ensuring that all critical components are well-defined and effectively integrated into the overall project.
 
 ## Requirements
 
