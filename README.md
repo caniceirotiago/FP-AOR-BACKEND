@@ -1,4 +1,4 @@
-# FP-AOR-BACKEND
+<img width="659" alt="Captura de ecrã 2024-07-26, às 08 58 51" src="https://github.com/user-attachments/assets/27a34fbf-7b23-4b93-90c7-9062c0cfe4e6"># FP-AOR-BACKEND
 
 FPBackend is a robust backend application developed in Java, designed to provide an efficient API for managing data and processes within an enterprise application. This project utilizes a combination of modern technologies and frameworks, including Jakarta EE for backend API, Hibernate ORM for data persistence, and JWT for authentication and authorization.
 
@@ -16,9 +16,52 @@ Deployment
 Contributing
 License
 
+## Description
+The "Innovation Lab Management" project aims to develop a comprehensive backend solution for managing various aspects of an innovation lab. This project was executed as part of the 11th edition of the "Acertar o Rumo" program at the University of Coimbra, with Critical Software sponsoring and guiding the development.
 
+The backend of this project is designed to support a robust web application for the innovation lab. It handles core functionalities such as user management, authentication, data processing, and integration with external systems. The backend system is built using modern technologies and frameworks to ensure scalability, security, and performance.
 
-Installation
+This documentation provides a detailed overview of the backend development process, including the technologies used, the architectural design, and the implementation strategies. It also covers the challenges faced during development and the solutions implemented to address them.
+
+Key aspects documented in this report include:
+
+Technologies and Architecture: A description of the technologies employed (e.g., Java, WildFly, Hibernate) and the architectural decisions made to structure the backend system.
+Implementation Details: Insights into the development process, including code structure, data models, and integration points.
+Challenges and Solutions: An analysis of the difficulties encountered and the approaches taken to resolve them.
+This comprehensive documentation aims to provide a clear understanding of the backend system's design and functionality, ensuring that all critical components are well-defined and effectively integrated into the overall project.
+
+## Requirements
+
+Software Requirements
+Java Development Kit (JDK):
+Version: 11 or later
+Description: The backend is built using Java. Ensure that JDK 11 or a later version is installed to compile and run the application.
+Apache Maven:
+Version: 3.6.0 or later
+Description: Maven is used for project management and build automation. Ensure that Maven is installed to manage dependencies and build the project.
+WildFly Application Server:
+Version: 26 or later
+Description: WildFly is used as the Java EE application server. Ensure that WildFly is configured for HTTPS and ready for deployment.
+MySQL Database:
+Version: 8.0 or later
+Description: MySQL is used as the database management system. Ensure that MySQL is installed and properly configured.
+Database Connector:
+Dependency: mysql-connector-j
+Version: 8.3.0
+Description: Required for connecting the backend to the MySQL database.
+Build Tools:
+Tools: Git, IDE (e.g., IntelliJ IDEA, Eclipse)
+Description: Git is needed for version control, and an IDE is recommended for development.
+Hardware Requirements
+Configuration Requirements
+HTTPS Configuration:
+Description: WildFly must be configured to support HTTPS. This involves creating and installing SSL/TLS certificates.
+Database Configuration:
+Description: The MySQL database must be set up with the appropriate schema and user permissions. Ensure that the database name, username, and password are correctly configured in the application properties.
+Environment Variables:
+Description: Set environment variables for sensitive information such as database credentials and API keys.
+
+## Installation
 
 To set up the FPBackend project, follow these steps:
 
@@ -48,7 +91,7 @@ Ensure that the JBoss Maven plugin settings are correctly configured in the pom.
 To secure your WildFly server with HTTPS, you need an SSL certificate. For development purposes, you can create a self-signed certificate.
 
 
-Usage
+## Usage
 
 To use the FPBackend application, follow these instructions:
 
@@ -57,5 +100,9 @@ Ensure that the JBoss WildFly server is running and that the application has bee
 Access the API
 You can access the application's API at the specified URL. For HTTPS, it is typically accessible at https://localhost:8443/FPBackend/api. Use a REST client or browser to interact with the API endpoints.
 
-Testing
+## Testing
 Run the unit tests to verify that the application functions as expected. Ensure that all tests pass to confirm the correctness of your application.
+
+## Entity-Relationship Diagram
+
+![ER Diagram](path/to/your/er-diagram.png)
