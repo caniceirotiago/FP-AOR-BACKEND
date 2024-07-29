@@ -40,4 +40,6 @@ To secure your WildFly server with HTTPS, you need an SSL certificate. For devel
 ## Architecture
 <img width="541" alt="Captura de ecrã 2024-07-26, às 09 02 23" src="https://github.com/user-attachments/assets/f98fe0d1-c120-4898-accc-38f552ba708e">
 
-
+## Authors
+- Tiago Caniceiro
+- Vasco Castro 
