@@ -2,7 +2,7 @@
 
 FPBackend is a robust backend application developed in Java, designed to provide an efficient API for managing data and processes within an enterprise application. This project utilizes a combination of modern technologies and frameworks, including Jakarta EE for backend API, Hibernate for data persistence, and JWT for authentication and authorization.
 
-This repository contains the backend source code for the "Innovation Lab Management" application, developed as part of the 11th edition of the "Acertar o Rumo" program at the University of Coimbra, promoted by Critical Software. This project received the highest grade.
+This repository contains the backend source code for the "Innovation Lab Management" application, developed as part of the 11th edition of the "Acertar o Rumo" program at the University of Coimbra, promoted by Critical Software. This project received 20/20 grade.
 
 The backend is designed to support the frontend functionalities by providing robust APIs and managing the data storage and business logic of the application.
 
