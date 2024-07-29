@@ -2,6 +2,8 @@
 
 FPBackend is a robust backend application developed in Java, designed to provide an efficient API for managing data and processes within an enterprise application. This project utilizes a combination of modern technologies and frameworks, including Jakarta EE for backend API, Hibernate ORM for data persistence, and JWT for authentication and authorization.
 
+see: https://github.com/caniceirotiago/FP-AOR-FRONTEND
+
 ## Description
 The "Innovation Lab Management" project aims to develop a comprehensive backend solution for managing various aspects of an innovation lab. This project was executed as part of the 11th edition of the "Acertar o Rumo" program at the University of Coimbra, with Critical Software sponsoring and guiding the development.
 
